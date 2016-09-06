@@ -10,7 +10,6 @@
 Library is aimed to run on AVR devices, but it runs on PC too.
 
 ## Features
-- Parsing frames using unions - that makes processing really fast
 - Minimal resources usage
 - Lightweight and easy to use
 - Supports all basic Modbus functions

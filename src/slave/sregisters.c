@@ -111,8 +111,8 @@ uint8_t modbusParseRequest06( ModbusSlaveStatus *status, union ModbusParser *par
 	//Check if reg is allowed to be written
 	if ( modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request06.reg ) == 1 )
 	{
-		//Illegal data address exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x06, 0x02 );
+		//Slave failure exception
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x06, 0x04 );
 		status->finished = 1;
 		return 0;
 	}
@@ -218,8 +218,8 @@ uint8_t modbusParseRequest16( ModbusSlaveStatus *status, union ModbusParser *par
 
 	if ( MaskSum > 0 )
 	{
-		//Illegal data address exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, 0x02 );
+		//Slave failure exception
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, 0x04 );
 		status->finished = 1;
 		return 0;
 	}

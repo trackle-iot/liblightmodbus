@@ -1,5 +1,5 @@
 # A lightweight, multiplatform Modbus library
-[![The MIT License](https://img.shields.io/badge/license-MIT-orange.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+[![The GPL license](https://img.shields.io/badge/license-GPL-yellow.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
 [![Travis CI](https://img.shields.io/travis/Jacajack/liblightmodbus.svg?style=flat-square)](https://travis-ci.org/Jacajack/liblightmodbus)
 [![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
 

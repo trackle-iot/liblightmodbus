@@ -154,7 +154,11 @@ uint8_t modbusParseResponse01( ModbusMasterStatus *status, union ModbusParser *p
 		status->data[i].dataType = coil;
 		status->data[i].reg = modbusSwapEndian( requestParser->request01.firstCoil ) + i;
 		status->data[i].value = modbusMaskRead( parser->response01.values, parser->response01.byteCount, i );
-
+		if ( status->data[i].value == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
 	}
 
 	//Set up data length - response successfully parsed

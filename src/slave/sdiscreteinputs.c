@@ -10,6 +10,7 @@ uint8_t modbusParseRequest02( ModbusSlaveStatus *status, union ModbusParser *par
 
 	//Update frame length
 	uint8_t frameLength = 8;
+	uint8_t input = 0;
 	uint8_t i = 0;
 
 	//Check frame crc
@@ -69,7 +70,18 @@ uint8_t modbusParseRequest02( ModbusSlaveStatus *status, union ModbusParser *par
 
 	//Copy registers to response frame
 	for ( i = 0; i < parser->request02.inputCount; i++ )
-		modbusMaskWrite( builder->response02.values, 32, i, modbusMaskRead( status->discreteInputs, 1 + ( ( status->discreteInputCount - 1 ) >> 3 ), i + parser->request02.firstInput ) );
+	{
+		if ( ( input = modbusMaskRead( status->discreteInputs, 1 + ( ( status->discreteInputCount - 1 ) >> 3 ), i + parser->request02.firstInput ) ) == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
+		if ( modbusMaskWrite( builder->response02.values, 32, i, input ) == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
+	}
 
 	//Calculate crc
 	builder->frame[frameLength - 2] = modbusCRC( builder->frame, frameLength - 2 ) & 0x00FF;

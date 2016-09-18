@@ -75,6 +75,11 @@ uint8_t modbusParseResponse02( ModbusMasterStatus *status, union ModbusParser *p
 		status->data[i].dataType = discreteInput;
 		status->data[i].reg = modbusSwapEndian( requestParser->request02.firstInput ) + i;
 		status->data[i].value = modbusMaskRead( parser->response02.values, parser->response02.byteCount, i );
+		if ( status->data[i].value == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
 	}
 
 	//Set up data length - response successfully parsed

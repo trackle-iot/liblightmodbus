@@ -10,6 +10,7 @@ uint8_t modbusParseRequest01( ModbusSlaveStatus *status, union ModbusParser *par
 
 	//Update frame length
 	uint8_t frameLength = 8;
+	uint8_t coil = 0;
 	uint8_t i = 0;
 
 	//Check frame crc
@@ -69,7 +70,18 @@ uint8_t modbusParseRequest01( ModbusSlaveStatus *status, union ModbusParser *par
 
 	//Copy registers to response frame
 	for ( i = 0; i < parser->request01.coilCount; i++ )
-		modbusMaskWrite( builder->response01.values, 32, i, modbusMaskRead( status->coils, 1 + ( ( status->coilCount - 1 ) >> 3 ), i + parser->request01.firstCoil ) );
+	{
+		if ( ( coil = modbusMaskRead( status->coils, 1 + ( ( status->coilCount - 1 ) >> 3 ), i + parser->request01.firstCoil ) ) == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
+		if ( modbusMaskWrite( builder->response01.values, 32, i, coil ) == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
+	}
 
 	//Calculate crc
 	builder->frame[frameLength - 2] = modbusCRC( builder->frame, frameLength - 2 ) & 0x00FF;
@@ -133,7 +145,11 @@ uint8_t modbusParseRequest05( ModbusSlaveStatus *status, union ModbusParser *par
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write coils
-	modbusMaskWrite( status->coils, 1 + ( ( status->coilCount - 1 ) << 3 ), parser->request05.coil, parser->request05.value == 0xFF00 );
+	if ( modbusMaskWrite( status->coils, 1 + ( ( status->coilCount - 1 ) << 3 ), parser->request05.coil, parser->request05.value == 0xFF00 ) == 255 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	//Do not respond when frame is broadcasted
 	if ( parser->base.address == 0 )
@@ -166,6 +182,7 @@ uint8_t modbusParseRequest15( ModbusSlaveStatus *status, union ModbusParser *par
 	//Update frame length
 	uint8_t i = 0;
 	uint8_t frameLength = 9 + parser->request15.byteCount;
+	uint8_t coil = 0;
 
 	//Check frame crc
 	//Shifting is used instead of dividing for optimisation on smaller devices (AVR)
@@ -235,7 +252,18 @@ uint8_t modbusParseRequest15( ModbusSlaveStatus *status, union ModbusParser *par
 
 	//After all possible exceptions write values to registers
 	for ( i = 0; i < parser->request15.coilCount; i++ )
-		modbusMaskWrite( status->coils, status->coilCount, parser->request15.firstCoil + i, modbusMaskRead( parser->request15.values, parser->request15.byteCount, i ) );
+	{
+		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.byteCount, i ) ) == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
+		if ( modbusMaskWrite( status->coils, status->coilCount, parser->request15.firstCoil + i, coil ) == 255 )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_OTHER;
+		}
+	}
 
 	//Do not respond when frame is broadcasted
 	if ( parser->base.address == 0 )

@@ -37,6 +37,7 @@ uint8_t modbusParseRequest02( ModbusSlaveStatus *status, union ModbusParser *par
 		return modbusBuildException( status, 0x02, 0x03 );
 	}
 
+	//TODO: Remove code below! (it's seems to be useless)
 	if ( parser->request02.inputCount > status->discreteInputCount )
 	{
 		//Illegal data address error

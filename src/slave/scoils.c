@@ -37,6 +37,7 @@ uint8_t modbusParseRequest01( ModbusSlaveStatus *status, union ModbusParser *par
 		return modbusBuildException( status, 0x01, 0x03 );
 	}
 
+	//TODO: Remove code below! (it's seems to be useless)
 	if ( parser->request01.coilCount > status->coilCount )
 	{
 		//Illegal data address error
@@ -202,6 +203,7 @@ uint8_t modbusParseRequest15( ModbusSlaveStatus *status, union ModbusParser *par
 		return 0;
 	}
 
+	//TODO: Remove code below! (it's seems to be useless)
 	//Check if registers are in valid range
 	if ( parser->request15.coilCount > status->coilCount )
 	{

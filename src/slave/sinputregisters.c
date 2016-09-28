@@ -57,13 +57,6 @@ uint8_t modbusParseRequest04( ModbusSlaveStatus *status, union ModbusParser *par
 		return modbusBuildException( status, 0x04, 0x03 );
 	}
 
-	//TODO: Remove code below! (it's seems to be useless)
-	if ( parser->request04.registerCount > status->inputRegisterCount )
-	{
-		//Illegal data address error
-		return modbusBuildException( status, 0x04, 0x02 );
-	}
-
 	if ( parser->request04.firstRegister >= status->inputRegisterCount || (uint32_t) parser->request04.firstRegister + (uint32_t) parser->request04.registerCount > (uint32_t) status->inputRegisterCount )
 	{
 		//Illegal data address exception

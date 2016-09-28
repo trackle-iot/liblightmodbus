@@ -57,13 +57,6 @@ uint8_t modbusParseRequest03( ModbusSlaveStatus *status, union ModbusParser *par
 		return modbusBuildException( status, 0x03, 0x03 );
 	}
 
-	//TODO: Remove code below! (it's seems to be useless)
-	if ( parser->request03.registerCount > status->registerCount )
-	{
-		//Illegal data address error
-		return modbusBuildException( status, 0x03, 0x02 );
-	}
-
 	if ( parser->request03.firstRegister >= status->registerCount || (uint32_t) parser->request03.firstRegister + (uint32_t) parser->request03.registerCount > (uint32_t) status->registerCount )
 	{
 		//Illegal data address exception
@@ -212,16 +205,6 @@ uint8_t modbusParseRequest16( ModbusSlaveStatus *status, union ModbusParser *par
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, 0x03 );
-		status->finished = 1;
-		return 0;
-	}
-
-	//TODO: Remove code below! (it's seems to be useless)
-	//Check if registers are in valid range
-	if ( parser->request16.registerCount > status->registerCount )
-	{
-		//Illegal data address error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, 0x02 );
 		status->finished = 1;
 		return 0;
 	}

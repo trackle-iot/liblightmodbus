@@ -111,7 +111,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	//If there is memory allocated for response frame - free it
 	free( status->response.frame );
 	status->response.frame = NULL;
-	
+
 	switch ( parser->base.function )
 	{
 		case 1: //Read multiple coils
@@ -180,7 +180,32 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	status->response.length = 0;
 	status->response.frame = NULL;
 
-	return ( ( status->response.frame == NULL ) * MODBUS_ERROR_ALLOC ) | ( ( status->address == 0 ) * MODBUS_ERROR_OTHER );
+	//Some safety checks
+	if ( status->registerCount == 0 || status->registers == NULL )
+	{
+		status->registerCount = 0;
+		status->registers = NULL;
+	}
+
+	if ( status->coilCount == 0 || status->coils == NULL )
+	{
+		status->coilCount = 0;
+		status->coils = NULL;
+	}
+
+	if ( status->discreteInputCount == 0 || status->discreteInputs == NULL )
+	{
+		status->discreteInputCount = 0;
+		status->discreteInputs = NULL;
+	}
+
+	if ( status->inputRegisterCount == 0 || status->inputRegisters == NULL )
+	{
+		status->inputRegisterCount = 0;
+		status->inputRegisters = NULL;
+	}
+
+	return ( ( status->address == 0 ) * MODBUS_ERROR_OTHER );
 }
 
 void modbusSlaveEnd( ModbusSlave *status )

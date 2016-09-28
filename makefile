@@ -30,8 +30,23 @@ LDFLAGS =
 MASTERFLAGS =
 SLAVEFLAGS =
 
-all: master-registers master-coils master-discrete-inputs master-input-registers master-base master-link
-all: slave-registers slave-coils slave-discrete-inputs slave-input-registers slave-base slave-link
+MODULES =
+MMODULES = master-registers master-coils master-discrete-inputs master-input-registers
+SMODULES = slave-registers slave-coils slave-discrete-inputs slave-input-registers
+
+ifndef MMODULES
+$(warning "MMODULES not specified!")
+else
+MODULES += $(MMODULES) master-base master-link
+endif
+
+ifndef SMODULES
+$(warning "SMODULES not specified!")
+else
+MODULES += $(SMODULES) slave-base slave-link
+endif
+
+all: $(MODULES)
 all: clean FORCE core
 	$(call linkHeader,full object file)
 	echo "LINKING Library full object file (obj/lightmodbus.o)" >> build.log

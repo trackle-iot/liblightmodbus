@@ -32,6 +32,8 @@ MASTERFLAGS =
 SLAVEFLAGS =
 
 MODULES =
+MMODULES = master-registers master-coils master-discrete-inputs master-input-registers
+SMODULES = slave-registers slave-coils slave-discrete-inputs slave-input-registers
 
 ifndef MCU
 $(error "MCU not specified!")

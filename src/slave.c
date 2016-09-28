@@ -109,7 +109,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	}
 
 	//If there is memory allocated for response frame - free it
-	if ( status->response.frame != NULL ) free( status->response.frame );
+	free( status->response.frame );
 
 	switch ( parser->base.function )
 	{

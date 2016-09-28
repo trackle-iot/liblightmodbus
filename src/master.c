@@ -27,7 +27,7 @@
 #include "lightmodbus/master/mdiscreteinputs.h"
 #include "lightmodbus/master/minputregisters.h"
 
-uint8_t modbusParseException( ModbusMasterStatus *status, union ModbusParser *parser )
+uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 {
 	//Parse exception frame and write data to MODBUSMaster structure
 
@@ -48,7 +48,7 @@ uint8_t modbusParseException( ModbusMasterStatus *status, union ModbusParser *pa
 	return MODBUS_ERROR_EXCEPTION;
 }
 
-uint8_t modbusParseResponse( ModbusMasterStatus *status )
+uint8_t modbusParseResponse( ModbusMaster *status )
 {
 	//This function parses response from master
 	//Calling it will lead to losing all data and exceptions stored in MODBUSMaster (space will be reallocated)
@@ -161,7 +161,7 @@ uint8_t modbusParseResponse( ModbusMasterStatus *status )
 	return err;
 }
 
-uint8_t modbusMasterInit( ModbusMasterStatus *status )
+uint8_t modbusMasterInit( ModbusMaster *status )
 {
 	//Very basic init of master side
 	if ( ( status->request.frame = (uint8_t *) malloc( 8 ) ) == NULL )
@@ -187,7 +187,7 @@ uint8_t modbusMasterInit( ModbusMasterStatus *status )
 	return MODBUS_ERROR_OK;
 }
 
-void modbusMasterEnd( ModbusMasterStatus *status )
+void modbusMasterEnd( ModbusMaster *status )
 {
 	//Free memory
 	free( status->request.frame );

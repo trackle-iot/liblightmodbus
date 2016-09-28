@@ -25,9 +25,9 @@
 #include "mtypes.h"
 
 //Functions for building requests
-extern uint8_t modbusBuildRequest02( ModbusMasterStatus *status, uint8_t address, uint16_t firstInput, uint16_t inputCount );
+extern uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t firstInput, uint16_t inputCount );
 
 //Functions for parsing responses
-extern uint8_t modbusParseResponse02( ModbusMasterStatus *status, union ModbusParser *, union ModbusParser * );
+extern uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *, union ModbusParser * );
 
 #endif

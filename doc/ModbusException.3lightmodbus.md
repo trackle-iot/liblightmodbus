@@ -27,7 +27,7 @@ The **ModbusException** contains information about exception frame returned by M
 **ModbusException** is declared in **lightmodbus/master/mtypes.h**, although including **lightmodbus/master.h** is enough.
 
 ## SEE ALSO
-ModbusMasterStatus(3lightmodbus)
+ModbusMaster(3lightmodbus)
 
 ## AUTHORS
 Jacek Wieczorek (Jacajack) - mrjjot@gmail.com

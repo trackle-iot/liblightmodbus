@@ -23,7 +23,7 @@
 #include "lightmodbus/slave/stypes.h"
 #include "lightmodbus/slave/sregisters.h"
 
-uint8_t modbusParseRequest04( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Read multiple input registers
 	//Using data from union pointer

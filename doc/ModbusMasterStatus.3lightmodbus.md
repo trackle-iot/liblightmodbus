@@ -1,7 +1,7 @@
-# ModbusMasterStatus 3lightmodbus "28 July 2016" "v1.2"
+# ModbusMaster 3lightmodbus "28 July 2016" "v1.2"
 
 ## NAME
-**ModbusMasterStatus** - data type containing all information about current master device status and its configuration.
+**ModbusMaster** - data type containing all information about current master device status and its configuration.
 
 ## SYNOPSIS
 `  
@@ -13,11 +13,11 @@
 		ModbusException exception; //Optional exception read
 		ModbusFrame request; //Formatted request for slave
 		ModbusFrame response; //Response from slave
-	} ModbusMasterStatus; //Master device configuration
+	} ModbusMaster; //Master device configuration
 `
 
 ## DESCRIPTION
-The **ModbusMasterStatus** contains information about master device configuration and status. To make sure, that structure is set up for use properly,
+The **ModbusMaster** contains information about master device configuration and status. To make sure, that structure is set up for use properly,
 remember to call **modbusMasterInit**.
 
 | member name  | description                                                  |
@@ -40,7 +40,7 @@ remember to call **modbusMasterInit**.
 *response* should contain response frame from slave.
 
 ## NOTES
-**ModbusMasterStatus** is declared in **lightmodbus/master/mtypes.h**, although including **lightmodbus/master.h** is enough.
+**ModbusMaster** is declared in **lightmodbus/master/mtypes.h**, although including **lightmodbus/master.h** is enough.
 
 Important thing is, *response* is not an array, just a pointer. **It does not point to allocated memory by default!**
 Please, simply put address of your data there, and do not attempt copying it.

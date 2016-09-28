@@ -46,9 +46,9 @@
 #endif
 
 //Function prototypes
-extern uint8_t modbusBuildException( ModbusSlaveStatus *status, uint8_t function, uint8_t exceptionCode ); //Build an exception
-extern uint8_t modbusParseRequest( ModbusSlaveStatus *status ); //Parse and interpret given modbus frame on slave-side
-extern uint8_t modbusSlaveInit( ModbusSlaveStatus *status ); //Very basic init of slave side
-extern void modbusSlaveEnd( ModbusSlaveStatus *status ); //Free memory used by slave
+extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode ); //Build an exception
+extern uint8_t modbusParseRequest( ModbusSlave *status ); //Parse and interpret given modbus frame on slave-side
+extern uint8_t modbusSlaveInit( ModbusSlave *status ); //Very basic init of slave side
+extern void modbusSlaveEnd( ModbusSlave *status ); //Free memory used by slave
 
 #endif

@@ -23,7 +23,7 @@
 #include "lightmodbus/master/mtypes.h"
 #include "lightmodbus/master/mdiscreteinputs.h"
 
-uint8_t modbusBuildRequest02( ModbusMasterStatus *status, uint8_t address, uint16_t firstInput, uint16_t inputCount )
+uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t firstInput, uint16_t inputCount )
 {
 	//Build request02 frame, to send it so slave
 	//Read multiple discrete inputs
@@ -58,7 +58,7 @@ uint8_t modbusBuildRequest02( ModbusMasterStatus *status, uint8_t address, uint1
 	return 0;
 }
 
-uint8_t modbusParseResponse02( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 02 (read multiple discrete inputs)
 

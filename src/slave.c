@@ -27,7 +27,7 @@
 #include "lightmodbus/slave/sdiscreteinputs.h"
 #include "lightmodbus/slave/sinputregisters.h"
 
-uint8_t modbusBuildException( ModbusSlaveStatus *status, uint8_t function, uint8_t exceptionCode )
+uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode )
 {
 	//Generates modbus exception frame in allocated memory frame
 	//Returns generated frame length
@@ -57,7 +57,7 @@ uint8_t modbusBuildException( ModbusSlaveStatus *status, uint8_t function, uint8
 	return MODBUS_ERROR_EXCEPTION;
 }
 
-uint8_t modbusParseRequest( ModbusSlaveStatus *status )
+uint8_t modbusParseRequest( ModbusSlave *status )
 {
 	//Parse and interpret given modbus frame on slave-side
 
@@ -164,7 +164,7 @@ uint8_t modbusParseRequest( ModbusSlaveStatus *status )
 	return err;
 }
 
-uint8_t modbusSlaveInit( ModbusSlaveStatus *status )
+uint8_t modbusSlaveInit( ModbusSlave *status )
 {
 	//Very basic init of slave side
 	//User has to modify pointers etc. himself
@@ -179,7 +179,7 @@ uint8_t modbusSlaveInit( ModbusSlaveStatus *status )
 	return ( ( status->response.frame == NULL ) * MODBUS_ERROR_ALLOC ) | ( ( status->address == 0 ) * MODBUS_ERROR_OTHER );
 }
 
-void modbusSlaveEnd( ModbusSlaveStatus *status )
+void modbusSlaveEnd( ModbusSlave *status )
 {
 	//Free memory
 	free( status->response.frame );

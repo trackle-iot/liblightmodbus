@@ -7,15 +7,15 @@
 `#include <lightmodbus/master.h>`
 
 `  
-	uint8_t modbusParseResponse( ModbusMasterStatus *status );
-	uint8_t modbusParseResponse01( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-	uint8_t modbusParseResponse02( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-	uint8_t modbusParseResponse03( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-	uint8_t modbusParseResponse04( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-	uint8_t modbusParseResponse05( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-	uint8_t modbusParseResponse06( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-	uint8_t modbusParseResponse15( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-	uint8_t modbusParseResponse16( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse( ModbusMaster *status );
+	uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+	uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
 `
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ Also, an error code is returned (described in lightmodbus(3lightmodbus)).
 **modbusParseResponse01**, **modbusParseResponse02**, and so on can only parse specific function responses, while **modbusParseResponse** automatically picks one of them. Keep in mind, that calling them directly is unsafe.
 
 ## SEE ALSO
-lightmodbus(3lightmodbus), ModbusMasterStatus(3lightmodbus)
+lightmodbus(3lightmodbus), ModbusMaster(3lightmodbus)
 
 ## AUTHORS
 Jacek Wieczorek (Jacajack) - mrjjot@gmail.com

@@ -36,7 +36,7 @@ member name	description
 No multiple coil types are stored in the same instance of \fBModbusData\fP\&. Each coil type read is stored in another structure for simplicity.
 .SH SEE ALSO
 .PP
-.BR ModbusMasterStatus (3lightmodbus), 
+.BR ModbusMaster (3lightmodbus), 
 .BR ModbusDataType (3lightmodbus)
 .SH AUTHORS
 .PP

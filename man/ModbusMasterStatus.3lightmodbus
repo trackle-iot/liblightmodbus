@@ -1,7 +1,7 @@
-.TH ModbusMasterStatus 3lightmodbus "28 July 2016" "v1.2"
+.TH ModbusMaster 3lightmodbus "28 July 2016" "v1.2"
 .SH NAME
 .PP
-\fBModbusMasterStatus\fP \- data type containing all information about current master device status and its configuration.
+\fBModbusMaster\fP \- data type containing all information about current master device status and its configuration.
 .SH SYNOPSIS
 .PP
 \fB\fC
@@ -13,11 +13,11 @@
         ModbusException exception; //Optional exception read
         ModbusFrame request; //Formatted request for slave
         ModbusFrame response; //Response from slave
-    } ModbusMasterStatus; //Master device configuration
+    } ModbusMaster; //Master device configuration
 \fR
 .SH DESCRIPTION
 .PP
-The \fBModbusMasterStatus\fP contains information about master device configuration and status. To make sure, that structure is set up for use properly,
+The \fBModbusMaster\fP contains information about master device configuration and status. To make sure, that structure is set up for use properly,
 remember to call \fBmodbusMasterInit\fP\&.
 .TS
 allbox;
@@ -49,7 +49,7 @@ member name	description
 \fIresponse\fP should contain response frame from slave.
 .SH NOTES
 .PP
-\fBModbusMasterStatus\fP is declared in \fBlightmodbus/master/mtypes.h\fP, although including \fBlightmodbus/master.h\fP is enough.
+\fBModbusMaster\fP is declared in \fBlightmodbus/master/mtypes.h\fP, although including \fBlightmodbus/master.h\fP is enough.
 .PP
 Important thing is, \fIresponse\fP is not an array, just a pointer. \fBIt does not point to allocated memory by default!\fP
 Please, simply put address of your data there, and do not attempt copying it.

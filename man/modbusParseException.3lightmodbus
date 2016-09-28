@@ -6,7 +6,7 @@
 .PP
 \fB\fC#include <lightmodbus/master.h>\fR
 .PP
-\fB\fCuint8_t modbusParseException( ModbusMasterStatus *status, union ModbusParser *parser );\fR
+\fB\fCuint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser );\fR
 .SH DESCRIPTION
 .PP
 The \fBmodbusParseException\fP function parses exception frame stored in \fIparser\fP union, and leaves results in \fIstatus\fP\&.

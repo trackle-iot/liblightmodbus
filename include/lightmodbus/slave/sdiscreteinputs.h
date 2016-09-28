@@ -25,9 +25,9 @@
 #include "stypes.h"
 
 //Functions needed from other modules
-extern uint8_t modbusBuildException( ModbusSlaveStatus *status, uint8_t function, uint8_t exceptionCode );
+extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode );
 
 //Functions for parsing requests
-extern uint8_t modbusParseRequest02( ModbusSlaveStatus *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser );
 
 #endif

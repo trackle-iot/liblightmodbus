@@ -56,6 +56,6 @@ typedef struct
 	ModbusException exception; //Optional exception read
 	ModbusFrame request; //Formatted request for slave
 	ModbusFrame response; //Response from slave should be put here
-} ModbusMasterStatus; //Type containing master device configuration data
+} ModbusMaster; //Type containing master device configuration data
 
 #endif

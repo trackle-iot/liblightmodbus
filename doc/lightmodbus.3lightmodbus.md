@@ -107,10 +107,10 @@ Full listing of functions included in `lightmodbus` library.
 First of all, you need to make sure, that master module is included to the library. After that,
 `lightmodbus/master.h` and all of its dependences header files are needed.
 
-First step is to declare **ModbusMasterStatus** type variable, to contain Modbus configuration data. Later it needs to be passed
+First step is to declare **ModbusMaster** type variable, to contain Modbus configuration data. Later it needs to be passed
 to almost every master-side function you call.
 
-`ModbusMasterStatus mstatus;`
+`ModbusMaster mstatus;`
 
 Later, somewhere in your init function, remember to initiate master module with:
 
@@ -131,10 +131,10 @@ This assumes, that user did not change `mstatus.request`, because original reque
 
 
 ### Slave
-Like on master side, first declare **ModbusSlaveStatus** type variable, to contain Modbus configuration data. Later it needs to be passed
+Like on master side, first declare **ModbusSlave** type variable, to contain Modbus configuration data. Later it needs to be passed
 to almost every slave-side function.
 
-`ModbusSlaveStatus sstatus;`
+`ModbusSlave sstatus;`
 
 Now, let's set up some basic important values inside.
 

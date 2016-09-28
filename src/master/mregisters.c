@@ -23,7 +23,7 @@
 #include "lightmodbus/master/mtypes.h"
 #include "lightmodbus/master/mregisters.h"
 
-uint8_t modbusBuildRequest03( ModbusMasterStatus *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount )
+uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount )
 {
 	//Build request03 frame, to send it so slave
 	//Read multiple holding registers
@@ -58,7 +58,7 @@ uint8_t modbusBuildRequest03( ModbusMasterStatus *status, uint8_t address, uint1
 	return 0;
 }
 
-uint8_t modbusBuildRequest06( ModbusMasterStatus *status, uint8_t address, uint16_t reg, uint16_t value )
+uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t reg, uint16_t value )
 {
 	//Build request06 frame, to send it so slave
 	//Write single holding reg
@@ -93,7 +93,7 @@ uint8_t modbusBuildRequest06( ModbusMasterStatus *status, uint8_t address, uint1
 	return 0;
 }
 
-uint8_t modbusBuildRequest16( ModbusMasterStatus *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount, uint16_t *values )
+uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount, uint16_t *values )
 {
 	//Build request16 frame, to send it so slave
 	//Write multiple holding registers
@@ -134,7 +134,7 @@ uint8_t modbusBuildRequest16( ModbusMasterStatus *status, uint8_t address, uint1
 	return 0;
 }
 
-uint8_t modbusParseResponse03( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 03
 	//Read multiple holding registers
@@ -187,7 +187,7 @@ uint8_t modbusParseResponse03( ModbusMasterStatus *status, union ModbusParser *p
 	return 0;
 }
 
-uint8_t modbusParseResponse06( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 06 (write single holding reg)
 
@@ -237,7 +237,7 @@ uint8_t modbusParseResponse06( ModbusMasterStatus *status, union ModbusParser *p
 	return 0;
 }
 
-uint8_t modbusParseResponse16( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 16 (write multiple holding reg)
 

@@ -5,8 +5,8 @@
 #include <lightmodbus/slave.h>
 
 //Configuration structures
-ModbusMasterStatus mstatus;
-ModbusSlaveStatus sstatus;
+ModbusMaster mstatus;
+ModbusSlave sstatus;
 
 //Registers and coils
 uint8_t coils[2] = { 0 };

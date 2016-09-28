@@ -23,7 +23,7 @@
 #include "lightmodbus/slave/stypes.h"
 #include "lightmodbus/slave/sregisters.h"
 
-uint8_t modbusParseRequest03( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Read multiple holding registers
 	//Using data from union pointer
@@ -94,7 +94,7 @@ uint8_t modbusParseRequest03( ModbusSlaveStatus *status, union ModbusParser *par
 	return 0;
 }
 
-uint8_t modbusParseRequest06( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write single holding reg
 	//Using data from union pointer
@@ -169,7 +169,7 @@ uint8_t modbusParseRequest06( ModbusSlaveStatus *status, union ModbusParser *par
 	return 0;
 }
 
-uint8_t modbusParseRequest16( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write multiple holding registers
 	//Using data from union pointer

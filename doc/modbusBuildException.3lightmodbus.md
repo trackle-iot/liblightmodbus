@@ -6,7 +6,7 @@
 ## SYNOPSIS
 `#include <lightmodbus/slave.h>`
 
-`uint8_t modbusBuildException( ModbusSlaveStatus *status, uint8_t function, uint8_t exceptionCode )`
+`uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode )`
 
 ## DESCRIPTION
 The **modbusBuildException** function builds Modbus exception frame, later located in *status.response*.

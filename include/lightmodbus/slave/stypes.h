@@ -48,6 +48,6 @@ typedef struct
 	uint8_t finished; //Has slave finished building response for master?
 	ModbusFrame response; //Slave response formatting status
 	ModbusFrame request; //Request from master should be put here
-} ModbusSlaveStatus; //Type containing slave device configuration data
+} ModbusSlave; //Type containing slave device configuration data
 
 #endif

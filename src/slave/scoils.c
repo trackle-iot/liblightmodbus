@@ -23,7 +23,7 @@
 #include "lightmodbus/slave/stypes.h"
 #include "lightmodbus/slave/scoils.h"
 
-uint8_t modbusParseRequest01( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Read multiple coils
 	//Using data from union pointer
@@ -107,7 +107,7 @@ uint8_t modbusParseRequest01( ModbusSlaveStatus *status, union ModbusParser *par
 	return 0;
 }
 
-uint8_t modbusParseRequest05( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write single coil
 	//Using data from union pointer
@@ -187,7 +187,7 @@ uint8_t modbusParseRequest05( ModbusSlaveStatus *status, union ModbusParser *par
 	return 0;
 }
 
-uint8_t modbusParseRequest15( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write multiple coils
 	//Using data from union pointer

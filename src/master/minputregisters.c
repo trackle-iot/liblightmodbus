@@ -23,7 +23,7 @@
 #include "lightmodbus/master/mtypes.h"
 #include "lightmodbus/master/minputregisters.h"
 
-uint8_t modbusBuildRequest04( ModbusMasterStatus *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount )
+uint8_t modbusBuildRequest04( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount )
 {
 	//Build request04 frame, to send it so slave
 	//Read multiple input registers
@@ -58,7 +58,7 @@ uint8_t modbusBuildRequest04( ModbusMasterStatus *status, uint8_t address, uint1
 	return 0;
 }
 
-uint8_t modbusParseResponse04( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 04
 	//Read multiple input registers

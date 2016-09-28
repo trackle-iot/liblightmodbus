@@ -4,8 +4,8 @@
 This is really simple test suite, it covers ~95% of library code
 */
 
-ModbusMasterStatus mstatus;
-ModbusSlaveStatus sstatus;
+ModbusMaster mstatus;
+ModbusSlave sstatus;
 uint16_t registers[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 uint8_t coils[4] = { 0, 0, 0, 0 };
 uint8_t discreteInputs[2] = { 255, 0 };

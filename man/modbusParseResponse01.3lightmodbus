@@ -7,15 +7,15 @@
 \fB\fC#include <lightmodbus/master.h>\fR
 .PP
 \fB\fC
-    uint8_t modbusParseResponse( ModbusMasterStatus *status );
-    uint8_t modbusParseResponse01( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse02( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse03( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse04( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse05( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse06( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse15( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse16( ModbusMasterStatus *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse( ModbusMaster *status );
+    uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+    uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
 \fR
 .SH DESCRIPTION
 .PP
@@ -27,7 +27,7 @@ Also, an error code is returned (described in
 .SH SEE ALSO
 .PP
 .BR lightmodbus (3lightmodbus), 
-.BR ModbusMasterStatus (3lightmodbus)
+.BR ModbusMaster (3lightmodbus)
 .SH AUTHORS
 .PP
 Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

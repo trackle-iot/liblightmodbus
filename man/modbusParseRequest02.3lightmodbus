@@ -7,15 +7,15 @@
 \fB\fC#include <lightmodbus/slave.h>\fR
 .PP
 \fB\fC
-    uint8_t modbusParseRequest( ModbusSlaveStatus *status );
-    uint8_t modbusParseRequest01( ModbusSlaveStatus *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest02( ModbusSlaveStatus *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest03( ModbusSlaveStatus *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest04( ModbusSlaveStatus *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest05( ModbusSlaveStatus *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest06( ModbusSlaveStatus *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest15( ModbusSlaveStatus *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest16( ModbusSlaveStatus *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest( ModbusSlave *status );
+    uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser );
+    uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser );
 \fR
 .SH DESCRIPTION
 .PP

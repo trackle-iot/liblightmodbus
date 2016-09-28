@@ -184,10 +184,10 @@ function name	manpage
 First of all, you need to make sure, that master module is included to the library. After that,
 \fB\fClightmodbus/master.h\fR and all of its dependences header files are needed.
 .PP
-First step is to declare \fBModbusMasterStatus\fP type variable, to contain Modbus configuration data. Later it needs to be passed
+First step is to declare \fBModbusMaster\fP type variable, to contain Modbus configuration data. Later it needs to be passed
 to almost every master\-side function you call.
 .PP
-\fB\fCModbusMasterStatus mstatus;\fR
+\fB\fCModbusMaster mstatus;\fR
 .PP
 Later, somewhere in your init function, remember to initiate master module with:
 .PP
@@ -208,10 +208,10 @@ Beforehand, though, response frame from slave should be put into \fB\fCmstatus.r
 This assumes, that user did not change \fB\fCmstatus.request\fR, because original request frame is needed to parse slave's response.
 .SS Slave
 .PP
-Like on master side, first declare \fBModbusSlaveStatus\fP type variable, to contain Modbus configuration data. Later it needs to be passed
+Like on master side, first declare \fBModbusSlave\fP type variable, to contain Modbus configuration data. Later it needs to be passed
 to almost every slave\-side function.
 .PP
-\fB\fCModbusSlaveStatus sstatus;\fR
+\fB\fCModbusSlave sstatus;\fR
 .PP
 Now, let's set up some basic important values inside.
 .PP

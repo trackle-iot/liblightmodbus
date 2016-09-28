@@ -23,7 +23,7 @@
 #include "lightmodbus/slave/stypes.h"
 #include "lightmodbus/slave/sdiscreteinputs.h"
 
-uint8_t modbusParseRequest02( ModbusSlaveStatus *status, union ModbusParser *parser )
+uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Read multiple discrete inputs
 	//Using data from union pointer

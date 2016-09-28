@@ -1,7 +1,7 @@
-.TH ModbusSlaveStatus 3lightmodbus "28 July 2016" "v1.2"
+.TH ModbusSlave 3lightmodbus "28 July 2016" "v1.2"
 .SH NAME
 .PP
-\fBModbusSlaveStatus\fP \- data type containing all information about current slave device status and its configuration.
+\fBModbusSlave\fP \- data type containing all information about current slave device status and its configuration.
 .SH SYNOPSIS
 .PP
 \fB\fC
@@ -21,11 +21,11 @@
         uint8_t finished; //Has slave finished building response?
         ModbusFrame response; //Slave response formatting status
         ModbusFrame request; //Request frame from master
-    } ModbusSlaveStatus; //Slave device configuration data
+    } ModbusSlave; //Slave device configuration data
 \fR
 .SH DESCRIPTION
 .PP
-The \fBModbusSlaveStatus\fP contains information about slave device configuration and status. To make sure, that structure is set up for use properly,
+The \fBModbusSlave\fP contains information about slave device configuration and status. To make sure, that structure is set up for use properly,
 remember to call \fBmodbusSlaveInit\fP\&. Values like \fIregisters\fP, \fIregisterCount\fP, etc. are ought to be set beforehand though.
 .TS
 allbox;
@@ -59,7 +59,7 @@ member name	description
 .TE
 .SH NOTES
 .PP
-\fBModbusSlaveStatus\fP is declared in \fBlightmodbus/slave/stypes.h\fP, although including \fBlightmodbus/slave.h\fP is enough.
+\fBModbusSlave\fP is declared in \fBlightmodbus/slave/stypes.h\fP, although including \fBlightmodbus/slave.h\fP is enough.
 In \fIcoils\fP and \fIdiscreteInputs\fP each bit matches one input/output, and
 \fIdiscreteInputCount\fP and \fIcoilCount\fP correspond to actual input/output count, not the array length!
 When some request\-parsing function is called, make sure that valid frame pointer is set inside \fIrequest\fP\&.

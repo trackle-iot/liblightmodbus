@@ -1,22 +1,22 @@
 .TH modbusMasterInit 3lightmodbus "29 July 2016" "v1.2"
 .SH NAME
 .PP
-\fBmodbusMasterInit\fP \- setup \fBModbusMasterStatus\fP structure for use.
+\fBmodbusMasterInit\fP \- setup \fBModbusMaster\fP structure for use.
 .SH SYNOPSIS
 .PP
 \fB\fC#include <lightmodbus/master.h>\fR
 .PP
-\fB\fCuint8_t modbusMasterInit( ModbusMasterStatus *status );\fR
+\fB\fCuint8_t modbusMasterInit( ModbusMaster *status );\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusMasterInit\fP function sets crucial members of \fBModbusMasterStatus\fP structure and allocates memory for necessary data. This function should always be called before using any other Modbus master\-side functions.
+The \fBmodbusMasterInit\fP function sets crucial members of \fBModbusMaster\fP structure and allocates memory for necessary data. This function should always be called before using any other Modbus master\-side functions.
 It is also worth mentioning, that memory for \fIstatus.response\fP is \fBnot\fP allocated (user should perform simple pointer assignment, not data copying).
 Needless to say, when returned value is not equal 0 an error occured.
 .PP
 Memory can be later freed with \fBmodbusMasterEnd\fP\&.
 .SH SEE ALSO
 .PP
-.BR ModbusMasterStatus (3lightmodbus), 
+.BR ModbusMaster (3lightmodbus), 
 .BR modbusMasterEnd (3lightmodbus)
 .SH AUTHORS
 .PP

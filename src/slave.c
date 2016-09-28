@@ -180,6 +180,12 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	status->response.length = 0;
 	status->response.frame = NULL;
 
+	if ( status->address == 0 )
+	{
+		status->address = 1;
+		return MODBUS_ERROR_OTHER;
+	}
+
 	//Some safety checks
 	if ( status->registerCount == 0 || status->registers == NULL )
 	{
@@ -205,7 +211,7 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 		status->inputRegisters = NULL;
 	}
 
-	return ( ( status->address == 0 ) * MODBUS_ERROR_OTHER );
+	return MODBUS_ERROR_OK;
 }
 
 void modbusSlaveEnd( ModbusSlave *status )

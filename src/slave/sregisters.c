@@ -66,7 +66,7 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 5 + ( parser->request03.registerCount << 1 );
 
-	status->response.frame = (uint8_t *) realloc( status->response.frame, frameLength ); //Reallocate response frame memory to needed memory
+	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
@@ -134,7 +134,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 8;
 
-	status->response.frame = (uint8_t *) realloc( status->response.frame, frameLength ); //Reallocate response frame memory to needed memory
+	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
@@ -232,7 +232,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 8;
 
-	status->response.frame = (uint8_t *) realloc( status->response.frame, frameLength ); //Reallocate response frame memory to needed memory
+	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;

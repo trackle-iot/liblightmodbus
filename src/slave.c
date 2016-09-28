@@ -33,7 +33,7 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 	//Returns generated frame length
 
 	//Reallocate frame memory
-	status->response.frame = (uint8_t *) realloc( status->response.frame, 5 );
+	status->response.frame = (uint8_t *) malloc( 5 );
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
@@ -108,6 +108,9 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 		return 0;
 	}
 
+	//If there is memory allocated for response frame - free it
+	if ( status->response.frame != NULL ) free( status->response.frame );
+
 	switch ( parser->base.function )
 	{
 		case 1: //Read multiple coils
@@ -174,7 +177,7 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	status->request.length = 0;
 	status->request.frame = NULL;
 	status->response.length = 0;
-	status->response.frame = (uint8_t *) malloc( 8 );
+	status->response.frame = NULL;
 
 	return ( ( status->response.frame == NULL ) * MODBUS_ERROR_ALLOC ) | ( ( status->address == 0 ) * MODBUS_ERROR_OTHER );
 }

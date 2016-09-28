@@ -1,10 +1,12 @@
 #!/bin/bash
 
-cd man
+cd doc
 
 for f in *.md; do
-  md2man-roff ./"$f" > ./"${f%.md}"
+  md2man-roff ./"$f" > ../man/"${f%.md}"
 done
+
+cd ../man
 
 cp modbusBuildRequest.3lightmodbus modbusBuildRequest01.3lightmodbus
 cp modbusBuildRequest.3lightmodbus modbusBuildRequest02.3lightmodbus

@@ -32,18 +32,15 @@ typedef struct
 	uint8_t code; //Exception code
 } ModbusException; //Parsed exception data
 
-typedef enum //MODBUS data types enum (coil, reg, input, etc.)
-{
-	holdingRegister = 0,
-	inputRegister = 1,
-	coil = 2,
-	discreteInput = 4
-} ModbusDataType;
+#define MODBUS_HOLDING_REGISTER 0
+#define MODBUS_INPUT_REGISTER 1
+#define MODBUS_COIL 2
+#define MODBUS_DISCRETE_INPUT 4
 
 typedef struct
 {
 	uint8_t address; //Device address
-	ModbusDataType dataType; //Data type
+	uint8_t dataType; //Data type
 	uint16_t reg; //Register, coil, input ID
 	uint16_t value; //Value of data
 } ModbusData;

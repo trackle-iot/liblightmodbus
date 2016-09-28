@@ -101,7 +101,7 @@ uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser,
 	for ( i = 0; i < ( parser->response04.byteCount >> 1 ); i++ )
 	{
 		status->data[i].address = parser->base.address;
-		status->data[i].dataType = inputRegister;
+		status->data[i].dataType = MODBUS_INPUT_REGISTER;
 		status->data[i].reg = modbusSwapEndian( requestParser->request04.firstRegister ) + i;
 		status->data[i].value = modbusSwapEndian( parser->response04.values[i] );
 	}

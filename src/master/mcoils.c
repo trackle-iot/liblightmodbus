@@ -174,7 +174,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	for ( i = 0; i < modbusSwapEndian( requestParser->request01.coilCount ); i++ )
 	{
 		status->data[i].address = parser->base.address;
-		status->data[i].dataType = coil;
+		status->data[i].dataType = MODBUS_COIL;
 		status->data[i].reg = modbusSwapEndian( requestParser->request01.firstCoil ) + i;
 		status->data[i].value = modbusMaskRead( parser->response01.values, parser->response01.byteCount, i );
 		if ( status->data[i].value == 255 )
@@ -219,7 +219,7 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	status->data[0].address = parser->base.address;
-	status->data[0].dataType = coil;
+	status->data[0].dataType = MODBUS_COIL;
 	status->data[0].reg = modbusSwapEndian( requestParser->request05.coil );
 	status->data[0].value = parser->response05.value != 0;
 

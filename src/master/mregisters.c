@@ -179,7 +179,7 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	for ( i = 0; i < ( parser->response03.byteCount >> 1 ); i++ )
 	{
 		status->data[i].address = parser->base.address;
-		status->data[i].dataType = holdingRegister;
+		status->data[i].dataType = MODBUS_HOLDING_REGISTER;
 		status->data[i].reg = modbusSwapEndian( requestParser->request03.firstRegister ) + i;
 		status->data[i].value = modbusSwapEndian( parser->response03.values[i] );
 	}
@@ -232,7 +232,7 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	status->data[0].address = parser->base.address;
-	status->data[0].dataType = holdingRegister;
+	status->data[0].dataType = MODBUS_HOLDING_REGISTER;
 	status->data[0].reg = parser->response06.reg;
 	status->data[0].value = parser->response06.value;
 

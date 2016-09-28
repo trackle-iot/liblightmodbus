@@ -93,7 +93,7 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	for ( i = 0; i < modbusSwapEndian( requestParser->request02.inputCount ); i++ )
 	{
 		status->data[i].address = parser->base.address;
-		status->data[i].dataType = discreteInput;
+		status->data[i].dataType =MODBUS_DISCRETE_INPUT;
 		status->data[i].reg = modbusSwapEndian( requestParser->request02.firstInput ) + i;
 		status->data[i].value = modbusMaskRead( parser->response02.values, parser->response02.byteCount, i );
 		if ( status->data[i].value == 255 )

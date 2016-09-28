@@ -3,13 +3,15 @@ language: c
 branches:
     except:
         - packaging
-        
+
 before_install:
     - sudo apt-get update
 install:
     - sudo apt-get install gcc-avr binutils-avr avr-libc valgrind pastebinit
     - pip install --user cpp-coveralls
 script:
+    - make -f makefile-avr MCU=atmega328p
+    - make -f makefile-avr clean
     - make all
     - make -f makefile-coverage all
 after_success:

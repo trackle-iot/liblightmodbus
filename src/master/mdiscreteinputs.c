@@ -83,7 +83,7 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.function == requestParser->base.function );
 
 	free( status->data );
-	status->data = (ModbusData *) malloc( status->data, sizeof( ModbusData ) * modbusSwapEndian( requestParser->request02.inputCount ) );
+	status->data = (ModbusData *) malloc( sizeof( ModbusData ) * modbusSwapEndian( requestParser->request02.inputCount ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;

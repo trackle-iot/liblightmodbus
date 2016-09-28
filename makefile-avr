@@ -35,20 +35,20 @@ MODULES =
 MMODULES = master-registers master-coils master-discrete-inputs master-input-registers
 SMODULES = slave-registers slave-coils slave-discrete-inputs slave-input-registers
 
+ifneq ($(MAKECMDGOALS),clean)
 ifndef MCU
 $(error "MCU not specified!")
 endif
-
 ifndef MMODULES
 $(warning "MMODULES not specified!")
 else
 MODULES += $(MMODULES) master-base master-link
 endif
-
 ifndef SMODULES
 $(warning "SMODULES not specified!")
 else
 MODULES += $(SMODULES) slave-base slave-link
+endif
 endif
 
 all: clean FORCE $(MODULES) core
@@ -62,6 +62,7 @@ all: clean FORCE $(MODULES) core
 	echo -n "\n\nBuild success - " >> build.log
 	date >> build.log
 	$(call infoHeader,build finished successfully)
+	avr-size -C --mcu=$(MCU) obj/lightmodbus.o
 
 FORCE:
 	-touch build.log

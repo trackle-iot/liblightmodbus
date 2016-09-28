@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lightmodbus/core.h"
-#include "lightmodbus/parser.h"
-#include "lightmodbus/slave/stypes.h"
-#include "lightmodbus/slave/sdiscreteinputs.h"
+#include <lightmodbus/core.h>
+#include <lightmodbus/parser.h>
+#include <lightmodbus/slave/stypes.h>
+#include <lightmodbus/slave/sdiscreteinputs.h>
 
 uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 {

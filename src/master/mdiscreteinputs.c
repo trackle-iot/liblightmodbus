@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lightmodbus/core.h"
-#include "lightmodbus/parser.h"
-#include "lightmodbus/master/mtypes.h"
-#include "lightmodbus/master/mdiscreteinputs.h"
+#include <lightmodbus/core.h>
+#include <lightmodbus/parser.h>
+#include <lightmodbus/master/mtypes.h>
+#include <lightmodbus/master/mdiscreteinputs.h>
 
 uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t firstInput, uint16_t inputCount )
 {

@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lightmodbus/core.h"
-#include "lightmodbus/parser.h"
-#include "lightmodbus/master/mtypes.h"
-#include "lightmodbus/master/mregisters.h"
+#include <lightmodbus/core.h>
+#include <lightmodbus/parser.h>
+#include <lightmodbus/master/mtypes.h>
+#include <lightmodbus/master/mregisters.h>
 
 uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount )
 {

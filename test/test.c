@@ -451,8 +451,8 @@ int main( )
 	sstatus.inputRegisterCount = 4;
 	sstatus.address = 32;
 
-	modbusSlaveInit( &sstatus );
-	modbusMasterInit( &mstatus );
+	printf( "slave init - %d\n", modbusSlaveInit( &sstatus ) );
+	printf( "master init - %d\n\n\n", modbusMasterInit( &mstatus ) );
 
 	MainTest( );
 

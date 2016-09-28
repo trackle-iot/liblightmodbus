@@ -36,7 +36,8 @@ uint8_t modbusBuildRequest04( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->finished = 0;
 
 	//Reallocate memory for final frame
-	status->request.frame = (uint8_t *) realloc( status->request.frame, frameLength );
+	free( status->request.frame );
+	status->request.frame = (uint8_t *) malloc( frameLength );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -88,7 +89,8 @@ uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Allocate memory for ModbusData structures array
-	status->data = (ModbusData *) realloc( status->data, ( parser->response04.byteCount >> 1 ) * sizeof( ModbusData ) );
+	free( status->data );
+	status->data = (ModbusData *) malloc( ( parser->response04.byteCount >> 1 ) * sizeof( ModbusData ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;

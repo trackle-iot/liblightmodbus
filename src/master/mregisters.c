@@ -36,7 +36,8 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->finished = 0;
 
 	//Reallocate memory for final frame
-	status->request.frame = (uint8_t *) realloc( status->request.frame, frameLength );
+	free( status->request.frame );
+	status->request.frame = (uint8_t *) malloc( frameLength );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -71,7 +72,8 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t re
 	status->finished = 0;
 
 	//Reallocate memory for final frame
-	status->request.frame = (uint8_t *) realloc( status->request.frame, frameLength );
+	free( status->request.frame );
+	status->request.frame = (uint8_t *) malloc( frameLength );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -109,7 +111,8 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 	if ( registerCount > 123 ) return MODBUS_ERROR_OTHER;
 
 	//Reallocate memory for final frame
-	status->request.frame = (uint8_t *) realloc( status->request.frame, frameLength );
+	free( status->request.frame );
+	status->request.frame = (uint8_t *) malloc( frameLength );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -164,7 +167,8 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Allocate memory for ModbusData structures array
-	status->data = (ModbusData *) realloc( status->data, ( parser->response03.byteCount >> 1 ) * sizeof( ModbusData ) );
+	free( status->data );
+	status->data = (ModbusData *) malloc( ( parser->response03.byteCount >> 1 ) * sizeof( ModbusData ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;
@@ -219,7 +223,8 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	parser->response06.value = modbusSwapEndian( parser->response06.value );
 
 	//Set up new data table
-	status->data = (ModbusData *) realloc( status->data, sizeof( ModbusData ) );
+	free( status->data );
+	status->data = (ModbusData *) malloc( sizeof( ModbusData ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;

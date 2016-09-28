@@ -164,18 +164,11 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 uint8_t modbusMasterInit( ModbusMaster *status )
 {
 	//Very basic init of master side
-	if ( ( status->request.frame = (uint8_t *) malloc( 8 ) ) == NULL )
-	{
-		return MODBUS_ERROR_ALLOC;
-	}
+	status->request.frame = NULL;
 
 	status->request.length = 0;
 	status->response.length = 0;
-	if ( ( status->data = (ModbusData *) malloc( sizeof( ModbusData ) ) ) == NULL )
-	{
-		free( status->request.frame );
-		return MODBUS_ERROR_ALLOC;
-	}
+	status->data = NULL;
 
 	status->dataLength = 0;
 	status->finished = 0;

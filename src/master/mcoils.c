@@ -36,7 +36,8 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->finished = 0;
 
 	//Reallocate memory for final frame
-	status->request.frame = (uint8_t *) realloc( status->request.frame, frameLength );
+	free( status->request.frame );
+	status->request.frame = (uint8_t *) malloc( frameLength );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -71,7 +72,8 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 	status->finished = 0;
 
 	//Reallocate memory for final frame
-	status->request.frame = (uint8_t *) realloc( status->request.frame, frameLength );
+	free( status->request.frame );
+	status->request.frame = (uint8_t *) malloc( frameLength );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -111,7 +113,8 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	if ( coilCount > 256 ) return 1;
 
 	//Reallocate memory for final frame
-	status->request.frame = (uint8_t *) realloc( status->request.frame, frameLength );
+	free( status->request.frame );
+	status->request.frame = (uint8_t *) malloc( frameLength );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -160,8 +163,8 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.address == requestParser->base.address );
 	dataok &= ( parser->base.function == requestParser->base.function );
 
-
-	status->data = (ModbusData *) realloc( status->data, sizeof( ModbusData ) * modbusSwapEndian( requestParser->request01.coilCount ) );
+	free( status->data);
+	status->data = (ModbusData *) malloc( sizeof( ModbusData ) * modbusSwapEndian( requestParser->request01.coilCount ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;
@@ -207,8 +210,8 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.address == requestParser->base.address );
 	dataok &= ( parser->base.function == requestParser->base.function );
 
-
-	status->data = (ModbusData *) realloc( status->data, sizeof( ModbusData ) );
+	free( status->data );
+	status->data = (ModbusData *) malloc( sizeof( ModbusData ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;

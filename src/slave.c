@@ -110,7 +110,8 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 	//If there is memory allocated for response frame - free it
 	free( status->response.frame );
-
+	status->response.frame = NULL;
+	
 	switch ( parser->base.function )
 	{
 		case 1: //Read multiple coils

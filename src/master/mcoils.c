@@ -163,6 +163,13 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.address == requestParser->base.address );
 	dataok &= ( parser->base.function == requestParser->base.function );
 
+	//If data is bad abort parsing, and set error flag
+	if ( !dataok )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
+
 	free( status->data );
 	status->data = (ModbusData *) malloc( sizeof( ModbusData ) * modbusSwapEndian( requestParser->request01.coilCount ) );
 	if ( status->data == NULL )
@@ -210,6 +217,13 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.address == requestParser->base.address );
 	dataok &= ( parser->base.function == requestParser->base.function );
 
+	//If data is bad abort parsing, and set error flag
+	if ( !dataok )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
+
 	free( status->data );
 	status->data = (ModbusData *) malloc( sizeof( ModbusData ) );
 	if ( status->data == NULL )
@@ -250,6 +264,13 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.function == requestParser->base.function );
 	dataok &= ( parser->response15.firstCoil == requestParser->request15.firstCoil );
 	dataok &= ( parser->response15.coilCount == requestParser->request15.coilCount );
+
+	//If data is bad abort parsing, and set error flag
+	if ( !dataok )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
 
 	//Set up data length - response successfully parsed
 	status->dataLength = 0;

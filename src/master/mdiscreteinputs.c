@@ -82,6 +82,13 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.address == requestParser->base.address );
 	dataok &= ( parser->base.function == requestParser->base.function );
 
+	//If data is bad abort parsing, and set error flag
+	if ( !dataok )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
+
 	free( status->data );
 	status->data = (ModbusData *) malloc( sizeof( ModbusData ) * modbusSwapEndian( requestParser->request02.inputCount ) );
 	if ( status->data == NULL )

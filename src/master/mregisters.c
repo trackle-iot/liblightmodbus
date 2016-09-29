@@ -212,6 +212,7 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->response06.reg == requestParser->request06.reg );
 	dataok &= ( parser->response06.value == requestParser->request06.value );
 
+	//If data is bad abort parsing, and set error flag
 	if ( !dataok )
 	{
 		status->finished = 1;
@@ -262,6 +263,13 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->response16.function == requestParser->request16.function );
 	dataok &= ( parser->response16.firstRegister == requestParser->request16.firstRegister );
 	dataok &= ( parser->response16.registerCount == requestParser->request16.registerCount );
+
+	//If data is bad abort parsing, and set error flag
+	if ( !dataok )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
 
 	//Set up data length - response successfully parsed
 	status->dataLength = 0;

@@ -163,7 +163,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= ( parser->base.address == requestParser->base.address );
 	dataok &= ( parser->base.function == requestParser->base.function );
 
-	free( status->data);
+	free( status->data );
 	status->data = (ModbusData *) malloc( sizeof( ModbusData ) * modbusSwapEndian( requestParser->request01.coilCount ) );
 	if ( status->data == NULL )
 	{
@@ -243,6 +243,7 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 		status->finished = 1;
 		return MODBUS_ERROR_CRC;
 	}
+
 
 	//Check between data sent to slave and received from slave
 	dataok &= ( parser->base.address == requestParser->base.address );

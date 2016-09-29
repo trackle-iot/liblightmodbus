@@ -36,6 +36,7 @@
 #define MODBUS_ERROR_ALLOC 8 //Memory allocation problems (eg. system ran out of RAM)
 #define MODBUS_ERROR_OTHER 16 //Other reason function was exited (eg. bad function parameter)
 #define MODBUS_ERROR_FRAME 32 //Frame contained incorrect data, and exception could not be thrown (eg. bytes count != reg count * 2 in slave's response)
+#define MODBUS_OK MODBUS_ERROR_OK
 
 //Types
 typedef struct

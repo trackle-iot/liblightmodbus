@@ -51,7 +51,7 @@ uint16_t modbusSwapEndian( uint16_t data )
 	uint8_t swap;
 
 	//Create 2 bytes long union
-	union conversion
+	union
 	{
 		uint16_t data;
 		uint8_t bytes[2];

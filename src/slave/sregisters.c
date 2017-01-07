@@ -219,7 +219,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check for write protection
 	for ( i = 0; i < parser->request16.registerCount; i++ )
-		MaskSum += (  modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request16.firstRegister + i ) == 1 ) ? 1 : 0;
+		MaskSum += modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request16.firstRegister + i ) == 1 ;
 
 	if ( MaskSum > 0 )
 	{

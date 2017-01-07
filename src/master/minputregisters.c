@@ -31,6 +31,9 @@ uint8_t modbusBuildRequest04( ModbusMaster *status, uint8_t address, uint16_t fi
 	//Set frame length
 	uint8_t frameLength = 8;
 
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
@@ -65,9 +68,13 @@ uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser,
 	//Read multiple input registers
 
 	//Update frame length
-	uint8_t frameLength = 5 + parser->response04.byteCount;
+	uint8_t frameLength;
 	uint8_t dataok = 1;
 	uint8_t i = 0;
+
+	//Check if given pointers are valid
+	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
+	frameLength = 5 + parser->response04.byteCount;
 
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response04.values[ parser->response04.byteCount >> 1 ] )

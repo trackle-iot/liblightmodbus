@@ -33,6 +33,10 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	uint8_t coil = 0;
 	uint8_t i = 0;
 
+	//Check if given pointers are valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request01.crc )
 	{
@@ -115,6 +119,10 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	//Update frame length
 	uint8_t frameLength = 8;
 
+	//Check if given pointers are valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request01.crc )
 	{
@@ -194,8 +202,13 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 
 	//Update frame length
 	uint8_t i = 0;
-	uint8_t frameLength = 9 + parser->request15.byteCount;
+	uint8_t frameLength;
 	uint8_t coil = 0;
+
+	//Check if given pointers are valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	frameLength = 9 + parser->request15.byteCount;
 
 	//Check frame crc
 	//Shifting is used instead of dividing for optimisation on smaller devices (AVR)

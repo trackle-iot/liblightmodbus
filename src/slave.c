@@ -32,6 +32,9 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 	//Generates modbus exception frame in allocated memory frame
 	//Returns generated frame length
 
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Reallocate frame memory
 	status->response.frame = (uint8_t *) malloc( 5 );
 	if ( status->response.frame == NULL )
@@ -72,6 +75,9 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	//In fact, user should care about things like that, and It would lower memory usage, so in future crc can be verified right here
 
 	uint8_t err = 0;
+
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Reset response frame status
 	status->response.length = 0;
@@ -173,6 +179,9 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	//Very basic init of slave side
 	//User has to modify pointers etc. himself
 
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Reset response frame status
 	status->finished = 0;
 	status->request.length = 0;
@@ -216,6 +225,9 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 
 void modbusSlaveEnd( ModbusSlave *status )
 {
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Free memory
 	free( status->response.frame );
 }

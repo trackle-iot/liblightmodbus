@@ -31,6 +31,10 @@ uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 {
 	//Parse exception frame and write data to MODBUSMaster structure
 
+	//Check if given pointers are valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Check crc
 	if ( modbusCRC( parser->frame, 3 ) != parser->exception.crc )
 	{
@@ -58,6 +62,9 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 
 	//If non-zero some parser failed its job
 	uint8_t err = 0;
+
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Reset output registers before parsing frame
 	status->dataLength = 0;
@@ -163,6 +170,9 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 
 uint8_t modbusMasterInit( ModbusMaster *status )
 {
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Very basic init of master side
 	status->request.frame = NULL;
 
@@ -182,6 +192,9 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 
 void modbusMasterEnd( ModbusMaster *status )
 {
+	//Check if given pointer is valid
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+
 	//Free memory
 	free( status->request.frame );
 	free( status->data );

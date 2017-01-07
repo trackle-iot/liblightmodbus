@@ -11,8 +11,8 @@ uint8_t coils[4] = { 0, 0, 0, 0 };
 uint8_t discreteInputs[2] = { 255, 0 };
 uint16_t inputRegisters[4] = { 1, 2, 3, 4 };
 uint16_t TestValues[8] = { 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAAFF, 0xBBFF };
-uint16_t TestValues2[512];
-uint8_t TestValues3[2] = { 0b11001100, 0x00 };
+uint16_t TestValues2[512] = {0};
+uint8_t TestValues3[512] = { 0b11001100, 0x00 };
 
 void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 {

@@ -74,6 +74,8 @@ uint16_t modbusCRC( uint8_t *data, uint16_t length )
 	uint16_t i;
 	uint8_t j;
 
+	if ( data == NULL ) return 0;
+
 	for ( i = 0; i < length; i++ )
 	{
 		crc ^= (uint16_t) data[i]; //XOR current data byte with crc value

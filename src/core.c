@@ -41,7 +41,7 @@ uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8
 		mask[bit >> 3] |= ( 1 << ( bit % 8 ) );
 	else
 		mask[bit >> 3] &= ~( 1 << ( bit % 8 ) );
-	return 0;
+	return value;
 }
 
 uint16_t modbusSwapEndian( uint16_t data )

@@ -74,7 +74,7 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Respond
-	frameLength = 6 + ( ( parser->request02.inputCount - 1 ) >> 3 );
+	frameLength = 5 + BITSTOBYTES( parser->request02.inputCount );
 
 	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
@@ -88,12 +88,12 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 	//Set up basic response data
 	builder->base.address = status->address;
 	builder->base.function = parser->base.function;
-	builder->response02.byteCount = 1 + ( ( parser->request02.inputCount - 1 ) >> 3 );
+	builder->response02.byteCount = BITSTOBYTES( parser->request02.inputCount );
 
 	//Copy registers to response frame
 	for ( i = 0; i < parser->request02.inputCount; i++ )
 	{
-		if ( ( input = modbusMaskRead( status->discreteInputs, 1 + ( ( status->discreteInputCount - 1 ) >> 3 ), i + parser->request02.firstInput ) ) == 255 )
+		if ( ( input = modbusMaskRead( status->discreteInputs, BITSTOBYTES( status->discreteInputCount ), i + parser->request02.firstInput ) ) == 255 )
 		{
 			status->finished = 1;
 			return MODBUS_ERROR_OTHER;

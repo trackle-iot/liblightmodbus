@@ -65,7 +65,7 @@ uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request02.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 4 + 2 + ( ( inputCount - 1 ) >> 3 );
+	status->predictedResponseLength = 4 + 1 + BITSTOBYTES( inputCount );
 	status->finished = 1;
 
 	return MODBUS_ERROR_OK;
@@ -102,7 +102,7 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= parser->base.function == requestParser->base.function;
 	dataok &= parser->response02.byteCount != 0;
 	dataok &= parser->response02.byteCount <= 250;
-	dataok &= parser->response02.byteCount == 1 + ( ( modbusSwapEndian( requestParser->request02.inputCount ) - 1 ) >> 3 );
+	dataok &= parser->response02.byteCount == BITSTOBYTES( modbusSwapEndian( requestParser->request02.inputCount ) );
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )

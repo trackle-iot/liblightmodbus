@@ -65,7 +65,7 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request01.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 4 + 2 + ( ( coilCount - 1 ) >> 3 );
+	status->predictedResponseLength = 4 + 1 + BITSTOBYTES( coilCount );
 	status->finished = 1;
 
 	return MODBUS_ERROR_OK;
@@ -120,7 +120,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	//Write multiple coils
 
 	//Set frame length
-	uint8_t frameLength = 10 + ( ( coilCount - 1 ) >> 3 );
+	uint8_t frameLength = 9 + BITSTOBYTES( coilCount );
 	uint8_t i = 0;
 
 	//Check if given pointer is valid
@@ -154,7 +154,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->base.function = 15;
 	builder->request15.firstCoil = modbusSwapEndian( firstCoil );
 	builder->request15.coilCount = modbusSwapEndian( coilCount );
-	builder->request15.byteCount = 1 + ( ( coilCount - 1 ) >> 3 );
+	builder->request15.byteCount = BITSTOBYTES( coilCount );
 
 	for ( i = 0; i < builder->request15.byteCount; i++ )
 		builder->request15.values[i] = values[i];
@@ -199,7 +199,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= parser->base.function == requestParser->base.function;
 	dataok &= parser->response01.byteCount != 0;
 	dataok &= parser->response01.byteCount <= 250;
-	dataok &= parser->response01.byteCount == 1 + ( ( modbusSwapEndian( requestParser->request01.coilCount ) - 1 ) >> 3 );
+	dataok &= parser->response01.byteCount == BITSTOBYTES( modbusSwapEndian( requestParser->request01.coilCount ) );
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )

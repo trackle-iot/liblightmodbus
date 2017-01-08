@@ -74,7 +74,7 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Respond
-	frameLength = 6 + ( ( parser->request01.coilCount - 1 ) >> 3 );
+	frameLength = 5 + BITSTOBYTES( parser->request01.coilCount );
 
 	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
@@ -88,12 +88,12 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	//Set up basic response data
 	builder->base.address = status->address;
 	builder->base.function = parser->base.function;
-	builder->response01.byteCount = 1 + ( ( parser->request01.coilCount - 1 ) >> 3 );
+	builder->response01.byteCount = BITSTOBYTES( parser->request01.coilCount );
 
 	//Copy registers to response frame
 	for ( i = 0; i < parser->request01.coilCount; i++ )
 	{
-		if ( ( coil = modbusMaskRead( status->coils, 1 + ( ( status->coilCount - 1 ) >> 3 ), i + parser->request01.firstCoil ) ) == 255 )
+		if ( ( coil = modbusMaskRead( status->coils, BITSTOBYTES( status->coilCount ), i + parser->request01.firstCoil ) ) == 255 )
 		{
 			status->finished = 1;
 			return MODBUS_ERROR_OTHER;
@@ -183,7 +183,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write coils
-	if ( modbusMaskWrite( status->coils, 1 + ( ( status->coilCount - 1 ) << 3 ), parser->request05.coil, parser->request05.value == 0xFF00 ) == 255 )
+	if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), parser->request05.coil, parser->request05.value == 0xFF00 ) == 255 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -246,7 +246,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	//Data checks
 	if ( parser->request15.byteCount == 0 || \
 		parser->request15.coilCount == 0 || \
-		1 + ( ( parser->request15.coilCount - 1 ) >> 3 ) != parser->request15.byteCount || \
+		BITSTOBYTES( parser->request15.coilCount ) != parser->request15.byteCount || \
 		parser->request15.coilCount > 1968 )
 	{
 		//Illegal data value error

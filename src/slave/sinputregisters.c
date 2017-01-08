@@ -34,7 +34,11 @@ uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request04.crc )

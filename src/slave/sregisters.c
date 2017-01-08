@@ -34,7 +34,11 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request03.crc )
@@ -108,7 +112,11 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request06.crc )
@@ -189,7 +197,11 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 	frameLength = 9 + parser->request16.byteCount;
 
 	//Check frame crc

@@ -39,6 +39,13 @@ uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->finished = 0;
 	status->predictedResponseLength = 0;
 
+	//Check values pointer
+	if ( inputCount == 0 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
+
 	//Reallocate memory for final frame
 	free( status->request.frame );
 	status->request.frame = (uint8_t *) malloc( frameLength );
@@ -74,7 +81,12 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	uint8_t i = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL || requestParser == NULL )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 	frameLength = 5 + parser->response02.byteCount;
 
 	//Check frame crc

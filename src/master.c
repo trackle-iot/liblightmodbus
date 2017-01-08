@@ -74,13 +74,8 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	status->finished = 0;
 
 	//If user tries to parse an empty frame return error (to avoid problems with memory allocation)
-	if ( status->response.length == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
-
-	if ( status->response.frame == NULL )
+	//That enables us to ommit the check in each parsing function
+	if ( status->response.length == 0 || status->response.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;

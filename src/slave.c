@@ -83,13 +83,9 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	status->response.length = 0;
 	status->finished = 0;
 
-	//If user tries to parse an empty frame return error (to avoid problems with memory allocation)
-	if ( status->request.length == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
-	if ( status->request.frame == NULL )
+	//If user tries to parse an empty frame return error
+	//That enables us to ommit the check in each parsing function
+	if ( status->request.length == 0 || status->request.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;

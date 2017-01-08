@@ -59,7 +59,7 @@ uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 	parser->request04.registerCount = modbusSwapEndian( parser->request04.registerCount );
 
 	//Check if reg is in valid range
-	if ( parser->request04.registerCount == 0 )
+	if ( parser->request04.registerCount == 0 || parser->request04.registerCount > 125 )
 	{
 		//Illegal data value error
 		return modbusBuildException( status, 0x04, MODBUS_EXCEP_ILLEGAL_VALUE );

@@ -60,7 +60,7 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	parser->request01.coilCount = modbusSwapEndian( parser->request01.coilCount );
 
 	//Check if coil is in valid range
-	if ( parser->request01.coilCount == 0 )
+	if ( parser->request01.coilCount == 0 || parser->request01.coilCount > 2000 )
 	{
 		//Illegal data value error
 		return modbusBuildException( status, 0x01, MODBUS_EXCEP_ILLEGAL_VAL );
@@ -259,7 +259,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	parser->request15.coilCount = modbusSwapEndian( parser->request15.coilCount );
 
 	//Check if bytes count matches coils count
-	if ( 1 + ( ( parser->request15.coilCount - 1 ) >> 3 )  != parser->request15.byteCount )
+	if ( 1 + ( ( parser->request15.coilCount - 1 ) >> 3 ) != parser->request15.byteCount || parser->request15.coilCount > 1968 )
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, MODBUS_EXCEP_ILLEGAL_VAL );

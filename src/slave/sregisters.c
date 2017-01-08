@@ -59,7 +59,7 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 	parser->request03.registerCount = modbusSwapEndian( parser->request03.registerCount );
 
 	//Check if reg is in valid range
-	if ( parser->request03.registerCount == 0 )
+	if ( parser->request03.registerCount == 0 || parser->request03.registerCount > 125 )
 	{
 		//Illegal data value error
 		return modbusBuildException( status, 0x03, MODBUS_EXCEP_ILLEGAL_VAL );
@@ -225,7 +225,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	parser->request16.registerCount = modbusSwapEndian( parser->request16.registerCount );
 
 	//Check if bytes count *2 is equal to registers count
-	if ( parser->request16.registerCount != ( parser->request16.byteCount >> 1 ) )
+	if ( parser->request16.registerCount != ( parser->request16.byteCount >> 1 ) || parser->request16.registerCount > 123 )
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );

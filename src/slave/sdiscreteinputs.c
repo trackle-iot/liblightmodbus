@@ -52,7 +52,7 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 	if ( parser->base.address == 0 )
 	{
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -112,5 +112,5 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }

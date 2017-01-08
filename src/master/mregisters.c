@@ -68,7 +68,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 4 + 1 + ( registerCount << 1 );
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t reg, uint16_t value )
@@ -109,7 +109,7 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t re
 	if ( address ) status->predictedResponseLength = 8;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount, uint16_t *values )
@@ -161,7 +161,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 	if ( address ) status->predictedResponseLength = 4 + 4;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -227,7 +227,7 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	status->dataLength = parser->response03.byteCount >> 1;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -287,7 +287,7 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->dataLength = 1;
 	status->finished = 1;
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -330,5 +330,5 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->dataLength = 0;
 	status->finished = 1;
-	return 0;
+	return MODBUS_ERROR_OK;
 }

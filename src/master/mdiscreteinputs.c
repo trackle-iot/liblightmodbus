@@ -68,7 +68,7 @@ uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 4 + 2 + ( ( inputCount - 1 ) >> 3 );
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -136,5 +136,5 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	status->dataLength = modbusSwapEndian( requestParser->request02.inputCount );
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }

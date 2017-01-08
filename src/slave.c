@@ -107,7 +107,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	{
 		free( parser );
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//If there is memory allocated for response frame - free it

@@ -68,7 +68,7 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 4 + 2 + ( ( coilCount - 1 ) >> 3 );
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t coil, uint16_t value )
@@ -111,7 +111,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 	if ( address ) status->predictedResponseLength = 8;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t firstCoil, uint16_t coilCount, uint8_t *values )
@@ -165,7 +165,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	if ( address ) status->predictedResponseLength = 4 + 4;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -233,7 +233,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	status->dataLength = modbusSwapEndian( requestParser->request01.coilCount );
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -286,7 +286,7 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->dataLength = 1;
 	status->finished = 1;
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -329,5 +329,5 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->dataLength = 0;
 	status->finished = 1;
-	return 0;
+	return MODBUS_ERROR_OK;
 }

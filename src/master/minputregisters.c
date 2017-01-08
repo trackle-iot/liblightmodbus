@@ -68,7 +68,7 @@ uint8_t modbusBuildRequest04( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 4 + 1 + ( registerCount << 1 );
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -134,5 +134,5 @@ uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->dataLength = parser->response04.byteCount >> 1;
 	status->finished = 1;
-	return 0;
+	return MODBUS_ERROR_OK;
 }

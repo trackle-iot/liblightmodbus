@@ -101,6 +101,7 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= parser->base.function == requestParser->base.function;
 	dataok &= parser->response02.byteCount != 0;
 	dataok &= parser->response02.byteCount <= 250;
+	dataok &= parser->response02.byteCount == 1 + ( ( modbusSwapEndian( requestParser->request02.inputCount ) - 1 ) >> 3 );
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )

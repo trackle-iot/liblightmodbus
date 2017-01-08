@@ -136,8 +136,6 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 		return MODBUS_ERROR_OTHER;
 	}
 
-	if ( registerCount > 123 ) return MODBUS_ERROR_OTHER;
-
 	//Reallocate memory for final frame
 	free( status->request.frame );
 	status->request.frame = (uint8_t *) malloc( frameLength );
@@ -197,7 +195,7 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= parser->response03.function == requestParser->request03.function;
 	dataok &= parser->response03.byteCount != 0;
 	dataok &= parser->response03.byteCount == modbusSwapEndian( requestParser->request03.registerCount ) << 1 ;
-	dataok &= parser->response03.byteCount <= 125;
+	dataok &= parser->response03.byteCount <= 250;
 
 	//If data is bad, abort parsing, and set error flag
 	if ( !dataok )
@@ -319,7 +317,7 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= parser->response16.function == requestParser->request16.function;
 	dataok &= parser->response16.firstRegister == requestParser->request16.firstRegister;
 	dataok &= parser->response16.registerCount == requestParser->request16.registerCount;
-	dataok &= parser->response16.registerCount <= 123;
+	dataok &= modbusSwapEndian( parser->response16.registerCount ) <= 123;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )

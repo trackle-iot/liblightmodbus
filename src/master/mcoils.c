@@ -40,7 +40,7 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( coilCount == 0 || coilCount > 2000 )
+	if ( coilCount == 0 || coilCount > 2000 || address == 0 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -108,7 +108,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 	builder->request01.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 8;
+	if ( address ) status->predictedResponseLength = 8;
 	status->finished = 1;
 
 	return 0;
@@ -162,7 +162,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	*( (uint16_t*)( builder->frame + frameLength - 2 ) ) = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 4 + 4;
+	if ( address ) status->predictedResponseLength = 4 + 4;
 	status->finished = 1;
 
 	return 0;
@@ -194,6 +194,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check between data sent to slave and received from slave
+	dataok &= parser->base.address != 0;
 	dataok &= parser->base.address == requestParser->base.address;
 	dataok &= parser->base.function == requestParser->base.function;
 	dataok &= parser->response01.byteCount != 0;

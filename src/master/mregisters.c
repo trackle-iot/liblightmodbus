@@ -40,7 +40,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( registerCount == 0 || registerCount > 125 )
+	if ( registerCount == 0 || registerCount > 125 || address == 0 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -106,7 +106,7 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t re
 	builder->request06.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 8;
+	if ( address ) status->predictedResponseLength = 8;
 	status->finished = 1;
 
 	return 0;
@@ -158,7 +158,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request16.values[registerCount] = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 4 + 4;
+	if ( address ) status->predictedResponseLength = 4 + 4;
 	status->finished = 1;
 
 	return 0;
@@ -191,6 +191,7 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check between data sent to slave and received from slave
+	dataok &= parser->base.address != 0;
 	dataok &= parser->response03.address == requestParser->request03.address;
 	dataok &= parser->response03.function == requestParser->request03.function;
 	dataok &= parser->response03.byteCount != 0;

@@ -40,7 +40,7 @@ uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( inputCount == 0 || inputCount > 2000 )
+	if ( inputCount == 0 || inputCount > 2000 || address == 0 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -97,6 +97,7 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check between data sent to slave and received from slave
+	dataok &= parser->base.address != 0;
 	dataok &= parser->base.address == requestParser->base.address;
 	dataok &= parser->base.function == requestParser->base.function;
 	dataok &= parser->response02.byteCount != 0;

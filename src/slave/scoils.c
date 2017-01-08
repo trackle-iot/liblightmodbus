@@ -142,20 +142,20 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	parser->request05.coil = modbusSwapEndian( parser->request05.coil );
 	parser->request05.value = modbusSwapEndian( parser->request05.value );
 
-	//Check if coil is in valid range
-	if ( parser->request05.coil >= status->coilCount )
-	{
-		//Illegal data address error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x05, MODBUS_EXCEP_ILLEGAL_ADDR );
-		status->finished = 1;
-		return 0;
-	}
-
 	//Check if coil value is valid
 	if ( parser->request05.value != 0x0000 && parser->request05.value != 0xFF00 )
 	{
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x05, MODBUS_EXCEP_ILLEGAL_VAL );
+		status->finished = 1;
+		return 0;
+	}
+
+	//Check if coil is in valid range
+	if ( parser->request05.coil >= status->coilCount )
+	{
+		//Illegal data address error
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x05, MODBUS_EXCEP_ILLEGAL_ADDR );
 		status->finished = 1;
 		return 0;
 	}

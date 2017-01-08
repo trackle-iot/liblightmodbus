@@ -192,7 +192,6 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 
 	//Update frame length
 	uint8_t i = 0;
-	uint8_t MaskSum = 0;
 	uint8_t frameLength;
 
 	//Check if given pointers are valid
@@ -244,15 +243,13 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check for write protection
 	for ( i = 0; i < parser->request16.registerCount; i++ )
-		MaskSum += modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request16.firstRegister + i ) == 1 ;
-
-	if ( MaskSum > 0 )
-	{
-		//Slave failure exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, 0x04 );
-		status->finished = 1;
-		return 0;
-	}
+		if ( modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request16.firstRegister + i ) == 1 )
+		{
+			//Slave failure exception
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, 0x04 );
+			status->finished = 1;
+			return 0;
+		}
 
 	//Respond
 	frameLength = 8;

@@ -66,7 +66,8 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 		return modbusBuildException( status, 0x01, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
-	if ( parser->request01.firstCoil >= status->coilCount || (uint32_t) parser->request01.firstCoil + (uint32_t) parser->request01.coilCount > (uint32_t) status->coilCount )
+	if ( parser->request01.firstCoil >= status->coilCount || \
+		(uint32_t) parser->request01.firstCoil + (uint32_t) parser->request01.coilCount > (uint32_t) status->coilCount )
 	{
 		//Illegal data address exception
 		return modbusBuildException( status, 0x01, MODBUS_EXCEP_ILLEGAL_ADDR );
@@ -254,7 +255,8 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 		return 0;
 	}
 
-	if ( parser->request15.firstCoil >= status->coilCount || (uint32_t) parser->request15.firstCoil + (uint32_t) parser->request15.coilCount > (uint32_t) status->coilCount )
+	if ( parser->request15.firstCoil >= status->coilCount || \
+		(uint32_t) parser->request15.firstCoil + (uint32_t) parser->request15.coilCount > (uint32_t) status->coilCount )
 	{
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, MODBUS_EXCEP_ILLEGAL_ADDR );

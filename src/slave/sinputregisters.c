@@ -65,7 +65,8 @@ uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 		return modbusBuildException( status, 0x04, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
-	if ( parser->request04.firstRegister >= status->inputRegisterCount || (uint32_t) parser->request04.firstRegister + (uint32_t) parser->request04.registerCount > (uint32_t) status->inputRegisterCount )
+	if ( parser->request04.firstRegister >= status->inputRegisterCount || \
+		(uint32_t) parser->request04.firstRegister + (uint32_t) parser->request04.registerCount > (uint32_t) status->inputRegisterCount )
 	{
 		//Illegal data address exception
 		return modbusBuildException( status, 0x04, MODBUS_EXCEP_ILLEGAL_ADDR );

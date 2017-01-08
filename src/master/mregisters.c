@@ -37,6 +37,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
+	status->predictedResponseLength = 0;
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
@@ -57,6 +58,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request03.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
+	status->predictedResponseLength = 4 + 1 + ( registerCount << 1 );
 	status->finished = 1;
 
 	return 0;
@@ -76,6 +78,7 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t re
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
+	status->predictedResponseLength = 0;
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
@@ -96,6 +99,7 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t re
 	builder->request06.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
+	status->predictedResponseLength = 8;
 	status->finished = 1;
 
 	return 0;
@@ -117,6 +121,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
+	status->predictedResponseLength = 0;
 
 	if ( registerCount > 123 ) return MODBUS_ERROR_OTHER;
 
@@ -142,6 +147,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request16.values[registerCount] = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
+	status->predictedResponseLength = 4 + 4;
 	status->finished = 1;
 
 	return 0;

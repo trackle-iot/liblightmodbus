@@ -37,6 +37,7 @@ uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t fi
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
+	status->predictedResponseLength = 0;
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
@@ -57,6 +58,7 @@ uint8_t modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request02.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
+	status->predictedResponseLength = 4 + 2 + ( ( inputCount - 1 ) >> 3 );
 	status->finished = 1;
 
 	return 0;

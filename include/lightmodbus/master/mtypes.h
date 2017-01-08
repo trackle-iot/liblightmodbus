@@ -50,6 +50,7 @@ typedef struct
 	ModbusData *data; //Data read from slave
 	uint8_t dataLength; //Count of data type instances read from slave
 	uint8_t finished; //Is parsing finished?
+	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data
 	ModbusException exception; //Optional exception read
 	ModbusFrame request; //Formatted request for slave
 	ModbusFrame response; //Response from slave should be put here

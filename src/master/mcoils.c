@@ -37,6 +37,7 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
+	status->predictedResponseLength = 0;
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
@@ -57,6 +58,7 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request01.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
+	status->predictedResponseLength = 4 + 2 + ( ( coilCount - 1 ) >> 3 );
 	status->finished = 1;
 
 	return 0;
@@ -76,6 +78,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
+	status->predictedResponseLength = 0;
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
@@ -98,6 +101,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 	builder->request01.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
+	status->predictedResponseLength = 8;
 	status->finished = 1;
 
 	return 0;
@@ -119,6 +123,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->finished = 0;
+	status->predictedResponseLength = 0;
 
 	if ( coilCount > 256 ) return 1;
 
@@ -145,6 +150,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->frame[frameLength - 1] = ( modbusCRC( builder->frame, frameLength - 2 ) & 0xFF00 ) >> 8;
 
 	status->request.length = frameLength;
+	status->predictedResponseLength = 4 + 4;
 	status->finished = 1;
 
 	return 0;

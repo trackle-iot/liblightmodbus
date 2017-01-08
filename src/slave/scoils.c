@@ -105,8 +105,7 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Calculate crc
-	builder->frame[frameLength - 2] = modbusCRC( builder->frame, frameLength - 2 ) & 0x00FF;
-	builder->frame[frameLength - 1] = ( modbusCRC( builder->frame, frameLength - 2 ) & 0xFF00 ) >> 8;
+	*( (uint16_t*)( builder->frame + frameLength - 2 ) ) = modbusCRC( builder->frame, frameLength - 2 );
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
@@ -233,13 +232,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check frame crc
 	//Shifting is used instead of dividing for optimisation on smaller devices (AVR)
-	if ( ( modbusCRC( parser->frame, frameLength - 2 ) & 0x00FF ) != parser->request15.values[parser->request15.byteCount] )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
-
-	if ( ( ( modbusCRC( parser->frame, frameLength - 2 ) & 0xFF00 ) >> 8 ) != parser->request15.values[parser->request15.byteCount + 1] )
+	if ( modbusCRC( parser->frame, frameLength - 2 ) != *( (uint16_t*)( parser->request15.values + parser->request15.byteCount ) ) )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_CRC;

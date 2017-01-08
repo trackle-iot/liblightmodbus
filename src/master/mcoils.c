@@ -159,8 +159,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	for ( i = 0; i < builder->request15.byteCount; i++ )
 		builder->request15.values[i] = values[i];
 
-	builder->frame[frameLength - 2] = modbusCRC( builder->frame, frameLength - 2 ) & 0x00FF;
-	builder->frame[frameLength - 1] = ( modbusCRC( builder->frame, frameLength - 2 ) & 0xFF00 ) >> 8;
+	*( (uint16_t*)( builder->frame + frameLength - 2 ) ) = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
 	status->predictedResponseLength = 4 + 4;
@@ -188,8 +187,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	frameLength = 5 + parser->response01.byteCount;
 
 	//Check frame crc
-	dataok &= ( modbusCRC( parser->frame, frameLength - 2 ) & 0x00FF ) == parser->response01.values[parser->response01.byteCount];
-	dataok &= ( ( modbusCRC( parser->frame, frameLength - 2 ) & 0xFF00 ) >> 8 ) == parser->response01.values[parser->response01.byteCount + 1];
+	dataok &= modbusCRC( parser->frame, frameLength - 2 ) == *( (uint16_t*)( parser->response01.values + parser->response01.byteCount ) );
 
 	if ( !dataok )
 	{

@@ -105,8 +105,7 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Calculate crc
-	builder->frame[frameLength - 2] = modbusCRC( builder->frame, frameLength - 2 ) & 0x00FF;
-	builder->frame[frameLength - 1] = ( modbusCRC( builder->frame, frameLength - 2 ) & 0xFF00 ) >> 8;
+	*( (uint16_t*)( builder->frame + frameLength - 2 ) ) = modbusCRC( builder->frame, frameLength - 2 );
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;

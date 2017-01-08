@@ -90,8 +90,7 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	frameLength = 5 + parser->response02.byteCount;
 
 	//Check frame crc
-	dataok &= ( modbusCRC( parser->frame, frameLength - 2 ) & 0x00FF ) == parser->response02.values[parser->response02.byteCount];
-	dataok &= ( ( modbusCRC( parser->frame, frameLength - 2 ) & 0xFF00 ) >> 8 ) == parser->response02.values[parser->response02.byteCount + 1];
+	dataok &= modbusCRC( parser->frame, frameLength - 2 ) == *( (uint16_t*)( parser->response02.values + parser->response02.byteCount ) );
 
 	if ( !dataok )
 	{

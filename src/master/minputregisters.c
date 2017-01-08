@@ -91,7 +91,7 @@ uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser,
 	frameLength = 5 + parser->response04.byteCount;
 
 	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response04.values[ parser->response04.byteCount >> 1 ] )
+	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response04.values[parser->response04.byteCount >> 1] )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_CRC;

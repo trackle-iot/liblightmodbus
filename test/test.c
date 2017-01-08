@@ -60,11 +60,18 @@ void Test( )
 		printf( "%d%s", modbusMaskRead( discreteInputs, sstatus.discreteInputCount, i ), ( i == sstatus.discreteInputCount - 1 ) ? "\n" : ", " );
 
 	//Parse request
+
+	uint8_t f1[256];
+	uint8_t l = mstatus.request.length;
+	memcpy( f1, mstatus.request.frame, l );
+
 	printf( "Let slave parse frame...\n" );
 	sstatus.request.frame = mstatus.request.frame;
 	sstatus.request.length = mstatus.request.length;
 	SlaveError = modbusParseRequest( &sstatus );
 	printf( "\tError - %d\n\tFinished - %d\n", SlaveError, sstatus.finished );
+
+	if ( memcmp( f1, mstatus.request.frame, l ) ) printf( "!!!Slave has malformed the frame!!!\n" );
 
 	//Dump slave registers
 	printf( "Dump registers:\n\t" );
@@ -89,6 +96,8 @@ void Test( )
 		printf( "%x%s", sstatus.response.frame[i], ( i == sstatus.response.length - 1 ) ? "\n" : ", " );
 
 	//Process response
+	l = sstatus.response.length;
+	memcpy( f1, sstatus.response.frame, l );
 	printf( "Let master process response...\n" );
 	mstatus.response.frame = sstatus.response.frame;
 	mstatus.response.length = sstatus.response.length;
@@ -96,6 +105,8 @@ void Test( )
 	if ( !SlaveError && mstatus.predictedResponseLength != sstatus.response.length && sstatus.response.length )
 		printf( "Response prediction doesn't match!! (p. %d vs a. %d)\n", mstatus.predictedResponseLength, \
 	 		sstatus.response.length );
+
+	if ( memcmp( f1, sstatus.response.frame, l ) ) printf( "!!!Master has malformed the frame!!!\n" );
 
 	//Dump parsed data
 	printf( "\tError - %d\n\tFinished - %d\n", MasterError, mstatus.finished );
@@ -132,12 +143,12 @@ void MainTest( )
 
 	//request03 - bad register count
 	printf( "\t\t03 - bad register count...\n" );
-	modbusBuildRequest03( &mstatus, 0x20, 0x00, 0xff );
+	modbusBuildRequest03( &mstatus, 0x20, 0x00, 65 );
 	Test( );
 
 	//request03 - bad register count and first register
 	printf( "\t\t03 - bad register count and first register...\n" );
-	modbusBuildRequest03( &mstatus,0x20, 0xffff, 0xffff );
+	modbusBuildRequest03( &mstatus,0x20, 9, 32 );
 	Test( );
 
 	//request03 - broadcast
@@ -194,7 +205,7 @@ void MainTest( )
 
 	//request16 - bad register range
 	printf( "\t\t16 - bad register range...\n" );
-	modbusBuildRequest16( &mstatus, 0x20, 0x00, 0xFF, TestValues2 );
+	modbusBuildRequest16( &mstatus, 0x20, 0x00, 65, TestValues2 );
 	Test( );
 
 	//request16 - bad register range 2
@@ -245,7 +256,7 @@ void MainTest( )
 
 	//request02 - bad register count and first discrete input
 	printf( "\t\t02 - bad register count and first discrete input...\n" );
-	modbusBuildRequest02( &mstatus, 0x20, 0xffff, 0xffff );
+	modbusBuildRequest02( &mstatus, 0x20, 0xff, 0xff );
 	Test( );
 
 	//request02 - broadcast
@@ -281,7 +292,7 @@ void MainTest( )
 
 	//request01 - bad register count and first register
 	printf( "\t\t01 - bad coil count and first coil...\n" );
-	modbusBuildRequest01( &mstatus, 0x20, 0xffff, 0xffff );
+	modbusBuildRequest01( &mstatus, 0x20, 0xffff, 1250 );
 	Test( );
 
 	//request01 - broadcast
@@ -343,7 +354,7 @@ void MainTest( )
 
 	//request15 - bad register range
 	printf( "\t\t15 - bad coil range...\n" );
-	modbusBuildRequest15( &mstatus, 0x20, 0x00, 0xFF, TestValues3 );
+	modbusBuildRequest15( &mstatus, 0x20, 0x00, 65, TestValues3 );
 	Test( );
 
 	//request15 - bad register range 2

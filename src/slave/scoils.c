@@ -245,21 +245,15 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_CRC;
 	}
 
-	//Check if bytes or registers count isn't 0
-	if ( parser->request15.byteCount == 0 || parser->request15.coilCount == 0 )
-	{
-		//Illegal data value error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, MODBUS_EXCEP_ILLEGAL_VAL );
-		status->finished = 1;
-		return 0;
-	}
-
 	//Swap endianness of longer members (but not crc)
 	parser->request15.firstCoil = modbusSwapEndian( parser->request15.firstCoil );
 	parser->request15.coilCount = modbusSwapEndian( parser->request15.coilCount );
 
-	//Check if bytes count matches coils count
-	if ( 1 + ( ( parser->request15.coilCount - 1 ) >> 3 ) != parser->request15.byteCount || parser->request15.coilCount > 1968 )
+	//Data checks
+	if ( parser->request15.byteCount == 0 || \
+		parser->request15.coilCount == 0 || \
+		1 + ( ( parser->request15.coilCount - 1 ) >> 3 ) != parser->request15.byteCount || \
+		parser->request15.coilCount > 1968 )
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, MODBUS_EXCEP_ILLEGAL_VAL );

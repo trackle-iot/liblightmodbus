@@ -211,21 +211,15 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_CRC;
 	}
 
-	//Check if bytes or registers count isn't 0
-	if ( parser->request16.byteCount == 0 || parser->request16.registerCount == 0 )
-	{
-		//Illegal data value error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );
-		status->finished = 1;
-		return 0;
-	}
-
 	//Swap endianness of longer members (but not crc)
 	parser->request16.firstRegister = modbusSwapEndian( parser->request16.firstRegister );
 	parser->request16.registerCount = modbusSwapEndian( parser->request16.registerCount );
 
-	//Check if bytes count *2 is equal to registers count
-	if ( parser->request16.registerCount != ( parser->request16.byteCount >> 1 ) || parser->request16.registerCount > 123 )
+	//Data checks
+	if ( parser->request16.byteCount == 0 || \
+		parser->request16.registerCount == 0 || \
+		parser->request16.registerCount != ( parser->request16.byteCount >> 1 ) || \
+		parser->request16.registerCount > 123 )
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );

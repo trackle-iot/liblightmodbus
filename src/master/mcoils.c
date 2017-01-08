@@ -40,7 +40,7 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( coilCount == 0 )
+	if ( coilCount == 0 || coilCount > 2000 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -132,7 +132,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( values == NULL || coilCount == 0 )
+	if ( values == NULL || coilCount == 0 || coilCount > 1968 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -187,17 +187,17 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	frameLength = 5 + parser->response01.byteCount;
 
 	//Check frame crc
-	dataok &= modbusCRC( parser->frame, frameLength - 2 ) == *( (uint16_t*)( parser->response01.values + parser->response01.byteCount ) );
-
-	if ( !dataok )
+	if ( modbusCRC( parser->frame, frameLength - 2 ) != *( (uint16_t*)( parser->response01.values + parser->response01.byteCount ) ) )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_CRC;
 	}
 
 	//Check between data sent to slave and received from slave
-	dataok &= ( parser->base.address == requestParser->base.address );
-	dataok &= ( parser->base.function == requestParser->base.function );
+	dataok &= parser->base.address == requestParser->base.address;
+	dataok &= parser->base.function == requestParser->base.function;
+	dataok &= parser->response01.byteCount != 0;
+	dataok &= parser->response01.byteCount <= 250;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )
@@ -312,10 +312,10 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 
 
 	//Check between data sent to slave and received from slave
-	dataok &= ( parser->base.address == requestParser->base.address );
-	dataok &= ( parser->base.function == requestParser->base.function );
-	dataok &= ( parser->response15.firstCoil == requestParser->request15.firstCoil );
-	dataok &= ( parser->response15.coilCount == requestParser->request15.coilCount );
+	dataok &= parser->base.address == requestParser->base.address;
+	dataok &= parser->base.function == requestParser->base.function;
+	dataok &= parser->response15.firstCoil == requestParser->request15.firstCoil;
+	dataok &= parser->response15.coilCount == requestParser->request15.coilCount;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )

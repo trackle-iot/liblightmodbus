@@ -40,7 +40,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( registerCount == 0 )
+	if ( registerCount == 0 || registerCount > 125 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -130,7 +130,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( values == NULL || registerCount == 0 )
+	if ( values == NULL || registerCount == 0 || registerCount > 123 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -193,9 +193,11 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check between data sent to slave and received from slave
-	dataok &= ( parser->response03.address == requestParser->request03.address );
-	dataok &= ( parser->response03.function == requestParser->request03.function );
-	dataok &= ( parser->response03.byteCount == modbusSwapEndian( requestParser->request03.registerCount ) << 1 );
+	dataok &= parser->response03.address == requestParser->request03.address;
+	dataok &= parser->response03.function == requestParser->request03.function;
+	dataok &= parser->response03.byteCount != 0;
+	dataok &= parser->response03.byteCount == modbusSwapEndian( requestParser->request03.registerCount ) << 1 ;
+	dataok &= parser->response03.byteCount <= 125;
 
 	//If data is bad, abort parsing, and set error flag
 	if ( !dataok )
@@ -253,10 +255,10 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check between data sent to slave and received from slave
-	dataok &= ( parser->response06.address == requestParser->request06.address );
-	dataok &= ( parser->response06.function == requestParser->request06.function );
-	dataok &= ( parser->response06.reg == requestParser->request06.reg );
-	dataok &= ( parser->response06.value == requestParser->request06.value );
+	dataok &= parser->response06.address == requestParser->request06.address;
+	dataok &= parser->response06.function == requestParser->request06.function;
+	dataok &= parser->response06.reg == requestParser->request06.reg;
+	dataok &= parser->response06.value == requestParser->request06.value;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )
@@ -313,10 +315,11 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check between data sent to slave and received from slave
-	dataok &= ( parser->response16.address == requestParser->request16.address );
-	dataok &= ( parser->response16.function == requestParser->request16.function );
-	dataok &= ( parser->response16.firstRegister == requestParser->request16.firstRegister );
-	dataok &= ( parser->response16.registerCount == requestParser->request16.registerCount );
+	dataok &= parser->response16.address == requestParser->request16.address;
+	dataok &= parser->response16.function == requestParser->request16.function;
+	dataok &= parser->response16.firstRegister == requestParser->request16.firstRegister;
+	dataok &= parser->response16.registerCount == requestParser->request16.registerCount;
+	dataok &= parser->response16.registerCount <= 123;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )

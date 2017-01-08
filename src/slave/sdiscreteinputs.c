@@ -60,7 +60,7 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 	parser->request02.inputCount = modbusSwapEndian( parser->request02.inputCount );
 
 	//Check if discrete input is in valid range
-	if ( parser->request02.inputCount == 0 || parser->request02.inputCount > 250 )
+	if ( parser->request02.inputCount == 0 || parser->request02.inputCount > 2000 )
 	{
 		//Illegal data value error
 		return modbusBuildException( status, 0x02, MODBUS_EXCEP_ILLEGAL_VAL );

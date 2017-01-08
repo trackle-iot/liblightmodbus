@@ -93,6 +93,9 @@ void Test( )
 	mstatus.response.frame = sstatus.response.frame;
 	mstatus.response.length = sstatus.response.length;
 	MasterError = modbusParseResponse( &mstatus );
+	if ( !SlaveError && mstatus.predictedResponseLength != sstatus.response.length && sstatus.response.length )
+		printf( "Response prediction doesn't match!! (p. %d vs a. %d)\n", mstatus.predictedResponseLength, \
+	 		sstatus.response.length );
 
 	//Dump parsed data
 	printf( "\tError - %d\n\tFinished - %d\n", MasterError, mstatus.finished );
@@ -420,6 +423,23 @@ void MainTest( )
 	modbusBuildRequest16( &mstatus, 0x20, 0, 4, TestValues2 );
 	Test( );
 	modbusBuildRequest16( &mstatus, 0x20, 0, 2, TestValues2 );
+	Test( );
+
+	//WRITE PROTECTION TEST 2
+	printf( "\t\t--Coil write protection test--\n" );
+	sstatus.coilMask = mask;
+	sstatus.coilMaskLength = 1;
+
+	modbusMaskWrite( mask, 1, 2, 1 );
+
+	modbusBuildRequest05( &mstatus, 0x20, 2, 16 );
+	Test( );
+	modbusBuildRequest05( &mstatus, 0x20, 0, 16 );
+	Test( );
+
+	modbusBuildRequest15( &mstatus, 0x20, 0, 16, TestValues3 );
+	Test( );
+	modbusBuildRequest15( &mstatus, 0x20, 0, 2, TestValues3 );
 	Test( );
 
 	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 0 ) );

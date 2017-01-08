@@ -38,6 +38,14 @@
 #define MODBUS_ERROR_FRAME 32 //Frame contained incorrect data, and exception could not be thrown (eg. bytes count != reg count * 2 in slave's response)
 #define MODBUS_OK MODBUS_ERROR_OK
 
+//Exception codes
+#define MODBUS_EXCEP_ILLEGAL_FUNC 1
+#define MODBUS_EXCEP_ILLEGAL_ADDR 2
+#define MODBUS_EXCEP_ILLEGAL_VAL 3
+#define MODBUS_EXCEP_SLAVE_FAIL 4
+#define MODBUS_EXCEP_ACK 5
+#define MODBUS_EXCEP_NACK 7
+
 //Types
 typedef struct
 {

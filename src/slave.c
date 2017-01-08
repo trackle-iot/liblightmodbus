@@ -166,7 +166,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	}
 
 	if ( err == MODBUS_ERROR_PARSE )
-		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, 0x01 );
+		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNC );
 
 	free( parser );
 	status->finished = 1;

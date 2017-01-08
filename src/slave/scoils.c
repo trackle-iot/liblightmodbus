@@ -160,6 +160,15 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 		return 0;
 	}
 
+	//Check if reg is allowed to be written
+	if ( modbusMaskRead( status->coilMask, status->coilMaskLength, parser->request05.coil ) == 1 )
+	{
+		//Slave failure exception
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x05, 0x04 );
+		status->finished = 1;
+		return 0;
+	}
+
 	//Respond
 	frameLength = 8;
 
@@ -265,6 +274,16 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 		status->finished = 1;
 		return 0;
 	}
+
+	//Check for write protection
+	for ( i = 0; i < parser->request15.coilCount; i++ )
+		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, parser->request15.firstCoil + i ) == 1 )
+		{
+			//Slave failure exception
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, 0x04 );
+			status->finished = 1;
+			return 0;
+		}
 
 	//Respond
 	frameLength = 8;

@@ -39,8 +39,10 @@ typedef struct
 	uint8_t *discreteInputs; //Slave discrete input
 	uint16_t discreteInputCount; //Slave discrete input count
 
-	uint8_t *registerMask; //Masks for write protection (bit of value 1 - write protection)
-	uint16_t registerMaskLength; //Masks length (each mask covers 8 registers)
+	uint8_t *registerMask; //Masks for register write protection (bit of value 1 - write protection)
+	uint16_t registerMaskLength; //Masks length (each byte covers 8 registers)
+	uint8_t *coilMask; //Masks for coil write protection (bit of value 1 - write protection)
+	uint16_t coilMaskLength; //Masks length (each byte covers 8 coils)
 
 	uint16_t *inputRegisters; //Slave input registers
 	uint16_t inputRegisterCount; //Slave input count

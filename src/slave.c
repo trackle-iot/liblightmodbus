@@ -223,11 +223,13 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	return MODBUS_ERROR_OK;
 }
 
-void modbusSlaveEnd( ModbusSlave *status )
+uint8_t modbusSlaveEnd( ModbusSlave *status )
 {
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Free memory
 	free( status->response.frame );
+
+	return MODBUS_ERROR_OK;
 }

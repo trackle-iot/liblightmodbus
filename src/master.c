@@ -190,7 +190,7 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 	return MODBUS_ERROR_OK;
 }
 
-void modbusMasterEnd( ModbusMaster *status )
+uint8_t modbusMasterEnd( ModbusMaster *status )
 {
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
@@ -198,4 +198,6 @@ void modbusMasterEnd( ModbusMaster *status )
 	//Free memory
 	free( status->request.frame );
 	free( status->data );
+
+	return MODBUS_ERROR_OK;
 }

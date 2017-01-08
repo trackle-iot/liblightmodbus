@@ -47,6 +47,6 @@
 
 extern uint8_t modbusParseResponse( ModbusMaster *status );
 extern uint8_t modbusMasterInit( ModbusMaster *status );
-extern void modbusMasterEnd( ModbusMaster *status ); //Free memory used by master
+extern uint8_t modbusMasterEnd( ModbusMaster *status ); //Free memory used by master
 
 #endif

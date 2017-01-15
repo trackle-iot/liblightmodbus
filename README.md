@@ -6,7 +6,7 @@
 [More build results...](https://github.com/Jacajack/liblightmodbus/wiki/Build-results-history)
 <br>[Library on launchpad...](https://launchpad.net/liblightmodbus)
 
-`liblightmodbus` is a very lightweight Modbus RTU library that can run on every little-endian machine. It is developed with thought about embedded targets, as well as normal about use on personal computer.
+`liblightmodbus` is a very lightweight Modbus RTU library that can run on every little-endian machine. It is developed with thought about embedded targets and personal computers as well.
 
 ## Features
 - Minimal resources usage

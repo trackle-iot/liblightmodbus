@@ -46,10 +46,10 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 	union ModbusParser *exception = (union ModbusParser *) status->response.frame;
 
 	//Setup exception frame
-	( *exception ).exception.address = status->address;
-	( *exception ).exception.function = ( 1 << 7 ) | function;
-	( *exception ).exception.exceptionCode = exceptionCode;
-	( *exception ).exception.crc = modbusCRC( ( *exception ).frame, 3 );
+	exception->exception.address = status->address;
+	exception->exception.function = ( 1 << 7 ) | function;
+	exception->exception.exceptionCode = exceptionCode;
+	exception->exception.crc = modbusCRC( exception->frame, 3 );
 
 	//Set frame length - frame is ready
 	status->response.length = 5;

@@ -1,7 +1,7 @@
-.TH ModbusException 3lightmodbus "28 July 2016" "v1.2"
+.TH ModbusException 3lightmodbus "15 January 2016" "v1.3"
 .SH NAME
 .PP
-\fBModbusExeption\fP \- data type containing information about exception frame returned by Modbus slave device.
+\fBModbusExeption\fP \- data structure containing information about exception frame returned by Modbus slave device.
 .SH SYNOPSIS
 .PP
 \fB\fC

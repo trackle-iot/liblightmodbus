@@ -1,7 +1,7 @@
-.TH modbusSwapEndian 3lightmodbus "28 July 2016" "v1.2"
+.TH modbusSwapEndian 3lightmodbus "15 January 2016" "v1.3"
 .SH NAME
 .PP
-\fBmodbusSwapEndian\fP \- swap given 16\-bit integer's endianness.
+\fBmodbusSwapEndian\fP \- change given 16\-bit integer's endianness.
 .SH SYNOPSIS
 .PP
 \fB\fC#include <lightmodbus/core.h>\fR

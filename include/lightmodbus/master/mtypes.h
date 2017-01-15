@@ -24,10 +24,10 @@
 #include <inttypes.h>
 #include "../core.h"
 
-#define MODBUS_HOLDING_REGISTER 0
-#define MODBUS_INPUT_REGISTER 1
-#define MODBUS_COIL 2
-#define MODBUS_DISCRETE_INPUT 4
+#define MODBUS_HOLDING_REGISTER 1
+#define MODBUS_INPUT_REGISTER 2
+#define MODBUS_COIL 4
+#define MODBUS_DISCRETE_INPUT 8
 
 typedef struct
 {

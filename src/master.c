@@ -33,7 +33,11 @@ uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( parser == NULL )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	//Check crc
 	if ( modbusCRC( parser->frame, 3 ) != parser->exception.crc )

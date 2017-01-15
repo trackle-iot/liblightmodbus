@@ -30,8 +30,8 @@
 
 //Error codes
 #define MODBUS_ERROR_OK 0 //Everything went ok
-#define MODBUS_ERROR_PARSE 1 //Slave did not parse frame (eg. bad function code)
-#define MODBUS_ERROR_EXCEPTION 2 //Slave thrown an exception and it's stored in status->exception
+#define MODBUS_ERROR_EXCEPTION 1 //Slave thrown an exception and it's stored in status->exception
+#define MODBUS_ERROR_PARSE 2 //Slave did not parse frame (eg. bad function code)
 #define MODBUS_ERROR_CRC 4 //Invalid crc error
 #define MODBUS_ERROR_ALLOC 8 //Memory allocation problems (eg. system ran out of RAM)
 #define MODBUS_ERROR_OTHER 16 //Other reason function was exited (eg. bad function parameter)
@@ -45,6 +45,8 @@
 #define MODBUS_EXCEP_SLAVE_FAIL 4
 #define MODBUS_EXCEP_ACK 5
 #define MODBUS_EXCEP_NACK 7
+
+#define BITSTOBYTES( n ) ( 1 + ( ( n - 1 ) >> 3 ) )
 
 //Types
 typedef struct

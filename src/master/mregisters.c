@@ -40,7 +40,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( registerCount == 0 || registerCount > 125 )
+	if ( registerCount == 0 || registerCount > 125 || address == 0 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -68,7 +68,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 4 + 1 + ( registerCount << 1 );
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t reg, uint16_t value )
@@ -106,10 +106,10 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t re
 	builder->request06.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 8;
+	if ( address ) status->predictedResponseLength = 8;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount, uint16_t *values )
@@ -136,8 +136,6 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 		return MODBUS_ERROR_OTHER;
 	}
 
-	if ( registerCount > 123 ) return MODBUS_ERROR_OTHER;
-
 	//Reallocate memory for final frame
 	free( status->request.frame );
 	status->request.frame = (uint8_t *) malloc( frameLength );
@@ -160,10 +158,10 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 	builder->request16.values[registerCount] = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 4 + 4;
+	if ( address ) status->predictedResponseLength = 4 + 4;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -193,11 +191,12 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check between data sent to slave and received from slave
+	dataok &= parser->base.address != 0;
 	dataok &= parser->response03.address == requestParser->request03.address;
 	dataok &= parser->response03.function == requestParser->request03.function;
 	dataok &= parser->response03.byteCount != 0;
 	dataok &= parser->response03.byteCount == modbusSwapEndian( requestParser->request03.registerCount ) << 1 ;
-	dataok &= parser->response03.byteCount <= 125;
+	dataok &= parser->response03.byteCount <= 250;
 
 	//If data is bad, abort parsing, and set error flag
 	if ( !dataok )
@@ -228,7 +227,7 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	status->dataLength = parser->response03.byteCount >> 1;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -288,7 +287,7 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->dataLength = 1;
 	status->finished = 1;
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
@@ -319,7 +318,7 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= parser->response16.function == requestParser->request16.function;
 	dataok &= parser->response16.firstRegister == requestParser->request16.firstRegister;
 	dataok &= parser->response16.registerCount == requestParser->request16.registerCount;
-	dataok &= parser->response16.registerCount <= 123;
+	dataok &= modbusSwapEndian( parser->response16.registerCount ) <= 123;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )
@@ -331,5 +330,5 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->dataLength = 0;
 	status->finished = 1;
-	return 0;
+	return MODBUS_ERROR_OK;
 }

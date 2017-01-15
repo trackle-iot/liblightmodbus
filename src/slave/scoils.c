@@ -52,7 +52,7 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	if ( parser->base.address == 0 )
 	{
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -66,14 +66,15 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 		return modbusBuildException( status, 0x01, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
-	if ( parser->request01.firstCoil >= status->coilCount || (uint32_t) parser->request01.firstCoil + (uint32_t) parser->request01.coilCount > (uint32_t) status->coilCount )
+	if ( parser->request01.firstCoil >= status->coilCount || \
+		(uint32_t) parser->request01.firstCoil + (uint32_t) parser->request01.coilCount > (uint32_t) status->coilCount )
 	{
 		//Illegal data address exception
 		return modbusBuildException( status, 0x01, MODBUS_EXCEP_ILLEGAL_ADDR );
 	}
 
 	//Respond
-	frameLength = 6 + ( ( parser->request01.coilCount - 1 ) >> 3 );
+	frameLength = 5 + BITSTOBYTES( parser->request01.coilCount );
 
 	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
@@ -87,12 +88,12 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	//Set up basic response data
 	builder->base.address = status->address;
 	builder->base.function = parser->base.function;
-	builder->response01.byteCount = 1 + ( ( parser->request01.coilCount - 1 ) >> 3 );
+	builder->response01.byteCount = BITSTOBYTES( parser->request01.coilCount );
 
 	//Copy registers to response frame
 	for ( i = 0; i < parser->request01.coilCount; i++ )
 	{
-		if ( ( coil = modbusMaskRead( status->coils, 1 + ( ( status->coilCount - 1 ) >> 3 ), i + parser->request01.firstCoil ) ) == 255 )
+		if ( ( coil = modbusMaskRead( status->coils, BITSTOBYTES( status->coilCount ), i + parser->request01.firstCoil ) ) == 255 )
 		{
 			status->finished = 1;
 			return MODBUS_ERROR_OTHER;
@@ -111,7 +112,7 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
@@ -147,7 +148,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x05, MODBUS_EXCEP_ILLEGAL_VAL );
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Check if coil is in valid range
@@ -156,7 +157,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x05, MODBUS_EXCEP_ILLEGAL_ADDR );
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Check if reg is allowed to be written
@@ -165,7 +166,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 		//Slave failure exception
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x05, MODBUS_EXCEP_SLAVE_FAIL );
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Respond
@@ -182,7 +183,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write coils
-	if ( modbusMaskWrite( status->coils, 1 + ( ( status->coilCount - 1 ) << 3 ), parser->request05.coil, parser->request05.value == 0xFF00 ) == 255 )
+	if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), parser->request05.coil, parser->request05.value == 0xFF00 ) == 255 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -192,7 +193,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	if ( parser->base.address == 0 )
 	{
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Set up basic response data
@@ -208,7 +209,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	status->finished = 1;
 
-	return 0;
+	return MODBUS_ERROR_OK;
 }
 
 uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
@@ -245,21 +246,22 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	//Data checks
 	if ( parser->request15.byteCount == 0 || \
 		parser->request15.coilCount == 0 || \
-		1 + ( ( parser->request15.coilCount - 1 ) >> 3 ) != parser->request15.byteCount || \
+		BITSTOBYTES( parser->request15.coilCount ) != parser->request15.byteCount || \
 		parser->request15.coilCount > 1968 )
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, MODBUS_EXCEP_ILLEGAL_VAL );
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
-	if ( parser->request15.firstCoil >= status->coilCount || (uint32_t) parser->request15.firstCoil + (uint32_t) parser->request15.coilCount > (uint32_t) status->coilCount )
+	if ( parser->request15.firstCoil >= status->coilCount || \
+		(uint32_t) parser->request15.firstCoil + (uint32_t) parser->request15.coilCount > (uint32_t) status->coilCount )
 	{
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, MODBUS_EXCEP_ILLEGAL_ADDR );
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Check for write protection
@@ -269,7 +271,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 			//Slave failure exception
 			if ( parser->base.address != 0 ) return modbusBuildException( status, 0x0F, MODBUS_EXCEP_SLAVE_FAIL );
 			status->finished = 1;
-			return 0;
+			return MODBUS_ERROR_OK;
 		}
 
 	//Respond
@@ -303,7 +305,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	if ( parser->base.address == 0 )
 	{
 		status->finished = 1;
-		return 0;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Set up basic response data

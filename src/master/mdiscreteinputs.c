@@ -75,8 +75,6 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 {
 	//Parse slave response to request 02 (read multiple discrete inputs)
 
-	//Update frame length
-	uint8_t frameLength;
 	uint8_t dataok = 1;
 	uint8_t i = 0;
 
@@ -86,14 +84,6 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
-	}
-	frameLength = 5 + parser->response02.byteCount;
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != *( (uint16_t*)( parser->response02.values + parser->response02.byteCount ) ) )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
 	}
 
 	//Check between data sent to slave and received from slave

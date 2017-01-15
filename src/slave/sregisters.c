@@ -40,13 +40,6 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_OTHER;
 	}
 
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request03.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
-
 	//Don't do anything when frame is broadcasted
 	if ( parser->base.address == 0 )
 	{

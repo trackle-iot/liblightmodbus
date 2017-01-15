@@ -41,13 +41,6 @@ uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_OTHER;
 	}
 
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request01.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
-
 	//Don't do anything when frame is broadcasted
 	if ( parser->base.address == 0 )
 	{
@@ -129,13 +122,6 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
-	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request01.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -230,14 +216,6 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_OTHER;
 	}
 	frameLength = 9 + parser->request15.byteCount;
-
-	//Check frame crc
-	//Shifting is used instead of dividing for optimisation on smaller devices (AVR)
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != *( (uint16_t*)( parser->request15.values + parser->request15.byteCount ) ) )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
 
 	//Swap endianness of longer members (but not crc)
 	parser->request15.firstCoil = modbusSwapEndian( parser->request15.firstCoil );

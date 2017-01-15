@@ -34,6 +34,11 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( exceptionCode == 0 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	//Reallocate frame memory
 	status->response.frame = (uint8_t *) malloc( 5 );

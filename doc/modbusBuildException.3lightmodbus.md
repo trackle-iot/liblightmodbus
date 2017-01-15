@@ -1,4 +1,4 @@
-# modbusBuildException 3lightmodbus "4 August 2016" "v1.2"
+# modbusBuildException 3lightmodbus "15 January 2017" "v1.3"
 
 ## NAME
 **modbusBuildException** - build Modbus exception frame.

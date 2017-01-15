@@ -1,7 +1,7 @@
-# modbusSwapEndian 3lightmodbus "28 July 2016" "v1.2"
+# modbusSwapEndian 3lightmodbus "15 January 2016" "v1.3"
 
 ## NAME
-**modbusSwapEndian** - swap given 16-bit integer's endianness.
+**modbusSwapEndian** - change given 16-bit integer's endianness.
 
 ## SYNOPSIS
 `#include <lightmodbus/core.h>`

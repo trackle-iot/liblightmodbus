@@ -1,7 +1,7 @@
-# ModbusException 3lightmodbus "28 July 2016" "v1.2"
+# ModbusException 3lightmodbus "15 January 2016" "v1.3"
 
 ## NAME
-**ModbusExeption** - data type containing information about exception frame returned by Modbus slave device.
+**ModbusExeption** - data structure containing information about exception frame returned by Modbus slave device.
 
 ## SYNOPSIS
 `  
@@ -16,11 +16,11 @@
 ## DESCRIPTION
 The **ModbusException** contains information about exception frame returned by Modbus slave device.
 
-| member name      | description                                                                                          |
-|------------------|------------------------------------------------------------------------------------------------------|
-| `address`        | slave's address                                                                                      |
-| `function`       | what function caused an exception to be thrown                                                       |
-| `code`           | exception code described in Modbus standard                                                          |
+| member name      | description                                                |
+|------------------|------------------------------------------------------------|
+| `address`        | slave's address                                            |
+| `function`       | what function caused an exception to be thrown             |
+| `code`           | exception code described in Modbus standard                |
 
 
 ## NOTES

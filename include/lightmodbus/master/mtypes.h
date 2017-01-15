@@ -24,14 +24,6 @@
 #include <inttypes.h>
 #include "../core.h"
 
-//Declarations for master types
-typedef struct
-{
-	uint8_t address; //Device address
-	uint8_t function; //In which function exception occured
-	uint8_t code; //Exception code
-} ModbusException; //Parsed exception data
-
 #define MODBUS_HOLDING_REGISTER 0
 #define MODBUS_INPUT_REGISTER 1
 #define MODBUS_COIL 2
@@ -51,7 +43,12 @@ typedef struct
 	uint8_t dataLength; //Count of data type instances read from slave
 	uint8_t finished; //Is parsing finished?
 	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data
-	ModbusException exception; //Optional exception read
+	struct //Exceptions read are stored in this structure
+	{
+		uint8_t address; //Device address
+		uint8_t function; //In which function exception occured
+		uint8_t code; //Exception code
+	} exception;
 	ModbusFrame request; //Formatted request for slave
 	ModbusFrame response; //Response from slave should be put here
 } ModbusMaster; //Type containing master device configuration data

@@ -109,7 +109,7 @@ void Test( )
 	if ( memcmp( f1, sstatus.response.frame, l ) ) printf( "!!!Master has malformed the frame!!!\n" );
 
 	//Dump parsed data
-	printf( "\tError - %d\n\tFinished - %d\n", MasterError, mstatus.finished );
+	printf( "\tError - %d\n\tFinished - 1\n", MasterError );
 	for ( i = 0; i < mstatus.dataLength; i++ )
 	{
 		printf( "\t - { addr: 0x%x, type: 0x%x, reg: 0x%x, val: 0x%x }\n", mstatus.data[i].address, mstatus.data[i].dataType, mstatus.data[i].reg, mstatus.data[i].value );

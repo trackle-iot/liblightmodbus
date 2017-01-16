@@ -31,18 +31,12 @@ uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
+	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Copy data (modbusParseResponse checked if length is 5 so it should be safe)
 	status->exception.address = parser->exception.address;
 	status->exception.function = parser->exception.function;
 	status->exception.code = parser->exception.exceptionCode;
-
-	status->finished = 1;
 
 	return MODBUS_ERROR_EXCEPTION;
 }
@@ -66,34 +60,23 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	status->exception.address = 0;
 	status->exception.function = 0;
 	status->exception.code = 0;
-	status->finished = 0;
 
 	//Check if frames are not too short and return error (to avoid problems with memory allocation)
 	//That enables us to ommit the check in each parsing function
 	if ( status->response.length < 4u || status->response.frame == NULL || \
 	 	status->request.length < 4u || status->request.frame == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
+			return MODBUS_ERROR_OTHER;
 
 	//Check both response and request frames CRC
 	if ( *( (uint16_t*)( status->response.frame + status->response.length - 2 ) )\
 		!= modbusCRC( status->response.frame, status->response.length - 2 ) ||\
 		*( (uint16_t*)( status->request.frame + status->request.length - 2 ) ) \
 		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
+			return MODBUS_ERROR_CRC;
 
 	//Allocate memory for union and copy frame to it
 	union ModbusParser *parser = (union ModbusParser *) calloc( status->response.length, sizeof( uint8_t ) );
-	if ( parser == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_ALLOC;
-	}
+	if ( parser == NULL ) return MODBUS_ERROR_ALLOC;
 	memcpy( parser->frame, status->response.frame, status->response.length );
 
 	//Allocate memory for request union and copy frame to it
@@ -101,7 +84,6 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	if ( requestParser == NULL )
 	{
 		free( parser );
-		status->finished = 1;
 		return MODBUS_ERROR_ALLOC;
 	}
 	memcpy( requestParser->frame,  status->request.frame, status->request.length );
@@ -156,7 +138,6 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	//Free used memory
 	free( parser );
 	free( requestParser );
-	status->finished = 1;
 
 	return err;
 }
@@ -174,7 +155,6 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 	status->data = NULL;
 
 	status->dataLength = 0;
-	status->finished = 0;
 
 	status->exception.address = 0;
 	status->exception.function = 0;

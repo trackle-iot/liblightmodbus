@@ -51,7 +51,7 @@ uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
 	{
-		return modbusBuildException( status, 0x4, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, 4, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -62,14 +62,14 @@ uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 	if ( parser->request04.registerCount == 0 || parser->request04.registerCount > 125 )
 	{
 		//Illegal data value error
-		return modbusBuildException( status, 0x04, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, 4, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
 	if ( parser->request04.firstRegister >= status->inputRegisterCount || \
 		(uint32_t) parser->request04.firstRegister + (uint32_t) parser->request04.registerCount > (uint32_t) status->inputRegisterCount )
 	{
 		//Illegal data address exception
-		return modbusBuildException( status, 0x04, MODBUS_EXCEP_ILLEGAL_ADDR );
+		return modbusBuildException( status, 4, MODBUS_EXCEP_ILLEGAL_ADDR );
 	}
 
 	//Respond

@@ -51,7 +51,7 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
 	{
-		return modbusBuildException( status, 0x3, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, 3, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -62,14 +62,14 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 	if ( parser->request03.registerCount == 0 || parser->request03.registerCount > 125 )
 	{
 		//Illegal data value error
-		return modbusBuildException( status, 0x03, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, 3, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
 	if ( parser->request03.firstRegister >= status->registerCount || \
 		(uint32_t) parser->request03.firstRegister + (uint32_t) parser->request03.registerCount > (uint32_t) status->registerCount )
 	{
 		//Illegal data address exception
-		return modbusBuildException( status, 0x03, MODBUS_EXCEP_ILLEGAL_ADDR );
+		return modbusBuildException( status, 3, MODBUS_EXCEP_ILLEGAL_ADDR );
 	}
 
 	//Respond
@@ -122,7 +122,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
 	{
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x06, MODBUS_EXCEP_ILLEGAL_VAL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_VAL );
 		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
@@ -142,7 +142,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	if ( parser->request06.reg >= status->registerCount )
 	{
 		//Illegal data address exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x06, MODBUS_EXCEP_ILLEGAL_ADDR );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_ADDR );
 		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
@@ -151,7 +151,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	if ( modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request06.reg ) == 1 )
 	{
 		//Slave failure exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x06, MODBUS_EXCEP_SLAVE_FAIL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_SLAVE_FAIL );
 		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
@@ -217,14 +217,14 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		frameLength = 9 + parser->request16.byteCount;
 		if ( status->request.length != frameLength )
 		{
-			return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );
+			return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
 			status->finished = 1;
 			return MODBUS_ERROR_OK;
 		}
 	}
 	else
 	{
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
 		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
@@ -248,7 +248,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		parser->request16.registerCount > 123 )
 	{
 		//Illegal data value error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
 		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
@@ -257,7 +257,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		(uint32_t) parser->request16.firstRegister + (uint32_t) parser->request16.registerCount > (uint32_t) status->registerCount )
 	{
 		//Illegal data address error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_ADDR );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_ADDR );
 		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
@@ -267,7 +267,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		if ( modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request16.firstRegister + i ) == 1 )
 		{
 			//Slave failure exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_SLAVE_FAIL );
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_SLAVE_FAIL );
 			status->finished = 1;
 			return MODBUS_ERROR_OK;
 		}

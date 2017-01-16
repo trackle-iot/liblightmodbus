@@ -40,18 +40,25 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_OTHER;
 	}
 
+	//Don't do anything when frame is broadcasted
+	//Base of the frame can be always safely checked, because main parser function takes care of that
+	if ( parser->base.address == 0 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OK;
+	}
+
+	//Check if frame length is valid
+	if ( status->request.length != frameLength )
+	{
+		return modbusBuildException( status, 0x3, MODBUS_EXCEP_ILLEGAL_VAL );
+	}
+
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request03.crc )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_CRC;
-	}
-
-	//Don't do anything when frame is broadcasted
-	if ( parser->base.address == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OK;
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -117,6 +124,14 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
+	}
+
+	//Check if frame length is valid
+	if ( status->request.length != frameLength )
+	{
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x06, MODBUS_EXCEP_ILLEGAL_VAL );
+		status->finished = 1;
+		return MODBUS_ERROR_OK;
 	}
 
 	//Check frame crc
@@ -202,7 +217,24 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
 	}
-	frameLength = 9 + parser->request16.byteCount;
+
+	//Check if frame length is valid
+	if ( status->request.length >= 7u )
+	{
+		frameLength = 9 + parser->request16.byteCount;
+		if ( status->request.length != frameLength )
+		{
+			return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );
+			status->finished = 1;
+			return MODBUS_ERROR_OK;
+		}
+	}
+	else
+	{
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 0x10, MODBUS_EXCEP_ILLEGAL_VAL );
+		status->finished = 1;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Check frame crc
 	//Shifting is used instead of dividing for optimisation on smaller devices (AVR)

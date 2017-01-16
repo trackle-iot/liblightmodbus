@@ -184,7 +184,15 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
 	}
+
+	//Check if frame length is valid
+	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
 	frameLength = 5 + parser->response01.byteCount;
+	if ( status->response.length != frameLength || status->request.length != 8 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
 
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != *( (uint16_t*)( parser->response01.values + parser->response01.byteCount ) ) )
@@ -252,6 +260,13 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 		return MODBUS_ERROR_OTHER;
 	}
 
+	//Check frame lengths
+	if ( status->response.length != frameLength || status->request.length != 8 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
+
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response05.crc )
 	{
@@ -303,6 +318,26 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
+	}
+
+	//Check frame lengths
+	if ( status->request.length >= 7u )
+	{
+		if ( status->request.length != 9 + requestParser->request15.byteCount )
+		{
+			status->finished = 1;
+			return MODBUS_ERROR_FRAME;
+		}
+	}
+	else
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
+	if ( status->response.length != frameLength )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
 	}
 
 	//Check frame crc

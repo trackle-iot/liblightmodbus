@@ -41,18 +41,25 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_OTHER;
 	}
 
+	//Don't do anything when frame is broadcasted
+	//Base of the frame can be always safely checked, because main parser function takes care of that
+	if ( parser->base.address == 0 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OK;
+	}
+
+	//Check if frame length is valid
+	if ( status->request.length != frameLength )
+	{
+		return modbusBuildException( status, 0x2, MODBUS_EXCEP_ILLEGAL_VAL );
+	}
+
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request02.crc )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_CRC;
-	}
-
-	//Don't do anything when frame is broadcasted
-	if ( parser->base.address == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OK;
 	}
 
 	//Swap endianness of longer members (but not crc)

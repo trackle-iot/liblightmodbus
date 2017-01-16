@@ -87,7 +87,15 @@ uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser,
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
 	}
+
+	//Check if frame length is valid
+	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
 	frameLength = 5 + parser->response02.byteCount;
+	if ( status->response.length != frameLength || status->request.length != 8 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_FRAME;
+	}
 
 	//Check frame crc
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != *( (uint16_t*)( parser->response02.values + parser->response02.byteCount ) ) )

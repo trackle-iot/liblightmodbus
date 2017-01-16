@@ -32,19 +32,11 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( exceptionCode == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
+	if ( exceptionCode == 0 ) return MODBUS_ERROR_OTHER;
 
 	//Reallocate frame memory
 	status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
-	if ( status->response.frame == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_ALLOC;
-	}
+	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	union ModbusParser *exception = (union ModbusParser *) status->response.frame;
 
 	//Setup exception frame
@@ -55,7 +47,6 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 
 	//Set frame length - frame is ready
 	status->response.length = 5;
-	status->finished = 1;
 
 	//So, user should rather know, that master is retarted, right?
 	//That's the reason exception should be thrown - just like that, an information
@@ -83,40 +74,26 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 	//Reset response frame status
 	status->response.length = 0;
-	status->finished = 0;
 
 	//If user tries to parse an empty frame return error
 	//That enables us to ommit the check in each parsing function
-	if ( status->request.length < 4u || status->request.frame == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
+	if ( status->request.length < 4u || status->request.frame == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check CRC
 	if ( *( (uint16_t*)( status->request.frame + status->request.length - 2 ) )\
 		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
+			return MODBUS_ERROR_CRC;
 
 	//This part right there, below should be optimized, but currently I'm not 100% sure, that parsing doesn't malform given frame
 	//In this case it's just much easier to allocate new frame
 	union ModbusParser *parser = (union ModbusParser *) calloc( status->request.length, sizeof( uint8_t ) );
-	if ( parser == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_ALLOC;
-	}
-
+	if ( parser == NULL ) return MODBUS_ERROR_ALLOC;
 	memcpy( parser->frame, status->request.frame, status->request.length );
 
 	//If frame is not broadcasted and address doesn't match skip parsing
 	if ( parser->base.address != status->address && parser->base.address != 0 )
 	{
 		free( parser );
-		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
 
@@ -167,8 +144,6 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNC );
 
 	free( parser );
-	status->finished = 1;
-
 	return err;
 }
 
@@ -181,7 +156,6 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Reset response frame status
-	status->finished = 0;
 	status->request.length = 0;
 	status->request.frame = NULL;
 	status->response.length = 0;

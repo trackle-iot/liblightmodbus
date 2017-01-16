@@ -69,7 +69,7 @@ void Test( )
 	sstatus.request.frame = mstatus.request.frame;
 	sstatus.request.length = mstatus.request.length;
 	SlaveError = modbusParseRequest( &sstatus );
-	printf( "\tError - %d\n\tFinished - %d\n", SlaveError, sstatus.finished );
+	printf( "\tError - %d\n\tFinished - %d\n", SlaveError, 1 );
 
 	if ( memcmp( f1, mstatus.request.frame, l ) ) printf( "!!!Slave has malformed the frame!!!\n" );
 

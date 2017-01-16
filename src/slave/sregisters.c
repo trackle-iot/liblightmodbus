@@ -34,19 +34,11 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) ) //That's actually safe
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
+	if ( parser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) ) return MODBUS_ERROR_OTHER;
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
-	if ( parser->base.address == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OK;
-	}
+	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
@@ -77,11 +69,7 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 	frameLength = 5 + ( parser->request0304.registerCount << 1 );
 
 	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
-	if ( status->response.frame == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_ALLOC;
-	}
+	if ( status->response.frame == NULL )return MODBUS_ERROR_ALLOC;
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//Set up basic response data
@@ -98,8 +86,6 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
-	status->finished = 1;
-
 	return MODBUS_ERROR_OK;
 }
 
@@ -113,26 +99,17 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
+	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
 	{
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_VAL );
-		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
 
 	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request06.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
+	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request06.crc ) return MODBUS_ERROR_CRC;
 
 	//Swap endianness of longer members (but not crc)
 	parser->request06.reg = modbusSwapEndian( parser->request06.reg );
@@ -143,7 +120,6 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	{
 		//Illegal data address exception
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_ADDR );
-		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
 
@@ -152,7 +128,6 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	{
 		//Slave failure exception
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_SLAVE_FAIL );
-		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
 
@@ -160,22 +135,14 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	frameLength = 8;
 
 	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
-	if ( status->response.frame == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_ALLOC;
-	}
+	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write reg
 	status->registers[parser->request06.reg] = parser->request06.value;
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OK;
-	}
+	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
 
 	//Set up basic response data
 	builder->response06.address = status->address;
@@ -188,8 +155,6 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
-	status->finished = 1;
-
 	return MODBUS_ERROR_OK;
 }
 
@@ -204,11 +169,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OTHER;
-	}
+	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check if frame length is valid
 	if ( status->request.length >= 7u )
@@ -217,24 +178,18 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		if ( status->request.length != frameLength )
 		{
 			return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
-			status->finished = 1;
 			return MODBUS_ERROR_OK;
 		}
 	}
 	else
 	{
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
-		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
 
 	//Check frame crc
 	//Shifting is used instead of dividing for optimisation on smaller devices (AVR)
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request16.values[parser->request16.byteCount >> 1] )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
+	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request16.values[parser->request16.byteCount >> 1] ) return MODBUS_ERROR_CRC;
 
 	//Swap endianness of longer members (but not crc)
 	parser->request16.firstRegister = modbusSwapEndian( parser->request16.firstRegister );
@@ -248,7 +203,6 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
-		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
 
@@ -257,7 +211,6 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	{
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_ADDR );
-		status->finished = 1;
 		return MODBUS_ERROR_OK;
 	}
 
@@ -267,7 +220,6 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		{
 			//Slave failure exception
 			if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_SLAVE_FAIL );
-			status->finished = 1;
 			return MODBUS_ERROR_OK;
 		}
 
@@ -275,11 +227,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	frameLength = 8;
 
 	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
-	if ( status->response.frame == NULL )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_ALLOC;
-	}
+	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 
@@ -288,11 +236,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		status->registers[parser->request16.firstRegister + i] = modbusSwapEndian( parser->request16.values[i] );
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_OK;
-	}
+	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
 
 	//Set up basic response data
 	builder->response16.address = status->address;
@@ -305,7 +249,5 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
-	status->finished = 1;
-
 	return MODBUS_ERROR_OK;
 }

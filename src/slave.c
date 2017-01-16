@@ -31,8 +31,7 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 	//Returns generated frame length
 
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( exceptionCode == 0 ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || exceptionCode == 0 ) return MODBUS_ERROR_OTHER;
 
 	//Reallocate frame memory
 	status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
@@ -63,9 +62,6 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	//It is even worse, compiler won't warn you, when you are outside the range
 	//It works, and it uses much less memory, so I guess a bit of risk is fine in this case
 	//Also, user needs to free memory alocated for frame himself!
-
-	//Note: crc is not checked here, just because if there was some junk at the end of correct frame (wrong length) it would be ommited
-	//In fact, user should care about things like that, and It would lower memory usage, so in future crc can be verified right here
 
 	uint8_t err = 0;
 

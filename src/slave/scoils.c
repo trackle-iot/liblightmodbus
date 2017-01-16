@@ -34,8 +34,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	uint16_t i = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) ) return MODBUS_ERROR_OTHER;
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
@@ -84,7 +83,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 		if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
 			BITSTOBYTES( status->coilCount ), i + parser->request0102.firstCoil ) ) == 255 )
 				return MODBUS_ERROR_OTHER;
-		if ( modbusMaskWrite( builder->response0102.values, 32, i, coil ) == 255 )
+		if ( modbusMaskWrite( builder->response0102.values, 125, i, coil ) == 255 )
 			return MODBUS_ERROR_OTHER;
 	}
 
@@ -105,8 +104,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	uint8_t frameLength = 8;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
@@ -183,8 +181,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	uint8_t coil = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check if frame length is valid
 	if ( status->request.length >= 7u )
@@ -245,7 +242,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	for ( i = 0; i < parser->request15.coilCount; i++ )
 	{
 		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.byteCount, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
-		if ( modbusMaskWrite( status->coils, status->coilCount, parser->request15.firstCoil + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
+		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), parser->request15.firstCoil + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
 	}
 
 	//Do not respond when frame is broadcasted

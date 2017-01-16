@@ -46,7 +46,7 @@
 #define MODBUS_EXCEP_ACK 5
 #define MODBUS_EXCEP_NACK 7
 
-#define BITSTOBYTES( n ) ( 1 + ( ( n - 1 ) >> 3 ) )
+#define BITSTOBYTES( n ) ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0 )
 
 //Types
 typedef struct

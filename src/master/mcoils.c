@@ -32,8 +32,7 @@ uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t 
 	uint8_t frameLength = 8;
 
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( function != 1 && function != 2 ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || ( function != 1 && function != 2 ) ) return MODBUS_ERROR_OTHER;
 
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
@@ -149,8 +148,8 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	uint16_t i = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL  ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || requestParser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || requestParser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) )
+		return MODBUS_ERROR_OTHER;
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
@@ -192,8 +191,7 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	uint8_t dataok = 1;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check frame lengths
 	if ( status->response.length != 8 || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
@@ -226,8 +224,7 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 	uint8_t dataok = 1;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
 
 
 	//Check frame lengths

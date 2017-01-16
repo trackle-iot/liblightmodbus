@@ -36,12 +36,6 @@
 #ifndef LIGHTMODBUS_SLAVE_COILS
 #define LIGHTMODBUS_SLAVE_COILS 0
 #endif
-#ifndef LIGHTMODBUS_SLAVE_DISCRETE_INPUTS
-#define LIGHTMODBUS_SLAVE_DISCRETE_INPUTS 0
-#endif
-#ifndef LIGHTMODBUS_SLAVE_INPUT_REGISTERS
-#define LIGHTMODBUS_SLAVE_INPUT_REGISTERS 0
-#endif
 
 //Function prototypes
 extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode ); //Build an exception

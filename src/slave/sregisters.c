@@ -33,8 +33,7 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 	uint8_t i = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) ) return MODBUS_ERROR_OTHER;
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
@@ -98,8 +97,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	uint8_t frameLength = 8;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
@@ -168,8 +166,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	uint8_t frameLength;
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check if frame length is valid
 	if ( status->request.length >= 7u )

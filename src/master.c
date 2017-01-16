@@ -30,8 +30,7 @@ uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 	//Parse exception frame and write data to MODBUSMaster structure
 
 	//Check if given pointers are valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Copy data (modbusParseResponse checked if length is 5 so it should be safe)
 	status->exception.address = parser->exception.address;

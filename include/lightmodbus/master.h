@@ -36,12 +36,6 @@
 #ifndef LIGHTMODBUS_MASTER_COILS
 #define LIGHTMODBUS_MASTER_COILS 0
 #endif
-#ifndef LIGHTMODBUS_MASTER_DISCRETE_INPUTS
-#define LIGHTMODBUS_MASTER_DISCRETE_INPUTS 0
-#endif
-#ifndef LIGHTMODBUS_MASTER_INPUT_REGISTERS
-#define LIGHTMODBUS_MASTER_INPUT_REGISTERS 0
-#endif
 
 extern uint8_t modbusParseResponse( ModbusMaster *status );
 extern uint8_t modbusMasterInit( ModbusMaster *status );

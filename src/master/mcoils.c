@@ -23,7 +23,7 @@
 #include <lightmodbus/master/mtypes.h>
 #include <lightmodbus/master/mcoils.h>
 
-uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t firstCoil, uint16_t coilCount )
+uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t firstCoil, uint16_t coilCount )
 {
 	//Build request01 frame, to send it so slave
 	//Read multiple coils
@@ -33,6 +33,11 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( function != 1 && function != 2 )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
@@ -57,12 +62,12 @@ uint8_t modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t fi
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
 
 	builder->base.address = address;
-	builder->base.function = 1;
-	builder->request01.firstCoil = modbusSwapEndian( firstCoil );
-	builder->request01.coilCount = modbusSwapEndian( coilCount );
+	builder->base.function = function;
+	builder->request0102.firstCoil = modbusSwapEndian( firstCoil );
+	builder->request0102.coilCount = modbusSwapEndian( coilCount );
 
 	//Calculate crc
-	builder->request01.crc = modbusCRC( builder->frame, frameLength - 2 );
+	builder->request0102.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
 	status->predictedResponseLength = 4 + 1 + BITSTOBYTES( coilCount );
@@ -105,7 +110,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 	builder->request05.value = modbusSwapEndian( value );
 
 	//Calculate crc
-	builder->request01.crc = modbusCRC( builder->frame, frameLength - 2 );
+	builder->request05.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
 	if ( address ) status->predictedResponseLength = 8;
@@ -168,7 +173,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	return MODBUS_ERROR_OK;
 }
 
-uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 01 (read multiple coils)
 
@@ -177,7 +182,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 
 	//Check if given pointers are valid
 	if ( status == NULL  ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || requestParser == NULL )
+	if ( parser == NULL || requestParser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -185,7 +190,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	if ( status->response.length != 5 + parser->response01.byteCount || status->request.length != 8 )
+	if ( status->response.length != 5 + parser->response0102.byteCount || status->request.length != 8 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
@@ -195,9 +200,9 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	dataok &= parser->base.address != 0;
 	dataok &= parser->base.address == requestParser->base.address;
 	dataok &= parser->base.function == requestParser->base.function;
-	dataok &= parser->response01.byteCount != 0;
-	dataok &= parser->response01.byteCount <= 250;
-	dataok &= parser->response01.byteCount == BITSTOBYTES( modbusSwapEndian( requestParser->request01.coilCount ) );
+	dataok &= parser->response0102.byteCount != 0;
+	dataok &= parser->response0102.byteCount <= 250;
+	dataok &= parser->response0102.byteCount == BITSTOBYTES( modbusSwapEndian( requestParser->request0102.coilCount ) );
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok )
@@ -207,19 +212,19 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	free( status->data );
-	status->data = (ModbusData *) calloc( modbusSwapEndian( requestParser->request01.coilCount ), sizeof( ModbusData ) );
+	status->data = (ModbusData *) calloc( modbusSwapEndian( requestParser->request0102.coilCount ), sizeof( ModbusData ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_ALLOC;
 	}
 
-	for ( i = 0; i < modbusSwapEndian( requestParser->request01.coilCount ); i++ )
+	for ( i = 0; i < modbusSwapEndian( requestParser->request0102.coilCount ); i++ )
 	{
 		status->data[i].address = parser->base.address;
-		status->data[i].dataType = MODBUS_COIL;
-		status->data[i].reg = modbusSwapEndian( requestParser->request01.firstCoil ) + i;
-		status->data[i].value = modbusMaskRead( parser->response01.values, parser->response01.byteCount, i );
+		status->data[i].dataType = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
+		status->data[i].reg = modbusSwapEndian( requestParser->request0102.firstCoil ) + i;
+		status->data[i].value = modbusMaskRead( parser->response0102.values, parser->response0102.byteCount, i );
 		if ( status->data[i].value == 255 )
 		{
 			status->finished = 1;
@@ -228,7 +233,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Set up data length - response successfully parsed
-	status->dataLength = modbusSwapEndian( requestParser->request01.coilCount );
+	status->dataLength = modbusSwapEndian( requestParser->request0102.coilCount );
 	status->finished = 1;
 
 	return MODBUS_ERROR_OK;

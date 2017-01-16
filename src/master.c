@@ -24,8 +24,6 @@
 #include <lightmodbus/master/mtypes.h>
 #include <lightmodbus/master/mregisters.h>
 #include <lightmodbus/master/mcoils.h>
-#include <lightmodbus/master/mdiscreteinputs.h>
-#include <lightmodbus/master/minputregisters.h>
 
 uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 {
@@ -118,22 +116,14 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 		switch ( parser->base.function )
 		{
 			case 1: //Read multiple coils
-				if ( LIGHTMODBUS_MASTER_COILS ) err = modbusParseResponse01( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
-
 			case 2: //Read multiple discrete inputs
-				if ( LIGHTMODBUS_MASTER_DISCRETE_INPUTS ) err = modbusParseResponse02( status, parser, requestParser );
+				if ( LIGHTMODBUS_MASTER_COILS ) err = modbusParseResponse0102( status, parser, requestParser );
 				else err = MODBUS_ERROR_PARSE;
 				break;
 
 			case 3: //Read multiple holding registers
-				if ( LIGHTMODBUS_MASTER_REGISTERS ) err = modbusParseResponse03( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
-
 			case 4: //Read multiple input registers
-				if ( LIGHTMODBUS_MASTER_INPUT_REGISTERS ) err = modbusParseResponse04( status, parser, requestParser );
+				if ( LIGHTMODBUS_MASTER_REGISTERS ) err = modbusParseResponse0304( status, parser, requestParser );
 				else err = MODBUS_ERROR_PARSE;
 				break;
 

@@ -49,8 +49,8 @@ MASTERFLAGS =
 SLAVEFLAGS =
 
 MODULES =
-MMODULES = master-registers master-coils master-discrete-inputs master-input-registers
-SMODULES = slave-registers slave-coils slave-discrete-inputs slave-input-registers
+MMODULES = master-registers master-coils
+SMODULES = slave-registers slave-coils
 
 ifndef MMODULES
 $(warning "MMODULES not specified!")
@@ -142,18 +142,6 @@ master-coils: src/master/mcoils.c include/lightmodbus/master/mcoils.h
 	echo "COMPILING Master coils module (obj/master/mcoils.o)" >> build.log
 	$(CC) $(CFLAGS) -c src/master/mcoils.c -o obj/master/mcoils.o
 
-master-discrete-inputs: src/master/mdiscreteinputs.c include/lightmodbus/master/mdiscreteinputs.h
-	$(call compileHeader,master discrete inputs module)
-	echo " -DLIGHTMODBUS_MASTER_DISCRETE_INPUTS=1" >> mmodules.tmp
-	echo "COMPILING Master discrete inputs module (obj/master/mdiscreteinputs.o)" >> build.log
-	$(CC) $(CFLAGS) -c src/master/mdiscreteinputs.c -o obj/master/mdiscreteinputs.o
-
-master-input-registers: src/master/minputregisters.c include/lightmodbus/master/minputregisters.h
-	$(call compileHeader,master input registers module)
-	echo " -DLIGHTMODBUS_MASTER_INPUT_REGISTERS=1" >> mmodules.tmp
-	echo "COMPILING Master input registers module (obj/master/minputregisters.o)" >> build.log
-	$(CC) $(CFLAGS) -c src/master/minputregisters.c -o obj/master/minputregisters.o
-
 master-link:
 	$(call linkHeader,master modules)
 	echo "LINKING Master module (obj/master.o)" >> build.log
@@ -175,18 +163,6 @@ slave-coils: src/slave/scoils.c include/lightmodbus/slave/scoils.h
 	echo " -DLIGHTMODBUS_SLAVE_COILS=1" >> smodules.tmp
 	echo "COMPILING Slave coils module (obj/slave/scoils.o)" >> build.log
 	$(CC) $(CFLAGS) -c src/slave/scoils.c -o obj/slave/scoils.o
-
-slave-discrete-inputs: src/slave/sdiscreteinputs.c include/lightmodbus/slave/sdiscreteinputs.h
-	$(call compileHeader,slave discrete inputs module)
-	echo " -DLIGHTMODBUS_SLAVE_DISCRETE_INPUTS=1" >> smodules.tmp
-	echo "COMPILING Slave discrete inputs module (obj/slave/sdiscreteinputs.o)" >> build.log
-	$(CC) $(CFLAGS) -c src/slave/sdiscreteinputs.c -o obj/slave/sdiscreteinputs.o
-
-slave-input-registers: src/slave/sinputregisters.c include/lightmodbus/slave/sinputregisters.h
-	$(call compileHeader,slave input registers module)
-	echo " -DLIGHTMODBUS_SLAVE_INPUT_REGISTERS=1" >> smodules.tmp
-	echo "COMPILING Slave input registers module (obj/slave/sinputregisters.o)" >> build.log
-	$(CC) $(CFLAGS) -c src/slave/sinputregisters.c -o obj/slave/sinputregisters.o
 
 slave-link:
 	$(call linkHeader,slave modules)

@@ -48,7 +48,7 @@ union ModbusParser
 		uint16_t firstCoil;
 		uint16_t coilCount;
 		uint16_t crc;
-	} request01; //Read multiple coils
+	} request0102; //Read multiple coils
 
 	struct __attribute__( ( __packed__ ) )
 	{
@@ -57,25 +57,7 @@ union ModbusParser
 		uint8_t byteCount;
 		uint8_t values[32];
 		uint16_t crc;
-	} response01; //Read multiple coils - response
-
-	struct __attribute__( ( __packed__ ) )
-	{
-		uint8_t address;
-		uint8_t function;
-		uint16_t firstInput;
-		uint16_t inputCount;
-		uint16_t crc;
-	} request02; //Read multiple discrete inputs
-
-	struct __attribute__( ( __packed__ ) )
-	{
-		uint8_t address;
-		uint8_t function;
-		uint8_t byteCount;
-		uint8_t values[32];
-		uint16_t crc;
-	} response02; //Read multiple discrete inputs - response
+	} response0102; //Read multiple coils - response
 
 	struct __attribute__( ( __packed__ ) )
 	{
@@ -84,7 +66,7 @@ union ModbusParser
 		uint16_t firstRegister;
 		uint16_t registerCount;
 		uint16_t crc;
-	} request03; //Read multiple holding registers
+	} request0304; //Read multiple holding registers
 
 	struct __attribute__( ( __packed__ ) )
 	{
@@ -93,25 +75,7 @@ union ModbusParser
 		uint8_t byteCount;
 		uint16_t values[128];
 		uint16_t crc;
-	} response03; //Read multiple holding registers - response
-
-	struct __attribute__( ( __packed__ ) )
-	{
-		uint8_t address;
-		uint8_t function;
-		uint16_t firstRegister;
-		uint16_t registerCount;
-		uint16_t crc;
-	} request04; //Read multiple input registers
-
-	struct __attribute__( ( __packed__ ) )
-	{
-		uint8_t address;
-		uint8_t function;
-		uint8_t byteCount;
-		uint16_t values[128];
-		uint16_t crc;
-	} response04; //Read multiple input registers - response
+	} response0304; //Read multiple holding registers - response
 
 	struct __attribute__( ( __packed__ ) )
 	{

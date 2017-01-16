@@ -26,6 +26,8 @@
 #include "core.h"
 #include "parser.h"
 #include "master/mtypes.h"
+#include "master/mregisters.h"
+#include "master/mcoils.h"
 
 //Enabling modules in compilation process (use makefile to automate this process)
 #ifndef LIGHTMODBUS_MASTER_REGISTERS

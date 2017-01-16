@@ -55,7 +55,7 @@ union ModbusParser
 		uint8_t address;
 		uint8_t function;
 		uint8_t byteCount;
-		uint8_t values[125];
+		uint8_t values[250];
 		uint16_t crc;
 	} response0102; //Read multiple coils - response
 
@@ -120,7 +120,7 @@ union ModbusParser
 		uint16_t firstCoil;
 		uint16_t coilCount;
 		uint8_t byteCount;
-		uint8_t values[32];
+		uint8_t values[246];
 		uint16_t crc;
 	} request15; //Write multiple coils
 
@@ -140,7 +140,7 @@ union ModbusParser
 		uint16_t firstRegister;
 		uint16_t registerCount;
 		uint8_t byteCount;
-		uint16_t values[128];
+		uint16_t values[123];
 		uint16_t crc;
 	} request16; //Write multiple holding registers
 

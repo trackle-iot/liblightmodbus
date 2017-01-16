@@ -28,7 +28,6 @@
 #include "slave/stypes.h"
 #include "slave/sregisters.h"
 #include "slave/scoils.h"
-#include "slave/sdiscreteinputs.h"
 
 //Enabling modules in compilation process (use makefile to automate this process)
 #ifndef LIGHTMODBUS_SLAVE_REGISTERS

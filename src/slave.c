@@ -24,7 +24,6 @@
 #include <lightmodbus/slave/stypes.h>
 #include <lightmodbus/slave/sregisters.h>
 #include <lightmodbus/slave/scoils.h>
-#include <lightmodbus/slave/sdiscreteinputs.h>
 
 uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode )
 {
@@ -128,18 +127,14 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	switch ( parser->base.function )
 	{
 		case 1: //Read multiple coils
-			if ( LIGHTMODBUS_SLAVE_COILS ) err = modbusParseRequest01( status, parser );
-			else err = MODBUS_ERROR_PARSE;
-			break;
-
 		case 2: //Read multiple discrete inputs
-			if ( LIGHTMODBUS_SLAVE_DISCRETE_INPUTS ) err = modbusParseRequest02( status, parser );
+			if ( LIGHTMODBUS_SLAVE_COILS ) err = modbusParseRequest0102( status, parser );
 			else err = MODBUS_ERROR_PARSE;
 			break;
 
 		case 3: //Read multiple holding registers
 		case 4: //Read multiple input registers
-			if ( LIGHTMODBUS_SLAVE_INPUT_REGISTERS ) err = modbusParseRequest0304( status, parser );
+			if ( LIGHTMODBUS_SLAVE_REGISTERS ) err = modbusParseRequest0304( status, parser );
 			else err = MODBUS_ERROR_PARSE;
 			break;
 

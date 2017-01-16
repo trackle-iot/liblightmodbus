@@ -172,8 +172,6 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 {
 	//Parse slave response to request 01 (read multiple coils)
 
-	//Update frame length
-	uint8_t frameLength;
 	uint8_t dataok = 1;
 	uint8_t i = 0;
 
@@ -187,18 +185,10 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	frameLength = 5 + parser->response01.byteCount;
-	if ( status->response.length != frameLength || status->request.length != 8 )
+	if ( status->response.length != 5 + parser->response01.byteCount || status->request.length != 8 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
-	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != *( (uint16_t*)( parser->response01.values + parser->response01.byteCount ) ) )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
 	}
 
 	//Check between data sent to slave and received from slave
@@ -248,8 +238,6 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 {
 	//Parse slave response to request 05 (write single coil)
 
-	//Update frame length
-	uint8_t frameLength = 8;
 	uint8_t dataok = 1;
 
 	//Check if given pointers are valid
@@ -261,17 +249,10 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check frame lengths
-	if ( status->response.length != frameLength || status->request.length != 8 )
+	if ( status->response.length != 8 || status->request.length != 8 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
-	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response05.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
 	}
 
 	//Check between data sent to slave and received from slave
@@ -308,8 +289,6 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 {
 	//Parse slave response to request 15 (write multiple coils)
 
-	//Update frame length
-	uint8_t frameLength = 8;
 	uint8_t dataok = 1;
 
 	//Check if given pointers are valid
@@ -334,19 +313,11 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
 	}
-	if ( status->response.length != frameLength )
+	if ( status->response.length != 8 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
 	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response15.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
-
 
 	//Check between data sent to slave and received from slave
 	dataok &= parser->base.address == requestParser->base.address;

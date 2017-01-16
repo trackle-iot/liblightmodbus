@@ -18,14 +18,14 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lightmodbus/core.h"
-#include "lightmodbus/slave.h"
-#include "lightmodbus/parser.h"
-#include "lightmodbus/slave/stypes.h"
-#include "lightmodbus/slave/sregisters.h"
-#include "lightmodbus/slave/scoils.h"
-#include "lightmodbus/slave/sdiscreteinputs.h"
-#include "lightmodbus/slave/sinputregisters.h"
+#include <lightmodbus/core.h>
+#include <lightmodbus/slave.h>
+#include <lightmodbus/parser.h>
+#include <lightmodbus/slave/stypes.h>
+#include <lightmodbus/slave/sregisters.h>
+#include <lightmodbus/slave/scoils.h>
+#include <lightmodbus/slave/sdiscreteinputs.h>
+#include <lightmodbus/slave/sinputregisters.h>
 
 uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode )
 {
@@ -90,10 +90,18 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 	//If user tries to parse an empty frame return error
 	//That enables us to ommit the check in each parsing function
-	if ( status->request.length == 0 || status->request.frame == NULL )
+	if ( status->request.length < 4u || status->request.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
+	}
+
+	//Check CRC
+	if ( *( (uint16_t*)( status->request.frame + status->request.length - 2 ) )\
+		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_CRC;
 	}
 
 	//This part right there, below should be optimized, but currently I'm not 100% sure, that parsing doesn't malform given frame

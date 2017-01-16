@@ -54,13 +54,6 @@ uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 		return modbusBuildException( status, 0x4, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request04.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
-
 	//Swap endianness of longer members (but not crc)
 	parser->request04.firstRegister = modbusSwapEndian( parser->request04.firstRegister );
 	parser->request04.registerCount = modbusSwapEndian( parser->request04.registerCount );

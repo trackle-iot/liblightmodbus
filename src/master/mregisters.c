@@ -169,8 +169,6 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 	//Parse slave response to request 03
 	//Read multiple holding registers
 
-	//Update frame length
-	uint8_t frameLength;
 	uint8_t dataok = 1;
 	uint8_t i = 0;
 
@@ -184,18 +182,10 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	frameLength = 5 + parser->response03.byteCount;
-	if ( status->response.length != frameLength || status->request.length != 8 )
+	if ( status->response.length != 5 + parser->response03.byteCount || status->request.length != 8 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
-	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response03.values[ parser->response03.byteCount >> 1 ] )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
 	}
 
 	//Check between data sent to slave and received from slave
@@ -242,8 +232,6 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 {
 	//Parse slave response to request 06 (write single holding reg)
 
-	//Update frame length
-	uint8_t frameLength = 8;
 	uint8_t dataok = 1;
 
 	//Check if given pointers are valid
@@ -256,17 +244,10 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	if ( status->response.length != frameLength || status->request.length != 8 )
+	if ( status->response.length != 8 || status->request.length != 8 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
-	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response06.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
 	}
 
 	//Check between data sent to slave and received from slave
@@ -310,8 +291,6 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 {
 	//Parse slave response to request 16 (write multiple holding reg)
 
-	//Update frame length
-	uint8_t frameLength = 8;
 	uint8_t dataok = 1;
 
 	//Check if given pointers are valid
@@ -323,7 +302,7 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	}
 
 	//Check frame lengths
-	if ( status->response.length != frameLength )
+	if ( status->response.length != 8 )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
@@ -340,13 +319,6 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_FRAME;
-	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->response16.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
 	}
 
 	//Check between data sent to slave and received from slave

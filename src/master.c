@@ -18,14 +18,14 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lightmodbus/master.h"
-#include "lightmodbus/core.h"
-#include "lightmodbus/parser.h"
-#include "lightmodbus/master/mtypes.h"
-#include "lightmodbus/master/mregisters.h"
-#include "lightmodbus/master/mcoils.h"
-#include "lightmodbus/master/mdiscreteinputs.h"
-#include "lightmodbus/master/minputregisters.h"
+#include <lightmodbus/master.h>
+#include <lightmodbus/core.h>
+#include <lightmodbus/parser.h>
+#include <lightmodbus/master/mtypes.h>
+#include <lightmodbus/master/mregisters.h>
+#include <lightmodbus/master/mcoils.h>
+#include <lightmodbus/master/mdiscreteinputs.h>
+#include <lightmodbus/master/minputregisters.h>
 
 uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 {
@@ -77,12 +77,23 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	status->exception.code = 0;
 	status->finished = 0;
 
-	//If user tries to parse an empty frame return error (to avoid problems with memory allocation)
+	//Check if frames are not too short and return error (to avoid problems with memory allocation)
 	//That enables us to ommit the check in each parsing function
-	if ( status->response.length == 0 || status->response.frame == NULL )
+	if ( status->response.length < 4u || status->response.frame == NULL || \
+	 	status->request.length < 4u || status->request.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
+	}
+
+	//Check both response and request frames CRC
+	if ( *( (uint16_t*)( status->response.frame + status->response.length - 2 ) )\
+		!= modbusCRC( status->response.frame, status->response.length - 2 ) ||\
+		*( (uint16_t*)( status->request.frame + status->request.length - 2 ) ) \
+		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
+	{
+		status->finished = 1;
+		return MODBUS_ERROR_CRC;
 	}
 
 	//Allocate memory for union and copy frame to it

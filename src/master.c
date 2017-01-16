@@ -39,14 +39,7 @@ uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 		return MODBUS_ERROR_OTHER;
 	}
 
-	//Check crc
-	if ( modbusCRC( parser->frame, 3 ) != parser->exception.crc )
-	{
-		status->finished = 1;
-		return MODBUS_ERROR_CRC;
-	}
-
-	//Copy data
+	//Copy data (modbusParseResponse checked if length is 5 so it should be safe)
 	status->exception.address = parser->exception.address;
 	status->exception.function = parser->exception.function;
 	status->exception.code = parser->exception.exceptionCode;
@@ -116,7 +109,7 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	memcpy( requestParser->frame,  status->request.frame, status->request.length );
 
 	//Check if frame is exception response
-	if ( parser->base.function & 128 )
+	if ( parser->base.function & 128 && status->response.length == 5 )
 	{
 		err = modbusParseException( status, parser );
 	}

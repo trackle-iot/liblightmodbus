@@ -143,8 +143,6 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 		return MODBUS_ERROR_OTHER;
 	}
 
-	if ( coilCount > 256 ) return 1;
-
 	//Reallocate memory for final frame
 	free( status->request.frame );
 	status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );

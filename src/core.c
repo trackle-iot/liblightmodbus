@@ -18,7 +18,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lightmodbus/core.h"
+#include <lightmodbus/core.h>
 
 uint8_t modbusMaskRead( uint8_t *mask, uint16_t maskLength, uint16_t bit )
 {

@@ -31,7 +31,7 @@ uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser )
 	//Update frame length
 	uint8_t frameLength = 8;
 	uint8_t input = 0;
-	uint8_t i = 0;
+	uint16_t i = 0;
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;

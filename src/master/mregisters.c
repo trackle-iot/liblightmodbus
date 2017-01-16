@@ -178,7 +178,7 @@ uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parse
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || requestParser == NULL )
+	if ( parser == NULL || requestParser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;

@@ -35,7 +35,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL )
+	if ( parser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) ) //That's actually safe
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;

@@ -173,7 +173,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	return MODBUS_ERROR_OK;
 }
 
-uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 01 (read multiple coils)
 
@@ -182,7 +182,7 @@ uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser,
 
 	//Check if given pointers are valid
 	if ( status == NULL  ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL || requestParser == NULL )
+	if ( parser == NULL || requestParser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;

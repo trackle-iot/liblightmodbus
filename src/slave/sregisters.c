@@ -34,7 +34,7 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 
 	//Check if given pointers are valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
-	if ( parser == NULL )
+	if ( parser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) ) //That's actually safe
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_OTHER;
@@ -90,16 +90,8 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 	builder->response0304.byteCount = parser->request0304.registerCount << 1;
 
 	//Copy registers to response frame
-	if ( parser->base.function == 3 )
-	{
-		for ( i = 0; i < parser->request0304.registerCount; i++ )
-			builder->response0304.values[i] = modbusSwapEndian( status->registers[parser->request0304.firstRegister + i] );
-	}
-	else if ( parser->base.function == 4 )
-	{
-		for ( i = 0; i < parser->request0304.registerCount; i++ )
-			builder->response0304.values[i] = modbusSwapEndian( status->inputRegisters[parser->request0304.firstRegister + i] );
-	}
+	for ( i = 0; i < parser->request0304.registerCount; i++ )
+		builder->response0304.values[i] = modbusSwapEndian( ( parser->base.function == 3 ? status->registers : status->inputRegisters )[parser->request0304.firstRegister + i] );
 
 	//Calculate crc
 	builder->response0304.values[parser->request0304.registerCount] = modbusCRC( builder->frame, frameLength - 2 );

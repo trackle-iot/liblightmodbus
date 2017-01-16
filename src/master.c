@@ -25,7 +25,6 @@
 #include <lightmodbus/master/mregisters.h>
 #include <lightmodbus/master/mcoils.h>
 #include <lightmodbus/master/mdiscreteinputs.h>
-#include <lightmodbus/master/minputregisters.h>
 
 uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 {

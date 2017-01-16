@@ -25,12 +25,16 @@
 #include "mtypes.h"
 
 //Functions for building requests
-extern uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount );
+#define modbusBuildRequest03( status, address, firstRegister, registerCount ) modbusBuildRequest0304( status, 3, address, firstRegister, registerCount )
+#define modbusBuildRequest04( status, address, firstRegister, registerCount ) modbusBuildRequest0304( status, 4, address, firstRegister, registerCount )
+extern uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t firstRegister, uint16_t registerCount );
 extern uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t reg, uint16_t value );
 extern uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount, uint16_t *values );
 
 //Functions for parsing responses
-extern uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+#define modbusParseResponse03 modbusParseResponse0304
+#define modbusParseResponse04 modbusParseResponse0304
+extern uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
 extern uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
 extern uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
 

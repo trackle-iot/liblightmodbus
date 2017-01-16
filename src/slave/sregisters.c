@@ -23,9 +23,9 @@
 #include <lightmodbus/slave/stypes.h>
 #include <lightmodbus/slave/sregisters.h>
 
-uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser )
 {
-	//Read multiple holding registers
+	//Read multiple holding registers or input registers
 	//Using data from union pointer
 
 	//Update frame length
@@ -51,29 +51,30 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
 	{
-		return modbusBuildException( status, 3, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
 	//Swap endianness of longer members (but not crc)
-	parser->request03.firstRegister = modbusSwapEndian( parser->request03.firstRegister );
-	parser->request03.registerCount = modbusSwapEndian( parser->request03.registerCount );
+	parser->request0304.firstRegister = modbusSwapEndian( parser->request0304.firstRegister );
+	parser->request0304.registerCount = modbusSwapEndian( parser->request0304.registerCount );
 
 	//Check if reg is in valid range
-	if ( parser->request03.registerCount == 0 || parser->request03.registerCount > 125 )
+	if ( parser->request0304.registerCount == 0 || parser->request0304.registerCount > 125 )
 	{
 		//Illegal data value error
-		return modbusBuildException( status, 3, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
-	if ( parser->request03.firstRegister >= status->registerCount || \
-		(uint32_t) parser->request03.firstRegister + (uint32_t) parser->request03.registerCount > (uint32_t) status->registerCount )
+	if ( parser->request0304.firstRegister >= ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \
+		(uint32_t) parser->request0304.firstRegister + (uint32_t) parser->request0304.registerCount > \
+		(uint32_t) ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) )
 	{
 		//Illegal data address exception
-		return modbusBuildException( status, 3, MODBUS_EXCEP_ILLEGAL_ADDR );
+		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDR );
 	}
 
 	//Respond
-	frameLength = 5 + ( parser->request03.registerCount << 1 );
+	frameLength = 5 + ( parser->request0304.registerCount << 1 );
 
 	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
@@ -84,16 +85,24 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//Set up basic response data
-	builder->response03.address = status->address;
-	builder->response03.function = parser->request03.function;
-	builder->response03.byteCount = parser->request03.registerCount << 1;
+	builder->response0304.address = status->address;
+	builder->response0304.function = parser->request0304.function;
+	builder->response0304.byteCount = parser->request0304.registerCount << 1;
 
 	//Copy registers to response frame
-	for ( i = 0; i < parser->request03.registerCount; i++ )
-		builder->response03.values[i] = modbusSwapEndian( status->registers[parser->request03.firstRegister + i] );
+	if ( parser->base.function == 3 )
+	{
+		for ( i = 0; i < parser->request0304.registerCount; i++ )
+			builder->response0304.values[i] = modbusSwapEndian( status->registers[parser->request0304.firstRegister + i] );
+	}
+	else if ( parser->base.function == 4 )
+	{
+		for ( i = 0; i < parser->request0304.registerCount; i++ )
+			builder->response0304.values[i] = modbusSwapEndian( status->inputRegisters[parser->request0304.firstRegister + i] );
+	}
 
 	//Calculate crc
-	builder->response03.values[parser->request03.registerCount] = modbusCRC( builder->frame, frameLength - 2 );
+	builder->response0304.values[parser->request0304.registerCount] = modbusCRC( builder->frame, frameLength - 2 );
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;

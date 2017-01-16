@@ -178,7 +178,7 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	//Parse slave response to request 01 (read multiple coils)
 
 	uint8_t dataok = 1;
-	uint8_t i = 0;
+	uint16_t i = 0;
 
 	//Check if given pointers are valid
 	if ( status == NULL  ) return MODBUS_ERROR_OTHER;

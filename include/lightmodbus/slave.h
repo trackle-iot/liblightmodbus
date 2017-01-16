@@ -26,10 +26,6 @@
 #include "core.h"
 #include "parser.h"
 #include "slave/stypes.h"
-#include "slave/sregisters.h"
-#include "slave/scoils.h"
-#include "slave/sdiscreteinputs.h"
-#include "slave/sinputregisters.h"
 
 //Enabling modules in compilation process (use makefile to automate this process)
 #ifndef LIGHTMODBUS_SLAVE_REGISTERS

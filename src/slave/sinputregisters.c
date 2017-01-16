@@ -75,13 +75,12 @@ uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 5 + ( parser->request04.registerCount << 1 );
 
-	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
+	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_ALLOC;
 	}
-	memset( status->response.frame, 0, frameLength ); //Empty response frame
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame; //Allocate memory for builder union
 
 	//Set up basic response data

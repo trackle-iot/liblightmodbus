@@ -97,7 +97,7 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	}
 
 	//Allocate memory for union and copy frame to it
-	union ModbusParser *parser = (union ModbusParser *) malloc( status->response.length );
+	union ModbusParser *parser = (union ModbusParser *) calloc( status->response.length, sizeof( uint8_t ) );
 	if ( parser == NULL )
 	{
 		status->finished = 1;
@@ -106,7 +106,7 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	memcpy( parser->frame, status->response.frame, status->response.length );
 
 	//Allocate memory for request union and copy frame to it
-	union ModbusParser *requestParser = (union ModbusParser *) malloc( status->request.length );
+	union ModbusParser *requestParser = (union ModbusParser *) calloc( status->request.length, sizeof( uint8_t ) );
 	if ( requestParser == NULL )
 	{
 		free( parser );

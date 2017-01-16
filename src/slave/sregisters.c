@@ -75,13 +75,12 @@ uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 5 + ( parser->request03.registerCount << 1 );
 
-	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
+	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_ALLOC;
 	}
-	memset( status->response.frame, 0, frameLength ); //Empty response frame
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//Set up basic response data
@@ -159,13 +158,12 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 8;
 
-	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
+	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_ALLOC;
 	}
-	memset( status->response.frame, 0, frameLength ); //Empty response frame
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write reg
@@ -275,13 +273,12 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 8;
 
-	status->response.frame = (uint8_t *) malloc( frameLength ); //Reallocate response frame memory to needed memory
+	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_ALLOC;
 	}
-	memset( status->response.frame, 0, frameLength ); //Empty response frame
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 

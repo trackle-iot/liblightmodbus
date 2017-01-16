@@ -48,7 +48,7 @@ uint8_t modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t fi
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
-	status->request.frame = (uint8_t *) malloc( frameLength );
+	status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -89,7 +89,7 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t re
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
-	status->request.frame = (uint8_t *) malloc( frameLength );
+	status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -138,7 +138,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t fi
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
-	status->request.frame = (uint8_t *) malloc( frameLength );
+	status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );
 	if ( status->request.frame == NULL )
 	{
 		status->finished = 1;
@@ -205,7 +205,7 @@ uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser,
 
 	//Allocate memory for ModbusData structures array
 	free( status->data );
-	status->data = (ModbusData *) malloc( ( parser->response03.byteCount >> 1 ) * sizeof( ModbusData ) );
+	status->data = (ModbusData *) calloc( parser->response03.byteCount >> 1, sizeof( ModbusData ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;
@@ -269,7 +269,7 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 
 	//Set up new data table
 	free( status->data );
-	status->data = (ModbusData *) malloc( sizeof( ModbusData ) );
+	status->data = (ModbusData *) calloc( 1, sizeof( ModbusData ) );
 	if ( status->data == NULL )
 	{
 		status->finished = 1;

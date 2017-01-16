@@ -41,13 +41,12 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 	}
 
 	//Reallocate frame memory
-	status->response.frame = (uint8_t *) malloc( 5 );
+	status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
 	if ( status->response.frame == NULL )
 	{
 		status->finished = 1;
 		return MODBUS_ERROR_ALLOC;
 	}
-	memset( status->response.frame, 0, 5 );
 	union ModbusParser *exception = (union ModbusParser *) status->response.frame;
 
 	//Setup exception frame
@@ -106,7 +105,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 	//This part right there, below should be optimized, but currently I'm not 100% sure, that parsing doesn't malform given frame
 	//In this case it's just much easier to allocate new frame
-	union ModbusParser *parser = (union ModbusParser *) malloc( status->request.length );
+	union ModbusParser *parser = (union ModbusParser *) calloc( status->request.length, sizeof( uint8_t ) );
 	if ( parser == NULL )
 	{
 		status->finished = 1;

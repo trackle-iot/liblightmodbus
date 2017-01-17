@@ -202,10 +202,6 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	//Swap endianness
-	modbusSwapEndian( parser->response06.index );
-	modbusSwapEndian( parser->response06.value );
-
 	//Set up new data table
 	status->data.coils = (uint8_t*) calloc( 1, sizeof( uint16_t ) );
 	status->data.regs = (uint16_t*) status->data.coils;

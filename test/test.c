@@ -27,6 +27,7 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 
 void maxlentest( )
 {
+	#define CK2( n ) printf( "mec=%d, sec=%d\n", mec, sec ); printf( memcmp( mstatus.data.regs, bak, n ) ? "ERROR!\n" : "OK\n" );
 	#define CK( n ) printf( "mec=%d, sec=%d\n", mec, sec ); printf( memcmp( vals, bak, n ) ? "ERROR!\n" : "OK\n" );
 	#define GEN( n ) for ( i = 0; i < n; i++ ) bak[i] = rand( );
 	uint8_t vals[250];
@@ -64,7 +65,46 @@ void maxlentest( )
 	sstatus.coils = bak;
 	sstatus.registers = (uint16_t*) bak;
 
+	GEN( 250 );
+	mec = modbusBuildRequest03( &mstatus, 0x20, 0, 125 );
+	sstatus.request.frame = mstatus.request.frame;
+	sstatus.request.length = mstatus.request.length;
+	sec = modbusParseRequest( &sstatus );
+	mstatus.response.frame = sstatus.response.frame;
+	mstatus.response.length = sstatus.response.length;
+	mec = modbusParseResponse( &mstatus );
+	CK2( 250 );
 
+	GEN( 250 );
+	mec = modbusBuildRequest04( &mstatus, 0x20, 0, 125 );
+	sstatus.request.frame = mstatus.request.frame;
+	sstatus.request.length = mstatus.request.length;
+	sec = modbusParseRequest( &sstatus );
+	mstatus.response.frame = sstatus.response.frame;
+	mstatus.response.length = sstatus.response.length;
+	mec = modbusParseResponse( &mstatus );
+	CK2( 250 );
+
+	GEN( 250 );
+	mec = modbusBuildRequest01( &mstatus, 0x20, 0, 2000 );
+	sstatus.request.frame = mstatus.request.frame;
+	sstatus.request.length = mstatus.request.length;
+	sec = modbusParseRequest( &sstatus );
+	DUMPSF( );
+	mstatus.response.frame = sstatus.response.frame;
+	mstatus.response.length = sstatus.response.length;
+	mec = modbusParseResponse( &mstatus );
+	CK2( 250 );
+
+	GEN( 250 );
+	mec = modbusBuildRequest02( &mstatus, 0x20, 0, 2000 );
+	sstatus.request.frame = mstatus.request.frame;
+	sstatus.request.length = mstatus.request.length;
+	sec = modbusParseRequest( &sstatus );
+	mstatus.response.frame = sstatus.response.frame;
+	mstatus.response.length = sstatus.response.length;
+	mec = modbusParseResponse( &mstatus );
+	CK2( 250 );
 
 }
 

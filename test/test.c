@@ -14,7 +14,8 @@ uint16_t registers[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 uint8_t coils[4] = { 0, 0, 0, 0 };
 uint8_t discreteInputs[2] = { 255, 0 };
 uint16_t inputRegisters[4] = { 1, 2, 3, 4 };
-uint16_t TestValues[8] = { 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAAFF, 0xBBFF };
+uint16_t defaults[512] = { 0xdead, 0xface, 0x1570, 0x01 };
+uint16_t TestValues[512] = { 0xface, 0xdead, 0xCC, 0xDD, 0xEE, 0xFF, 0xAAFF, 0xBBFF };
 uint16_t TestValues2[512] = {0};
 uint8_t TestValues3[512] = { 0b11001100, 0x00 };
 
@@ -73,10 +74,14 @@ void Test( )
 	uint8_t SlaveError, MasterError;
 
 	//Clear registers
-	memset( registers, 0, 8 * 2 );
-	memset( inputRegisters, 0, 4 * 2 );
+	//memset( registers, 0, 8 * 2 );
+	//memset( inputRegisters, 0, 4 * 2 );
 	memset( coils, 0, 4 );
 	memset( discreteInputs, 0, 2 );
+	memcpy( registers, defaults, 16 );
+	memcpy( inputRegisters, defaults, 4 * 2 );
+	//memcpy( coils, defaults, 4 );
+	//memcpy( discreteInputs, defaults, 2 );
 
 	//Start test
 	//TermRGB( 4, 2, 0 );
@@ -215,7 +220,7 @@ void MainTest( )
 
 	//request06 - ok
 	printf( "\t\t06 - correct request...\n" );
-	modbusBuildRequest06( &mstatus,0x20, 0x06, 0xf6 );
+	modbusBuildRequest06( &mstatus,0x20, 0x06, 0xface );
 	Test( );
 
 	//request06 - bad CRC

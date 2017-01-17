@@ -88,7 +88,10 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	}
 
 	//Calculate crc
-	*( (uint16_t*)( builder->frame + frameLength - 2 ) ) = modbusCRC( builder->frame, frameLength - 2 );
+	//That could be written as a single line, without the temporary variable, but avr-gcc doesn't like that
+	//warning: dereferencing type-punned pointer will break strict-aliasing rules
+	uint16_t *crc = (uint16_t*)( builder->frame + frameLength - 2 );
+	*crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;

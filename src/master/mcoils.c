@@ -132,7 +132,11 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t in
 	for ( i = 0; i < builder->request15.length; i++ )
 		builder->request15.values[i] = values[i];
 
-	*( (uint16_t*)( builder->frame + frameLength - 2 ) ) = modbusCRC( builder->frame, frameLength - 2 );
+
+	//That could be written as a single line, without the temporary variable, but avr-gcc doesn't like that
+	//warning: dereferencing type-punned pointer will break strict-aliasing rules
+	uint16_t *crc = (uint16_t*)( builder->frame + frameLength - 2 );
+	*crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
 	if ( address ) status->predictedResponseLength = 4 + 4;

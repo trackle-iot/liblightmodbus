@@ -18,27 +18,21 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIGHTMODBUS_MASTER_BASE_H
-#define LIGHTMODBUS_MASTER_BASE_H
+#ifndef LIGHTMODBUS_SREGS_H
+#define LIGHTMODBUS_SREGS_H
 
 #include <inttypes.h>
+#include "stypes.h"
 
-#include "core.h"
-#include "parser.h"
-#include "master/mtypes.h"
-#include "master/mbregs.h"
-#include "master/mbcoils.h"
+//Functions needed from other modules
+extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode );
 
-//Enabling modules in compilation process (use makefile to automate this process)
-#ifndef LIGHTMODBUS_MASTER_REGISTERS
-#define LIGHTMODBUS_MASTER_REGISTERS 0
-#endif
-#ifndef LIGHTMODBUS_MASTER_COILS
-#define LIGHTMODBUS_MASTER_COILS 0
-#endif
-
-extern uint8_t modbusParseResponse( ModbusMaster *status );
-extern uint8_t modbusMasterInit( ModbusMaster *status );
-extern uint8_t modbusMasterEnd( ModbusMaster *status ); //Free memory used by master
+//Functions for parsing requests
+#define modbusParseRequest03 modbusParseRequest0304
+#define modbusParseRequest04 modbusParseRequest0304
+extern uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser );
 
 #endif

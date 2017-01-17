@@ -130,17 +130,19 @@ master-base: src/master.c include/lightmodbus/master.h
 	echo "COMPILING Master module (obj/master/mbase.o)" >> build.log
 	$(CC) $(CFLAGS) `cat mmodules.tmp` -c src/master.c -o obj/master/mbase.o
 
-master-registers: src/master/mregisters.c include/lightmodbus/master/mregisters.h
+master-registers: src/master/mpregs.c include/lightmodbus/master/mpregs.h src/master/mbregs.c include/lightmodbus/master/mbregs.h
 	$(call compileHeader,master registers module)
 	echo " -DLIGHTMODBUS_MASTER_REGISTERS=1" >> mmodules.tmp
 	echo "COMPILING Master registers module (obj/master/mregisters.o)" >> build.log
-	$(CC) $(CFLAGS) -c src/master/mregisters.c -o obj/master/mregisters.o
+	$(CC) $(CFLAGS) -c src/master/mpregs.c -o obj/master/mpregs.o
+	$(CC) $(CFLAGS) -c src/master/mbregs.c -o obj/master/mbregs.o
 
-master-coils: src/master/mcoils.c include/lightmodbus/master/mcoils.h
+master-coils: src/master/mpcoils.c include/lightmodbus/master/mpcoils.h src/master/mbcoils.c include/lightmodbus/master/mbcoils.h
 	$(call compileHeader,master coils module)
 	echo " -DLIGHTMODBUS_MASTER_COILS=1" >> mmodules.tmp
 	echo "COMPILING Master coils module (obj/master/mcoils.o)" >> build.log
-	$(CC) $(CFLAGS) -c src/master/mcoils.c -o obj/master/mcoils.o
+	$(CC) $(CFLAGS) -c src/master/mpcoils.c -o obj/master/mpcoils.o
+	$(CC) $(CFLAGS) -c src/master/mbcoils.c -o obj/master/mbcoils.o
 
 master-link:
 	$(call linkHeader,master modules)
@@ -152,11 +154,11 @@ slave-base: src/slave.c include/lightmodbus/slave.h
 	echo "COMPILING Slave module (obj/slave/sbase.o)" >> build.log
 	$(CC) $(CFLAGS) `cat smodules.tmp` -c src/slave.c -o obj/slave/sbase.o
 
-slave-registers: src/slave/sregisters.c include/lightmodbus/slave/sregisters.h
+slave-registers: src/slave/sregs.c include/lightmodbus/slave/sregs.h
 	$(call compileHeader,slave registers module)
 	echo " -DLIGHTMODBUS_SLAVE_REGISTERS=1" >> smodules.tmp
 	echo "COMPILING Slave registers module (obj/slave/sregisters.o)" >> build.log
-	$(CC) $(CFLAGS) -c src/slave/sregisters.c -o obj/slave/sregisters.o
+	$(CC) $(CFLAGS) -c src/slave/sregs.c -o obj/slave/sregs.o
 
 slave-coils: src/slave/scoils.c include/lightmodbus/slave/scoils.h
 	$(call compileHeader,slave coils module)

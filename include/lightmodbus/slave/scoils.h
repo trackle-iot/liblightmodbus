@@ -18,8 +18,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIGHTMODBUS_SLAVE_COILS_H
-#define LIGHTMODBUS_SLAVE_COILS_H
+#ifndef LIGHTMODBUS_SCOILS_H
+#define LIGHTMODBUS_SCOILS_H
 
 #include <inttypes.h>
 #include "stypes.h"

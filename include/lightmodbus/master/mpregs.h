@@ -18,19 +18,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIGHTMODBUS_MASTER_REGISTERS_H
-#define LIGHTMODBUS_MASTER_REGISTERS_H
+#ifndef LIGHTMODBUS_MPREGS_H
+#define LIGHTMODBUS_MPREGS_H
 
 #include <inttypes.h>
 #include "mtypes.h"
-
-//Functions for building requests
-#define modbusBuildRequest03( status, address, index, count ) modbusBuildRequest0304( (status), 3, (address), (index), (count) )
-#define modbusBuildRequest04( status, address, index, count ) modbusBuildRequest0304( (status), 4, (address), (index), (count) )
-extern uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
-extern uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
-extern uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values );
-extern uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t andmask, uint16_t ormask );
 
 //Functions for parsing responses
 #define modbusParseResponse03 modbusParseResponse0304

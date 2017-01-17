@@ -22,7 +22,7 @@
 #include <lightmodbus/slave.h>
 #include <lightmodbus/parser.h>
 #include <lightmodbus/slave/stypes.h>
-#include <lightmodbus/slave/sregisters.h>
+#include <lightmodbus/slave/sregs.h>
 #include <lightmodbus/slave/scoils.h>
 
 uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t code )

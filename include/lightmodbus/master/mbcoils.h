@@ -18,8 +18,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIGHTMODBUS_MASTER_COILS_H
-#define LIGHTMODBUS_MASTER_COILS_H
+#ifndef LIGHTMODBUS_MBCOILS_H
+#define LIGHTMODBUS_MBCOILS_H
 
 #include <inttypes.h>
 #include "mtypes.h"
@@ -30,12 +30,5 @@
 extern uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
 extern uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
 extern uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values );
-
-//Functions for parsing responses
-#define modbusParseResponse01 modbusParseResponse0102
-#define modbusParseResponse02 modbusParseResponse0102
-extern uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-extern uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-extern uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
 
 #endif

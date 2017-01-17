@@ -47,7 +47,7 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t cod
 	//Set frame length - frame is ready
 	status->response.length = 5;
 
-	//So, user should rather know, that master is retarted, right?
+	//So, user should rather know, that master slave had to throw exception, right?
 	//That's the reason exception should be thrown - just like that, an information
 	return MODBUS_ERROR_EXCEPTION;
 }
@@ -55,14 +55,6 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t cod
 uint8_t modbusParseRequest( ModbusSlave *status )
 {
 	//Parse and interpret given modbus frame on slave-side
-
-	//Init parser union
-	//This one is actually unsafe, so it's easy to create a segmentation fault, so be careful here
-	//Allowed frame array size in union is 256, but here I'm only allocating amount of frame length
-	//It is even worse, compiler won't warn you, when you are outside the range
-	//It works, and it uses much less memory, so I guess a bit of risk is fine in this case
-	//Also, user needs to free memory alocated for frame himself!
-
 	uint8_t err = 0;
 
 	//Check if given pointer is valid
@@ -84,18 +76,12 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
 			return MODBUS_ERROR_CRC;
 
-	//This part right there, below should be optimized, but currently I'm not 100% sure, that parsing doesn't malform given frame
-	//In this case it's just much easier to allocate new frame
-	union ModbusParser *parser = (union ModbusParser *) status->request.frame; //calloc( status->request.length, sizeof( uint8_t ) );
-	//if ( parser == NULL ) return MODBUS_ERROR_ALLOC;
-	//memcpy( parser->frame, status->request.frame, status->request.length );
+
+	union ModbusParser *parser = (union ModbusParser *) status->request.frame;
 
 	//If frame is not broadcasted and address doesn't match skip parsing
 	if ( parser->base.address != status->address && parser->base.address != 0 )
-	{
-		//free( parser );
 		return MODBUS_ERROR_OK;
-	}
 
 	switch ( parser->base.function )
 	{
@@ -144,7 +130,6 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	if ( err == MODBUS_ERROR_PARSE )
 		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNC );
 
-	//free( parser );
 	return err;
 }
 

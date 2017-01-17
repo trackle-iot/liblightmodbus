@@ -45,8 +45,7 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	//This function parses response from master
 	//Calling it will lead to losing all data and exceptions stored in MODBUSMaster (space will be reallocated)
 
-	//Note: crc is not checked here, just because if there was some junk at the end of correct frame (wrong length) it would be ommited
-	//In fact, user should care about things like that, and It would lower memory usage, so in future crc can be verified right here
+	//Note: crc is now checked here
 
 	//If non-zero some parser failed its job
 	uint8_t err = 0;
@@ -81,23 +80,8 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
 			return MODBUS_ERROR_CRC;
 
-	//Allocate memory for union and copy frame to it
-	union ModbusParser *parser = (union ModbusParser *) status->response.frame; //(union ModbusParser *) calloc( status->response.length, sizeof( uint8_t ) );
-	/*
-	if ( parser == NULL ) return MODBUS_ERROR_ALLOC;
-	memcpy( parser->frame, status->response.frame, status->response.length );
-	*/
-
-	//Allocate memory for request union and copy frame to it
-	union ModbusParser *requestParser = (union ModbusParser *) status->request.frame;//(union ModbusParser *) calloc( status->request.length, sizeof( uint8_t ) );
-	/*
-	if ( requestParser == NULL )
-	{
-		free( parser );
-		return MODBUS_ERROR_ALLOC;
-	}
-	memcpy( requestParser->frame,  status->request.frame, status->request.length );
-	*/
+	union ModbusParser *parser = (union ModbusParser*) status->response.frame;
+	union ModbusParser *requestParser = (union ModbusParser*) status->request.frame;
 
 	//Check if frame is exception response
 	if ( parser->base.function & 128 && status->response.length == 5 )
@@ -150,11 +134,6 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 				break;
 		}
 	}
-
-	//Free used memory
-	//free( parser );
-	//free( requestParser );
-
 	return err;
 }
 

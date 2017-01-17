@@ -42,9 +42,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
-	{
 		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
-	}
 
 	//Swap endianness of longer members (but not crc)
 	parser->request0102.index = modbusSwapEndian( parser->request0102.index );
@@ -52,18 +50,12 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 
 	//Check if coil is in valid range
 	if ( parser->request0102.count == 0 || parser->request0102.count > 2000 )
-	{
-		//Illegal data value error
 		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
-	}
 
 	if ( parser->request0102.index >= ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
 		(uint32_t) parser->request0102.index + (uint32_t) parser->request0102.count > \
 		(uint32_t) ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) )
-	{
-		//Illegal data address exception
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDR );
-	}
+			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDR );
 
 	//Respond
 	frameLength = 5 + BITSTOBYTES( parser->request0102.count );

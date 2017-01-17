@@ -173,6 +173,7 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	status->data.regs = (uint16_t*) status->data.coils;
 	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 
+	status->data.function = parser->base.function;
 	status->data.address = parser->base.address;
 	status->data.type = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
 	status->data.index = modbusSwapEndian( requestParser->request0102.index );
@@ -195,8 +196,8 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	if ( status->response.length != 8 || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
 
 	//Check between data sent to slave and received from slave
-	dataok &= ( parser->base.address == requestParser->base.address );
-	dataok &= ( parser->base.function == requestParser->base.function );
+	dataok &= parser->base.address == requestParser->base.address;
+	dataok &= parser->base.function == requestParser->base.function;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
@@ -204,6 +205,7 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	status->data.coils = (uint8_t*) calloc( 1, sizeof( uint8_t ) );
 	status->data.regs = (uint16_t*) status->data.coils;
 	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	status->data.function = 5;
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_COIL;
 	status->data.index = modbusSwapEndian( requestParser->request05.index );
@@ -236,6 +238,7 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
 	status->data.address = parser->base.address;
+	status->data.function = 15;
 	status->data.type = MODBUS_COIL;
 	status->data.index = modbusSwapEndian( parser->response15.index );
 	status->data.count = modbusSwapEndian( parser->response15.count );

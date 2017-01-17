@@ -203,11 +203,12 @@ uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parse
 	status->data.regs = (uint16_t*) status->data.coils;
 	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	status->data.address = parser->base.address;
+	status->data.function = parser->base.function;
 	status->data.type = parser->base.function == 3 ? MODBUS_HOLDING_REGISTER : MODBUS_INPUT_REGISTER;
 	status->data.index = modbusSwapEndian( requestParser->request0304.index );
 	status->data.count = modbusSwapEndian( requestParser->request0304.count );
 
-	//Copy received data
+	//Copy received data (with swapping endianness)
 	for ( i = 0; i < ( parser->response0304.length >> 1 ); i++ )
 		status->data.regs[i] = modbusSwapEndian( parser->response0304.values[i] );
 
@@ -241,6 +242,7 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	status->data.coils = (uint8_t*) calloc( 1, sizeof( uint16_t ) );
 	status->data.regs = (uint16_t*) status->data.coils;
 	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	status->data.function = 6;
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_HOLDING_REGISTER;
 	status->data.index = modbusSwapEndian( parser->response06.index );
@@ -275,6 +277,7 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 
 	//Set up data length - response successfully parsed
 	status->data.address = parser->base.address;
+	status->data.function = 16;
 	status->data.type = MODBUS_HOLDING_REGISTER;
 	status->data.index = modbusSwapEndian( parser->response16.index );
 	status->data.count = modbusSwapEndian( parser->response16.count );
@@ -308,6 +311,7 @@ uint8_t modbusParseResponse22( ModbusMaster *status, union ModbusParser *parser,
 
 	//Set up new data table
 	status->data.address = parser->base.address;
+	status->data.function = 22;
 	status->data.type = MODBUS_HOLDING_REGISTER;
 	status->data.index = modbusSwapEndian( parser->response22.index );
 	status->data.count = 1;

@@ -53,6 +53,7 @@ typedef struct
 		uint16_t count; //Count of data units (coils, registers, etc.)
 		uint8_t length; //Length of data in bytes
 		uint8_t type; //Type of data
+		uint8_t function; //Function that accessed the data
 		//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
 		uint8_t *coils; //Received data
 		uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience

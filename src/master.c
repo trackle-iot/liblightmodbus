@@ -61,6 +61,12 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	free( status->data.coils );
 	status->data.coils = NULL;
 	status->data.regs = NULL;
+	status->data.length = 0;
+	status->data.index = 0;
+	status->data.count = 0;
+	status->data.type = 0;
+	status->data.address = 0;
+	status->data.function = 0;
 
 	//Check if frames are not too short and return error (to avoid problems with memory allocation)
 	//That enables us to ommit the check in each parsing function
@@ -155,8 +161,8 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 
 	//Very basic init of master side
 	status->request.frame = NULL;
-
 	status->request.length = 0;
+	status->response.frame = NULL;
 	status->response.length = 0;
 	status->data.coils = NULL;
 	status->data.regs = NULL;

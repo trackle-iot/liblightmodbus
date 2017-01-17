@@ -152,6 +152,26 @@ union ModbusParser
 		uint16_t count;
 		uint16_t crc;
 	} response16; //Write multiple holding registers
+
+	struct __attribute__( ( __packed__ ) )
+	{
+		uint8_t address;
+		uint8_t function;
+		uint16_t index;
+		uint16_t andmask;
+		uint16_t ormask;
+		uint16_t crc;
+	} request22; //Mask write single holding register
+
+	struct __attribute__( ( __packed__ ) )
+	{
+		uint8_t address;
+		uint8_t function;
+		uint16_t index;
+		uint16_t andmask;
+		uint16_t ormask;
+		uint16_t crc;
+	} response22; //Mask write single holding register
 };
 
 #endif

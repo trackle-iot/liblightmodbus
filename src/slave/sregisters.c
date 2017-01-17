@@ -241,3 +241,74 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	return MODBUS_ERROR_OK;
 }
+
+uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser )
+{
+	//Mask write single holding reg
+	//Using data from union pointer
+
+	//Update frame length
+	uint8_t frameLength = 10;
+
+	//Check if given pointers are valid
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
+
+	//Check if frame length is valid
+	if ( status->request.length != frameLength )
+	{
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_ILLEGAL_VAL );
+		return MODBUS_ERROR_OK;
+	}
+
+	//Check frame crc
+	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request22.crc ) return MODBUS_ERROR_CRC;
+
+	//Swap endianness of longer members (but not crc)
+	parser->request22.index = modbusSwapEndian( parser->request22.index );
+	parser->request22.andmask = modbusSwapEndian( parser->request22.andmask );
+	parser->request22.ormask = modbusSwapEndian( parser->request22.ormask );
+
+	//Check if reg is in valid range
+	if ( parser->request22.index >= status->registerCount )
+	{
+		//Illegal data address exception
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_ILLEGAL_ADDR );
+		return MODBUS_ERROR_OK;
+	}
+
+	//Check if reg is allowed to be written
+	if ( modbusMaskRead( status->registerMask, status->registerMaskLength, parser->request22.index ) == 1 )
+	{
+		//Slave failure exception
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_SLAVE_FAIL );
+		return MODBUS_ERROR_OK;
+	}
+
+	//Respond
+	frameLength = 10;
+
+	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
+	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
+
+	//After all possible exceptions, write reg
+	status->registers[parser->request06.index] = ( status->registers[parser->request22.index] & parser->request22.andmask ) | \
+		( parser->request22.ormask & ~parser->request22.andmask );
+
+	//Do not respond when frame is broadcasted
+	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+
+	//Set up basic response data
+	builder->response22.address = status->address;
+	builder->response22.function = parser->request22.function;
+	builder->response22.index = modbusSwapEndian( parser->request22.index );
+	builder->response22.andmask = modbusSwapEndian( parser->request22.andmask );
+	builder->response22.ormask = modbusSwapEndian( parser->request22.ormask );
+
+	//Calculate crc
+	builder->response22.crc = modbusCRC( builder->frame, frameLength - 2 );
+
+	//Set frame length - frame is ready
+	status->response.length = frameLength;
+	return MODBUS_ERROR_OK;
+}

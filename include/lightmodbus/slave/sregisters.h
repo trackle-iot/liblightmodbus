@@ -33,5 +33,6 @@ extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint
 extern uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser );
 extern uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser );
 extern uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser );
 
 #endif

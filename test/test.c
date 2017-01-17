@@ -475,6 +475,32 @@ void MainTest( )
 	modbusBuildRequest04( &mstatus, 0x10, 0x00, 0x04 );
 	Test( );
 
+	//request06 - ok
+	printf( "\t\t22 - correct request...\n" );
+	modbusBuildRequest22( &mstatus,0x20, 0x06, 14 << 8, 56 << 8 );
+	Test( );
+
+	//request06 - bad CRC
+	printf( "\t\t22 - bad CRC...\n" );
+	modbusBuildRequest22( &mstatus,0x20, 0x06, 14 << 8, 56 << 8 );
+	mstatus.request.frame[mstatus.request.length - 1]++;
+	Test( );
+
+	//request06 - bad register
+	printf( "\t\t22 - bad register...\n" );
+	modbusBuildRequest22( &mstatus,0x20, 0xf6, 14 << 8, 56 << 8 );
+	Test( );
+
+	//request06 - broadcast
+	printf( "\t\t22 - broadcast...\n" );
+	modbusBuildRequest22( &mstatus, 0x00, 0x06, 14 << 8, 56 << 8 );
+	Test( );
+
+	//request06 - other slave address
+	printf( "\t\t22 - other address...\n" );
+	modbusBuildRequest22( &mstatus, 0x10, 0x06, 14 << 8, 56 << 8 );
+	Test( );
+
 	//WRITE PROTECTION TEST
 	printf( "\t\t--Register write protection test--\n" );
 	uint8_t mask[1] = { 0 };

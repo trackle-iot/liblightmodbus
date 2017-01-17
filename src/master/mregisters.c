@@ -164,11 +164,12 @@ uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parse
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
 	//Allocate memory for ModbusData structures array
-	status->data.regs = (uint16_t*)( status->data.data = calloc( parser->response0304.byteCount >> 1, sizeof( uint16_t ) ) );
-	if ( status->data.data == NULL ) return MODBUS_ERROR_ALLOC;
+	status->data.coils = (uint8_t*) calloc( parser->response0304.byteCount >> 1, sizeof( uint16_t ) );
+	status->data.regs = (uint16_t*) status->data.coils;
+	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	status->data.address = parser->base.address;
 	status->data.type = parser->base.function == 3 ? MODBUS_HOLDING_REGISTER : MODBUS_INPUT_REGISTER;
-	status->data.first = modbusSwapEndian( requestParser->request0304.firstRegister );
+	status->data.index = modbusSwapEndian( requestParser->request0304.firstRegister );
 	status->data.count = modbusSwapEndian( requestParser->request0304.registerCount );
 
 	//Copy received data
@@ -206,14 +207,14 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	modbusSwapEndian( parser->response06.value );
 
 	//Set up new data table
-	status->data.regs = (uint16_t*)( status->data.data =  calloc( 1, sizeof( uint16_t ) ) );
-	if ( status->data.data == NULL ) return MODBUS_ERROR_ALLOC;
-
+	status->data.coils = (uint8_t*) calloc( 1, sizeof( uint16_t ) );
+	status->data.regs = (uint16_t*) status->data.coils;
+	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_HOLDING_REGISTER;
-	status->data.first = modbusSwapEndian( parser->response06.reg );
+	status->data.index = modbusSwapEndian( parser->response06.reg );
 	status->data.count = 1;
-	( (uint16_t*) status->data.data )[0] = modbusSwapEndian( parser->response06.value );
+	status->data.regs[0] = modbusSwapEndian( parser->response06.value );
 	status->data.length = 2;
 	return MODBUS_ERROR_OK;
 }
@@ -244,7 +245,7 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	//Set up data length - response successfully parsed
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_HOLDING_REGISTER;
-	status->data.first = modbusSwapEndian( parser->response16.firstRegister );
+	status->data.index = modbusSwapEndian( parser->response16.firstRegister );
 	status->data.count = modbusSwapEndian( parser->response16.registerCount );
 	status->data.regs = NULL;
 	status->data.length = 0;

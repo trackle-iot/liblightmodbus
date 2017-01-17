@@ -158,13 +158,13 @@ void Test( )
 	//Dump parsed data
 	printf( "\tError - %d\n\tFinished - 1\n", MasterError );
 
-	for ( i = 0; i < mstatus.data.count; i++ )
-	{
-		if ( mstatus.data.data != NULL )
-		printf( "\t - { addr: 0x%x, type: 0x%x, reg: 0x%x, val: 0x%x }\n", mstatus.data.address, mstatus.data.type, mstatus.data.first + i,\
-		( mstatus.data.type == MODBUS_HOLDING_REGISTER || mstatus.data.type == MODBUS_INPUT_REGISTER ) ? mstatus.data.regs[i] : \
-		modbusMaskRead( (uint8_t*)mstatus.data.data, mstatus.data.length, i ) );
-	}
+	if ( mstatus.data.coils != NULL && mstatus.data.regs != NULL )
+		for ( i = 0; i < mstatus.data.count; i++ )
+		{
+			printf( "\t - { addr: 0x%x, type: 0x%x, reg: 0x%x, val: 0x%x }\n", mstatus.data.address, mstatus.data.type, mstatus.data.index + i,\
+			( mstatus.data.type == MODBUS_HOLDING_REGISTER || mstatus.data.type == MODBUS_INPUT_REGISTER ) ? mstatus.data.regs[i] : \
+			modbusMaskRead( mstatus.data.coils, mstatus.data.length, i ) );
+		}
 
 	if ( MasterError == MODBUS_ERROR_EXCEPTION )
 	{

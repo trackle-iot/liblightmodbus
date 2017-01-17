@@ -165,15 +165,15 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	status->data.regs = (uint16_t*)( status->data.data = \
-		calloc( BITSTOBYTES( modbusSwapEndian( requestParser->request0102.coilCount ) ), sizeof( uint8_t ) ) );
-	if ( status->data.data == NULL ) return MODBUS_ERROR_ALLOC;
+	status->data.coils = (uint8_t*) calloc( BITSTOBYTES( modbusSwapEndian( requestParser->request0102.coilCount ) ), sizeof( uint8_t ) );
+	status->data.regs = (uint16_t*) status->data.coils;
+	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 
 	status->data.address = parser->base.address;
 	status->data.type = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
-	status->data.first = modbusSwapEndian( requestParser->request0102.firstCoil );
+	status->data.index = modbusSwapEndian( requestParser->request0102.firstCoil );
 	status->data.count = modbusSwapEndian( requestParser->request0102.coilCount );
-	memcpy( status->data.data, parser->response0102.values, parser->response0102.byteCount );
+	memcpy( status->data.coils, parser->response0102.values, parser->response0102.byteCount );
 	status->data.length = parser->response0102.byteCount;
 	return MODBUS_ERROR_OK;
 }
@@ -197,13 +197,14 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	status->data.regs = (uint16_t*)( status->data.data = calloc( 1, sizeof( uint8_t ) ) );
-	if ( status->data.data == NULL ) return MODBUS_ERROR_ALLOC;
+	status->data.coils = (uint8_t*) calloc( 1, sizeof( uint8_t ) );
+	status->data.regs = (uint16_t*) status->data.coils;
+	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_COIL;
-	status->data.first = modbusSwapEndian( requestParser->request05.coil );
+	status->data.index = modbusSwapEndian( requestParser->request05.coil );
 	status->data.count = 1;
-	( (uint8_t*) status->data.data )[0] = parser->response05.value != 0;
+	status->data.coils[0] = parser->response05.value != 0;
 	status->data.length = 1;
 	return MODBUS_ERROR_OK;
 }
@@ -232,9 +233,8 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_COIL;
-	status->data.first = modbusSwapEndian( parser->response15.firstCoil );
+	status->data.index = modbusSwapEndian( parser->response15.firstCoil );
 	status->data.count = modbusSwapEndian( parser->response15.coilCount );
-	status->data.regs = NULL;
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }

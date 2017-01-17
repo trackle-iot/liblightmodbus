@@ -39,11 +39,12 @@ typedef struct
 	struct //Data read from slave
 	{
 		uint8_t address; //Addres of slave
-		uint16_t first; //Address of the first element (in slave device)
+		uint16_t index; //Address of the first element (in slave device)
 		uint16_t count; //Count of data units (coils, registers, etc.)
 		uint8_t length; //Length of data in bytes
 		uint8_t type; //Type of data
-		void *data; //Received data
+		//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
+		uint8_t *coils; //Received data
 		uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
 	} data;
 

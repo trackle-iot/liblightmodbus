@@ -86,14 +86,14 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 	//This part right there, below should be optimized, but currently I'm not 100% sure, that parsing doesn't malform given frame
 	//In this case it's just much easier to allocate new frame
-	union ModbusParser *parser = (union ModbusParser *) calloc( status->request.length, sizeof( uint8_t ) );
-	if ( parser == NULL ) return MODBUS_ERROR_ALLOC;
-	memcpy( parser->frame, status->request.frame, status->request.length );
+	union ModbusParser *parser = (union ModbusParser *) status->request.frame; //calloc( status->request.length, sizeof( uint8_t ) );
+	//if ( parser == NULL ) return MODBUS_ERROR_ALLOC;
+	//memcpy( parser->frame, status->request.frame, status->request.length );
 
 	//If frame is not broadcasted and address doesn't match skip parsing
 	if ( parser->base.address != status->address && parser->base.address != 0 )
 	{
-		free( parser );
+		//free( parser );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -144,7 +144,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	if ( err == MODBUS_ERROR_PARSE )
 		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNC );
 
-	free( parser );
+	//free( parser );
 	return err;
 }
 

@@ -187,12 +187,14 @@ uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parse
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
 	if ( status->response.length != 5 + parser->response0304.length || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
 
+	uint16_t count = modbusSwapEndian( requestParser->request0304.count );
+
 	//Check between data sent to slave and received from slave
 	dataok &= parser->base.address != 0;
 	dataok &= parser->response0304.address == requestParser->request0304.address;
 	dataok &= parser->response0304.function == requestParser->request0304.function;
 	dataok &= parser->response0304.length != 0;
-	dataok &= parser->response0304.length == modbusSwapEndian( requestParser->request0304.count ) << 1 ;
+	dataok &= parser->response0304.length == count << 1 ;
 	dataok &= parser->response0304.length <= 250;
 
 	//If data is bad, abort parsing, and set error flag
@@ -206,10 +208,10 @@ uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parse
 	status->data.function = parser->base.function;
 	status->data.type = parser->base.function == 3 ? MODBUS_HOLDING_REGISTER : MODBUS_INPUT_REGISTER;
 	status->data.index = modbusSwapEndian( requestParser->request0304.index );
-	status->data.count = modbusSwapEndian( requestParser->request0304.count );
+	status->data.count = count;
 
 	//Copy received data (with swapping endianness)
-	for ( i = 0; i < ( parser->response0304.length >> 1 ); i++ )
+	for ( i = 0; i < count; i++ )
 		status->data.regs[i] = modbusSwapEndian( parser->response0304.values[i] );
 
 	status->data.length = parser->response0304.length;
@@ -265,12 +267,14 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request16.length ) return MODBUS_ERROR_FRAME;
 	if ( status->response.length != 8 ) return MODBUS_ERROR_FRAME;
 
+	uint16_t count = modbusSwapEndian( parser->response16.count );
+
 	//Check between data sent to slave and received from slave
 	dataok &= parser->response16.address == requestParser->request16.address;
 	dataok &= parser->response16.function == requestParser->request16.function;
 	dataok &= parser->response16.index == requestParser->request16.index;
 	dataok &= parser->response16.count == requestParser->request16.count;
-	dataok &= modbusSwapEndian( parser->response16.count ) <= 123;
+	dataok &= count <= 123;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
@@ -280,7 +284,7 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	status->data.function = 16;
 	status->data.type = MODBUS_HOLDING_REGISTER;
 	status->data.index = modbusSwapEndian( parser->response16.index );
-	status->data.count = modbusSwapEndian( parser->response16.count );
+	status->data.count = count;
 	status->data.regs = NULL;
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;

@@ -158,18 +158,20 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
 	if ( status->response.length != 5 + parser->response0102.length || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
 
+	uint16_t count = modbusSwapEndian( requestParser->request0102.count );
+
 	//Check between data sent to slave and received from slave
 	dataok &= parser->base.address != 0;
 	dataok &= parser->base.address == requestParser->base.address;
 	dataok &= parser->base.function == requestParser->base.function;
 	dataok &= parser->response0102.length != 0;
 	dataok &= parser->response0102.length <= 250;
-	dataok &= parser->response0102.length == BITSTOBYTES( modbusSwapEndian( requestParser->request0102.count ) );
+	dataok &= parser->response0102.length == BITSTOBYTES( count );
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	status->data.coils = (uint8_t*) calloc( BITSTOBYTES( modbusSwapEndian( requestParser->request0102.count ) ), sizeof( uint8_t ) );
+	status->data.coils = (uint8_t*) calloc( BITSTOBYTES( count ), sizeof( uint8_t ) );
 	status->data.regs = (uint16_t*) status->data.coils;
 	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 
@@ -177,7 +179,7 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	status->data.address = parser->base.address;
 	status->data.type = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
 	status->data.index = modbusSwapEndian( requestParser->request0102.index );
-	status->data.count = modbusSwapEndian( requestParser->request0102.count );
+	status->data.count = count;
 	memcpy( status->data.coils, parser->response0102.values, parser->response0102.length );
 	status->data.length = parser->response0102.length;
 	return MODBUS_ERROR_OK;

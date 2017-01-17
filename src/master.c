@@ -82,18 +82,22 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 			return MODBUS_ERROR_CRC;
 
 	//Allocate memory for union and copy frame to it
-	union ModbusParser *parser = (union ModbusParser *) calloc( status->response.length, sizeof( uint8_t ) );
+	union ModbusParser *parser = (union ModbusParser *) status->response.frame; //(union ModbusParser *) calloc( status->response.length, sizeof( uint8_t ) );
+	/*
 	if ( parser == NULL ) return MODBUS_ERROR_ALLOC;
 	memcpy( parser->frame, status->response.frame, status->response.length );
+	*/
 
 	//Allocate memory for request union and copy frame to it
-	union ModbusParser *requestParser = (union ModbusParser *) calloc( status->request.length, sizeof( uint8_t ) );
+	union ModbusParser *requestParser = (union ModbusParser *) status->request.frame;//(union ModbusParser *) calloc( status->request.length, sizeof( uint8_t ) );
+	/*
 	if ( requestParser == NULL )
 	{
 		free( parser );
 		return MODBUS_ERROR_ALLOC;
 	}
 	memcpy( requestParser->frame,  status->request.frame, status->request.length );
+	*/
 
 	//Check if frame is exception response
 	if ( parser->base.function & 128 && status->response.length == 5 )
@@ -148,8 +152,8 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	}
 
 	//Free used memory
-	free( parser );
-	free( requestParser );
+	//free( parser );
+	//free( requestParser );
 
 	return err;
 }

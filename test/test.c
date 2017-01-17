@@ -2,7 +2,11 @@
 
 /*
 This is really simple test suite, it covers ~95% of library code
+AKA. The Worst Test File Ever
 */
+
+#define DUMPMF( ) printf( "Dump the frame:\n\t" ); for ( i = 0; i < mstatus.request.length; i++ ) printf( "%.2x%s", mstatus.request.frame[i], ( i == mstatus.request.length - 1 ) ? "\n" : "-" );
+#define DUMPSF( ) printf( "Dump response - length = %d:\n\t", sstatus.response.length ); for ( i = 0; i < sstatus.response.length; i++ ) printf( "%x%s", sstatus.response.frame[i], ( i == sstatus.response.length - 1 ) ? "\n" : ", " );
 
 ModbusMaster mstatus;
 ModbusSlave sstatus;
@@ -18,6 +22,49 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 {
     if ( R > 5u || G > 5u || B > 5u ) return;
     printf( "\033[38;5;%dm", 16 + B + G * 6 + R * 36 );
+}
+
+void maxlentest( )
+{
+	#define CK( n ) printf( "mec=%d, sec=%d\n", mec, sec ); printf( memcmp( vals, bak, n ) ? "ERROR!\n" : "OK\n" );
+	#define GEN( n ) for ( i = 0; i < n; i++ ) bak[i] = rand( );
+	uint8_t vals[250];
+	uint8_t bak[250];
+	uint8_t i = 0;
+	uint8_t sec, mec;
+
+	printf( "\n-------Checking max-size operations--------\n" );
+	sstatus.coils = vals;
+	sstatus.coilCount = 2000;
+	sstatus.coilMaskLength = 0;
+	sstatus.discreteInputs = bak;
+	sstatus.discreteInputCount = 2000;
+	sstatus.coilMaskLength = 0;
+	sstatus.registers = (uint16_t*) vals;
+	sstatus.registerCount = 125;
+	sstatus.inputRegisters = (uint16_t*) bak;
+	sstatus.inputRegisterCount = 125;
+	sstatus.registerMaskLength = 0;
+
+	GEN( 246 );
+	mec = modbusBuildRequest15( &mstatus, 0x20, 0, 1968, bak );
+	sstatus.request.frame = mstatus.request.frame;
+	sstatus.request.length = mstatus.request.length;
+	sec = modbusParseRequest( &sstatus );
+	CK( 246 );
+
+	GEN( 246 );
+	mec = modbusBuildRequest16( &mstatus, 0x20, 0, 123, (uint16_t*)bak );
+	sstatus.request.frame = mstatus.request.frame;
+	sstatus.request.length = mstatus.request.length;
+	sec = modbusParseRequest( &sstatus );
+	CK( 246 );
+
+	sstatus.coils = bak;
+	sstatus.registers = (uint16_t*) bak;
+
+	
+
 }
 
 void Test( )
@@ -486,6 +533,7 @@ int main( )
 	printf( "master init - %d\n\n\n", modbusMasterInit( &mstatus ) );
 
 	MainTest( );
+	maxlentest( );
 
 	modbusSlaveEnd( &sstatus );
 	modbusMasterEnd( &mstatus );

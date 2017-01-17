@@ -180,6 +180,26 @@ void Test( )
 	printf( "----------------------------------------\n\n" );
 }
 
+void libinit( )
+{
+	//Init slave and master
+	sstatus.registers = registers;
+	sstatus.registerCount = 8;
+
+	sstatus.coils = coils;
+	sstatus.coilCount = 32;
+
+	sstatus.discreteInputs = discreteInputs;
+	sstatus.discreteInputCount = 16;
+
+	sstatus.inputRegisters = inputRegisters;
+	sstatus.inputRegisterCount = 4;
+	sstatus.address = 32;
+
+	printf( "slave init - %d\n", modbusSlaveInit( &sstatus ) );
+	printf( "master init - %d\n\n\n", modbusMasterInit( &mstatus ) );
+}
+
 void MainTest( )
 {
 	//request03 - ok
@@ -325,6 +345,11 @@ void MainTest( )
 	printf( "\t\t02 - other address...\n" );
 	modbusBuildRequest02( &mstatus, 0x10, 0x00, 0x10 );
 	Test( );
+
+	printf( "\nREINIT OF LIBRARY\n" );
+	modbusSlaveEnd( &sstatus );
+	modbusMasterEnd( &mstatus );
+	libinit( );
 
 	//request01 - ok
 	printf( "\t\t01 - correct request...\n" );
@@ -554,24 +579,7 @@ int main( )
 {
 	printf( "\n\t\t======LIBLIGHTMODBUS LIBRARY COVERAGE TEST LOG======\n\n\n" );
 	memset( TestValues2, 0xAA, 1024 );
-
-	//Init slave and master
-	sstatus.registers = registers;
-	sstatus.registerCount = 8;
-
-	sstatus.coils = coils;
-	sstatus.coilCount = 32;
-
-	sstatus.discreteInputs = discreteInputs;
-	sstatus.discreteInputCount = 16;
-
-	sstatus.inputRegisters = inputRegisters;
-	sstatus.inputRegisterCount = 4;
-	sstatus.address = 32;
-
-	printf( "slave init - %d\n", modbusSlaveInit( &sstatus ) );
-	printf( "master init - %d\n\n\n", modbusMasterInit( &mstatus ) );
-
+	libinit( );
 	MainTest( );
 	maxlentest( );
 

@@ -33,8 +33,18 @@
 typedef struct
 {
 	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data
-	ModbusFrame request; //Formatted request for slave
-	ModbusFrame response; //Response from slave should be put here
+
+	struct //Formatted request for slave
+	{
+		uint8_t *frame;
+		uint8_t length;
+	} request;
+
+	struct //Response from slave should be put here
+	{
+		uint8_t *frame;
+		uint8_t length;
+	} response;
 
 	struct //Data read from slave
 	{

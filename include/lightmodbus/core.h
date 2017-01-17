@@ -48,13 +48,6 @@
 
 #define BITSTOBYTES( n ) ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0 )
 
-//Types
-typedef struct
-{
-	uint8_t length; //Length of frame, if it's equal to 0, frame is not ready
-	uint8_t *frame; //Frame content
-} ModbusFrame; //Type containing information about generated frame
-
 //Function prototypes
 extern uint8_t modbusMaskRead( uint8_t *mask, uint16_t maskLength, uint16_t bit );
 extern uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8_t value );

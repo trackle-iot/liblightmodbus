@@ -106,9 +106,6 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 		return MODBUS_ERROR_OK;
 	}
 
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request06.crc ) return MODBUS_ERROR_CRC;
-
 	//Swap endianness of longer members (but not crc)
 	parser->request06.index = modbusSwapEndian( parser->request06.index );
 	parser->request06.value = modbusSwapEndian( parser->request06.value );
@@ -183,10 +180,6 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
 		return MODBUS_ERROR_OK;
 	}
-
-	//Check frame crc
-	//Shifting is used instead of dividing for optimisation on smaller devices (AVR)
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request16.values[parser->request16.length >> 1] ) return MODBUS_ERROR_CRC;
 
 	//Swap endianness of longer members (but not crc)
 	parser->request16.index = modbusSwapEndian( parser->request16.index );

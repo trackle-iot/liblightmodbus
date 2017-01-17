@@ -117,7 +117,6 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 			break;
 
 		case 6: //Write single holding reg
-		case 22: //Mask write single register
 			if ( LIGHTMODBUS_SLAVE_REGISTERS ) err = modbusParseRequest06( status, parser );
 			else err = MODBUS_ERROR_PARSE;
 			break;
@@ -129,6 +128,11 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 		case 16: //Write multiple holding registers
 			if ( LIGHTMODBUS_SLAVE_REGISTERS ) err = modbusParseRequest16( status, parser );
+			else err = MODBUS_ERROR_PARSE;
+			break;
+
+		case 22: //Mask write single register
+			if ( LIGHTMODBUS_SLAVE_REGISTERS ) err = modbusParseRequest22( status, parser );
 			else err = MODBUS_ERROR_PARSE;
 			break;
 

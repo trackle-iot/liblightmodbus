@@ -130,6 +130,11 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 				else err = MODBUS_ERROR_PARSE;
 				break;
 
+			case 22: //Mask write holding register
+				if ( LIGHTMODBUS_MASTER_REGISTERS ) err = modbusParseResponse22( status, parser, requestParser );
+				else err = MODBUS_ERROR_PARSE;
+				break;
+
 			default: //function code not known by master
 				err = MODBUS_ERROR_PARSE;
 				break;

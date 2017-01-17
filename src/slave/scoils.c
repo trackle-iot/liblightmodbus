@@ -47,18 +47,18 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	}
 
 	//Swap endianness of longer members (but not crc)
-	parser->request0102.firstCoil = modbusSwapEndian( parser->request0102.firstCoil );
-	parser->request0102.coilCount = modbusSwapEndian( parser->request0102.coilCount );
+	parser->request0102.index = modbusSwapEndian( parser->request0102.index );
+	parser->request0102.count = modbusSwapEndian( parser->request0102.count );
 
 	//Check if coil is in valid range
-	if ( parser->request0102.coilCount == 0 || parser->request0102.coilCount > 2000 )
+	if ( parser->request0102.count == 0 || parser->request0102.count > 2000 )
 	{
 		//Illegal data value error
 		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
 	}
 
-	if ( parser->request0102.firstCoil >= ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
-		(uint32_t) parser->request0102.firstCoil + (uint32_t) parser->request0102.coilCount > \
+	if ( parser->request0102.index >= ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
+		(uint32_t) parser->request0102.index + (uint32_t) parser->request0102.count > \
 		(uint32_t) ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) )
 	{
 		//Illegal data address exception
@@ -66,7 +66,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	}
 
 	//Respond
-	frameLength = 5 + BITSTOBYTES( parser->request0102.coilCount );
+	frameLength = 5 + BITSTOBYTES( parser->request0102.count );
 
 	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
 	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
@@ -75,13 +75,13 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	//Set up basic response data
 	builder->base.address = status->address;
 	builder->base.function = parser->base.function;
-	builder->response0102.byteCount = BITSTOBYTES( parser->request0102.coilCount );
+	builder->response0102.length = BITSTOBYTES( parser->request0102.count );
 
 	//Copy registers to response frame
-	for ( i = 0; i < parser->request0102.coilCount; i++ )
+	for ( i = 0; i < parser->request0102.count; i++ )
 	{
 		if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
-			BITSTOBYTES( status->coilCount ), i + parser->request0102.firstCoil ) ) == 255 )
+			BITSTOBYTES( status->coilCount ), i + parser->request0102.index ) ) == 255 )
 				return MODBUS_ERROR_OTHER;
 		if ( modbusMaskWrite( builder->response0102.values, 125, i, coil ) == 255 )
 			return MODBUS_ERROR_OTHER;
@@ -114,7 +114,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Swap endianness of longer members (but not crc)
-	parser->request05.coil = modbusSwapEndian( parser->request05.coil );
+	parser->request05.index = modbusSwapEndian( parser->request05.index );
 	parser->request05.value = modbusSwapEndian( parser->request05.value );
 
 	//Check if coil value is valid
@@ -126,7 +126,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Check if coil is in valid range
-	if ( parser->request05.coil >= status->coilCount )
+	if ( parser->request05.index >= status->coilCount )
 	{
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDR );
@@ -134,7 +134,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Check if reg is allowed to be written
-	if ( modbusMaskRead( status->coilMask, status->coilMaskLength, parser->request05.coil ) == 1 )
+	if ( modbusMaskRead( status->coilMask, status->coilMaskLength, parser->request05.index ) == 1 )
 	{
 		//Slave failure exception
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAIL );
@@ -150,7 +150,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write coils
-	if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), parser->request05.coil, parser->request05.value == 0xFF00 ) == 255 )
+	if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), parser->request05.index, parser->request05.value == 0xFF00 ) == 255 )
 		return MODBUS_ERROR_OTHER;
 
 	//Do not respond when frame is broadcasted
@@ -159,7 +159,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	//Set up basic response data
 	builder->base.address = status->address;
 	builder->base.function = parser->base.function;
-	builder->response05.coil = modbusSwapEndian( parser->request05.coil );
+	builder->response05.index = modbusSwapEndian( parser->request05.index );
 	builder->response05.value = modbusSwapEndian( parser->request05.value );
 
 	//Calculate crc
@@ -186,7 +186,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	//Check if frame length is valid
 	if ( status->request.length >= 7u )
 	{
-		frameLength = 9 + parser->request15.byteCount;
+		frameLength = 9 + parser->request15.length;
 		if ( status->request.length != frameLength )
 		{
 			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VAL );
@@ -200,22 +200,22 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Swap endianness of longer members (but not crc)
-	parser->request15.firstCoil = modbusSwapEndian( parser->request15.firstCoil );
-	parser->request15.coilCount = modbusSwapEndian( parser->request15.coilCount );
+	parser->request15.index = modbusSwapEndian( parser->request15.index );
+	parser->request15.count = modbusSwapEndian( parser->request15.count );
 
 	//Data checks
-	if ( parser->request15.byteCount == 0 || \
-		parser->request15.coilCount == 0 || \
-		BITSTOBYTES( parser->request15.coilCount ) != parser->request15.byteCount || \
-		parser->request15.coilCount > 1968 )
+	if ( parser->request15.length == 0 || \
+		parser->request15.count == 0 || \
+		BITSTOBYTES( parser->request15.count ) != parser->request15.length || \
+		parser->request15.count > 1968 )
 	{
 		//Illegal data value error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VAL );
 		return MODBUS_ERROR_OK;
 	}
 
-	if ( parser->request15.firstCoil >= status->coilCount || \
-		(uint32_t) parser->request15.firstCoil + (uint32_t) parser->request15.coilCount > (uint32_t) status->coilCount )
+	if ( parser->request15.index >= status->coilCount || \
+		(uint32_t) parser->request15.index + (uint32_t) parser->request15.count > (uint32_t) status->coilCount )
 	{
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDR );
@@ -223,8 +223,8 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	//Check for write protection
-	for ( i = 0; i < parser->request15.coilCount; i++ )
-		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, parser->request15.firstCoil + i ) == 1 )
+	for ( i = 0; i < parser->request15.count; i++ )
+		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, parser->request15.index + i ) == 1 )
 		{
 			//Slave failure exception
 			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAIL );
@@ -239,10 +239,10 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame; //Allocate memory for builder union
 
 	//After all possible exceptions write values to registers
-	for ( i = 0; i < parser->request15.coilCount; i++ )
+	for ( i = 0; i < parser->request15.count; i++ )
 	{
-		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.byteCount, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
-		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), parser->request15.firstCoil + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
+		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
+		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), parser->request15.index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
 	}
 
 	//Do not respond when frame is broadcasted
@@ -251,8 +251,8 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	//Set up basic response data
 	builder->base.address = status->address;
 	builder->base.function = parser->base.function;
-	builder->response15.firstCoil = modbusSwapEndian( parser->request15.firstCoil );
-	builder->response15.coilCount = modbusSwapEndian( parser->request15.coilCount );
+	builder->response15.index = modbusSwapEndian( parser->request15.index );
+	builder->response15.count = modbusSwapEndian( parser->request15.count );
 
 	//Calculate crc
 	builder->response15.crc = modbusCRC( builder->frame, frameLength - 2 );

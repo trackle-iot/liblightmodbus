@@ -25,11 +25,11 @@
 #include "mtypes.h"
 
 //Functions for building requests
-#define modbusBuildRequest01( status, address, firstCoil, coilCount ) modbusBuildRequest0102( (status), 01, (address), (firstCoil), (coilCount) )
-#define modbusBuildRequest02( status, address, firstCoil, coilCount ) modbusBuildRequest0102( (status), 02, (address), (firstCoil), (coilCount) )
-extern uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t firstCoil, uint16_t coilCount );
-extern uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t coil, uint16_t value );
-extern uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t firstCoil, uint16_t coilCount, uint8_t *values );
+#define modbusBuildRequest01( status, address, index, count ) modbusBuildRequest0102( (status), 01, (address), (index), (count) )
+#define modbusBuildRequest02( status, address, index, count ) modbusBuildRequest0102( (status), 02, (address), (index), (count) )
+extern uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
+extern uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
+extern uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values );
 
 //Functions for parsing responses
 #define modbusParseResponse01 modbusParseResponse0102

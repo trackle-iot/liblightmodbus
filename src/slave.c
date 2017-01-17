@@ -25,13 +25,13 @@
 #include <lightmodbus/slave/sregisters.h>
 #include <lightmodbus/slave/scoils.h>
 
-uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode )
+uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t code )
 {
 	//Generates modbus exception frame in allocated memory frame
 	//Returns generated frame length
 
 	//Check if given pointer is valid
-	if ( status == NULL || exceptionCode == 0 ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || code == 0 ) return MODBUS_ERROR_OTHER;
 
 	//Reallocate frame memory
 	status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
@@ -41,7 +41,7 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exc
 	//Setup exception frame
 	exception->exception.address = status->address;
 	exception->exception.function = ( 1 << 7 ) | function;
-	exception->exception.exceptionCode = exceptionCode;
+	exception->exception.code = code;
 	exception->exception.crc = modbusCRC( exception->frame, 3 );
 
 	//Set frame length - frame is ready
@@ -70,7 +70,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 	//Reset response frame status
 	status->response.length = 0;
-	
+
 	//If there is memory allocated for response frame - free it
 	free( status->response.frame );
 	status->response.frame = NULL;

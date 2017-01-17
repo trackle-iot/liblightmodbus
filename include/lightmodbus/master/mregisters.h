@@ -25,11 +25,11 @@
 #include "mtypes.h"
 
 //Functions for building requests
-#define modbusBuildRequest03( status, address, firstRegister, registerCount ) modbusBuildRequest0304( (status), 3, (address), (firstRegister), (registerCount) )
-#define modbusBuildRequest04( status, address, firstRegister, registerCount ) modbusBuildRequest0304( (status), 4, (address), (firstRegister), (registerCount) )
-extern uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t firstRegister, uint16_t registerCount );
-extern uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t reg, uint16_t value );
-extern uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t firstRegister, uint16_t registerCount, uint16_t *values );
+#define modbusBuildRequest03( status, address, index, count ) modbusBuildRequest0304( (status), 3, (address), (index), (count) )
+#define modbusBuildRequest04( status, address, index, count ) modbusBuildRequest0304( (status), 4, (address), (index), (count) )
+extern uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
+extern uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
+extern uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values );
 
 //Functions for parsing responses
 #define modbusParseResponse03 modbusParseResponse0304

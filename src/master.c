@@ -35,7 +35,7 @@ uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
 	//Copy data (modbusParseResponse checked if length is 5 so it should be safe)
 	status->exception.address = parser->exception.address;
 	status->exception.function = parser->exception.function;
-	status->exception.code = parser->exception.exceptionCode;
+	status->exception.code = parser->exception.code;
 
 	return MODBUS_ERROR_EXCEPTION;
 }

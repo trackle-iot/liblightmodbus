@@ -23,7 +23,7 @@
 #include <lightmodbus/master/mtypes.h>
 #include <lightmodbus/master/mcoils.h>
 
-uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t firstCoil, uint16_t coilCount )
+uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )
 {
 	//Build request01 frame, to send it so slave
 	//Read multiple coils
@@ -39,7 +39,7 @@ uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t 
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( coilCount == 0 || coilCount > 2000 || address == 0 ) return MODBUS_ERROR_OTHER;
+	if ( count == 0 || count > 2000 || address == 0 ) return MODBUS_ERROR_OTHER;
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
@@ -49,19 +49,19 @@ uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t 
 
 	builder->base.address = address;
 	builder->base.function = function;
-	builder->request0102.firstCoil = modbusSwapEndian( firstCoil );
-	builder->request0102.coilCount = modbusSwapEndian( coilCount );
+	builder->request0102.index = modbusSwapEndian( index );
+	builder->request0102.count = modbusSwapEndian( count );
 
 	//Calculate crc
 	builder->request0102.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 4 + 1 + BITSTOBYTES( coilCount );
+	status->predictedResponseLength = 4 + 1 + BITSTOBYTES( count );
 
 	return MODBUS_ERROR_OK;
 }
 
-uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t coil, uint16_t value )
+uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value )
 {
 	//Build request05 frame, to send it so slave
 	//Write single coil
@@ -86,7 +86,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 
 	builder->base.address = address;
 	builder->base.function = 5;
-	builder->request05.coil = modbusSwapEndian( coil );
+	builder->request05.index = modbusSwapEndian( index );
 	builder->request05.value = modbusSwapEndian( value );
 
 	//Calculate crc
@@ -98,13 +98,13 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t co
 	return MODBUS_ERROR_OK;
 }
 
-uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t firstCoil, uint16_t coilCount, uint8_t *values )
+uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values )
 {
 	//Build request15 frame, to send it so slave
 	//Write multiple coils
 
 	//Set frame length
-	uint8_t frameLength = 9 + BITSTOBYTES( coilCount );
+	uint8_t frameLength = 9 + BITSTOBYTES( count );
 	uint8_t i = 0;
 
 	//Check if given pointer is valid
@@ -115,7 +115,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( values == NULL || coilCount == 0 || coilCount > 1968 ) return MODBUS_ERROR_OTHER;
+	if ( values == NULL || count == 0 || count > 1968 ) return MODBUS_ERROR_OTHER;
 
 	//Reallocate memory for final frame
 	free( status->request.frame );
@@ -125,11 +125,11 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t fi
 
 	builder->base.address = address;
 	builder->base.function = 15;
-	builder->request15.firstCoil = modbusSwapEndian( firstCoil );
-	builder->request15.coilCount = modbusSwapEndian( coilCount );
-	builder->request15.byteCount = BITSTOBYTES( coilCount );
+	builder->request15.index = modbusSwapEndian( index );
+	builder->request15.count = modbusSwapEndian( count );
+	builder->request15.length = BITSTOBYTES( count );
 
-	for ( i = 0; i < builder->request15.byteCount; i++ )
+	for ( i = 0; i < builder->request15.length; i++ )
 		builder->request15.values[i] = values[i];
 
 	*( (uint16_t*)( builder->frame + frameLength - 2 ) ) = modbusCRC( builder->frame, frameLength - 2 );
@@ -152,29 +152,29 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	if ( status->response.length != 5 + parser->response0102.byteCount || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
+	if ( status->response.length != 5 + parser->response0102.length || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
 
 	//Check between data sent to slave and received from slave
 	dataok &= parser->base.address != 0;
 	dataok &= parser->base.address == requestParser->base.address;
 	dataok &= parser->base.function == requestParser->base.function;
-	dataok &= parser->response0102.byteCount != 0;
-	dataok &= parser->response0102.byteCount <= 250;
-	dataok &= parser->response0102.byteCount == BITSTOBYTES( modbusSwapEndian( requestParser->request0102.coilCount ) );
+	dataok &= parser->response0102.length != 0;
+	dataok &= parser->response0102.length <= 250;
+	dataok &= parser->response0102.length == BITSTOBYTES( modbusSwapEndian( requestParser->request0102.count ) );
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	status->data.coils = (uint8_t*) calloc( BITSTOBYTES( modbusSwapEndian( requestParser->request0102.coilCount ) ), sizeof( uint8_t ) );
+	status->data.coils = (uint8_t*) calloc( BITSTOBYTES( modbusSwapEndian( requestParser->request0102.count ) ), sizeof( uint8_t ) );
 	status->data.regs = (uint16_t*) status->data.coils;
 	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 
 	status->data.address = parser->base.address;
 	status->data.type = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
-	status->data.index = modbusSwapEndian( requestParser->request0102.firstCoil );
-	status->data.count = modbusSwapEndian( requestParser->request0102.coilCount );
-	memcpy( status->data.coils, parser->response0102.values, parser->response0102.byteCount );
-	status->data.length = parser->response0102.byteCount;
+	status->data.index = modbusSwapEndian( requestParser->request0102.index );
+	status->data.count = modbusSwapEndian( requestParser->request0102.count );
+	memcpy( status->data.coils, parser->response0102.values, parser->response0102.length );
+	status->data.length = parser->response0102.length;
 	return MODBUS_ERROR_OK;
 }
 
@@ -202,7 +202,7 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_COIL;
-	status->data.index = modbusSwapEndian( requestParser->request05.coil );
+	status->data.index = modbusSwapEndian( requestParser->request05.index );
 	status->data.count = 1;
 	status->data.coils[0] = parser->response05.value != 0;
 	status->data.length = 1;
@@ -219,22 +219,22 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check frame lengths
-	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request15.byteCount ) return MODBUS_ERROR_FRAME;
+	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request15.length ) return MODBUS_ERROR_FRAME;
 	if ( status->response.length != 8 ) return MODBUS_ERROR_FRAME;
 
 	//Check between data sent to slave and received from slave
 	dataok &= parser->base.address == requestParser->base.address;
 	dataok &= parser->base.function == requestParser->base.function;
-	dataok &= parser->response15.firstCoil == requestParser->request15.firstCoil;
-	dataok &= parser->response15.coilCount == requestParser->request15.coilCount;
+	dataok &= parser->response15.index == requestParser->request15.index;
+	dataok &= parser->response15.count == requestParser->request15.count;
 
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_COIL;
-	status->data.index = modbusSwapEndian( parser->response15.firstCoil );
-	status->data.count = modbusSwapEndian( parser->response15.coilCount );
+	status->data.index = modbusSwapEndian( parser->response15.index );
+	status->data.count = modbusSwapEndian( parser->response15.count );
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }

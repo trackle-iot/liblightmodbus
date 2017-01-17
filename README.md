@@ -16,7 +16,7 @@ Library is aimed to run on AVR devices, but it runs on PC too.
 - Library can be installed as a `*.deb` package on computer
 - You can pick only modules, you want, when building library for AVR thanks to very simple python build interface
 
-*Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16*
+*Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16, 22*
 
 If you want to try it out, check [wiki](https://github.com/Jacajack/liblightmodbus/wiki) for more technical information.
 

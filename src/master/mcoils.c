@@ -145,7 +145,6 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	//Parse slave response to request 01 (read multiple coils)
 
 	uint8_t dataok = 1;
-	uint16_t i = 0;
 
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL || requestParser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) )
@@ -166,21 +165,16 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	free( status->data );
-	status->data = (ModbusData *) calloc( modbusSwapEndian( requestParser->request0102.coilCount ), sizeof( ModbusData ) );
-	if ( status->data == NULL ) return MODBUS_ERROR_ALLOC;
+	status->data.regs = (uint16_t*)( status->data.data = \
+		calloc( BITSTOBYTES( modbusSwapEndian( requestParser->request0102.coilCount ) ), sizeof( uint8_t ) ) );
+	if ( status->data.data == NULL ) return MODBUS_ERROR_ALLOC;
 
-	for ( i = 0; i < modbusSwapEndian( requestParser->request0102.coilCount ); i++ )
-	{
-		status->data[i].address = parser->base.address;
-		status->data[i].dataType = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
-		status->data[i].reg = modbusSwapEndian( requestParser->request0102.firstCoil ) + i;
-		status->data[i].value = modbusMaskRead( parser->response0102.values, parser->response0102.byteCount, i );
-		if ( status->data[i].value == 255 ) return MODBUS_ERROR_OTHER;
-	}
-
-	//Set up data length - response successfully parsed
-	status->dataLength = modbusSwapEndian( requestParser->request0102.coilCount );
+	status->data.address = parser->base.address;
+	status->data.type = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
+	status->data.first = modbusSwapEndian( requestParser->request0102.firstCoil );
+	status->data.count = modbusSwapEndian( requestParser->request0102.coilCount );
+	memcpy( status->data.data, parser->response0102.values, parser->response0102.byteCount );
+	status->data.length = parser->response0102.byteCount;
 	return MODBUS_ERROR_OK;
 }
 
@@ -203,17 +197,14 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	free( status->data );
-	status->data = (ModbusData *) calloc( 1, sizeof( ModbusData ) );
-	if ( status->data == NULL ) return MODBUS_ERROR_ALLOC;
-
-	status->data[0].address = parser->base.address;
-	status->data[0].dataType = MODBUS_COIL;
-	status->data[0].reg = modbusSwapEndian( requestParser->request05.coil );
-	status->data[0].value = parser->response05.value != 0;
-
-	//Set up data length - response successfully parsed
-	status->dataLength = 1;
+	status->data.regs = (uint16_t*)( status->data.data = calloc( 1, sizeof( uint8_t ) ) );
+	if ( status->data.data == NULL ) return MODBUS_ERROR_ALLOC;
+	status->data.address = parser->base.address;
+	status->data.type = MODBUS_COIL;
+	status->data.first = modbusSwapEndian( requestParser->request05.coil );
+	status->data.count = 1;
+	( (uint8_t*) status->data.data )[0] = parser->response05.value != 0;
+	status->data.length = 1;
 	return MODBUS_ERROR_OK;
 }
 
@@ -225,7 +216,6 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
-
 
 	//Check frame lengths
 	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request15.byteCount ) return MODBUS_ERROR_FRAME;
@@ -240,7 +230,11 @@ uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser,
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	//Set up data length - response successfully parsed
-	status->dataLength = 0;
+	status->data.address = parser->base.address;
+	status->data.type = MODBUS_COIL;
+	status->data.first = modbusSwapEndian( parser->response15.firstCoil );
+	status->data.count = modbusSwapEndian( parser->response15.coilCount );
+	status->data.regs = NULL;
+	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }

@@ -70,6 +70,10 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 
 	//Reset response frame status
 	status->response.length = 0;
+	
+	//If there is memory allocated for response frame - free it
+	free( status->response.frame );
+	status->response.frame = NULL;
 
 	//If user tries to parse an empty frame return error
 	//That enables us to ommit the check in each parsing function
@@ -92,10 +96,6 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 		free( parser );
 		return MODBUS_ERROR_OK;
 	}
-
-	//If there is memory allocated for response frame - free it
-	free( status->response.frame );
-	status->response.frame = NULL;
 
 	switch ( parser->base.function )
 	{

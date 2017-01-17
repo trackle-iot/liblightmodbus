@@ -29,27 +29,31 @@
 #define MODBUS_COIL 4
 #define MODBUS_DISCRETE_INPUT 8
 
-typedef struct
-{
-	uint8_t address; //Device address
-	uint8_t dataType; //Data type
-	uint16_t reg; //Register, coil, input ID
-	uint16_t value; //Value of data
-} ModbusData;
 
 typedef struct
 {
-	ModbusData *data; //Data read from slave
-	uint8_t dataLength; //Count of data type instances read from slave
 	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data
+	ModbusFrame request; //Formatted request for slave
+	ModbusFrame response; //Response from slave should be put here
+
+	struct //Data read from slave
+	{
+		uint8_t address; //Addres of slave
+		uint16_t first; //Address of the first element (in slave device)
+		uint16_t count; //Count of data units (coils, registers, etc.)
+		uint8_t length; //Length of data in bytes
+		uint8_t type; //Type of data
+		void *data; //Received data
+		uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+	} data;
+
 	struct //Exceptions read are stored in this structure
 	{
 		uint8_t address; //Device address
 		uint8_t function; //In which function exception occured
 		uint8_t code; //Exception code
 	} exception;
-	ModbusFrame request; //Formatted request for slave
-	ModbusFrame response; //Response from slave should be put here
+
 } ModbusMaster; //Type containing master device configuration data
 
 #endif

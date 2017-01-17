@@ -55,10 +55,12 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Reset output registers before parsing frame
-	status->dataLength = 0;
 	status->exception.address = 0;
 	status->exception.function = 0;
 	status->exception.code = 0;
+	free( status->data.data );
+	status->data.data = NULL;
+	status->data.regs = NULL;
 
 	//Check if frames are not too short and return error (to avoid problems with memory allocation)
 	//That enables us to ommit the check in each parsing function
@@ -151,9 +153,12 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 
 	status->request.length = 0;
 	status->response.length = 0;
-	status->data = NULL;
-
-	status->dataLength = 0;
+	status->data.data = NULL;
+	status->data.length = 0;
+	status->data.count = 0;
+	status->data.first = 0;
+	status->data.type = 0;
+	status->data.address = 0;
 
 	status->exception.address = 0;
 	status->exception.function = 0;
@@ -169,7 +174,7 @@ uint8_t modbusMasterEnd( ModbusMaster *status )
 
 	//Free memory
 	free( status->request.frame );
-	free( status->data );
+	free( status->data.data );
 
 	return MODBUS_ERROR_OK;
 }

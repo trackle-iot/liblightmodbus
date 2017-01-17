@@ -74,7 +74,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 		if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
 			BITSTOBYTES( status->coilCount ), i + index ) ) == 255 )
 				return MODBUS_ERROR_OTHER;
-		if ( modbusMaskWrite( builder->response0102.values, 250, i, coil ) == 255 )
+		if ( modbusMaskWrite( builder->response0102.values, builder->response0102.length, i, coil ) == 255 )
 			return MODBUS_ERROR_OTHER;
 	}
 

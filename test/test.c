@@ -513,10 +513,14 @@ void MainTest( )
 	Test( );
 	modbusBuildRequest06( &mstatus, 0x20, 0, 16 );
 	Test( );
+	modbusBuildRequest22( &mstatus,0x20, 0x02, 14 << 8, 56 << 8 );
+	Test( );
 
 	modbusBuildRequest16( &mstatus, 0x20, 0, 4, TestValues2 );
 	Test( );
 	modbusBuildRequest16( &mstatus, 0x20, 0, 2, TestValues2 );
+	Test( );
+	modbusBuildRequest22( &mstatus,0x20, 0x00, 14 << 8, 56 << 8 );
 	Test( );
 
 	//WRITE PROTECTION TEST 2

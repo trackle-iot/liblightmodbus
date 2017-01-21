@@ -25,8 +25,8 @@
 #include "mtypes.h"
 
 //Functions for building requests
-#define modbusBuildRequest01( status, address, index, count ) modbusBuildRequest0102( (status), 01, (address), (index), (count) )
-#define modbusBuildRequest02( status, address, index, count ) modbusBuildRequest0102( (status), 02, (address), (index), (count) )
+#define modbusBuildRequest01( status, address, index, count ) modbusBuildRequest0102( (status), 1, (address), (index), (count) )
+#define modbusBuildRequest02( status, address, index, count ) modbusBuildRequest0102( (status), 2, (address), (index), (count) )
 extern uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
 extern uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
 extern uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values );

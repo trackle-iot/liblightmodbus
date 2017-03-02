@@ -42,8 +42,7 @@ void slavedump( )
 		printf( " %d", sstatus.response.frame[i] );
 	printf( "\n" );
 
-	printf( "Finished: %d\n", sstatus.finished );
-	printf( "Exit code: %d\n", sec );
+	printf( "Exit code: %d\n\n", sec );
 }
 
 //Dump master information
@@ -52,11 +51,22 @@ void masterdump( )
 	int i;
 	printf( "==MASTER DUMP==\n" );
 
-	printf( "Received data:\n" );
-	for ( i = 0; i < mstatus.dataLength; i++ )
+	printf( "Received data: slave: %d, addr: %d, count: %d, type: %d\n",
+		mstatus.data.address, mstatus.data.index, mstatus.data.count, mstatus.data.type );
+	printf( "               values:" );
+	switch ( mstatus.data.type )
 	{
-		printf( "\t slave: %d, addr: %d, type: %d, value: %d\n",
-			mstatus.data[i].address, mstatus.data[i].reg, mstatus.data[i].dataType, mstatus.data[i].value );
+		case MODBUS_HOLDING_REGISTER:
+		case MODBUS_INPUT_REGISTER:
+			for ( i = 0; i < mstatus.data.count; i++ )
+				printf( " %d", mstatus.data.regs[i] );
+			break;
+
+		case MODBUS_COIL:
+		case MODBUS_DISCRETE_INPUT:
+			for ( i = 0; i < mstatus.data.count; i++ )
+				printf( " %d", mstatus.data.coils[i] );
+			break;
 	}
 	printf( "\n" );
 
@@ -70,7 +80,6 @@ void masterdump( )
 		printf( " %d", mstatus.response.frame[i] );
 	printf( "\n" );
 
-	printf( "Finished: %d\n", mstatus.finished );
 	printf( "Exit code: %d\n\n", mec );
 }
 

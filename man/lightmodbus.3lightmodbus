@@ -1,4 +1,4 @@
-.TH lightmodbus 3lightmodbus "15 January 2017" "v1.3"
+.TH lightmodbus 3lightmodbus "21 January 2017" "v1.3"
 .SH NAME
 .PP
 \fBlightmodbus\fP \- a lightweight, cross\-platform Modbus RTU library.
@@ -6,20 +6,19 @@
 .PP
 The \fBlightmodbus\fP library allows communication with use of the Modbus RTU protocol. \fBlightmodbus\fP contains
 functions for parsing and creating Modbus frames, but \fBit is not\fP capable of sending or receiving them.
-Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15 and 16.
-Library itself, is easy to compile and modular \- only necessary modules can be included while building. Default version available for
-PC is complete and it contains all modules by default. Needless to say, the library is possible to build at any little\-endian platform.
+Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
+Library itself, is easy to compile and modular \- only necessary modules can be included while building. Default version available for PC is complete and it contains all modules by default. Needless to say, the library is possible to build at any little\-endian platform.
 .SH BUILDING
 .PP
 There are three makefiles attached to the library.
 Usual \fB\fCmakefile\fR simply compiles source code, creating object files (\fB\fCobj\fR directory), as well as static library files in \fB\fClib\fR directory. Modules to be linked into the library can be specified by \fB\fCMMODULES\fR and \fB\fCSMODULES\fR variables passed to make from command line. Depending on their value, makefile compiles and links modules. Default settings are:
 .PP
 \fB\fC
-    MMODULES = master\-registers master\-coils \\
-        master\-discrete\-inputs master\-input\-registers
-    SMODULES = slave\-registers slave\-coils \\
-        slave\-discrete\-inputs slave\-input\-registers
+    MMODULES = master\-registers master\-coils
+    SMODULES = slave\-registers slave\-coils
 \fR
+.PP
+Example make call would be: \fB\fCmake MMODULES="master\-reisters" SMODULES=""\fR
 .PP
 \fB\fCmakefile\-coverage\fR builds library all on its own for coverage testing purposes (you probably don't need that, go on).
 .SH AVR
@@ -27,25 +26,10 @@ Usual \fB\fCmakefile\fR simply compiles source code, creating object files (\fB\
 \fB\fCmakefile\-avr\fR works exactly as normal \fB\fCmakefile\fR, but instead it uses \fB\fCavr\-gcc\fR compiler to build the library. Additionally, it requires MCU type to be specified by \fB\fCMCU\fR variable passed from command line.
 .SH ROUTINES
 .PP
-Full listing of functions included in \fB\fClightmodbus\fR library.
+Full listing of routines included in \fB\fClightmodbus\fR library available for user.
 .TS
 allbox;
 cb cb
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
 l l
 l l
 l l
@@ -82,48 +66,18 @@ Routine name	Module name
 \fBmodbusBuildException\fP	slave\-base
 \fBmodbusParseRequest\fP	slave\-base
 \fBmodbusBuildRequest01\fP	master\-coils
-\fBmodbusBuildRequest02\fP	master\-discrete\-inputs
+\fBmodbusBuildRequest02\fP	master\-coils
 \fBmodbusBuildRequest03\fP	master\-registers
-\fBmodbusBuildRequest04\fP	master\-input\-registers
+\fBmodbusBuildRequest04\fP	master\-registers
 \fBmodbusBuildRequest05\fP	master\-coils
 \fBmodbusParseRequest06\fP	master\-registers
 \fBmodbusBuildRequest15\fP	master\-coils
 \fBmodbusBuildRequest16\fP	master\-registers
-\fBmodbusParseRequest01\fP	slave\-coils
-\fBmodbusParseRequest02\fP	slave\-discrete\-inputs
-\fBmodbusParseRequest03\fP	slave\-registers
-\fBmodbusParseRequest04\fP	slave\-input\-registers
-\fBmodbusParseRequest05\fP	slave\-coils
-\fBmodbusParseRequest06\fP	slave\-registers
-\fBmodbusParseRequest15\fP	slave\-coils
-\fBmodbusParseRequest16\fP	slave\-registers
-\fBmodbusParseResponse01\fP	master\-coils
-\fBmodbusParseResponse02\fP	master\-discrete\-inputs
-\fBmodbusParseResponse03\fP	master\-registers
-\fBmodbusParseResponse04\fP	master\-input\-registers
-\fBmodbusParseResponse05\fP	master\-coils
-\fBmodbusParseResponse06\fP	master\-registers
-\fBmodbusParseResponse15\fP	master\-coils
-\fBmodbusParseResponse16\fP	master\-registers
+\fBmodbusBuildRequest22\fP	master\-registers
 .TE
 .TS
 allbox;
 cb cb
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
-l l
 l l
 l l
 l l
@@ -167,22 +121,7 @@ Routine name	Manpage
 \fBmodbusBuildRequest06\fP	modbusBuildRequest( 3lightmodbus )
 \fBmodbusBuildRequest15\fP	modbusBuildRequest( 3lightmodbus )
 \fBmodbusBuildRequest16\fP	modbusBuildRequest( 3lightmodbus )
-\fBmodbusParseRequest01\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseRequest02\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseRequest03\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseRequest04\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseRequest05\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseRequest06\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseRequest15\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseRequest16\fP	modbusParseRequest( 3lightmodbus )
-\fBmodbusParseResponse01\fP	modbusParseResponse( 3lightmodbus )
-\fBmodbusParseResponse02\fP	modbusParseResponse( 3lightmodbus )
-\fBmodbusParseResponse03\fP	modbusParseResponse( 3lightmodbus )
-\fBmodbusParseResponse04\fP	modbusParseResponse( 3lightmodbus )
-\fBmodbusParseResponse05\fP	modbusParseResponse( 3lightmodbus )
-\fBmodbusParseResponse06\fP	modbusParseResponse( 3lightmodbus )
-\fBmodbusParseResponse15\fP	modbusParseResponse( 3lightmodbus )
-\fBmodbusParseResponse16\fP	modbusParseResponse( 3lightmodbus )
+\fBmodbusBuildRequest22\fP	modbusBuildRequest( 3lightmodbus )
 .TE
 .SH MODBUS FUNCTION CODES
 .PP
@@ -190,6 +129,7 @@ Modbus function codes meanings:
 .TS
 allbox;
 cb cb
+l l
 l l
 l l
 l l
@@ -208,6 +148,7 @@ Function	Description
 6	write single holding register
 15	write multiple coils
 16	write multiple holding registers
+22	mask write single holding register
 .TE
 .SH MODBUS EXCEPTIONS
 .PP
@@ -236,7 +177,7 @@ Macro	Exception	Description
 .TE
 .SH RETURN VALUES
 .PP
-Every routine contained in the library, apart from \fBmodbusSwapEndian\fP, \fBmodbusMaskRead\fP, \fBmodbusMaskWrite\fP and \fBmodbusCRC\fP, returns an error code. Description of those can be found below.
+Most of routines contained in library return an error code. Description of those can be found below.
 .PP
 Error code macros are defined in \fBlightmodbus/core.h\fP\&.
 .TS
@@ -276,54 +217,7 @@ Macro	Value	Description
 \fB\fCMODBUS_ERROR_OTHER\fR is returned when e.g. user tries to parse frame of 0 length, slave has been initialized with address 0 and in other cases of passing invalid arguments to library routines.
 .PP
 \fB\fCMODBUS_ERROR_FRAME\fR is returned by master\-side parsing function, when error is found in given frame (e.g. byte count doesn't match register count)
-.SH USAGE
-.SS Master
-.PP
-To use master\-side utilities \fB\fClightmodbus/master.h\fR header file is necessary.
-.PP
-Variable of type \fBModbusMaster\fP is needed to contain Modbus configuration data. Later it is passed to every master\-side routine called.
-.PP
-\fB\fCModbusMaster mstatus;\fR
-.PP
-Master module needs initiation with \fBmodbusMasterInit\fP:
-.PP
-\fB\fCmodbusMasterInit( &mstatus );\fR
-.PP
-Parsing and receiving frames is performed following way:
-.PP
-\fB\fCmodbusBuildRequest06( &mstatus, 32, 3, 10 );\fR
-.PP
-Request frame will be stored in \fB\fCmstatus.request.frame\fR\&. More on this topic can be found at 
-.BR modbusBuildRequest (3lightmodbus).
-.PP
-Parsing frames is performed following way:
-.PP
-\fB\fCmodbusParseResponse( &mstatus );\fR
-.PP
-Beforehand, a pointer to response frame from slave must be written into \fB\fCmstatus.response.frame\fR and its length in bytes should be written to \fB\fCmstatus.response.length\fR\&.
-User mustn't change \fB\fCmstatus.request\fR before response frame is parsed, because original request is needed to perform response parsing.
-.SS Slave
-.PP
-To use slave\-side utilities \fB\fClightmodbus/slave.h\fR header file is necessary.
-Variable of type \fBModbusSlave\fP is needed to contain Modbus configuration data. Later it has to be passed to every slave\-side routine called.
-.PP
-\fB\fCModbusSlave sstatus;\fR
-.PP
-Basic example of \fBModbusSlave\fP structure setup:
-.PP
-\fB\fC
-    uint16_t regs[16];
-    sstatus.registers = regs;
-    sstatus.registerCount = 16;
-    sstatus.address = 27; //Slave device address
-\fR
-.PP
-Now \fBmodbusSlaveInit\fP can be called.
-.PP
-\fB\fCmodbusSlaveInit( &sstatus );\fR
-.PP
-After such procedure, slave device is ready to work.
-Received data has to be put in \fB\fCsstatus.request.frame\fR, and its length in bytes has to be written to \fB\fCsstatus.request.length\fR \- then \fBmodbusParseRequest\fP can be called, and finally frame contained in \fB\fCsstatus.response\fR structure is ought to be send back to master.
+.SH EXAMPLE OF USAGE
 .SH AUTHORS
 .PP
 Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

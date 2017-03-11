@@ -1,4 +1,4 @@
-# lightmodbus 3lightmodbus "15 January 2017" "v1.3"
+# lightmodbus 3lightmodbus "21 January 2017" "v1.3"
 
 ## NAME
 **lightmodbus** - a lightweight, cross-platform Modbus RTU library.
@@ -6,20 +6,19 @@
 ## DESCRIPTION
 The **lightmodbus** library allows communication with use of the Modbus RTU protocol. **lightmodbus** contains
 functions for parsing and creating Modbus frames, but **it is not** capable of sending or receiving them.
-Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15 and 16.
-Library itself, is easy to compile and modular - only necessary modules can be included while building. Default version available for
-PC is complete and it contains all modules by default. Needless to say, the library is possible to build at any little-endian platform.
+Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
+Library itself, is easy to compile and modular - only necessary modules can be included while building. Default version available for PC is complete and it contains all modules by default. Needless to say, the library is possible to build at any little-endian platform.
 
 ## BUILDING
 There are three makefiles attached to the library.
 Usual `makefile` simply compiles source code, creating object files (`obj` directory), as well as static library files in `lib` directory. Modules to be linked into the library can be specified by `MMODULES` and `SMODULES` variables passed to make from command line. Depending on their value, makefile compiles and links modules. Default settings are:
 
 `   
-	MMODULES = master-registers master-coils \
-		master-discrete-inputs master-input-registers
-	SMODULES = slave-registers slave-coils \
-		slave-discrete-inputs slave-input-registers
+	MMODULES = master-registers master-coils
+	SMODULES = slave-registers slave-coils
 `
+
+Example make call would be: `make MMODULES="master-reisters" SMODULES=""`
 
 `makefile-coverage` builds library all on its own for coverage testing purposes (you probably don't need that, go on).
 
@@ -27,7 +26,7 @@ Usual `makefile` simply compiles source code, creating object files (`obj` direc
 `makefile-avr` works exactly as normal `makefile`, but instead it uses `avr-gcc` compiler to build the library. Additionally, it requires MCU type to be specified by `MCU` variable passed from command line.
 
 ## ROUTINES
-Full listing of functions included in `lightmodbus` library.
+Full listing of routines included in `lightmodbus` library available for user.
 
 | Routine name                  | Module name            		 	            |
 |-------------------------------|-----------------------------------------------|
@@ -44,29 +43,15 @@ Full listing of functions included in `lightmodbus` library.
 | **modbusBuildException**      |  slave-base         							|
 | **modbusParseRequest**   	   	|  slave-base         							|
 | **modbusBuildRequest01**   	|  master-coils         						|
-| **modbusBuildRequest02**   	|  master-discrete-inputs         				|
+| **modbusBuildRequest02**   	|  master-coils         						|
 | **modbusBuildRequest03**   	|  master-registers         					|
-| **modbusBuildRequest04**   	|  master-input-registers         				|
+| **modbusBuildRequest04**   	|  master-registers         					|
 | **modbusBuildRequest05**   	|  master-coils         						|
 | **modbusParseRequest06**   	|  master-registers         					|
 | **modbusBuildRequest15**   	|  master-coils         						|
 | **modbusBuildRequest16**   	|  master-registers         					|
-| **modbusParseRequest01**   	|  slave-coils         							|
-| **modbusParseRequest02**   	|  slave-discrete-inputs         				|
-| **modbusParseRequest03**   	|  slave-registers         						|
-| **modbusParseRequest04**   	|  slave-input-registers         				|
-| **modbusParseRequest05**   	|  slave-coils         							|
-| **modbusParseRequest06**   	|  slave-registers          					|
-| **modbusParseRequest15**   	|  slave-coils         							|
-| **modbusParseRequest16**   	|  slave-registers          					|
-| **modbusParseResponse01**   	|  master-coils         						|
-| **modbusParseResponse02**   	|  master-discrete-inputs         				|
-| **modbusParseResponse03**   	|  master-registers         					|
-| **modbusParseResponse04**   	|  master-input-registers         				|
-| **modbusParseResponse05**   	|  master-coils         						|
-| **modbusParseResponse06**   	|  master-registers        						|
-| **modbusParseResponse15**   	|  master-coils         						|
-| **modbusParseResponse16**   	|  master-registers         					|
+| **modbusBuildRequest22**   	|  master-registers         					|
+
 
 | Routine name                  | Manpage                  		 	            |
 |-------------------------------|-----------------------------------------------|
@@ -90,22 +75,8 @@ Full listing of functions included in `lightmodbus` library.
 | **modbusBuildRequest06**   	|  modbusBuildRequest( 3lightmodbus )         	|
 | **modbusBuildRequest15**   	|  modbusBuildRequest( 3lightmodbus )         	|
 | **modbusBuildRequest16**   	|  modbusBuildRequest( 3lightmodbus )         	|
-| **modbusParseRequest01**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseRequest02**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseRequest03**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseRequest04**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseRequest05**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseRequest06**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseRequest15**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseRequest16**   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusParseResponse01**   	|  modbusParseResponse( 3lightmodbus )         	|
-| **modbusParseResponse02**   	|  modbusParseResponse( 3lightmodbus )         	|
-| **modbusParseResponse03**   	|  modbusParseResponse( 3lightmodbus )         	|
-| **modbusParseResponse04**   	|  modbusParseResponse( 3lightmodbus )         	|
-| **modbusParseResponse05**   	|  modbusParseResponse( 3lightmodbus )         	|
-| **modbusParseResponse06**   	|  modbusParseResponse( 3lightmodbus )         	|
-| **modbusParseResponse15**   	|  modbusParseResponse( 3lightmodbus )         	|
-| **modbusParseResponse16**   	|  modbusParseResponse( 3lightmodbus )         	|
+| **modbusBuildRequest22**   	|  modbusBuildRequest( 3lightmodbus )         	|
+
 
 ## MODBUS FUNCTION CODES
 Modbus function codes meanings:
@@ -120,6 +91,7 @@ Modbus function codes meanings:
 | 6			| write single holding register										|
 | 15		| write multiple coils												|
 | 16		| write multiple holding registers									|
+| 22		| mask write single holding register								|
 
 ## MODBUS EXCEPTIONS
 Modbus protocol provides exception codes returned when master request fails. Some of the exceptions have their C macros defined in `lightmodbus/core.h`.
@@ -136,7 +108,7 @@ Modbus protocol provides exception codes returned when master request fails. Som
 |                             | 8         | memory parity error                   |
 
 ## RETURN VALUES
-Every routine contained in the library, apart from **modbusSwapEndian**, **modbusMaskRead**, **modbusMaskWrite** and **modbusCRC**, returns an error code. Description of those can be found below.
+Most of routines contained in library return an error code. Description of those can be found below.
 
 Error code macros are defined in **lightmodbus/core.h**.
 
@@ -167,55 +139,7 @@ Error code macros are defined in **lightmodbus/core.h**.
 
 `MODBUS_ERROR_FRAME` is returned by master-side parsing function, when error is found in given frame (e.g. byte count doesn't match register count)
 
-## USAGE
-
-### Master
-To use master-side utilities `lightmodbus/master.h` header file is necessary.
-
-Variable of type **ModbusMaster** is needed to contain Modbus configuration data. Later it is passed to every master-side routine called.
-
-`ModbusMaster mstatus;`
-
-Master module needs initiation with **modbusMasterInit**:
-
-`modbusMasterInit( &mstatus );`
-
-Parsing and receiving frames is performed following way:
-
-`modbusBuildRequest06( &mstatus, 32, 3, 10 );`
-
-Request frame will be stored in `mstatus.request.frame`. More on this topic can be found at modbusBuildRequest(3lightmodbus).
-
-Parsing frames is performed following way:
-
-`modbusParseResponse( &mstatus );`
-
-Beforehand, a pointer to response frame from slave must be written into `mstatus.response.frame` and its length in bytes should be written to `mstatus.response.length`.
-User mustn't change `mstatus.request` before response frame is parsed, because original request is needed to perform response parsing.
-
-
-### Slave
-To use slave-side utilities `lightmodbus/slave.h` header file is necessary.
-Variable of type **ModbusSlave** is needed to contain Modbus configuration data. Later it has to be passed to every slave-side routine called.
-
-`ModbusSlave sstatus;`
-
-Basic example of **ModbusSlave** structure setup:
-
-`  
-	uint16_t regs[16];
-	sstatus.registers = regs;
-	sstatus.registerCount = 16;
-	sstatus.address = 27; //Slave device address
-`
-
-Now **modbusSlaveInit** can be called.
-
-`modbusSlaveInit( &sstatus );`
-
-After such procedure, slave device is ready to work.
-Received data has to be put in `sstatus.request.frame`, and its length in bytes has to be written to `sstatus.request.length` - then **modbusParseRequest** can be called, and finally frame contained in `sstatus.response` structure is ought to be send back to master.
-
+## EXAMPLE OF USAGE
 
 
 ## AUTHORS

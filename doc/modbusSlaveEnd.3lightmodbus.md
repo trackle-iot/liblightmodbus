@@ -1,4 +1,4 @@
-# modbusSlaveEnd 3lightmodbus "29 July 2016" "v1.2"
+# modbusSlaveEnd 3lightmodbus "21 January 2016" "v1.3"
 
 ## NAME
 **modbusSlaveEnd** - free memory used in **ModbusSlave** structure.
@@ -6,10 +6,10 @@
 ## SYNOPSIS
 `#include <lightmodbus/slave.h>`
 
-`void modbusSlaveEnd( ModbusSlave *status );`
+`uint8_t modbusSlaveEnd( ModbusSlave *status );`
 
 ## DESCRIPTION
-The **modbusSlaveEnd** frees data dynamically allocated by **modbusSlaveInit**.
+The **modbusSlaveEnd** frees data allocated by **modbusSlaveInit**.
 
 ## SEE ALSO
 ModbusSlave(3lightmodbus), modbusSlaveInit(3lightmodbus)

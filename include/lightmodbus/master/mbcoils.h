@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_MBCOILS_H
 
 #include <inttypes.h>
-#include "mtypes.h"
+#include "../master.h"
 
 //Functions for building requests
 #define modbusBuildRequest01( status, address, index, count ) modbusBuildRequest0102( (status), 1, (address), (index), (count) )

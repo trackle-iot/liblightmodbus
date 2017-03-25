@@ -20,7 +20,7 @@
 
 #include <lightmodbus/core.h>
 #include <lightmodbus/parser.h>
-#include <lightmodbus/master/mtypes.h>
+#include <lightmodbus/master.h>
 #include <lightmodbus/master/mbcoils.h>
 
 uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )

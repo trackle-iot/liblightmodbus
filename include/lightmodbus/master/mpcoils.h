@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_MPCOILS_H
 
 #include <inttypes.h>
-#include "mtypes.h"
+#include "../master.h"
 
 //Functions for parsing responses
 #define modbusParseResponse01 modbusParseResponse0102

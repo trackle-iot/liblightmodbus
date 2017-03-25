@@ -20,7 +20,7 @@
 
 #include <lightmodbus/core.h>
 #include <lightmodbus/parser.h>
-#include <lightmodbus/slave/stypes.h>
+#include <lightmodbus/slave.h>
 #include <lightmodbus/slave/sregs.h>
 
 uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser )

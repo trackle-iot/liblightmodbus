@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_SCOILS_H
 
 #include <inttypes.h>
-#include "stypes.h"
+#include "../slave.h"
 
 //Functions needed from other modules
 extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode );

@@ -21,7 +21,6 @@
 #include <lightmodbus/core.h>
 #include <lightmodbus/slave.h>
 #include <lightmodbus/parser.h>
-#include <lightmodbus/slave/stypes.h>
 #include <lightmodbus/slave/sregs.h>
 #include <lightmodbus/slave/scoils.h>
 

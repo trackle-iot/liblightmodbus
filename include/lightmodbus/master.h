@@ -25,9 +25,6 @@
 
 #include "core.h"
 #include "parser.h"
-#include "master/mtypes.h"
-#include "master/mbregs.h"
-#include "master/mbcoils.h"
 
 //Enabling modules in compilation process (use makefile to automate this process)
 #ifndef LIGHTMODBUS_MASTER_REGISTERS
@@ -36,6 +33,49 @@
 #ifndef LIGHTMODBUS_MASTER_COILS
 #define LIGHTMODBUS_MASTER_COILS 0
 #endif
+
+#define MODBUS_HOLDING_REGISTER 1
+#define MODBUS_INPUT_REGISTER 2
+#define MODBUS_COIL 4
+#define MODBUS_DISCRETE_INPUT 8
+
+typedef struct
+{
+	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data
+
+	struct //Formatted request for slave
+	{
+		uint8_t *frame;
+		uint8_t length;
+	} request;
+
+	struct //Response from slave should be put here
+	{
+		uint8_t *frame;
+		uint8_t length;
+	} response;
+
+	struct //Data read from slave
+	{
+		uint8_t address; //Addres of slave
+		uint16_t index; //Address of the first element (in slave device)
+		uint16_t count; //Count of data units (coils, registers, etc.)
+		uint8_t length; //Length of data in bytes
+		uint8_t type; //Type of data
+		uint8_t function; //Function that accessed the data
+		//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
+		uint8_t *coils; //Received data
+		uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+	} data;
+
+	struct //Exceptions read are stored in this structure
+	{
+		uint8_t address; //Device address
+		uint8_t function; //In which function exception occured
+		uint8_t code; //Exception code
+	} exception;
+
+} ModbusMaster; //Type containing master device configuration data
 
 extern uint8_t modbusParseResponse( ModbusMaster *status );
 extern uint8_t modbusMasterInit( ModbusMaster *status );

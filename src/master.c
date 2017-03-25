@@ -21,7 +21,6 @@
 #include <lightmodbus/master.h>
 #include <lightmodbus/core.h>
 #include <lightmodbus/parser.h>
-#include <lightmodbus/master/mtypes.h>
 #include <lightmodbus/master/mpregs.h>
 #include <lightmodbus/master/mpcoils.h>
 

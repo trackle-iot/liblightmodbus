@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_MBREGS_H
 
 #include <inttypes.h>
-#include "mtypes.h"
+#include "../master.h"
 
 //Functions for building requests
 #define modbusBuildRequest03( status, address, index, count ) modbusBuildRequest0304( (status), 3, (address), (index), (count) )

@@ -24,7 +24,6 @@
 #include <inttypes.h>
 
 #include "core.h"
-#include "slave/stypes.h"
 
 //Enabling modules in compilation process (use makefile to automate this process)
 #ifndef LIGHTMODBUS_SLAVE_REGISTERS
@@ -33,6 +32,41 @@
 #ifndef LIGHTMODBUS_SLAVE_COILS
 #define LIGHTMODBUS_SLAVE_COILS 0
 #endif
+
+typedef struct
+{
+	uint8_t address; //Slave address
+
+	uint16_t *registers; //Slave holding registers
+	uint16_t registerCount; //Slave register count
+
+	uint8_t *coils; //Slave coils
+	uint16_t coilCount; //Slave coil count
+
+	uint8_t *discreteInputs; //Slave discrete input
+	uint16_t discreteInputCount; //Slave discrete input count
+
+	uint8_t *registerMask; //Masks for register write protection (bit of value 1 - write protection)
+	uint16_t registerMaskLength; //Masks length (each byte covers 8 registers)
+	uint8_t *coilMask; //Masks for coil write protection (bit of value 1 - write protection)
+	uint16_t coilMaskLength; //Masks length (each byte covers 8 coils)
+
+	uint16_t *inputRegisters; //Slave input registers
+	uint16_t inputRegisterCount; //Slave input count
+
+	struct //Slave response formatting status
+	{
+		uint8_t *frame;
+		uint8_t length;
+	} response;
+
+	struct //Request from master should be put here
+	{
+		uint8_t *frame;
+		uint8_t length;
+	} request;
+
+} ModbusSlave; //Type containing slave device configuration data
 
 //Function prototypes
 extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode ); //Build an exception

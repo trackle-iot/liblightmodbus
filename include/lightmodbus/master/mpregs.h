@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_MPREGS_H
 
 #include <inttypes.h>
-#include "mtypes.h"
+#include "../master.h"
 
 //Functions for parsing responses
 #define modbusParseResponse03 modbusParseResponse0304

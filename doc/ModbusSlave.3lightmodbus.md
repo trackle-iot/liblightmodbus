@@ -4,7 +4,9 @@
 **ModbusSlave** - data type containing all information about current slave device status and its configuration.
 
 ## SYNOPSIS
-`#include <lightmodbus/slave.h>`
+`  
+	#include <lightmodbus/slave.h>
+`
 
 `  
 	typedef struct

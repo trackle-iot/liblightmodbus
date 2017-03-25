@@ -1,4 +1,4 @@
-# modbusBuildRequest 3lightmodbus "21 January 2016" "v1.3"
+# modbusBuildRequest 3lightmodbus "25 March 2017" "v1.3"
 
 ## NAME
 **modbusBuildRequest0102**, **modbusBuildRequest01**, **modbusBuildRequest02**, **modbusBuildRequest0304**, **modbusBuildRequest03**, **modbusBuildRequest04**, **modbusBuildRequest05**, **modbusBuildRequest06**, **modbusBuildRequest15**, **modbusBuildRequest16**, **modbusBuildRequest22** - build request for slave device.
@@ -17,14 +17,17 @@
 	uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
 	uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values );
 	uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values );
+	uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t andmask, uint16_t ormask );
 `
 
 ## DESCRIPTION
-The **modbusBuildRequest** functions build request frames ought to be sent to slave device.
+The **modbusBuildRequest** family functions build request frames later sent to slave device.
 Each routine returns an error code described in lightmodbus(3lightmodbus).
-On successful exit, the Modbus frame of *status.request.length* bytes length is written to *status.request.frame*. Otherwise the length is set to 0 and null pointer is returned in the *status.request* structure.
+On successful exit, the Modbus frame of *status.request.length* bytes length is written to *status.request.frame*. Otherwise the length is set to 0 and null pointer is returned in the *status.request.frame*.
 
 **modbusBuildRequest01**, **modbusBuildRequest02**, **modbusBuildRequest03** and **modbusBuildRequest04** are actually macros, later replaced with **modbusBuildRequest0102** and **modbusBuildRequest0304** - see above declarations.
+
+To be honest, these functions don't need any further explanations if you know what you are doing. A quick look at Wikipedia's Modbus protocol page should be enough to understand everything in here.
 
 ## SEE ALSO
 lightmodbus(3lightmodbus), ModbusMaster(3lightmodbus)

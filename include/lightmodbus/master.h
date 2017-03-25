@@ -77,6 +77,9 @@ typedef struct
 
 } ModbusMaster; //Type containing master device configuration data
 
+#include "master/mbregs.h"
+#include "master/mbcoils.h"
+
 extern uint8_t modbusParseResponse( ModbusMaster *status );
 extern uint8_t modbusMasterInit( ModbusMaster *status );
 extern uint8_t modbusMasterEnd( ModbusMaster *status ); //Free memory used by master

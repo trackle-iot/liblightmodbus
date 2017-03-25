@@ -1,4 +1,4 @@
-# modbusParseException 3lightmodbus "28 July 2016" "v1.2"
+# modbusParseException 3lightmodbus "25 March 2017" "v1.3"
 
 ## NAME
 **modbusParseException** - parse exception frame returned by slave device.
@@ -9,8 +9,10 @@
 `uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser );`
 
 ## DESCRIPTION
-The **modbusParseException** function parses exception frame stored in *parser* union, and leaves results in *status*.
-If no error occurs, 0 value is returned.
+The **modbusParseException** function parses raw exception frame stored in *parser* union, and leaves results in *status.exception*. The function returns an error code on exit (see lightmodbus(3lightmodbus)).
+
+## SEE ALSO
+ModbusMaster(3lightmodbus)
 
 ## AUTHORS
 Jacek Wieczorek (Jacajack) - mrjjot@gmail.com

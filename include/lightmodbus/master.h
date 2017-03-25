@@ -23,9 +23,6 @@
 
 #include <inttypes.h>
 
-#include "core.h"
-#include "parser.h"
-
 //Enabling modules in compilation process (use makefile to automate this process)
 #ifndef LIGHTMODBUS_MASTER_REGISTERS
 #define LIGHTMODBUS_MASTER_REGISTERS 0

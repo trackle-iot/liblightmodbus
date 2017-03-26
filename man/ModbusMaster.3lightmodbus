@@ -1,0 +1,165 @@
+.TH ModbusMaster 3lightmodbus "25 March 2017" "v1.3"
+.SH NAME
+.PP
+\fBModbusMaster\fP \- data type containing all information about current master device status, its configuration and received data.
+.SH SYNOPSIS
+.PP
+\fB\fC
+    #include <lightmodbus/master.h>
+\fR
+.PP
+\fB\fC
+    #define MODBUS_HOLDING_REGISTER 1
+    #define MODBUS_INPUT_REGISTER 2
+    #define MODBUS_COIL 4
+    #define MODBUS_DISCRETE_INPUT 8
+\fR
+.PP
+\fB\fC
+    typedef struct
+    {
+        uint8_t predictedResponseLength; //If everything goes fine, slave will return this amount of data
+\fR
+.PP
+\fB\fC
+        struct //Formatted request for slave
+        {
+            uint8_t *frame;
+            uint8_t length;
+        } request;
+\fR
+.PP
+\fB\fC
+        struct //Response from slave should be put here
+        {
+            uint8_t *frame;
+            uint8_t length;
+        } response;
+\fR
+.PP
+\fB\fC
+        struct //Data read from slave
+        {
+            uint8_t address; //Address of slave
+            uint16_t index; //Address of the first element (in slave device)
+            uint16_t count; //Count of data units (coils, registers, etc.)
+            uint8_t length; //Length of data in bytes
+            uint8_t type; //Type of data
+            uint8_t function; //Function that accessed the data
+            //Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
+            uint8_t *coils; //Received data
+            uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+        } data;
+\fR
+.PP
+\fB\fC
+        struct //Exceptions read are stored in this structure
+        {
+            uint8_t address; //Device address
+            uint8_t function; //In which function exception occurred
+            uint8_t code; //Exception code
+        } exception;
+\fR
+.PP
+\fB\fC
+    } ModbusMaster; //Type containing master device configuration data
+\fR
+.SH DESCRIPTION
+.PP
+The \fBModbusMaster\fP contains information about master device configuration, status and received data.
+.TS
+allbox;
+cb cb
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+.
+member name	description
+\fB\fCpredictedResponseLength\fR	the predicted length of slave's response
+\fB\fCrequest.frame\fR	request frame for slave device
+\fB\fCrequest.length\fR	request frame length
+\fB\fCresponse.frame\fR	incoming response frame
+\fB\fCresponse.length\fR	response frame length
+\fB\fCdata.address\fR	address of the slave that has sent int the data
+\fB\fCdata.index\fR	starting index of received data
+\fB\fCdata.count\fR	number of received data units
+\fB\fCdata.length\fR	number of received data bytes
+\fB\fCdata.type\fR	type of received data
+\fB\fCdata.function\fR	number of function that returned the data
+\fB\fCdata.coils\fR	received coils or discrete input values
+\fB\fCdata.regs\fR	received (input or holding) register values
+\fB\fCexception.address\fR	address of device that returned the exception
+\fB\fCexception.function\fR	number of function that returned the exception
+\fB\fCexception.code\fR	Modbus exception code
+.TE
+.SS Initialization
+.PP
+Unlike on slave side, there aren't many things to be done before start. User only needs to call \fBmodbusMasterInit\fP on the structure.
+.PP
+Simple initialization example:
+\fB\fC
+    ModbusMaster status;
+    modbusMasterInit( &status );
+\fR
+.SS Normal use
+.PP
+Normally, master initiates the transmission, by sending a request to slave device, and then awaits its response. Let's say we want to write a single holding register \- that's how it looks in code:
+.PP
+\fB\fC
+    //Slave 17
+    //Register 32
+    //Value 89
+    modbusBuildRequest06( &status, 17, 32, 89 );
+\fR
+.PP
+\fB\fC
+    //Here send status.request.frame content to slave
+    //and get response into status.response.frame
+\fR
+.PP
+\fB\fC
+    modbusParseResponse( &status );
+    //After successful parsing you should get:
+    //status.data.address = 17
+    //status.data.function = 6
+    //status.data.index = 32
+    //status.data.type = 1
+    //status.data.count = 1
+    //status.data.length = 2
+    //status.data.regs[0] = 89
+\fR
+.PP
+To see more examples, please take a look into examples folder.
+.SS Tidying up
+.PP
+In order to free memory used by the received data and finish use of the library, \fBmodbusMasterEnd\fP should be called on the status structure.
+.SH NOTES
+.PP
+There are 4 macros responsible for describing Modbus data types (\fIstatus.data.type\fP). Please refer to the code sample below.
+.PP
+\fB\fC
+    #define MODBUS_HOLDING_REGISTER 1
+    #define MODBUS_INPUT_REGISTER 2
+    #define MODBUS_COIL 4
+    #define MODBUS_DISCRETE_INPUT 8
+\fR
+.SH SEE ALSO
+.PP
+.BR modbusMasterInit (3lightmodbus), 
+.BR modbusMasterEnd (3lightmodbus)
+.SH AUTHORS
+.PP
+Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

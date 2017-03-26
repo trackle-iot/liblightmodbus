@@ -1,4 +1,4 @@
-.TH modbusParseException 3lightmodbus "28 July 2016" "v1.2"
+.TH modbusParseException 3lightmodbus "25 March 2017" "v1.3"
 .SH NAME
 .PP
 \fBmodbusParseException\fP \- parse exception frame returned by slave device.
@@ -9,8 +9,11 @@
 \fB\fCuint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser );\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusParseException\fP function parses exception frame stored in \fIparser\fP union, and leaves results in \fIstatus\fP\&.
-If no error occurs, 0 value is returned.
+The \fBmodbusParseException\fP function parses raw exception frame stored in \fIparser\fP union, and leaves results in \fIstatus.exception\fP\&. The function returns an error code on exit (see 
+.BR lightmodbus (3lightmodbus)).
+.SH SEE ALSO
+.PP
+.BR ModbusMaster (3lightmodbus)
 .SH AUTHORS
 .PP
 Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

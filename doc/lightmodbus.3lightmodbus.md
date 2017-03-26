@@ -51,25 +51,25 @@ Full listing of routines included in `lightmodbus` library available for user.
 
 | Routine name                  | Manpage                  		 	            |
 |-------------------------------|-----------------------------------------------|
-| **modbusCRC**                 |  modbusCRC(3lightmodbus)                      |
-| **modbusSwapEndian**          |  modbusSwapEndian(3lightmodbus)               |
-| **modbusMaskRead**            |  modbusMaskRead(3lightmodbus)                 |
-| **modbusMaskWrite**           |  modbusMaskWrite(3lightmodbus)                |
-| **modbusMasterInit**       	|  modbusMasterInit(3lightmodbus)            	|
-| **modbusMasterEnd**       	|  modbusMasterEnd(3lightmodbus)            	|
-| **modbusParseResponse**       |  modbusParseResponse(3lightmodbus)            |
-| **modbusParseException**      |  modbusParseException(3lightmodbus)           |
-| **modbusSlaveInit**      		|  modbusSlaveInit(3lightmodbus)     		    |
-| **modbusSlaveEnd**     		|  modbusSlaveEnd(3lightmodbus)     		    |
-| **modbusBuildException**      |  modbusBuildException(3lightmodbus)           |
-| **modbusParseRequest**   	   	|  modbusParseRequest(3lightmodbus)         	|
-| **modbusBuildRequest0102**   	|  modbusBuildRequest(3lightmodbus)         	|
-| **modbusBuildRequest0304**   	|  modbusBuildRequest(3lightmodbus)         	|
-| **modbusBuildRequest05**   	|  modbusBuildRequest(3lightmodbus)         	|
-| **modbusBuildRequest06**   	|  modbusBuildRequest(3lightmodbus)         	|
-| **modbusBuildRequest15**   	|  modbusBuildRequest(3lightmodbus)         	|
-| **modbusBuildRequest16**   	|  modbusBuildRequest(3lightmodbus)         	|
-| **modbusBuildRequest22**   	|  modbusBuildRequest(3lightmodbus)         	|
+| **modbusCRC**                 |  modbusCRC( 3lightmodbus )                    |
+| **modbusSwapEndian**          |  modbusSwapEndian( 3lightmodbus )             |
+| **modbusMaskRead**            |  modbusMaskRead( 3lightmodbus )               |
+| **modbusMaskWrite**           |  modbusMaskWrite( 3lightmodbus )              |
+| **modbusMasterInit**       	|  modbusMasterInit( 3lightmodbus )          	|
+| **modbusMasterEnd**       	|  modbusMasterEnd( 3lightmodbus )          	|
+| **modbusParseResponse**       |  modbusParseResponse( 3lightmodbus )          |
+| **modbusParseException**      |  modbusParseException( 3lightmodbus )         |
+| **modbusSlaveInit**      		|  modbusSlaveInit( 3lightmodbus )     		    |
+| **modbusSlaveEnd**     		|  modbusSlaveEnd( 3lightmodbus )     		    |
+| **modbusBuildException**      |  modbusBuildException( 3lightmodbus )         |
+| **modbusParseRequest**   	   	|  modbusParseRequest( 3lightmodbus )         	|
+| **modbusBuildRequest0102**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest0304**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest05**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest06**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest15**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest16**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest22**   	|  modbusBuildRequest( 3lightmodbus )         	|
 
 
 ## MODBUS FUNCTION CODES

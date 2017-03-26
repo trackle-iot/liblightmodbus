@@ -24,16 +24,25 @@
 		uint16_t registerMaskLength; //Masks length (each byte covers 8 registers)
 		uint8_t *coilMask; //Masks for coil write protection
 		uint16_t coilMaskLength; //Masks length (each byte covers 8 coils)
+`
+
+`  
 		struct //Slave response formatting status
 		{
 			uint8_t *frame;
 			uint8_t length;
 		} response;
+`
+
+`  
 		struct //Request from master should be put here
 		{
 			uint8_t *frame;
 			uint8_t length;
 		} request;
+`
+
+`  
 	} ModbusSlave; //Type containing slave device configuration data
 `
 

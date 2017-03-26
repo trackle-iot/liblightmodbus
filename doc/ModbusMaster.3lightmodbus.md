@@ -70,12 +70,12 @@ The **ModbusMaster** contains information about master device configuration, sta
 
 | member name | description |
 |---|---|
-| `predictedResponseLength` | the predicted length of slave's response |
+| `predictedResponseLength` | the predicted length of response |
 | `request.frame` | request frame for slave device |
 | `request.length`| request frame length |
 | `response.frame` | incoming response frame |
 | `response.length`| response frame length |
-| `data.address` | address of the slave that has sent int the data |
+| `data.address` | address of the slave the data comes from |
 | `data.index` | starting index of received data |
 | `data.count` | number of received data units |
 | `data.length` | number of received data bytes |
@@ -83,9 +83,11 @@ The **ModbusMaster** contains information about master device configuration, sta
 | `data.function` | number of function that returned the data |
 | `data.coils` | received coils or discrete input values |
 | `data.regs` | received (input or holding) register values |
-| `exception.address` | address of device that returned the exception |
-| `exception.function` | number of function that returned the exception |
+| `exception.address` | address of device that threw the exception |
+| `exception.function` | number of function that threw the exception |
 | `exception.code` | Modbus exception code |
+
+**Note:** In *status.data.coils* each **bit** corresponds to a **single** coil or an discrete input.
 
 ### Initialization
 Unlike on slave side, there aren't many things to be done before start. User only needs to call **modbusMasterInit** on the structure.

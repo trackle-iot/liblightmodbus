@@ -23,7 +23,7 @@
 ## DESCRIPTION
 The **modbusBuildRequest** family functions build request frames later sent to slave device.
 Each routine returns an error code described in lightmodbus(3lightmodbus).
-On successful exit, the Modbus frame of *status.request.length* bytes length is written to *status.request.frame* and additionally predicted slave's response length is written into *status.predictedResponseLength*. Otherwise the length is set to 0 and null pointer is returned in the *status.request.frame*.
+On successful exit, the Modbus frame of *status.request.length* bytes length is written to *status.request.frame* and additionally predicted slave's response length is written into *status.predictedResponseLength*. Otherwise the lengths are set to 0 and null pointer is returned in the *status.request.frame*.
 
 **modbusBuildRequest01**, **modbusBuildRequest02**, **modbusBuildRequest03** and **modbusBuildRequest04** are actually macros, later replaced with **modbusBuildRequest0102** and **modbusBuildRequest0304** - see above declarations.
 

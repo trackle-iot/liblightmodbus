@@ -11,7 +11,7 @@
 ## DESCRIPTION
 The **modbusBuildException** function builds Modbus exception frame, later located in *status.response*.
 The *function* value is the number of function that throws an exception. The *code* value is the exception code to be thrown.
-Unlike other routines included in the library, normally **modbusBuildException** function returns **MODBUS_ERROR_EXCEPTION** on successful exit.
+Unlike other routines included in the library, normally **modbusBuildException** function returns `MODBUS_ERROR_EXCEPTION` on successful exit.
 
 ## SEE ALSO
 modbusParseException(3lightmodbus)

@@ -11,7 +11,7 @@
 .PP
 The \fBmodbusBuildException\fP function builds Modbus exception frame, later located in \fIstatus.response\fP\&.
 The \fIfunction\fP value is the number of function that throws an exception. The \fIcode\fP value is the exception code to be thrown.
-Unlike other routines included in the library, normally \fBmodbusBuildException\fP function returns \fBMODBUS\fIERROR\fPEXCEPTION\fP on successful exit.
+Unlike other routines included in the library, normally \fBmodbusBuildException\fP function returns \fB\fCMODBUS_ERROR_EXCEPTION\fR on successful exit.
 .SH SEE ALSO
 .PP
 .BR modbusParseException (3lightmodbus)

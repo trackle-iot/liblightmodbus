@@ -88,12 +88,12 @@ l l
 l l
 .
 member name	description
-\fB\fCpredictedResponseLength\fR	the predicted length of slave's response
+\fB\fCpredictedResponseLength\fR	the predicted length of response
 \fB\fCrequest.frame\fR	request frame for slave device
 \fB\fCrequest.length\fR	request frame length
 \fB\fCresponse.frame\fR	incoming response frame
 \fB\fCresponse.length\fR	response frame length
-\fB\fCdata.address\fR	address of the slave that has sent int the data
+\fB\fCdata.address\fR	address of the slave the data comes from
 \fB\fCdata.index\fR	starting index of received data
 \fB\fCdata.count\fR	number of received data units
 \fB\fCdata.length\fR	number of received data bytes
@@ -101,8 +101,8 @@ member name	description
 \fB\fCdata.function\fR	number of function that returned the data
 \fB\fCdata.coils\fR	received coils or discrete input values
 \fB\fCdata.regs\fR	received (input or holding) register values
-\fB\fCexception.address\fR	address of device that returned the exception
-\fB\fCexception.function\fR	number of function that returned the exception
+\fB\fCexception.address\fR	address of device that threw the exception
+\fB\fCexception.function\fR	number of function that threw the exception
 \fB\fCexception.code\fR	Modbus exception code
 .TE
 .SS Initialization

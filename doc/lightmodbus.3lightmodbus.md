@@ -1,12 +1,10 @@
-# lightmodbus 3lightmodbus "21 January 2017" "v1.3"
+# lightmodbus 3lightmodbus "25 March 2017" "v1.3"
 
 ## NAME
 **lightmodbus** - a lightweight, cross-platform Modbus RTU library.
 
 ## DESCRIPTION
-The **lightmodbus** library allows communication with use of the Modbus RTU protocol. **lightmodbus** contains
-functions for parsing and creating Modbus frames, but **it is not** capable of sending or receiving them.
-Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
+The **lightmodbus** library allows communication with use of the Modbus RTU protocol. **lightmodbus** contains functions for parsing and creating Modbus frames, but **it is not** capable of sending or receiving them. Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
 Library itself, is easy to compile and modular - only necessary modules can be included while building. Default version available for PC is complete and it contains all modules by default. Needless to say, the library is possible to build at any little-endian platform.
 
 ## BUILDING
@@ -18,7 +16,7 @@ Usual `makefile` simply compiles source code, creating object files (`obj` direc
 	SMODULES = slave-registers slave-coils
 `
 
-Example make call would be: `make MMODULES="master-reisters" SMODULES=""`
+Example make call would be: `make MMODULES="master-reisters" SMODULES=""` which would affect in having only master side register operations module compiled.
 
 `makefile-coverage` builds library all on its own for coverage testing purposes (you probably don't need that, go on).
 
@@ -42,10 +40,8 @@ Full listing of routines included in `lightmodbus` library available for user.
 | **modbusSlaveEnd**     		|  slave-base     		    					|
 | **modbusBuildException**      |  slave-base         							|
 | **modbusParseRequest**   	   	|  slave-base         							|
-| **modbusBuildRequest01**   	|  master-coils         						|
-| **modbusBuildRequest02**   	|  master-coils         						|
-| **modbusBuildRequest03**   	|  master-registers         					|
-| **modbusBuildRequest04**   	|  master-registers         					|
+| **modbusBuildRequest0102**   	|  master-coils         						|
+| **modbusBuildRequest0304**   	|  master-registers         					|
 | **modbusBuildRequest05**   	|  master-coils         						|
 | **modbusParseRequest06**   	|  master-registers         					|
 | **modbusBuildRequest15**   	|  master-coils         						|
@@ -67,10 +63,8 @@ Full listing of routines included in `lightmodbus` library available for user.
 | **modbusSlaveEnd**     		|  modbusSlaveEnd( 3lightmodbus )     		    |
 | **modbusBuildException**      |  modbusBuildException( 3lightmodbus )         |
 | **modbusParseRequest**   	   	|  modbusParseRequest( 3lightmodbus )         	|
-| **modbusBuildRequest01**   	|  modbusBuildRequest( 3lightmodbus )         	|
-| **modbusBuildRequest02**   	|  modbusBuildRequest( 3lightmodbus )         	|
-| **modbusBuildRequest03**   	|  modbusBuildRequest( 3lightmodbus )         	|
-| **modbusBuildRequest04**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest0102**   	|  modbusBuildRequest( 3lightmodbus )         	|
+| **modbusBuildRequest0304**   	|  modbusBuildRequest( 3lightmodbus )         	|
 | **modbusBuildRequest05**   	|  modbusBuildRequest( 3lightmodbus )         	|
 | **modbusBuildRequest06**   	|  modbusBuildRequest( 3lightmodbus )         	|
 | **modbusBuildRequest15**   	|  modbusBuildRequest( 3lightmodbus )         	|
@@ -94,7 +88,7 @@ Modbus function codes meanings:
 | 22		| mask write single holding register								|
 
 ## MODBUS EXCEPTIONS
-Modbus protocol provides exception codes returned when master request fails. Some of the exceptions have their C macros defined in `lightmodbus/core.h`.
+Modbus protocol provides exception codes returned when master request fails. Some of the exceptions have their C macros defined in **lightmodbus/core.h**.
 
 |  Macro                      | Exception | Description                           |
 |-----------------------------|-----------|---------------------------------------|
@@ -135,12 +129,12 @@ Error code macros are defined in **lightmodbus/core.h**.
 
 `MODBUS_ERROR_ALLOC` is returned when **malloc** or **realloc** call fails.
 
-`MODBUS_ERROR_OTHER` is returned when e.g. user tries to parse frame of 0 length, slave has been initialized with address 0 and in other cases of passing invalid arguments to library routines.
+`MODBUS_ERROR_OTHER` is returned when e.g. user tries to parse frame of 0 length, slave has been initialized with address 0 and in other cases of passing invalid arguments (such as null pointers) to library routines.
 
-`MODBUS_ERROR_FRAME` is returned by master-side parsing function, when error is found in given frame (e.g. byte count doesn't match register count)
+`MODBUS_ERROR_FRAME` is returned by master-side parsing function, when error is contained in given frame (e.g. byte count doesn't match register count)
 
-## EXAMPLE OF USAGE
-
+## EXAMPLES
+Please refer to the **examples** folder.
 
 ## AUTHORS
 Jacek Wieczorek (Jacajack) - mrjjot@gmail.com

@@ -58,7 +58,8 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 
 	if ( index >= ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \
 		(uint32_t) index + (uint32_t) count > \
-		(uint32_t) ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) )
+		(uint32_t) ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \
+	 	( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL )
 	{
 		//Illegal data address exception
 		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDR );
@@ -111,7 +112,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	uint16_t value = modbusSwapEndian( parser->request06.value );
 
 	//Check if reg is in valid range
-	if ( index >= status->registerCount )
+	if ( index >= status->registerCount || status->registers == NULL )
 	{
 		//Illegal data address exception
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_ADDR );
@@ -197,6 +198,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	}
 
 	if ( index >= status->registerCount || \
+		status->registers == NULL || \
 		(uint32_t) index + (uint32_t) count > (uint32_t) status->registerCount )
 	{
 		//Illegal data address error
@@ -269,7 +271,7 @@ uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser )
 	uint16_t ormask = modbusSwapEndian( parser->request22.ormask );
 
 	//Check if reg is in valid range
-	if ( index >= status->registerCount )
+	if ( index >= status->registerCount || status->registers == NULL )
 	{
 		//Illegal data address exception
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_ILLEGAL_ADDR );

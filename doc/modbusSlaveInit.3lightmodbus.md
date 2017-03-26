@@ -1,4 +1,4 @@
-# modbusSlaveInit 3lightmodbus "29 July 2016" "v1.2"
+# modbusSlaveInit 3lightmodbus "25 March 2017" "v1.3"
 
 ## NAME
 **modbusSlaveInit** - setup **ModbusSlave** structure for use.
@@ -9,9 +9,8 @@
 `uint8_t modbusSlaveInit( ModbusSlave *status );`
 
 ## DESCRIPTION
-The **modbusSlaveInit** function sets crucial members of **ModbuSlaveStatus** structure and allocates memory for necessary data. This function should always be called before using any other Modbus slave-side functions.
-It is also worth mentioning, that memory for *status.request* is **not** allocated (user should perform simple pointer assignment, not data copying).
-Needless to say, when returned value is not equal 0 an error occured.
+The **modbusSlaveInit** function sets crucial members of **ModbuSlave** structure, enabling its use by the rest of the library. This function should always be called before using any other Modbus slave side functions.
+The function returns an error code on exit (see lightmodbus(3lightmodbus)).
 
 Memory can be later freed with **modbusSlaveEnd**.
 

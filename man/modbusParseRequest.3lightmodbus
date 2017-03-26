@@ -1,31 +1,17 @@
-.TH modbusParseRequest 3lightmodbus "4 August 2016" "v1.2"
+.TH modbusParseRequest 3lightmodbus "25 March 2016" "v1.3"
 .SH NAME
 .PP
-\fBmodbusParseRequest\fP, \fBmodbusParseRequest01\fP, \fBmodbusParseRequest02\fP, \fBmodbusParseRequest03\fP, \fBmodbusParseRequest04\fP, \fBmodbusParseRequest05\fP, \fBmodbusParseRequest06\fP, \fBmodbusParseRequest15\fP, \fBmodbusParseRequest16\fP \- parse request frame sent in by master device.
+\fBmodbusParseRequest\fP \- parse request frame sent in by master device.
 .SH SYNOPSIS
 .PP
 \fB\fC#include <lightmodbus/slave.h>\fR
 .PP
-\fB\fC
-    uint8_t modbusParseRequest( ModbusSlave *status );
-    uint8_t modbusParseRequest01( ModbusSlave *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest02( ModbusSlave *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest03( ModbusSlave *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest04( ModbusSlave *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser );
-    uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser );
-\fR
+\fB\fCuint8_t modbusParseRequest( ModbusSlave *status );\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusParseRequest\fP function parses request frame located in \fIstatus.request\fP\&. Response is automatically written to \fIstatus.response\fP, unless request
-was broadcast.
-When finished, an error code is returned (described in 
-.BR lightmodbus (3lightmodbus)) 
-and \fIstatus.finished\fP is set to 1.
-.PP
-\fBmodbusParseRequest01\fP, \fBmodbusParseRequest02\fP, and so on can only parse specific requests, while \fBmodbusParseRequest\fP automatically picks one of them. Keep in mind, that calling them directly is unsafe.
+The \fBmodbusParseRequest\fP function parses request frame located in \fIstatus.request.frame\fP of \fIstatus.request.length\fP bytes length. Unless the request is a broadcast, the response is automatically written to \fIstatus.response\fP structure.
+An error code is returned on exit (described in 
+.BR lightmodbus (3lightmodbus)).
 .SH SEE ALSO
 .PP
 .BR lightmodbus (3lightmodbus)

@@ -1,4 +1,4 @@
-.TH modbusMasterEnd 3lightmodbus "29 July 2016" "v1.2"
+.TH modbusMasterEnd 3lightmodbus "25 March 2017" "v1.3"
 .SH NAME
 .PP
 \fBmodbusMasterEnd\fP \- free memory used in \fBModbusMaster\fP structure.
@@ -6,10 +6,11 @@
 .PP
 \fB\fC#include <lightmodbus/master.h>\fR
 .PP
-\fB\fCvoid modbusMasterEnd( ModbusMaster *status );\fR
+\fB\fCuint8_t modbusMasterEnd( ModbusMaster *status );\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusMasterEnd\fP frees data dynamically allocated by \fBmodbusMasterInit\fP\&.
+The \fBmodbusMasterEnd\fP routine frees the allocated data in \fIstatus\fP structure.
+An error code is returned depending on success of \fBfree\fP call.
 .SH SEE ALSO
 .PP
 .BR ModbusMaster (3lightmodbus), 

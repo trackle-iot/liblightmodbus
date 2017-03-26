@@ -1,29 +1,20 @@
-.TH modbusParseResponse 3lightmodbus "4 August 2016" "v1.2"
+.TH modbusParseResponse 3lightmodbus "25 March 2017" "v1.3"
 .SH NAME
 .PP
-\fBmodbusParseResponse\fP, \fBmodbusParseResponse01\fP, \fBmodbusParseResponse02\fP, \fBmodbusParseResponse03\fP, \fBmodbusParseResponse04\fP, \fBmodbusParseResponse05\fP, \fBmodbusParseResponse06\fP, \fBmodbusParseResponse15\fP, \fBmodbusParseResponse16\fP \- parse response frame returned by slave device.
+\fBmodbusParseResponse\fP \- parse response frame returned by slave device.
 .SH SYNOPSIS
 .PP
 \fB\fC#include <lightmodbus/master.h>\fR
 .PP
-\fB\fC
-    uint8_t modbusParseResponse( ModbusMaster *status );
-    uint8_t modbusParseResponse01( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse02( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse03( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse04( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-    uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
-\fR
+\fB\fCuint8_t modbusParseResponse( ModbusMaster *status );\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusParseResponse\fP function parses request frame located in \fIstatus.response\fP\&. Results are written into \fIstatus.data\fP, and \fIstatus.finished\fP is set to 1, when function exits.
-Also, an error code is returned (described in 
+The \fBmodbusParseResponse\fP function parses request frame located in \fIstatus.response.frame\fP of \fIstatus.response.length\fP bytes length. Results are written into \fIstatus.data\fP, when function exits. The function returns an error code on exit (see 
 .BR lightmodbus (3lightmodbus)).
 .PP
-\fBmodbusParseResponse01\fP, \fBmodbusParseResponse02\fP, and so on can only parse specific function responses, while \fBmodbusParseResponse\fP automatically picks one of them. Keep in mind, that calling them directly is unsafe.
+In case the received frame is an exception, no data will be loaded into \fIstatus.data\fP, but \fIstatus.exception\fP will contain information about the exception. Also, in such case \fBMODBUS\fIERROR\fPEXCEPTION\fP is returned.
+.PP
+It is important to mention, that parsing responses often requires having unchanged request frames loaded into \fIstatus.request\fP\&.
 .SH SEE ALSO
 .PP
 .BR lightmodbus (3lightmodbus), 

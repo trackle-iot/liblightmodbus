@@ -1,4 +1,4 @@
-.TH modbusSlaveEnd 3lightmodbus "29 July 2016" "v1.2"
+.TH modbusSlaveEnd 3lightmodbus "25 March 2017" "v1.3"
 .SH NAME
 .PP
 \fBmodbusSlaveEnd\fP \- free memory used in \fBModbusSlave\fP structure.
@@ -6,10 +6,11 @@
 .PP
 \fB\fC#include <lightmodbus/slave.h>\fR
 .PP
-\fB\fCvoid modbusSlaveEnd( ModbusSlave *status );\fR
+\fB\fCuint8_t modbusSlaveEnd( ModbusSlave *status );\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusSlaveEnd\fP frees data dynamically allocated by \fBmodbusSlaveInit\fP\&.
+The \fBmodbusSlaveEnd\fP routine frees the allocated data in \fIstatus\fP structure.
+An error code is returned depending on success of \fBfree\fP call.
 .SH SEE ALSO
 .PP
 .BR ModbusSlave (3lightmodbus), 

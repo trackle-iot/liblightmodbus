@@ -100,6 +100,9 @@ Simple initialization example:
 	modbusSlaveInit( &status );
 `
 
+### Tidying up
+In order to free memory allocated by the library and finish use of the library, **modbusSlaveEnd** should be called on the status structure.
+
 ## SEE ALSO
 modbusSlaveInit(3lightmodbus), modbusSlaveEnd(3lightmodbus)
 

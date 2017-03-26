@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+#include <lightmodbus/core.h>
 #include <lightmodbus/master.h>
 #include <lightmodbus/slave.h>
 
@@ -53,7 +54,7 @@ void masterdump( )
 
 	printf( "Received data: slave: %d, addr: %d, count: %d, type: %d\n",
 		mstatus.data.address, mstatus.data.index, mstatus.data.count, mstatus.data.type );
-	printf( "               values:" );
+	printf( "\t\tvalues:" );
 	switch ( mstatus.data.type )
 	{
 		case MODBUS_HOLDING_REGISTER:
@@ -65,7 +66,7 @@ void masterdump( )
 		case MODBUS_COIL:
 		case MODBUS_DISCRETE_INPUT:
 			for ( i = 0; i < mstatus.data.count; i++ )
-				printf( " %d", mstatus.data.coils[i] );
+				printf( " %d", modbusMaskRead( mstatus.data.coils, mstatus.data.length, i ) );
 			break;
 	}
 	printf( "\n" );

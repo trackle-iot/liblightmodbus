@@ -15,7 +15,7 @@
 - Library can be installed as a `*.deb` package on computer
 - You can pick only modules, you want, when building library
 
-*Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16 and 22*
+*Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.*
 Check [wiki](https://github.com/Jacajack/liblightmodbus/wiki) and [docs](https://github.com/Jacajack/liblightmodbus/tree/master/doc) for more technical information.
 
 If you need help - [email me](mailto:mrjjot@gmail.com). If you want to help - contribute here, on Github. **All contributions are welcome!**

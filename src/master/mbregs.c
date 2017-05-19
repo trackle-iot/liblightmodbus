@@ -41,13 +41,13 @@ uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t 
 	//Check values pointer
 	if ( count == 0 || count > 125 || address == 0 ) return MODBUS_ERROR_OTHER;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		//Reallocate memory for final frame
 		free( status->request.frame );
 		status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );
 		if ( status->request.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
-		if ( frameLength > LIGHTMODBUS_BUFFER_SIZE ) return MODBUS_ERROR_ALLOC;
+		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
@@ -80,13 +80,13 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t in
 	status->request.length = 0;
 	status->predictedResponseLength = 0;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		//Reallocate memory for final frame
 		free( status->request.frame );
 		status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );
 		if ( status->request.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
-		if ( frameLength > LIGHTMODBUS_BUFFER_SIZE ) return MODBUS_ERROR_ALLOC;
+		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
@@ -123,13 +123,13 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t in
 	//Check values pointer
 	if ( values == NULL || count == 0 || count > 123 ) return MODBUS_ERROR_OTHER;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		//Reallocate memory for final frame
 		free( status->request.frame );
 		status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );
 		if ( status->request.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
-		if ( frameLength > LIGHTMODBUS_BUFFER_SIZE ) return MODBUS_ERROR_ALLOC;
+		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
@@ -166,13 +166,13 @@ uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t in
 	status->request.length = 0;
 	status->predictedResponseLength = 0;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		//Reallocate memory for final frame
 		free( status->request.frame );
 		status->request.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) );
 		if ( status->request.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
-		if ( frameLength > LIGHTMODBUS_BUFFER_SIZE ) return MODBUS_ERROR_ALLOC;
+		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;

@@ -31,11 +31,6 @@
 #define LIGHTMODBUS_SLAVE_COILS 0
 #endif
 
-//Default static buffer size
-#ifndef LIGHTMODBUS_BUFFER_SIZE
-#define LIGHTMODBUS_BUFFER_SIZE 256
-#endif
-
 typedef struct
 {
 	uint8_t address; //Slave address
@@ -56,8 +51,8 @@ typedef struct
 
 	struct //Slave response formatting status
 	{
-		#ifdef LIGHTMODBUS_STATIC_MEM
-			uint8_t frame[LIGHTMODBUS_BUFFER_SIZE];
+		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
+			uint8_t frame[LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE];
 		#else
 			uint8_t *frame;
 		#endif

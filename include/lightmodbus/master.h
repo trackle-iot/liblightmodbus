@@ -31,11 +31,6 @@
 #define LIGHTMODBUS_MASTER_COILS 0
 #endif
 
-//Default static buffer size
-#ifndef LIGHTMODBUS_BUFFER_SIZE
-#define LIGHTMODBUS_BUFFER_SIZE 256
-#endif
-
 #define MODBUS_HOLDING_REGISTER 1
 #define MODBUS_INPUT_REGISTER 2
 #define MODBUS_COIL 4
@@ -47,8 +42,8 @@ typedef struct
 
 	struct //Formatted request for slave
 	{
-		#ifdef LIGHTMODBUS_STATIC_MEM
-			uint8_t frame[LIGHTMODBUS_BUFFER_SIZE];
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+			uint8_t frame[LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST];
 		#else
 			uint8_t *frame;
 		#endif
@@ -70,11 +65,11 @@ typedef struct
 		uint8_t type; //Type of data
 		uint8_t function; //Function that accessed the data
 
-		#ifdef LIGHTMODBUS_STATIC_MEM
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 			union
 			{
-				uint8_t coils[LIGHTMODBUS_BUFFER_SIZE];
-				uint16_t regs[LIGHTMODBUS_BUFFER_SIZE >> 1];
+				uint8_t coils[LIGHTMODBUS_STATIC_MEM_MASTER_DATA];
+				uint16_t regs[LIGHTMODBUS_STATIC_MEM_MASTER_DATA >> 1];
 			};
 		#else
 			//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)

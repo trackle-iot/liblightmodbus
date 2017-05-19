@@ -52,14 +52,29 @@ MODULES =
 MMODULES = master-registers master-coils
 SMODULES = slave-registers slave-coils
 
-STATICBUFFER =
+STATICMEM_SRESPONSE =
+STATICMEM_MREQUEST =
+STATICMEM_MDATA =
 
-ifndef STATICBUFFER
-$(warning "dynamic memory allocation will be used!")
+ifndef STATICMEM_SRESPONSE
+$(warning "dynamic memory for slave response")
 else
-$(warning "NO dynamic memory allocation will be used!")
-CFLAGS += -DLIGHTMODBUS_STATIC_MEM
-CFLAGS += -DLIGHTMODBUS_BUFFER_SIZE=$(STATICBUFFER)
+$(warning "dynamic memory for slave response")
+CFLAGS += -DLIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE=$(STATICMEM_SRESPONSE)
+endif
+
+ifndef STATICMEM_MREQUEST
+$(warning "dynamic memory for master request")
+else
+$(warning "dynamic memory for master request")
+CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_REQUEST=$(STATICMEM_MREQUEST)
+endif
+
+ifndef STATICMEM_MDATA
+$(warning "dynamic memory for master data")
+else
+$(warning "dynamic memory for master data")
+CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_DATA=$(STATICMEM_MDATA)
 endif
 
 ifndef MMODULES

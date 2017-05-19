@@ -32,10 +32,12 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t cod
 	//Check if given pointer is valid
 	if ( status == NULL || code == 0 ) return MODBUS_ERROR_OTHER;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		//Reallocate frame memory
 		status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
 		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#else
+		if ( 5 * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
 	#endif
 
 	union ModbusParser *exception = (union ModbusParser *) status->response.frame;
@@ -66,7 +68,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	status->response.length = 0;
 
 	//If there is memory allocated for response frame - free it
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		free( status->response.frame );
 		status->response.frame = NULL;
 	#endif
@@ -149,7 +151,7 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	status->request.length = 0;
 	status->request.frame = NULL;
 	status->response.length = 0;
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		status->response.frame = NULL;
 	#endif
 
@@ -193,7 +195,7 @@ uint8_t modbusSlaveEnd( ModbusSlave *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Free memory
-	#ifndef LIGHTMODBUS_STATIC_MEM
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		free( status->response.frame );
 	#endif
 

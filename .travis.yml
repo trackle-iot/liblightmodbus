@@ -13,6 +13,8 @@ script:
     - make -f makefile-avr MCU=atmega328p
     - make -f makefile-avr clean
     - make all
+    - make -f makefile-coverage all STATICMEM_MDATA=256 STATICMEM_MREQUEST=256 STATICMEM_SRESPONSE=256
+    - make -f makefile-coverage all STATICMEM_MDATA=1 STATICMEM_MREQUEST=1 STATICMEM_SRESPONSE=1
     - make -f makefile-coverage all
 after_success:
     - coveralls --verbose --exclude test/test.c

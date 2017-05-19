@@ -10,21 +10,21 @@ SLAVEFLAGS = -DLIGHTMODBUS_SLAVE_REGISTERS=1 -DLIGHTMODBUS_SLAVE_COILS=1 -DLIGHT
 ifndef STATICMEM_SRESPONSE
 $(warning "dynamic memory for slave response")
 else
-$(warning "dynamic memory for slave response")
+$(warning "static memory for slave response")
 CFLAGS += -DLIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE=$(STATICMEM_SRESPONSE)
 endif
 
 ifndef STATICMEM_MREQUEST
 $(warning "dynamic memory for master request")
 else
-$(warning "dynamic memory for master request")
+$(warning "static memory for master request")
 CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_REQUEST=$(STATICMEM_MREQUEST)
 endif
 
 ifndef STATICMEM_MDATA
 $(warning "dynamic memory for master data")
 else
-$(warning "dynamic memory for master data")
+$(warning "static memory for master data")
 CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_DATA=$(STATICMEM_MDATA)
 endif
 

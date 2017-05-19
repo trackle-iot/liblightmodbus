@@ -60,6 +60,9 @@ ifndef STATICMEM_SRESPONSE
 $(warning "dynamic memory for slave response")
 else
 $(warning "static memory for slave response")
+ifeq ($(shell test $(STATICMEM_SRESPONSE) -le 0; echo $$?),0)
+$(error "STATICMEM_SRESPONSE must be greater than 0")
+endif
 CFLAGS += -DLIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE=$(STATICMEM_SRESPONSE)
 endif
 
@@ -67,6 +70,9 @@ ifndef STATICMEM_MREQUEST
 $(warning "dynamic memory for master request")
 else
 $(warning "static memory for master request")
+ifeq ($(shell test $(STATICMEM_MREQUEST) -le 0; echo $$?),0)
+$(error "STATICMEM_MREQUEST must be greater than 0")
+endif
 CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_REQUEST=$(STATICMEM_MREQUEST)
 endif
 
@@ -74,6 +80,9 @@ ifndef STATICMEM_MDATA
 $(warning "dynamic memory for master data")
 else
 $(warning "static memory for master data")
+ifeq ($(shell test $(STATICMEM_MDATA) -le 0; echo $$?),0)
+$(error "STATICMEM_MDATA must be greater than 0")
+endif
 CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_DATA=$(STATICMEM_MDATA)
 endif
 

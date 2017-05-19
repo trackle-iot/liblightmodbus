@@ -52,6 +52,16 @@ MODULES =
 MMODULES = master-registers master-coils
 SMODULES = slave-registers slave-coils
 
+STATICBUFFER =
+
+ifndef STATICBUFFER
+$(warning "dynamic memory allocation will be used!")
+else
+$(warning "NO dynamic memory allocation will be used!")
+CFLAGS += -DLIGHTMODBUS_STATIC_MEM
+CFLAGS += -DLIGHTMODBUS_BUFFER_SIZE=$(STATICBUFFER)
+endif
+
 ifndef MMODULES
 $(warning "MMODULES not specified!")
 else

@@ -56,9 +56,12 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	status->exception.address = 0;
 	status->exception.function = 0;
 	status->exception.code = 0;
-	free( status->data.coils );
-	status->data.coils = NULL;
-	status->data.regs = NULL;
+
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		free( status->data.coils );
+		status->data.coils = NULL;
+		status->data.regs = NULL;
+	#endif
 	status->data.length = 0;
 	status->data.index = 0;
 	status->data.count = 0;
@@ -142,12 +145,14 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Very basic init of master side
-	status->request.frame = NULL;
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		status->request.frame = NULL;
+		status->data.coils = NULL;
+		status->data.regs = NULL;
+	#endif
 	status->request.length = 0;
 	status->response.frame = NULL;
 	status->response.length = 0;
-	status->data.coils = NULL;
-	status->data.regs = NULL;
 	status->data.length = 0;
 	status->data.count = 0;
 	status->data.index = 0;
@@ -167,10 +172,12 @@ uint8_t modbusMasterEnd( ModbusMaster *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Free memory
-	free( status->request.frame );
-	free( status->data.coils );
-	status->data.coils = NULL;
-	status->data.regs = NULL;
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		free( status->request.frame );
+		free( status->data.coils );
+		status->data.coils = NULL;
+		status->data.regs = NULL;
+	#endif
 
 	return MODBUS_ERROR_OK;
 }

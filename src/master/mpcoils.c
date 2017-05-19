@@ -51,9 +51,13 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	status->data.coils = (uint8_t*) calloc( BITSTOBYTES( count ), sizeof( uint8_t ) );
-	status->data.regs = (uint16_t*) status->data.coils;
-	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		status->data.coils = (uint8_t*) calloc( BITSTOBYTES( count ), sizeof( uint8_t ) );
+		status->data.regs = (uint16_t*) status->data.coils;
+		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	#else
+		if ( BITSTOBYTES( count ) * sizeof( uint8_t ) > LIGHTMODBUS_BUFFER_SIZE ) return MODBUS_ERROR_ALLOC;
+	#endif
 
 	status->data.function = parser->base.function;
 	status->data.address = parser->base.address;
@@ -84,9 +88,14 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	status->data.coils = (uint8_t*) calloc( 1, sizeof( uint8_t ) );
-	status->data.regs = (uint16_t*) status->data.coils;
-	if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		status->data.coils = (uint8_t*) calloc( 1, sizeof( uint8_t ) );
+		status->data.regs = (uint16_t*) status->data.coils;
+		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	#else
+		if ( 1 * sizeof( uint8_t ) > LIGHTMODBUS_BUFFER_SIZE ) return MODBUS_ERROR_ALLOC;
+	#endif
+
 	status->data.function = 5;
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_COIL;

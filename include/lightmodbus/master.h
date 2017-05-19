@@ -31,6 +31,11 @@
 #define LIGHTMODBUS_MASTER_COILS 0
 #endif
 
+//Default static buffer size
+#ifndef LIGHTMODBUS_BUFFER_SIZE
+#define LIGHTMODBUS_BUFFER_SIZE 256
+#endif
+
 #define MODBUS_HOLDING_REGISTER 1
 #define MODBUS_INPUT_REGISTER 2
 #define MODBUS_COIL 4
@@ -42,7 +47,11 @@ typedef struct
 
 	struct //Formatted request for slave
 	{
-		uint8_t *frame;
+		#ifdef LIGHTMODBUS_STATIC_MEM
+			uint8_t frame[LIGHTMODBUS_BUFFER_SIZE];
+		#else
+			uint8_t *frame;
+		#endif
 		uint8_t length;
 	} request;
 
@@ -60,9 +69,18 @@ typedef struct
 		uint8_t length; //Length of data in bytes
 		uint8_t type; //Type of data
 		uint8_t function; //Function that accessed the data
-		//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
-		uint8_t *coils; //Received data
-		uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+
+		#ifdef LIGHTMODBUS_STATIC_MEM
+			union
+			{
+				uint8_t coils[LIGHTMODBUS_BUFFER_SIZE];
+				uint16_t regs[LIGHTMODBUS_BUFFER_SIZE >> 1];
+			};
+		#else
+			//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
+			uint8_t *coils; //Received data
+			uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+		#endif
 	} data;
 
 	struct //Exceptions read are stored in this structure

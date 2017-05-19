@@ -32,9 +32,12 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t cod
 	//Check if given pointer is valid
 	if ( status == NULL || code == 0 ) return MODBUS_ERROR_OTHER;
 
-	//Reallocate frame memory
-	status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
-	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		//Reallocate frame memory
+		status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
+		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#endif
+
 	union ModbusParser *exception = (union ModbusParser *) status->response.frame;
 
 	//Setup exception frame
@@ -63,8 +66,10 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	status->response.length = 0;
 
 	//If there is memory allocated for response frame - free it
-	free( status->response.frame );
-	status->response.frame = NULL;
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		free( status->response.frame );
+		status->response.frame = NULL;
+	#endif
 
 	//If user tries to parse an empty frame return error
 	//That enables us to ommit the check in each parsing function
@@ -144,7 +149,9 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	status->request.length = 0;
 	status->request.frame = NULL;
 	status->response.length = 0;
-	status->response.frame = NULL;
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		status->response.frame = NULL;
+	#endif
 
 	if ( status->address == 0 )
 	{
@@ -186,7 +193,9 @@ uint8_t modbusSlaveEnd( ModbusSlave *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Free memory
-	free( status->response.frame );
+	#ifndef LIGHTMODBUS_STATIC_MEM
+		free( status->response.frame );
+	#endif
 
 	return MODBUS_ERROR_OK;
 }

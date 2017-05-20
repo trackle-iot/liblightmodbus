@@ -40,7 +40,7 @@ export ARCH = AVR
 export MCU =
 
 export CC = avr-gcc
-export CFLAGS = -Wall -I./include -Os
+export CFLAGS = -Wall -I./include -Os -mmcu=$(MCU)
 
 export LD = avr-ld
 export LDFLAGS =

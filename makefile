@@ -39,11 +39,15 @@ cleanHeader = \
 infoHeader = \
 	echo "[\033[36;1minfo\033[0m] \033[03m$(1)\033[0m" >&2
 
+ARCH = $(shell arch)
+
 CC = gcc
 CFLAGS = -Wall -I./include
 
 LD = ld
 LDFLAGS =
+
+AR = ar
 
 MASTERFLAGS =
 SLAVEFLAGS =
@@ -71,8 +75,8 @@ all: clean FORCE core
 	$(LD) $(LDFLAGS) -r obj/core.o obj/master.o obj/slave.o -o obj/lightmodbus.o
 	$(call linkHeader,static library file)
 	echo "CREATING Static library file (lib/liblightmodbus.a)" >> build.log
-	ar -cvq lib/liblightmodbus.a obj/lightmodbus.o
-	ar -t  lib/liblightmodbus.a
+	$(AR) -cvq lib/liblightmodbus.a obj/lightmodbus.o
+	$(AR) -t  lib/liblightmodbus.a
 	echo -n "\n\nBuild success - " >> build.log
 	date >> build.log
 	$(call infoHeader,build finished successfully)
@@ -94,7 +98,7 @@ FORCE:
 	$(call infoHeader,starting build)
 	-touch build.log
 	echo -n "Architecture: " > build.log
-	arch >> build.log
+	echo $(ARCH) >> build.log
 	echo -n "Build started - " >> build.log
 	date >> build.log
 	echo -n "\n\n" >> build.log

@@ -36,115 +36,29 @@ cleanHeader = \
 infoHeader = \
 	echo "[\033[36;1minfo\033[0m] \033[03m$(1)\033[0m" >&2
 
-MCU =
+export ARCH = AVR
+export MCU =
 
-CC = avr-gcc
-DCFLAGS = -Wall -Iinclude -Os
-CCF = $(DCFLAGS) $(CFLAGS)
+export CC = avr-gcc
+export CFLAGS = -Wall -I./include -Os
 
-LD = avr-ld
-DLDFLAGS =
-LDF = $(DLDFLAGS) $(LDFLAGS)
+export LD = avr-ld
+export LDFLAGS =
 
-MASTERFLAGS =
-SLAVEFLAGS =
+export AR = avr-ar
 
-MODULES =
-MMODULES = master-registers master-coils
-SMODULES = slave-registers slave-coils
+export MASTERFLAGS =
+export SLAVEFLAGS =
 
-ifneq ($(MAKECMDGOALS),clean)
-ifndef MCU
-$(error "MCU not specified!")
-endif
-ifndef MMODULES
-$(warning "MMODULES not specified!")
-else
-MODULES += $(MMODULES) master-base master-link
-endif
-ifndef SMODULES
-$(warning "SMODULES not specified!")
-else
-MODULES += $(SMODULES) slave-base slave-link
-endif
-endif
+export MMODULES = master-registers master-coils
+export SMODULES = slave-registers slave-coils
 
-all: clean FORCE $(MODULES) core
-	$(call linkHeader,full object file)
-	echo "LINKING full library object file (obj/liblightmodbus.o)" >> build.log
-	$(LD) $(LDFLAGS) -r obj/*.o -o obj/lightmodbus.o
-	$(call linkHeader,static library file)
-	echo "CREATING Static library file (lib/liblightmodbus.a)" >> build.log
-	avr-ar -cvq lib/liblightmodbus.a obj/lightmodbus.o
-	avr-ar -t  lib/liblightmodbus.a
-	echo -n "\n\nBuild success - " >> build.log
-	date >> build.log
-	$(call infoHeader,build finished successfully)
+all:
+	$(MAKE) -e all
 	avr-size -C --mcu=$(MCU) obj/lightmodbus.o
 
 FORCE:
-	-touch build.log
-	echo "Architecture: AVR - $(MCU)" > build.log
-	echo -n "Build started - " >> build.log
-	date >> build.log
-	echo -n "\n\n" >> build.log
-	-mkdir obj
-	-mkdir obj/slave
-	-mkdir obj/master
-	-mkdir lib
+	$(MAKE) -e FORCE
 
 clean:
-	make -f makefile clean
-
-################################################################################
-
-core: src/core.c include/lightmodbus/core.h
-	$(call compileHeader,core module)
-	echo "COMPILING Core modile (obj/core.o)" >> build.log
-	$(CC) $(CCF) -mmcu=$(MCU) -c src/core.c -o obj/core.o
-
-master-base: src/master.c include/lightmodbus/master.h
-	$(call compileHeader,master base module)
-	echo "COMPILING Master module (obj/master/mbase.o)" >> build.log
-	$(CC) $(CCF) `cat mmodules.tmp` -mmcu=$(MCU) -c src/master.c -o obj/master/mbase.o
-
-master-registers: src/master/mpregs.c include/lightmodbus/master/mpregs.h src/master/mbregs.c include/lightmodbus/master/mbregs.h
-	$(call compileHeader,master registers module)
-	echo "COMPILING Master registers module (obj/master/mregisters.o)" >> build.log
-	echo " -DLIGHTMODBUS_MASTER_REGISTERS=1" >> mmodules.tmp
-	$(CC) $(CCF) -mmcu=$(MCU) -c src/master/mpregs.c -o obj/master/mpregs.o
-	$(CC) $(CCF) -mmcu=$(MCU) -c src/master/mbregs.c -o obj/master/mbregs.o
-
-master-coils: src/master/mpcoils.c include/lightmodbus/master/mpcoils.h src/master/mbcoils.c include/lightmodbus/master/mbcoils.h
-	$(call compileHeader,master coils module)
-	echo "COMPILING Master coils module (obj/master/mcoils.o)" >> build.log
-	echo " -DLIGHTMODBUS_MASTER_COILS=1" >> mmodules.tmp
-	$(CC) $(CCF) -mmcu=$(MCU) -c src/master/mpcoils.c -o obj/master/mpcoils.o
-	$(CC) $(CCF) -mmcu=$(MCU) -c src/master/mbcoils.c -o obj/master/mbcoils.o
-
-master-link:
-	$(call linkHeader,master modules)
-	echo "LINKING Master module (obj/master.o)" >> build.log
-	$(LD) $(LDF) -r obj/master/*.o -o obj/master.o
-
-slave-base: src/slave.c include/lightmodbus/slave.h
-	$(call compileHeader,slave base module)
-	echo "COMPILING Slave module (obj/slave/sbase.o)" >> build.log
-	$(CC) $(CCF) `cat smodules.tmp` -mmcu=$(MCU) -c src/slave.c -o obj/slave/sbase.o
-
-slave-registers: src/slave/sregs.c include/lightmodbus/slave/sregs.h
-	$(call compileHeader,slave registers module)
-	echo "COMPILING Slave registers module (obj/slave/sregisters.o)" >> build.log
-	echo " -DLIGHTMODBUS_SLAVE_REGISTERS=1" >> smodules.tmp
-	$(CC) $(CCF) -mmcu=$(MCU) -c src/slave/sregs.c -o obj/slave/sregs.o
-
-slave-coils: src/slave/scoils.c include/lightmodbus/slave/scoils.h
-	$(call compileHeader,slave coils module)
-	echo "COMPILING Slave coils module (obj/slave/scoils.o)" >> build.log
-	echo " -DLIGHTMODBUS_SLAVE_COILS=1" >> smodules.tmp
-	$(CC) $(CCF) -mmcu=$(MCU) -c src/slave/scoils.c -o obj/slave/scoils.o
-
-slave-link:
-	$(call linkHeader,slave modules)
-	echo "LINKING Slave module (obj/slave.o)" >> build.log
-	$(LD) $(LDF) -r obj/slave/*.o -o obj/slave.o
+	$(MAKE) -e clean

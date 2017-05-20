@@ -56,9 +56,12 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	status->exception.address = 0;
 	status->exception.function = 0;
 	status->exception.code = 0;
-	free( status->data.coils );
-	status->data.coils = NULL;
-	status->data.regs = NULL;
+
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+		free( status->data.coils );
+		status->data.coils = NULL;
+		status->data.regs = NULL;
+	#endif
 	status->data.length = 0;
 	status->data.index = 0;
 	status->data.count = 0;
@@ -73,10 +76,12 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 			return MODBUS_ERROR_OTHER;
 
 	//Check both response and request frames CRC
-	if ( *( (uint16_t*)( status->response.frame + status->response.length - 2 ) )\
-		!= modbusCRC( status->response.frame, status->response.length - 2 ) ||\
-		*( (uint16_t*)( status->request.frame + status->request.length - 2 ) ) \
-		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
+	//Has to be done the weird way, which isn't safer at all, because avr-gcc didn't like it
+	//warning: dereferencing type-punned pointer will break strict-aliasing rules
+	uint16_t *crcresp = (uint16_t*)( status->response.frame + status->response.length - 2 );
+	uint16_t *crcreq = (uint16_t*)( status->request.frame + status->request.length - 2 );
+	if ( *crcresp != modbusCRC( status->response.frame, status->response.length - 2 ) ||\
+		*crcreq != modbusCRC( status->request.frame, status->request.length - 2 ) )
 			return MODBUS_ERROR_CRC;
 
 	union ModbusParser *parser = (union ModbusParser*) status->response.frame;
@@ -142,13 +147,28 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Very basic init of master side
-	status->request.frame = NULL;
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+		status->request.frame = NULL;
+	#else
+		memset( status->request.frame, 0, LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST );
+	#endif
 	status->request.length = 0;
-	status->response.frame = NULL;
+
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+		status->response.frame = NULL;
+	#else
+		memset( status->response.frame, 0, LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE );
+	#endif
 	status->response.length = 0;
-	status->data.coils = NULL;
-	status->data.regs = NULL;
+
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+		status->data.coils = NULL;
+		status->data.regs = NULL;
+	#else
+		memset( status->data.coils, 0, LIGHTMODBUS_STATIC_MEM_MASTER_DATA );
+	#endif
 	status->data.length = 0;
+
 	status->data.count = 0;
 	status->data.index = 0;
 	status->data.type = 0;
@@ -167,10 +187,14 @@ uint8_t modbusMasterEnd( ModbusMaster *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Free memory
-	free( status->request.frame );
-	free( status->data.coils );
-	status->data.coils = NULL;
-	status->data.regs = NULL;
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+		free( status->request.frame );
+	#endif
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+		free( status->data.coils );
+		status->data.coils = NULL;
+		status->data.regs = NULL;
+	#endif
 
 	return MODBUS_ERROR_OK;
 }

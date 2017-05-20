@@ -60,8 +60,14 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	//Respond
 	frameLength = 5 + BITSTOBYTES( count );
 
-	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
-	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
+		status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
+		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#else
+		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
+		memset( status->response.frame, 0, frameLength );
+	#endif
+
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//Set up basic response data
@@ -139,8 +145,14 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 8;
 
-	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
-	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
+		status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
+		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#else
+		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
+		memset( status->response.frame, 0, frameLength );
+	#endif
+
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write coils
@@ -229,8 +241,14 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	//Respond
 	frameLength = 8;
 
-	status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
-	if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
+		status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
+		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
+	#else
+		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
+		memset( status->response.frame, 0, frameLength );
+	#endif
+
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame; //Allocate memory for builder union
 
 	//After all possible exceptions write values to registers

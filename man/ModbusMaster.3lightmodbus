@@ -105,6 +105,8 @@ member name	description
 \fB\fCexception.function\fR	number of function that threw the exception
 \fB\fCexception.code\fR	Modbus exception code
 .TE
+.PP
+\fBNote:\fP In \fIstatus.data.coils\fP each \fBbit\fP corresponds to a \fBsingle\fP coil or an discrete input.
 .SS Initialization
 .PP
 Unlike on slave side, there aren't many things to be done before start. User only needs to call \fBmodbusMasterInit\fP on the structure.

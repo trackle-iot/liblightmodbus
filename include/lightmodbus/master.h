@@ -42,13 +42,21 @@ typedef struct
 
 	struct //Formatted request for slave
 	{
-		uint8_t *frame;
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+			uint8_t frame[LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST];
+		#else
+			uint8_t *frame;
+		#endif
 		uint8_t length;
 	} request;
 
 	struct //Response from slave should be put here
 	{
-		uint8_t *frame;
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+			uint8_t frame[LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE];
+		#else
+			uint8_t *frame;
+		#endif
 		uint8_t length;
 	} response;
 
@@ -60,9 +68,18 @@ typedef struct
 		uint8_t length; //Length of data in bytes
 		uint8_t type; //Type of data
 		uint8_t function; //Function that accessed the data
-		//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
-		uint8_t *coils; //Received data
-		uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+			union
+			{
+				uint8_t coils[LIGHTMODBUS_STATIC_MEM_MASTER_DATA];
+				uint16_t regs[LIGHTMODBUS_STATIC_MEM_MASTER_DATA >> 1];
+			};
+		#else
+			//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
+			uint8_t *coils; //Received data
+			uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+		#endif
 	} data;
 
 	struct //Exceptions read are stored in this structure

@@ -12,7 +12,7 @@
 The \fBmodbusParseResponse\fP function parses request frame located in \fIstatus.response.frame\fP of \fIstatus.response.length\fP bytes length. Results are written into \fIstatus.data\fP, when function exits. The function returns an error code on exit (see 
 .BR lightmodbus (3lightmodbus)).
 .PP
-In case the received frame is an exception, no data will be loaded into \fIstatus.data\fP, but \fIstatus.exception\fP will contain information about the exception. Also, in such case \fBMODBUS\fIERROR\fPEXCEPTION\fP is returned.
+In case the received frame is an exception, no data will be loaded into \fIstatus.data\fP, but \fIstatus.exception\fP will contain information about the exception. Also, in such case \fB\fCMODBUS_ERROR_EXCEPTION\fR is returned.
 .PP
 It is important to mention, that parsing responses often requires having unchanged request frames loaded into \fIstatus.request\fP\&.
 .SH SEE ALSO

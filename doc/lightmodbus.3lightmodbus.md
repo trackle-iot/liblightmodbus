@@ -18,6 +18,14 @@ Usual `makefile` simply compiles source code, creating object files (`obj` direc
 
 Example make call would be: `make MMODULES="master-reisters" SMODULES=""` which would affect in having only master side register operations module compiled.
 
+Normally, the library uses dynamic memory allocation, which may be inadvisable in embedded applications. In order to disable it and use fixed-length arrays to store data, additional makefile options can be used. Those include:
+
+ - **STATICMEM_SRESPONSE** - affects *response.frame* array in **ModbusSlave**
+ - **STATICMEM_MREQUEST** - affects *request.frame* array in **ModbusMaster**
+ - **STATICMEM_MDATA** - affect *data.coils* and *data.regs* array in **ModbusMaster**
+
+Each of these options changes value of corresponding C macro, which adjust array sizes. The parameters should be set to desired array length in bytes following way: `make all STATICMEM_MDATA=256 STATICMEM_MREQUEST=256 STATICMEM_SRESPONSE=256`. For instance, this will set length of each array to 256 bytes. It is worth mentioning, that Modbus protocol allow maximum frame length of 256 bytes, so these settings seem to be highest reasonable ones.
+
 `makefile-coverage` builds library all on its own for coverage testing purposes (you probably don't need that, go on).
 
 ## AVR

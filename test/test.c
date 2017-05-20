@@ -203,7 +203,7 @@ void Test( )
 	//Dump parsed data
 	printf( "\tError - %d\n\tFinished - 1\n", MasterError );
 
-	if ( mstatus.data.coils != NULL && mstatus.data.regs != NULL )
+	if ( mstatus.data.length )
 		for ( i = 0; i < mstatus.data.count; i++ )
 		{
 			printf( "\t - { addr: 0x%x, type: 0x%x, reg: 0x%x, val: 0x%x }\n", mstatus.data.address, mstatus.data.type, mstatus.data.index + i,\

@@ -18,6 +18,18 @@ Usual \fB\fCmakefile\fR simply compiles source code, creating object files (\fB\
 .PP
 Example make call would be: \fB\fCmake MMODULES="master\-reisters" SMODULES=""\fR which would affect in having only master side register operations module compiled.
 .PP
+Normally, the library uses dynamic memory allocation, which may be inadvisable in embedded applications. In order to disable it and use fixed\-length arrays to store data, additional makefile options can be used. Those include:
+.RS
+.IP \(bu 2
+\fBSTATICMEM_SRESPONSE\fP \- affects \fIresponse.frame\fP array in \fBModbusSlave\fP
+.IP \(bu 2
+\fBSTATICMEM_MREQUEST\fP \- affects \fIrequest.frame\fP array in \fBModbusMaster\fP
+.IP \(bu 2
+\fBSTATICMEM_MDATA\fP \- affect \fIdata.coils\fP and \fIdata.regs\fP array in \fBModbusMaster\fP
+.RE
+.PP
+Each of these options changes value of corresponding C macro, which adjust array sizes. The parameters should be set to desired array length in bytes following way: \fB\fCmake all STATICMEM_MDATA=256 STATICMEM_MREQUEST=256 STATICMEM_SRESPONSE=256\fR\&. For instance, this will set length of each array to 256 bytes. It is worth mentioning, that Modbus protocol allow maximum frame length of 256 bytes, so these settings seem to be highest reasonable ones.
+.PP
 \fB\fCmakefile\-coverage\fR builds library all on its own for coverage testing purposes (you probably don't need that, go on).
 .SH AVR
 .PP

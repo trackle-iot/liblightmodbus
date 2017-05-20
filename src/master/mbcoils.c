@@ -48,6 +48,7 @@ uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t 
 		if ( status->request.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
+		memset( status->request.frame, 0, frameLength );
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
@@ -88,6 +89,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t in
 		if ( status->request.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
+		memset( status->request.frame, 0, frameLength );
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
@@ -134,6 +136,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t in
 		if ( status->request.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
+		memset( status->request.frame, 0, frameLength );
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->request.frame;

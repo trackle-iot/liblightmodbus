@@ -65,6 +65,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
+		memset( status->response.frame, 0, frameLength );
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
@@ -149,6 +150,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
+		memset( status->response.frame, 0, frameLength );
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
@@ -244,6 +246,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 		if ( status->response.frame == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
+		memset( status->response.frame, 0, frameLength );
 	#endif
 
 	union ModbusParser *builder = (union ModbusParser *) status->response.frame; //Allocate memory for builder union

@@ -57,6 +57,7 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( BITSTOBYTES( count ) * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+		memset( status->data.coils, 0, BITSTOBYTES( count ) * sizeof( uint8_t ) );
 	#endif
 
 	status->data.function = parser->base.function;
@@ -94,6 +95,7 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
 		if ( 1 * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+		memset( status->data.coils, 0, 1 * sizeof( uint8_t ) );
 	#endif
 
 	status->data.function = 5;

@@ -148,12 +148,15 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Reset response frame status
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		status->request.frame = NULL;
+	#endif
 	status->request.length = 0;
-	status->request.frame = NULL;
-	status->response.length = 0;
+
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		status->response.frame = NULL;
 	#endif
+	status->response.length = 0;
 
 	if ( status->address == 0 )
 	{

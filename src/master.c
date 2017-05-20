@@ -150,16 +150,19 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		status->request.frame = NULL;
 	#endif
+	status->request.length = 0;
+
+	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+		status->response.frame = NULL;
+	#endif
+	status->response.length = 0;
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 		status->data.coils = NULL;
 		status->data.regs = NULL;
 	#endif
-
-	status->request.length = 0;
-	status->response.frame = NULL;
-	status->response.length = 0;
 	status->data.length = 0;
+
 	status->data.count = 0;
 	status->data.index = 0;
 	status->data.type = 0;

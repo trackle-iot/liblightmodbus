@@ -61,7 +61,11 @@ typedef struct
 
 	struct //Request from master should be put here
 	{
-		uint8_t *frame;
+		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+			uint8_t frame[LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST];
+		#else
+			uint8_t *frame;
+		#endif
 		uint8_t length;
 	} request;
 

@@ -52,7 +52,11 @@ typedef struct
 
 	struct //Response from slave should be put here
 	{
-		uint8_t *frame;
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+			uint8_t frame[LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE];
+		#else
+			uint8_t *frame;
+		#endif
 		uint8_t length;
 	} response;
 

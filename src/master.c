@@ -76,10 +76,12 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 			return MODBUS_ERROR_OTHER;
 
 	//Check both response and request frames CRC
-	if ( *( (uint16_t*)( status->response.frame + status->response.length - 2 ) )\
-		!= modbusCRC( status->response.frame, status->response.length - 2 ) ||\
-		*( (uint16_t*)( status->request.frame + status->request.length - 2 ) ) \
-		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
+	//Has to be done the weird way, which isn't safer at all, because avr-gcc didn't like it
+	//warning: dereferencing type-punned pointer will break strict-aliasing rules
+	uint16_t *crcresp = (uint16_t*)status->response.frame + status->response.length - 2;
+	uint16_t *crcreq = (uint16_t*)status->request.frame + status->request.length - 2;
+	if ( *crcresp != modbusCRC( status->response.frame, status->response.length - 2 ) ||\
+		*crcreq != modbusCRC( status->request.frame, status->request.length - 2 ) )
 			return MODBUS_ERROR_CRC;
 
 	union ModbusParser *parser = (union ModbusParser*) status->response.frame;

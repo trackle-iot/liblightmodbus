@@ -150,11 +150,15 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	//Reset response frame status
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
 		status->request.frame = NULL;
+	#else
+		memset( status->request.frame, 0, LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST );
 	#endif
 	status->request.length = 0;
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		status->response.frame = NULL;
+	#else
+		memset( status->response.frame, 0, LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE );
 	#endif
 	status->response.length = 0;
 

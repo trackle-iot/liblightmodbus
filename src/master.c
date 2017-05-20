@@ -149,17 +149,23 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 	//Very basic init of master side
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		status->request.frame = NULL;
+	#else
+		memset( status->request.frame, 0, LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST );
 	#endif
 	status->request.length = 0;
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
 		status->response.frame = NULL;
+	#else
+		memset( status->response.frame, 0, LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE );
 	#endif
 	status->response.length = 0;
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 		status->data.coils = NULL;
 		status->data.regs = NULL;
+	#else
+		memset( status->data.coils, 0, LIGHTMODBUS_STATIC_MEM_MASTER_DATA );
 	#endif
 	status->data.length = 0;
 

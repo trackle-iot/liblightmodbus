@@ -5,3 +5,5 @@
 makefile linguist-language=makefile
 makefile-avr linguist-language=makefile
 makefile-coverage linguist-language=makefile
+.makefile-staticmem linguist-language=makefile
+.makefile-modules linguist-language=makefile

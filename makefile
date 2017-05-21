@@ -84,6 +84,10 @@ $(file >>include/lightmodbus/libconf.h,)
 $(file >>include/lightmodbus/libconf.h,#endif)
 endif
 
+ifeq ($(MAKECMDGOALS),clean)
+$(shell rm include/lightmodbus/libconf.h)
+endif
+
 all: $(MODULES)
 all: clean force core
 	$(call linkHeader,full object file)

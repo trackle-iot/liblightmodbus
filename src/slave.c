@@ -158,7 +158,7 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		status->response.frame = NULL;
 	#else
-		memset( status->response.frame, 0, LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE );
+		memset( status->response.frame, 0, LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE );
 	#endif
 	status->response.length = 0;
 
@@ -202,7 +202,7 @@ uint8_t modbusSlaveEnd( ModbusSlave *status )
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Free memory
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		free( status->response.frame );
 	#endif
 

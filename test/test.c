@@ -1,9 +1,16 @@
-#include "test.h"
-
 /*
 This is really simple test suite, it covers ~95% of library code
 AKA. The Worst Test File Ever
 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <inttypes.h>
+
+#include <lightmodbus/core.h>
+#include <lightmodbus/master.h>
+#include <lightmodbus/slave.h>
 
 #define DUMPMF( ) printf( "Dump the frame:\n\t" ); for ( i = 0; i < mstatus.request.length; i++ ) printf( "%.2x%s", mstatus.request.frame[i], ( i == mstatus.request.length - 1 ) ? "\n" : "-" );
 #define DUMPSF( ) printf( "Dump response - length = %d:\n\t", sstatus.response.length ); for ( i = 0; i < sstatus.response.length; i++ ) printf( "%x%s", sstatus.response.frame[i], ( i == sstatus.response.length - 1 ) ? "\n" : ", " );

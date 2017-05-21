@@ -46,43 +46,28 @@ LD = ld
 LDFLAGS =
 AR = ar
 
+CONFLOG = conf.log
 BUILDLOG = build.log
+MODCONF = .modules.conf
 LIBCONF = include/lightmodbus/libconf.h
 
-MODULES =
-SMODULES = 01 02 03 04 05 06 15 16 22
-MMODULES = 01 02 03 04 05 06 15 16 22
-STATICMEM_SREQUEST =
-STATICMEM_SRESPONSE =
-STATICMEM_MREQUEST =
-STATICMEM_MRESPONSE =
-STATICMEM_MDATA =
-
-ifeq ($(MAKECMDGOALS),clean)
-$(shell rm $(LIBCONF))
-$(shell rm $(BUILDLOG))
-endif
-
-UPDATECFG =
+CFGNEED =
 ifeq ($(MAKECMDGOALS),all)
-UPDATECFG = true
+CFGNEED = true
 endif
 ifeq ($(MAKECMDGOALS),)
-UPDATECFG = true
+CFGNEED = true
 endif
-ifdef UPDATECFG
-$(shell > $(BUILDLOG))
-MODULES = $(shell \
-	BUILDLOG="$(BUILDLOG)" \
-	LIBCONF="$(LIBCONF)" \
-	SMODULES="$(SMODULES)" \
-	MMODULES="$(MMODULES)" \
-	STATICMEM_SREQUEST="$(STATICMEM_SREQUEST)" \
-	STATICMEM_SRESPONSE="$(STATICMEM_SRESPONSE)" \
-	STATICMEM_MREQUEST="$(STATICMEM_MREQUEST)" \
-	STATICMEM_MRESPONSE="$(STATICMEM_MRESPONSE)" \
-	STATICMEM_MDATA="$(STATICMEM_MDATA)" \
-	./genconf.sh)
+ifdef CFGNEED
+ifneq ("$(wildcard $(MODCONF))","")
+MODULES = $(shell cat $(MODCONF))
+else
+$(warning no module configuration file found - assuming defaults)
+MODULES = slave-coils slave-registers slave-base slave-link master-coils master-registers master-base master-link
+endif
+ifeq ("$(wildcard $(LIBCONF))","")
+$(error no library configuration header - build cannot proceed)
+endif
 endif
 
 all: $(MODULES)
@@ -113,6 +98,7 @@ uninstall:
 
 force:
 	$(call infoHeader,starting build)
+	echo -n "" > $(BUILDLOG)
 	echo -n "[arch] " >> $(BUILDLOG)
 	echo $(ARCH) >> $(BUILDLOG)
 	echo -n "[start] build started - " >> $(BUILDLOG)
@@ -127,7 +113,8 @@ clean:
 	-find . -name "*.gch" -type f -delete
 	-rm -rf obj
 	-rm -rf lib
-	#-rm -f $(BUILDLOG)
+	-rm -f $(BUILDLOG)
+	-rm -f $(CONFLOG)
 	-rm -f *.gcno
 	-rm -f *.gcda
 	-rm -f *.o

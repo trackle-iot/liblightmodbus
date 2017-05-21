@@ -46,15 +46,22 @@ LD = ld
 LDFLAGS =
 AR = ar
 
-MODULES =
-export SMODULES = 01 02 03 04 05 06 15 16 22
-MMODULES = 01 02 03 04 05 06 15 16 22
+BUILDLOG = build.log
+LIBCONF = include/lightmodbus/libconf.h
 
+MODULES =
+SMODULES = 01 02 03 04 05 06 15 16 22
+MMODULES = 01 02 03 04 05 06 15 16 22
 STATICMEM_SREQUEST =
 STATICMEM_SRESPONSE =
 STATICMEM_MREQUEST =
 STATICMEM_MRESPONSE =
 STATICMEM_MDATA =
+
+ifeq ($(MAKECMDGOALS),clean)
+$(shell rm $(LIBCONF))
+$(shell rm $(BUILDLOG))
+endif
 
 UPDATECFG =
 ifeq ($(MAKECMDGOALS),all)
@@ -64,7 +71,10 @@ ifeq ($(MAKECMDGOALS),)
 UPDATECFG = true
 endif
 ifdef UPDATECFG
+$(shell > $(BUILDLOG))
 MODULES = $(shell \
+	BUILDLOG="$(BUILDLOG)" \
+	LIBCONF="$(LIBCONF)" \
 	SMODULES="$(SMODULES)" \
 	MMODULES="$(MMODULES)" \
 	STATICMEM_SREQUEST="$(STATICMEM_SREQUEST)" \
@@ -75,21 +85,17 @@ MODULES = $(shell \
 	./genconf.sh)
 endif
 
-ifeq ($(MAKECMDGOALS),clean)
-$(shell rm include/lightmodbus/libconf.h)
-endif
-
 all: $(MODULES)
 all: clean force core
 	$(call linkHeader,full object file)
-	echo "LINKING Library full object file (obj/lightmodbus.o)" >> build.log
+	echo "[linking] full object file (obj/lightmodbus.o)" >> $(BUILDLOG)
 	$(LD) $(LDFLAGS) -r obj/*.o -o obj/lightmodbus.o
 	$(call linkHeader,static library file)
-	echo "CREATING Static library file (lib/liblightmodbus.a)" >> build.log
+	echo "[creating] static library file (lib/liblightmodbus.a)" >> $(BUILDLOG)
 	$(AR) -cvq lib/liblightmodbus.a obj/lightmodbus.o
 	$(AR) -t  lib/liblightmodbus.a
-	echo -n "\n\nBuild success - " >> build.log
-	date >> build.log
+	echo -n "[success] build finished - " >> $(BUILDLOG)
+	date >> $(BUILDLOG)
 	$(call infoHeader,build finished successfully)
 
 install:
@@ -107,12 +113,10 @@ uninstall:
 
 force:
 	$(call infoHeader,starting build)
-	#-touch build.log
-	#echo -n "Architecture: " > build.log
-	echo $(ARCH) >> build.log
-	echo -n "Build started - " >> build.log
-	date >> build.log
-	echo -n "\n\n" >> build.log
+	echo -n "[arch] " >> $(BUILDLOG)
+	echo $(ARCH) >> $(BUILDLOG)
+	echo -n "[start] build started - " >> $(BUILDLOG)
+	date >> $(BUILDLOG)
 	-mkdir obj
 	-mkdir obj/slave
 	-mkdir obj/master
@@ -123,7 +127,7 @@ clean:
 	-find . -name "*.gch" -type f -delete
 	-rm -rf obj
 	-rm -rf lib
-	#-rm -f build.log
+	#-rm -f $(BUILDLOG)
 	-rm -f *.gcno
 	-rm -f *.gcda
 	-rm -f *.o
@@ -136,47 +140,47 @@ clean:
 
 core: src/core.c include/lightmodbus/core.h
 	$(call compileHeader,core module)
-	echo "COMPILING Core module (obj/core.o)" >> build.log
+	echo "[compiling] core module (obj/core.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/core.c -o obj/core.o
 
 master-base: src/master.c include/lightmodbus/master.h
 	$(call compileHeader,master base module)
-	echo "COMPILING Master module (obj/master/mbase.o)" >> build.log
+	echo "[compiling] master module (obj/master/mbase.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/master.c -o obj/master/mbase.o
 
 master-registers: src/master/mpregs.c include/lightmodbus/master/mpregs.h src/master/mbregs.c include/lightmodbus/master/mbregs.h
 	$(call compileHeader,master registers module)
-	echo "COMPILING Master registers module (obj/master/mregisters.o)" >> build.log
+	echo "[compiling] master registers module (obj/master/mregisters.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/master/mpregs.c -o obj/master/mpregs.o
 	$(CC) $(CFLAGS) -c src/master/mbregs.c -o obj/master/mbregs.o
 
 master-coils: src/master/mpcoils.c include/lightmodbus/master/mpcoils.h src/master/mbcoils.c include/lightmodbus/master/mbcoils.h
 	$(call compileHeader,master coils module)
-	echo "COMPILING Master coils module (obj/master/mcoils.o)" >> build.log
+	echo "[compiling] master coils module (obj/master/mcoils.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/master/mpcoils.c -o obj/master/mpcoils.o
 	$(CC) $(CFLAGS) -c src/master/mbcoils.c -o obj/master/mbcoils.o
 
 master-link:
 	$(call linkHeader,master modules)
-	echo "LINKING Master module (obj/master.o)" >> build.log
+	echo "[linking] master module (obj/master.o)" >> $(BUILDLOG)
 	$(LD) $(LDFLAGS) -r obj/master/*.o -o obj/master.o
 
 slave-base: src/slave.c include/lightmodbus/slave.h
 	$(call compileHeader,slave base module)
-	echo "COMPILING Slave module (obj/slave/sbase.o)" >> build.log
+	echo "[compiling] slave module (obj/slave/sbase.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/slave.c -o obj/slave/sbase.o
 
 slave-registers: src/slave/sregs.c include/lightmodbus/slave/sregs.h
 	$(call compileHeader,slave registers module)
-	echo "COMPILING Slave registers module (obj/slave/sregisters.o)" >> build.log
+	echo "[compiling] slave registers module (obj/slave/sregisters.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/slave/sregs.c -o obj/slave/sregs.o
 
 slave-coils: src/slave/scoils.c include/lightmodbus/slave/scoils.h
 	$(call compileHeader,slave coils module)
-	echo "COMPILING Slave coils module (obj/slave/scoils.o)" >> build.log
+	echo "[compiling] slave coils module (obj/slave/scoils.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/slave/scoils.c -o obj/slave/scoils.o
 
 slave-link:
 	$(call linkHeader,slave modules)
-	echo "LINKING Slave module (obj/slave.o)" >> build.log
+	echo "[linking] slave module (obj/slave.o)" >> $(BUILDLOG)
 	$(LD) $(LDFLAGS) -r obj/slave/*.o -o obj/slave.o

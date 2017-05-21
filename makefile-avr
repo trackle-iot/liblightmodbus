@@ -50,8 +50,12 @@ export AR = avr-ar
 export MASTERFLAGS =
 export SLAVEFLAGS =
 
-export MMODULES = master-registers master-coils
-export SMODULES = slave-registers slave-coils
+export MMODULES = 01 02 03 04 05 06 15 16 22
+export SMODULES = 01 02 03 04 05 06 15 16 22
+
+ifndef MCU
+$(error MCU not specified!)
+endif
 
 all:
 	$(MAKE) -e all

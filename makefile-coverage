@@ -1,77 +1,27 @@
-CC = gcc
-CFLAGS = -Wall -g
+export CC = gcc
+export CFLAGS = -Wall -g --coverage -Iinclude
+export LD = ld
+export LDFLAGS =
 
-LD = ld
-LDFLAGS =
+export MMODULES = 01 02 03 04 05 06 15 16 22
+export SMODULES = 01 02 03 04 05 06 15 16 22
 
-MASTERFLAGS = -DLIGHTMODBUS_MASTER_REGISTERS=1 -DLIGHTMODBUS_MASTER_COILS=1 -DLIGHTMODBUS_MASTER_DISCRETE_INPUTS=1 -DLIGHTMODBUS_MASTER_INPUT_REGISTERS=1
-SLAVEFLAGS = -DLIGHTMODBUS_SLAVE_REGISTERS=1 -DLIGHTMODBUS_SLAVE_COILS=1 -DLIGHTMODBUS_SLAVE_DISCRETE_INPUTS=1 -DLIGHTMODBUS_SLAVE_INPUT_REGISTERS=1
-
-ifndef STATICMEM_SREQUEST
-$(warning "dynamic memory for slave request")
-else
-$(warning "static memory for slave request")
-ifeq ($(shell test $(STATICMEM_SREQUEST) -le 0; echo $$?),0)
-$(error "STATICMEM_SREQUEST must be greater than 0")
-endif
-CFLAGS += -DLIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST=$(STATICMEM_SREQUEST)
-endif
-
-ifndef STATICMEM_SRESPONSE
-$(warning "dynamic memory for slave response")
-else
-$(warning "static memory for slave response")
-ifeq ($(shell test $(STATICMEM_SRESPONSE) -le 0; echo $$?),0)
-$(error "STATICMEM_SRESPONSE must be greater than 0")
-endif
-CFLAGS += -DLIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE=$(STATICMEM_SRESPONSE)
-endif
-
-ifndef STATICMEM_MREQUEST
-$(warning "dynamic memory for master request")
-else
-$(warning "static memory for master request")
-ifeq ($(shell test $(STATICMEM_MREQUEST) -le 0; echo $$?),0)
-$(error "STATICMEM_MREQUEST must be greater than 0")
-endif
-CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_REQUEST=$(STATICMEM_MREQUEST)
-endif
-
-ifndef STATICMEM_MRESPONSE
-$(warning "dynamic memory for master response")
-else
-$(warning "static memory for master response")
-ifeq ($(shell test $(STATICMEM_MRESPONSE) -le 0; echo $$?),0)
-$(error "STATICMEM_MRESPONSE must be greater than 0")
-endif
-CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE=$(STATICMEM_MRESPONSE)
-endif
-
-ifndef STATICMEM_MDATA
-$(warning "dynamic memory for master data")
-else
-$(warning "static memory for master data")
-ifeq ($(shell test $(STATICMEM_MDATA) -le 0; echo $$?),0)
-$(error "STATICMEM_MDATA must be greater than 0")
-endif
-CFLAGS += -DLIGHTMODBUS_STATIC_MEM_MASTER_DATA=$(STATICMEM_MDATA)
-endif
-
-all: CFLAGS += --coverage -Iinclude
 all: coverage-test valgrind-test massif-test
 
 compile: clean
-	$(CC) $(CFLAGS) -c src/master/mpregs.c
-	$(CC) $(CFLAGS) -c src/master/mbregs.c
-	$(CC) $(CFLAGS) -c src/slave/sregs.c
-	$(CC) $(CFLAGS) -c src/master/mpcoils.c
-	$(CC) $(CFLAGS) -c src/master/mbcoils.c
-	$(CC) $(CFLAGS) -c src/slave/scoils.c
-	$(CC) $(CFLAGS) $(MASTERFLAGS) -c src/master.c
-	$(CC) $(CFLAGS) $(SLAVEFLAGS) -c src/slave.c
-	$(CC) $(CFLAGS) -c src/core.c
+	# $(CC) $(CFLAGS) -c src/master/mpregs.c
+	# $(CC) $(CFLAGS) -c src/master/mbregs.c
+	# $(CC) $(CFLAGS) -c src/slave/sregs.c
+	# $(CC) $(CFLAGS) -c src/master/mpcoils.c
+	# $(CC) $(CFLAGS) -c src/master/mbcoils.c
+	# $(CC) $(CFLAGS) -c src/slave/scoils.c
+	# $(CC) $(CFLAGS) $(MASTERFLAGS) -c src/master.c
+	# $(CC) $(CFLAGS) $(SLAVEFLAGS) -c src/slave.c
+	# $(CC) $(CFLAGS) -c src/core.c
+	# $(CC) $(CFLAGS) test.o core.o master.o slave.o mpregs.o mbregs.o sregs.o mpcoils.o mbcoils.o scoils.o -o coverage-test
+	$(MAKE) -e all
 	$(CC) $(CFLAGS) -c test/test.c
-	$(CC) $(CFLAGS) test.o core.o master.o slave.o mpregs.o mbregs.o sregs.o mpcoils.o mbcoils.o scoils.o -o coverage-test
+	$(CC) $(CFLAGS) test.o obj/lightmodbus.o -o coverage-test
 
 coverage-test: compile
 	./coverage-test | tee coverage-test.log

@@ -107,8 +107,8 @@ uninstall:
 
 force:
 	$(call infoHeader,starting build)
-	-touch build.log
-	echo -n "Architecture: " > build.log
+	#-touch build.log
+	#echo -n "Architecture: " > build.log
 	echo $(ARCH) >> build.log
 	echo -n "Build started - " >> build.log
 	date >> build.log

@@ -69,22 +69,100 @@ echo "" >> $BUILDLOG
 
 #Manage modules
 functions=(01 02 03 04 05 06 15 16 22)
+smod=
 for i in "${functions[@]}"; do
 	if echo $SMODULES | grep -q $i; then
 		printf "#define LIGHTMODBUS_F%sS\n" $i >> $LIBCONF
 		echo "[x] slave $i" >> $BUILDLOG
+		module=""
+		case $i in
+			01)
+				module="slave-coils"
+				;;
+			02)
+				module="slave-coils"
+				;;
+			03)
+				module="slave-registers"
+				;;
+			04)
+				module="slave-registers"
+				;;
+			05)
+				module="slave-coils"
+				;;
+			06)
+				module="slave-registers"
+				;;
+			15)
+				module="slave-coils"
+				;;
+			16)
+				module="slave-registers"
+				;;
+			22)
+				module="slave-registers"
+				;;
+		esac;
+		smod="$smod $module"
 	else
 		echo "[ ] slave $i" >> $BUILDLOG
 	fi
 done
+if [ -z ${smod+x} ]; then
+	echo "[warning] skipping slave side modules"
+else
+	smod="$smod slave-base slave-link"
+fi;
+echo $smod;
+
 echo "" >> $BUILDLOG
+
+mmod=""
 for i in "${functions[@]}"; do
 	if echo $MMODULES | grep -q $i; then
 		printf "#define LIGHTMODBUS_F%sM\n" $i >> $LIBCONF
 		echo "[x] master $i" >> $BUILDLOG
+		module=""
+		case $i in
+			01)
+				module="master-coils"
+				;;
+			02)
+				module="master-coils"
+				;;
+			03)
+				module="master-registers"
+				;;
+			04)
+				module="master-registers"
+				;;
+			05)
+				module="master-coils"
+				;;
+			06)
+				module="master-registers"
+				;;
+			15)
+				module="master-coils"
+				;;
+			16)
+				module="master-registers"
+				;;
+			22)
+				module="master-registers"
+				;;
+		esac;
+		mmod="$mmod $module"
 	else
 		echo "[ ] master $i" >> $BUILDLOG
 	fi
 done
+if [ -z ${mmod+x} ]; then
+	echo "[warning] skipping master side modules"
+else
+	mmod="$mmod master-base master-link"
+fi;
+echo $mmod;
 
 echo "#endif" >> $LIBCONF

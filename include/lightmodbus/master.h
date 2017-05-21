@@ -22,6 +22,7 @@
 #define LIGHTMODBUS_MASTER_BASE_H
 
 #include <inttypes.h>
+#include "libconf.h"
 
 #define MODBUS_HOLDING_REGISTER 1
 #define MODBUS_INPUT_REGISTER 2

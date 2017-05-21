@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "libconf.h"
 
 //Error codes
 #define MODBUS_ERROR_OK 0 //Everything went ok

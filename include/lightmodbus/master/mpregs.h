@@ -22,6 +22,7 @@
 #define LIGHTMODBUS_MPREGS_H
 
 #include <inttypes.h>
+#include "../libconf.h"
 #include "../master.h"
 
 //Functions for parsing responses

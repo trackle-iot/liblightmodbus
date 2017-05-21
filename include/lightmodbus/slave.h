@@ -22,6 +22,7 @@
 #define LIGHTMODBUS_SLAVE_BASE_H
 
 #include <inttypes.h>
+#include "libconf.h"
 
 typedef struct
 {

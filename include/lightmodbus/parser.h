@@ -22,6 +22,7 @@
 #define LIGHTMODBUS_PARSER_H
 
 #include <inttypes.h>
+#include "libconf.h"
 
 union ModbusParser
 {

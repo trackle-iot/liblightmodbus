@@ -22,6 +22,7 @@
 #define LIGHTMODBUS_SCOILS_H
 
 #include <inttypes.h>
+#include "../libconf.h"
 #include "../slave.h"
 
 //Functions needed from other modules

@@ -63,8 +63,8 @@ all:
 	$(MAKE) -e all
 	avr-size -C --mcu=$(MCU) obj/lightmodbus.o
 
-FORCE:
-	$(MAKE) -e FORCE
+force:
+	$(MAKE) -e force
 
 clean:
 	$(MAKE) -e clean

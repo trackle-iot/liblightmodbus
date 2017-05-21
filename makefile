@@ -85,7 +85,7 @@ $(file >>include/lightmodbus/libconf.h,#endif)
 endif
 
 all: $(MODULES)
-all: clean FORCE core
+all: clean force core
 	$(call linkHeader,full object file)
 	echo "LINKING Library full object file (obj/lightmodbus.o)" >> build.log
 	$(LD) $(LDFLAGS) -r obj/*.o -o obj/lightmodbus.o
@@ -110,7 +110,7 @@ uninstall:
 	rm -rf $(DESTDIR)/usr/include/lightmodbus
 	rm -f $(DESTDIR)/usr/lib/liblightmodbus.a
 
-FORCE:
+force:
 	$(call infoHeader,starting build)
 	-touch build.log
 	echo -n "Architecture: " > build.log

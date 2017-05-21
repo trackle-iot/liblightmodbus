@@ -53,8 +53,10 @@ export SLAVEFLAGS =
 export MMODULES = 01 02 03 04 05 06 15 16 22
 export SMODULES = 01 02 03 04 05 06 15 16 22
 
+ifneq ($(MAKECMDGOALS),clean)
 ifndef MCU
-$(error MCU not specified!)
+$(error "MCU not specified!")
+endif
 endif
 
 all:

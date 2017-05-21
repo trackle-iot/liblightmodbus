@@ -96,44 +96,51 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	{
 		switch ( parser->base.function )
 		{
-			case 1: //Read multiple coils
-			case 2: //Read multiple discrete inputs
-				if ( LIGHTMODBUS_MASTER_COILS ) err = modbusParseResponse0102( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
+			#if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
+				case 1: //Read multiple coils
+				case 2: //Read multiple discrete inputs
+					err = modbusParseResponse0102( status, parser, requestParser );
+					break;
+			#endif
 
-			case 3: //Read multiple holding registers
-			case 4: //Read multiple input registers
-				if ( LIGHTMODBUS_MASTER_REGISTERS ) err = modbusParseResponse0304( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
+			#if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
+				case 3: //Read multiple holding registers
+				case 4: //Read multiple input registers
+					err = modbusParseResponse0304( status, parser, requestParser );
+					break;
+			#endif
 
-			case 5: //Write single coil
-				if ( LIGHTMODBUS_MASTER_COILS ) err = modbusParseResponse05( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
+			#ifdef LIGHTMODBUS_F05M
+				case 5: //Write single coil
+					err = modbusParseResponse05( status, parser, requestParser );
+					break;
+			#endif
 
-			case 6: //Write single holding reg
-				if ( LIGHTMODBUS_MASTER_REGISTERS ) err = modbusParseResponse06( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
+			#ifdef LIGHTMODBUS_F06M
+				case 6: //Write single holding reg
+					err = modbusParseResponse06( status, parser, requestParser );
+					break;
+			#endif
 
-			case 15: //Write multiple coils
-				if ( LIGHTMODBUS_MASTER_COILS ) err = modbusParseResponse15( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
+			#ifdef LIGHTMODBUS_F15M
+				case 15: //Write multiple coils
+					err = modbusParseResponse15( status, parser, requestParser );
+					break;
+			#endif
 
-			case 16: //Write multiple holding registers
-				if ( LIGHTMODBUS_MASTER_REGISTERS ) err = modbusParseResponse16( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
+			#ifdef LIGHTMODBUS_F16M
+				case 16: //Write multiple holding registers
+					err = modbusParseResponse16( status, parser, requestParser );
+					break;
+			#endif
 
-			case 22: //Mask write holding register
-				if ( LIGHTMODBUS_MASTER_REGISTERS ) err = modbusParseResponse22( status, parser, requestParser );
-				else err = MODBUS_ERROR_PARSE;
-				break;
+			#ifdef LIGHTMODBUS_F22M
+				case 22: //Mask write holding register
+					err = modbusParseResponse22( status, parser, requestParser );
+					break;
+			#endif
 
-			default: //function code not known by master
+			default: //Function code not known by master
 				err = MODBUS_ERROR_PARSE;
 				break;
 		}

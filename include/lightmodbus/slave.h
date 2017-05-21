@@ -23,14 +23,6 @@
 
 #include <inttypes.h>
 
-//Enabling modules in compilation process (use makefile to automate this process)
-#ifndef LIGHTMODBUS_SLAVE_REGISTERS
-#define LIGHTMODBUS_SLAVE_REGISTERS 0
-#endif
-#ifndef LIGHTMODBUS_SLAVE_COILS
-#define LIGHTMODBUS_SLAVE_COILS 0
-#endif
-
 typedef struct
 {
 	uint8_t address; //Slave address

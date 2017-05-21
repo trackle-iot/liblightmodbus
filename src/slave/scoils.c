@@ -23,6 +23,7 @@
 #include <lightmodbus/slave.h>
 #include <lightmodbus/slave/scoils.h>
 
+#if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
 uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Read multiple coils or discrete inputs
@@ -95,7 +96,9 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	status->response.length = frameLength;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F05S
 uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write single coil
@@ -175,7 +178,9 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F15S
 uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write multiple coils
@@ -274,3 +279,4 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	return 0;
 }
+#endif

@@ -25,10 +25,18 @@
 #include "../master.h"
 
 //Functions for building requests
+#if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
 #define modbusBuildRequest01( status, address, index, count ) modbusBuildRequest0102( (status), 1, (address), (index), (count) )
 #define modbusBuildRequest02( status, address, index, count ) modbusBuildRequest0102( (status), 2, (address), (index), (count) )
 extern uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
+#endif
+
+#ifdef LIGHTMODBUS_F05M
 extern uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
+#endif
+
+#ifdef LIGHTMODBUS_F05M
 extern uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values );
+#endif
 
 #endif

@@ -23,6 +23,7 @@
 #include <lightmodbus/slave.h>
 #include <lightmodbus/slave/sregs.h>
 
+#if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_F04S)
 uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Read multiple holding registers or input registers
@@ -93,7 +94,9 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 	status->response.length = frameLength;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F06S
 uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write single holding reg
@@ -163,7 +166,9 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F16S
 uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Write multiple holding registers
@@ -258,7 +263,9 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F22S
 uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser )
 {
 	//Mask write single holding reg
@@ -333,3 +340,4 @@ uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser )
 	status->response.length = frameLength;
 	return MODBUS_ERROR_OK;
 }
+#endif

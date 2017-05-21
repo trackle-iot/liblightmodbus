@@ -23,6 +23,7 @@
 #include <lightmodbus/master.h>
 #include <lightmodbus/master/mbregs.h>
 
+#if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
 uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )
 {
 	//Build request03 frame, to send it so slave
@@ -64,7 +65,9 @@ uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t 
 	status->predictedResponseLength = 4 + 1 + ( count << 1 );
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F06M
 uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value )
 {
 	//Build request06 frame, to send it so slave
@@ -103,7 +106,9 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t in
 	if ( address ) status->predictedResponseLength = 8;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F15M
 uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values )
 {
 	//Build request16 frame, to send it so slave
@@ -150,7 +155,9 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t in
 
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F22M
 uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t andmask, uint16_t ormask )
 {
 	//Build request22 frame, to send it so slave
@@ -190,3 +197,4 @@ uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t in
 	if ( address ) status->predictedResponseLength = 10;
 	return MODBUS_ERROR_OK;
 }
+#endif

@@ -23,14 +23,6 @@
 
 #include <inttypes.h>
 
-//Enabling modules in compilation process (use makefile to automate this process)
-#ifndef LIGHTMODBUS_MASTER_REGISTERS
-#define LIGHTMODBUS_MASTER_REGISTERS 0
-#endif
-#ifndef LIGHTMODBUS_MASTER_COILS
-#define LIGHTMODBUS_MASTER_COILS 0
-#endif
-
 #define MODBUS_HOLDING_REGISTER 1
 #define MODBUS_INPUT_REGISTER 2
 #define MODBUS_COIL 4

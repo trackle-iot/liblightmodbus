@@ -23,6 +23,7 @@
 #include <lightmodbus/master.h>
 #include <lightmodbus/master/mpregs.h>
 
+#if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
 uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 03
@@ -74,7 +75,9 @@ uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parse
 	status->data.length = parser->response0304.length;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F06M
 uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 06 (write single holding reg)
@@ -115,7 +118,9 @@ uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser,
 	status->data.length = 2;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F16M
 uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 16 (write multiple holding reg)
@@ -153,7 +158,9 @@ uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser,
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F22M
 uint8_t modbusParseResponse22( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
 {
 	//Parse slave response to request 22 (mask write single holding reg)
@@ -186,3 +193,4 @@ uint8_t modbusParseResponse22( ModbusMaster *status, union ModbusParser *parser,
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }
+#endif

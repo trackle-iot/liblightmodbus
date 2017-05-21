@@ -23,6 +23,7 @@
 #include <lightmodbus/master.h>
 #include <lightmodbus/master/mbcoils.h>
 
+#if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
 uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )
 {
 	//Build request01 frame, to send it so slave
@@ -66,7 +67,9 @@ uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t 
 
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F05M
 uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value )
 {
 	//Build request05 frame, to send it so slave
@@ -109,7 +112,9 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t in
 
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_F15M
 uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values )
 {
 	//Build request15 frame, to send it so slave
@@ -161,3 +166,4 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t in
 
 	return MODBUS_ERROR_OK;
 }
+#endif

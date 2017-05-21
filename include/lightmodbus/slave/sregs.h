@@ -28,11 +28,22 @@
 extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode );
 
 //Functions for parsing requests
+#if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_F04S)
 #define modbusParseRequest03 modbusParseRequest0304
 #define modbusParseRequest04 modbusParseRequest0304
 extern uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser );
+#endif
+
+#ifdef LIGHTMODBUS_F06S
 extern uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser );
+#endif
+
+#ifdef LIGHTMODBUS_F16S
 extern uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser );
+#endif
+
+#ifdef LIGHTMODBUS_F22S
 extern uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser );
+#endif
 
 #endif

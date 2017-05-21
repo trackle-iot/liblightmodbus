@@ -1,45 +1,45 @@
 ifneq (,$(findstring 01,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F01S)
+$(shell echo "#define LIGHTMODBUS_F01S" >> include/lightmodbus/libconf.h)
 MODULES += slave-coils
 endif
 
 ifneq (,$(findstring 02,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F02S)
+$(shell echo "#define LIGHTMODBUS_F02S" >> include/lightmodbus/libconf.h)
 MODULES += slave-coils
 endif
 
 ifneq (,$(findstring 03,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F03S)
+$(shell echo "#define LIGHTMODBUS_F03S" >> include/lightmodbus/libconf.h)
 MODULES += slave-registers
 endif
 
 ifneq (,$(findstring 04,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F04S)
+$(shell echo "#define LIGHTMODBUS_F04S" >> include/lightmodbus/libconf.h)
 MODULES += slave-registers
 endif
 
 ifneq (,$(findstring 05,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F05S)
+$(shell echo "#define LIGHTMODBUS_F05S" >> include/lightmodbus/libconf.h)
 MODULES += slave-coils
 endif
 
 ifneq (,$(findstring 06,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F06S)
+$(shell echo "#define LIGHTMODBUS_F06S" >> include/lightmodbus/libconf.h)
 MODULES += slave-registers
 endif
 
 ifneq (,$(findstring 15,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F15S)
+$(shell echo "#define LIGHTMODBUS_F15S" >> include/lightmodbus/libconf.h)
 MODULES += slave-coils
 endif
 
 ifneq (,$(findstring 16,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F16S)
+$(shell echo "#define LIGHTMODBUS_F16S" >> include/lightmodbus/libconf.h)
 MODULES += slave-registers
 endif
 
 ifneq (,$(findstring 22,$(SMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F22S)
+$(shell echo "#define LIGHTMODBUS_F22S" >> include/lightmodbus/libconf.h)
 MODULES += slave-registers
 endif
 
@@ -49,47 +49,47 @@ endif
 
 
 ifneq (,$(findstring 01,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F01M)
+$(shell echo "#define LIGHTMODBUS_F01M" >> include/lightmodbus/libconf.h)
 MODULES += master-coils
 endif
 
 ifneq (,$(findstring 02,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F02M)
+$(shell echo "#define LIGHTMODBUS_F02M" >> include/lightmodbus/libconf.h)
 MODULES += master-coils
 endif
 
 ifneq (,$(findstring 03,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F03M)
+$(shell echo "#define LIGHTMODBUS_F03M" >> include/lightmodbus/libconf.h)
 MODULES += master-registers
 endif
 
 ifneq (,$(findstring 04,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F04M)
+$(shell echo "#define LIGHTMODBUS_F04M" >> include/lightmodbus/libconf.h)
 MODULES += master-registers
 endif
 
 ifneq (,$(findstring 05,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F05M)
+$(shell echo "#define LIGHTMODBUS_F05M" >> include/lightmodbus/libconf.h)
 MODULES += master-coils
 endif
 
 ifneq (,$(findstring 06,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F06M)
+$(shell echo "#define LIGHTMODBUS_F06M" >> include/lightmodbus/libconf.h)
 MODULES += master-registers
 endif
 
 ifneq (,$(findstring 15,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F15M)
+$(shell echo "#define LIGHTMODBUS_F15M" >> include/lightmodbus/libconf.h)
 MODULES += master-coils
 endif
 
 ifneq (,$(findstring 16,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F16M)
+$(shell echo "#define LIGHTMODBUS_F16M" >> include/lightmodbus/libconf.h)
 MODULES += master-registers
 endif
 
 ifneq (,$(findstring 22,$(MMODULES)))
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_F22M)
+$(shell echo "#define LIGHTMODBUS_F22M" >> include/lightmodbus/libconf.h)
 MODULES += master-registers
 endif
 

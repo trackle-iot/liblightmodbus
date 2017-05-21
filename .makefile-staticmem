@@ -5,7 +5,7 @@ $(warning "static memory for slave request")
 ifeq ($(shell test $(STATICMEM_SREQUEST) -le 0; echo $$?),0)
 $(error "STATICMEM_SREQUEST must be greater than 0")
 endif
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST $(STATICMEM_SREQUEST))
+$(shell echo "#define LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST $(STATICMEM_SREQUEST)" >> include/lightmodbus/libconf.h)
 endif
 
 ifndef STATICMEM_SRESPONSE
@@ -15,7 +15,7 @@ $(warning "static memory for slave response")
 ifeq ($(shell test $(STATICMEM_SRESPONSE) -le 0; echo $$?),0)
 $(error "STATICMEM_SRESPONSE must be greater than 0")
 endif
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE $(STATICMEM_SRESPONSE))
+$(shell echo "#define LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE $(STATICMEM_SRESPONSE)" >> include/lightmodbus/libconf.h)
 endif
 
 ifndef STATICMEM_MREQUEST
@@ -25,7 +25,7 @@ $(warning "static memory for master request")
 ifeq ($(shell test $(STATICMEM_MREQUEST) -le 0; echo $$?),0)
 $(error "STATICMEM_MREQUEST must be greater than 0")
 endif
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST $(STATICMEM_MREQUEST))
+$(shell echo "#define LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST $(STATICMEM_MREQUEST)" >> include/lightmodbus/libconf.h)
 endif
 
 ifndef STATICMEM_MRESPONSE
@@ -35,7 +35,7 @@ $(warning "static memory for master response")
 ifeq ($(shell test $(STATICMEM_MRESPONSE) -le 0; echo $$?),0)
 $(error "STATICMEM_MRESPONSE must be greater than 0")
 endif
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE $(STATICMEM_MRESPONSE))
+$(shell echo "#define LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE $(STATICMEM_MRESPONSE)" >> include/lightmodbus/libconf.h)
 endif
 
 ifndef STATICMEM_MDATA
@@ -45,5 +45,5 @@ $(warning "static memory for master data")
 ifeq ($(shell test $(STATICMEM_MDATA) -le 0; echo $$?),0)
 $(error "STATICMEM_MDATA must be greater than 0")
 endif
-$(file >>include/lightmodbus/libconf.h,#define LIGHTMODBUS_STATIC_MEM_MASTER_DATA $(STATICMEM_MDATA))
+$(shell echo "#define LIGHTMODBUS_STATIC_MEM_MASTER_DATA $(STATICMEM_MDATA)" >> include/lightmodbus/libconf.h)
 endif

@@ -30,8 +30,8 @@ compileHeader = \
 linkHeader = \
 	echo "[\033[33;1mlinking\033[0m] \033[03m$(1)\033[0m" >&2
 
-errorHeader = \
-	echo "[\033[31;1merror\033[0m] \033[03m$(1)\033[0m" >&2
+warnHeader = \
+	echo "[\033[31;1mwarning\033[0m] \033[03m$(1)\033[0m" >&2
 
 cleanHeader = \
 	echo "[\033[36;1mcleaning up\033[0m] \033[03m$(1)\033[0m" >&2
@@ -51,27 +51,14 @@ BUILDLOG = build.log
 MODCONF = .modules.conf
 LIBCONF = include/lightmodbus/libconf.h
 
-CFGNEED =
-ifeq ($(MAKECMDGOALS),all)
-CFGNEED = true
-endif
-ifeq ($(MAKECMDGOALS),)
-CFGNEED = true
-endif
-ifdef CFGNEED
 ifneq ("$(wildcard $(MODCONF))","")
 MODULES = $(shell cat $(MODCONF))
 else
-$(warning no module configuration file found - assuming defaults)
 MODULES = slave-coils slave-registers slave-base slave-link master-coils master-registers master-base master-link
-endif
-ifeq ("$(wildcard $(LIBCONF))","")
-$(error no library configuration header - build cannot proceed)
-endif
 endif
 
 all: $(MODULES)
-all: clean force core
+all: .modules.conf include/lightmodbus/libconf.h clean force core
 	$(call linkHeader,full object file)
 	echo "[linking] full object file (obj/lightmodbus.o)" >> $(BUILDLOG)
 	$(LD) $(LDFLAGS) -r obj/*.o -o obj/lightmodbus.o
@@ -123,7 +110,26 @@ clean:
 	-rm -f valgrind.xml
 	-rm -f massif.out
 
+conf:
+configure:
+	$(call infoHeader,generating default configuration)
+	./genconf.sh
+
+confclean:
+deconfigure:
+	$(call infoHeader,cleaning up configuration)
+	./genconf.sh -r
+
 ################################################################################
+
+#This target should never be reached
+.modules.conf:
+	$(call warnHeader,library modules config header file missing - run ./genconf.sh)
+
+include/lightmodbus/libconf.h:
+	$(call warnHeader,library config header file missing - run ./genconf.sh)
+	$(call warnHeader,generating default configuration)
+	./genconf.sh
 
 core: src/core.c include/lightmodbus/core.h
 	$(call compileHeader,core module)

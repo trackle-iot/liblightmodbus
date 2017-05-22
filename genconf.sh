@@ -45,6 +45,19 @@ Supported options:
 	--mres <size> - enable fixed-size master response data buffer
 	--mreq <size> - enable fixed-size master request data buffer
 	--mdat <size> - enable fixed-size master parsed data buffer
+
+Where:
+	<modules> is list of two-digit Modbus function codes, which you want to be
+	suported by either master or slave. For instance:
+	"01 15 22 16"
+
+	If an empty string is passed, all modules (including base) will be omitted.
+	To prevent such a behavior, "forcebase" can be used instead - it guarantees,
+	that base module will be compiled and linked.
+
+	<size> is fixed-length of given data buffer in bytes. Has to be an integer
+	greater than 0.
+
 EOM
 }
 
@@ -108,14 +121,19 @@ function genmodules()
 #Generate fixed-size buffer macros based on given arguments (macro name, human readable name, value)
 function genstaticmem()
 {
-
-	if [ -n "${3// }" ]; then
+	if [[ -n "${3// }" ]]; then
 		case $3 in
 	    	''|*[!0-9]*)
 				log "[error] $2 must be an integer value"
 				exit 1
 				;;
 		esac
+
+		if [[ $3 -le 0 ]]; then
+			log "[error] $2 must be greater than 0"
+			exit 1
+		fi
+
 		log "[info] $2 is $3 bytes"
 		echo "#define $1 $3" >> $LIBCONF
 	fi;

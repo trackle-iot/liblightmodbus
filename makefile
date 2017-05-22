@@ -110,12 +110,12 @@ clean:
 	-rm -f valgrind.xml
 	-rm -f massif.out
 
-conf:
+conf: configure
 configure:
 	$(call infoHeader,generating default configuration)
 	./genconf.sh
 
-confclean:
+confclean: deconfigure
 deconfigure:
 	$(call infoHeader,cleaning up configuration)
 	./genconf.sh -r

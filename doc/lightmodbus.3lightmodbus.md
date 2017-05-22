@@ -9,27 +9,21 @@ Library itself, is easy to compile and modular - only necessary modules can be i
 
 ## BUILDING
 There are three makefiles attached to the library.
-Usual `makefile` simply compiles source code, creating object files (`obj` directory), as well as static library files in `lib` directory. Modules to be linked into the library can be specified by `MMODULES` and `SMODULES` variables passed to make from command line. Depending on their value, makefile compiles and links modules. Default settings are:
+Usual `makefile` simply compiles source code, leaving behind object files (`obj` directory), as well as static library files in `lib` directory.
+Included modules, as well as other build settings **can** (by default, everything is built with no fixed buffer sizes) be adjusted with `./genconf.sh` script, which affects `include/lightmodbus/libconf.h` and `.modules.conf` files.
+Use `./genconf.sh --help` to get more information.
 
-`   
-	MMODULES = master-registers master-coils
-	SMODULES = slave-registers slave-coils
+Example build process can be:
+`  
+./genconf.sh -s "" --mdat 256 --mres 256 --mreq 256
+make
 `
+Which effects in having only master side of the library built with *response.frame*, *request.frame* and *data.data* arrays in *ModbusMaster* structure of fixed 256b size (the highest reasonable value, because of Modbus 256b per frame limit)
 
-Example make call would be: `make MMODULES="master-reisters" SMODULES=""` which would affect in having only master side register operations module compiled.
-
-Normally, the library uses dynamic memory allocation, which may be inadvisable in embedded applications. In order to disable it and use fixed-length arrays to store data, additional makefile options can be used. Those include:
-
- - **STATICMEM_SRESPONSE** - affects *response.frame* array in **ModbusSlave**
- - **STATICMEM_MREQUEST** - affects *request.frame* array in **ModbusMaster**
- - **STATICMEM_MDATA** - affect *data.coils* and *data.regs* array in **ModbusMaster**
-
-Each of these options changes value of corresponding C macro, which adjust array sizes. The parameters should be set to desired array length in bytes following way: `make all STATICMEM_MDATA=256 STATICMEM_MREQUEST=256 STATICMEM_SRESPONSE=256`. For instance, this will set length of each array to 256 bytes. It is worth mentioning, that Modbus protocol allow maximum frame length of 256 bytes, so these settings seem to be highest reasonable ones.
-
-`makefile-coverage` builds library all on its own for coverage testing purposes (you probably don't need that, go on).
+`makefile-coverage` builds library on its own for coverage testing purposes (you probably don't need that, go on).
 
 ## AVR
-`makefile-avr` works exactly as normal `makefile`, but instead it uses `avr-gcc` compiler to build the library. Additionally, it requires MCU type to be specified by `MCU` variable passed from command line.
+`makefile-avr` bases on normal `makefile`, but instead it uses `avr-gcc` compiler to build the library. Additionally, it requires MCU type to be specified by `MCU` variable passed from command line.
 
 ## ROUTINES
 Full listing of routines included in `lightmodbus` library available for user.

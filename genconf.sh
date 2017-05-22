@@ -32,8 +32,8 @@ function showhelp()
 {
 	cat <<EOM
 genconf.sh is a bash script intended for generation of liblightmodbus library
-configuration files, which are crucial for it to be built. It is ought to be
-run before make.
+configuration files (include/lightmodbus/libconf.h and .modules.conf), which
+are crucial for it to be built. It is ought to be run before make.
 
 Supported options:
 	-h - display this help message
@@ -56,7 +56,8 @@ Where:
 	that base module will be compiled and linked.
 
 	<size> is fixed-length of given data buffer in bytes. Has to be an integer
-	greater than 0.
+	greater than 0. The highest reasonable value for those settings is 256,
+	because it's the maximum Modbus frame size.
 
 EOM
 }

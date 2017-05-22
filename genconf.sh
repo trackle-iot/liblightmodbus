@@ -60,12 +60,13 @@ function rmconf()
 	rm -f $LIBCONF
 	rm -f $MODCONF
 	rm -f $CONFLOG
-	make clean > /dev/null
+	make clean &> /dev/null
 }
 
 #Generate module configuration based on given arguments (side name, desired functions)
 function genmodules()
 {
+	local suffix=$(echo $1 | tr /a-z/ /A-Z/ | head -c 1)
 	local modules=( \
 			[01]="coils" \
 			[02]="coils" \
@@ -85,7 +86,7 @@ function genmodules()
 	for i in ${!modules[@]}; do
 
 		if [[ $2 == *"$i"* ]]; then
-			printf "#define LIGHTMODBUS_F%02dS\n" $i >> $LIBCONF
+			printf "#define LIGHTMODBUS_F%02d%01s\n" $i $suffix >> $LIBCONF
 
 			log "[info] $1 function $i is going to be included"
 
@@ -129,7 +130,7 @@ function genconf()
 	touch $MODCONF
 	touch $CONFLOG
 
-	log "[info] removed current configuration files"
+	log "[info] cleaned build environment"
 
 	if [[ $DEFAULTS -eq 1 ]]; then
 		log "[info] using defaults"
@@ -238,6 +239,8 @@ while [[ $# -gt 0 ]]; do
 			;;
 
 		*)
+			echo "$0: unknown option '$1'" >&2
+			exit 1
 	    	;;
 	esac
 	shift

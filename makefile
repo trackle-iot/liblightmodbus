@@ -85,6 +85,7 @@ uninstall:
 
 force:
 	$(call infoHeader,starting build)
+	./genconf.sh -v
 	echo -n "" > $(BUILDLOG)
 	echo -n "[arch] " >> $(BUILDLOG)
 	echo $(ARCH) >> $(BUILDLOG)

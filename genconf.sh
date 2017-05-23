@@ -37,6 +37,7 @@ are crucial for it to be built. It is ought to be run before make.
 
 Supported options:
 	-h - display this help message
+	-v - update only version number in configuration
 	-r - remove current configuration
 	-s <modules> - select slave modules to be included
 	-m <modules> - select master modules to be included
@@ -140,6 +141,20 @@ function genstaticmem()
 	fi;
 }
 
+#Update version number in configuration header
+function genversion()
+{
+	local line=$(grep -no 'LIGHTMODBUS_VERSION' $LIBCONF | grep -Eo '^[^:]+')
+	local version=""
+	if gitver=$(git describe --abbrev=6 --dirty --always --tag 2> /dev/null); then
+		version=$gitver
+	else
+		version="no-vcs-found"
+	fi
+	log "[info] updating version number"
+	sed -i "$line s/.*/#define LIGHTMODBUS_VERSION \"$version\"/" $LIBCONF
+}
+
 #Generates new configuration
 function genconf()
 {
@@ -170,7 +185,11 @@ function genconf()
 */
 #ifndef LIGHTMODBUS_LIBCONF_H
 #define LIGHTMODBUS_LIBCONF_H
+#define LIGHTMODBUS_VERSION
 EOM
+
+	#Generate version number
+	genversion
 
 	#Manage static buffers confiuration
 	genstaticmem "LIGHTMODBUS_STATICMEM_SLAVE_REQUEST" "slave request buffer size" $STATICMEM_SREQ
@@ -208,6 +227,11 @@ while [[ $# -gt 0 ]]; do
 	    	showhelp
 			exit 0
 	    	;;
+
+		-v)
+		    genversion
+			exit 0
+		    ;;
 
 	    -r)
 	    	rmconf

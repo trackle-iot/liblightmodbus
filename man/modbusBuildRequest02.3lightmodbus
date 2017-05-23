@@ -21,13 +21,13 @@
 \fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusBuildRequest\fP family functions build request frames later sent to slave device.
+The \fBmodbusBuildRequestXX\fP functions build request frames, which are later sent to the slave device.
 Each routine returns an error code described in 
 .BR lightmodbus (3lightmodbus).
 
-On successful exit, the Modbus frame of \fIstatus.request.length\fP bytes length is written to \fIstatus.request.frame\fP and additionally predicted slave's response length is written into \fIstatus.predictedResponseLength\fP\&. Otherwise the lengths are set to 0 and null pointer is returned in the \fIstatus.request.frame\fP\&.
+On successful exit, the Modbus frame of \fIstatus.request.length\fP bytes length is written to \fIstatus.request.frame\fP buffer and additionally predicted slave's response length is written into \fIstatus.predictedResponseLength\fP\&. Otherwise the length is set to 0, meaning that something has gone wrong.
 .PP
-\fBmodbusBuildRequest01\fP, \fBmodbusBuildRequest02\fP, \fBmodbusBuildRequest03\fP and \fBmodbusBuildRequest04\fP are actually macros, later replaced with \fBmodbusBuildRequest0102\fP and \fBmodbusBuildRequest0304\fP \- see above declarations.
+\fBmodbusBuildRequest01\fP, \fBmodbusBuildRequest02\fP, \fBmodbusBuildRequest03\fP and \fBmodbusBuildRequest04\fP are actually macros, later replaced with \fBmodbusBuildRequest0102\fP and \fBmodbusBuildRequest0304\fP calls \- see above declarations.
 .PP
 To be honest, these functions don't need any further explanations if you know what you are doing. A quick look at Wikipedia's Modbus protocol page should be enough to understand everything in here.
 .SH SEE ALSO

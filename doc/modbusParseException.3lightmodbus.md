@@ -9,7 +9,7 @@
 `uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser );`
 
 ## DESCRIPTION
-The **modbusParseException** function parses raw exception frame stored in *parser* union, and leaves results in *status.exception*. The function returns an error code on exit (see lightmodbus(3lightmodbus)).
+The **modbusParseException** function parses exception frame stored in *parser* union, and leaves results in *status.exception*. The function returns an error code on exit, which unusually is `MODBUS_ERROR_EXCEPTION` on success (see lightmodbus(3lightmodbus)).
 
 ## SEE ALSO
 ModbusMaster(3lightmodbus)

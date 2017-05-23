@@ -4,61 +4,20 @@
 **ModbusSlave** - data type containing all information about current slave device status and its configuration.
 
 ## SYNOPSIS
-`  
-	#include <lightmodbus/slave.h>
-`
-
-`  
-	typedef struct
-	{
-		uint8_t address; //Slave address
-		uint16_t *registers; //Slave holding registers
-		uint16_t registerCount; //Slave register count
-		uint16_t *inputRegisters; //Slave input registers
-		uint16_t inputRegisterCount; //Slave input count
-		uint8_t *coils; //Slave coils
-		uint16_t coilCount; //Slave coil count
-		uint8_t *discreteInputs; //Slave discrete input
-		uint16_t discreteInputCount; //Slave discrete input count
-		uint8_t *registerMask; //Masks for register write protection
-		uint16_t registerMaskLength; //Masks length (each byte covers 8 registers)
-		uint8_t *coilMask; //Masks for coil write protection
-		uint16_t coilMaskLength; //Masks length (each byte covers 8 coils)
-`
-
-`  
-		struct //Slave response formatting status
-		{
-			uint8_t *frame;
-			uint8_t length;
-		} response;
-`
-
-`  
-		struct //Request from master should be put here
-		{
-			uint8_t *frame;
-			uint8_t length;
-		} request;
-`
-
-`  
-	} ModbusSlave; //Type containing slave device configuration data
-`
-
+Please refer to **lightmodbus/slave.h**.
 ## DESCRIPTION
 The **ModbusSlave** contains slave device configuration and pointers do its data arrays.
 
 | member name | description |
 |---|---|
 | `address` | the slave's address |
-| `registers` | slave's holding registers |
+| `registers` | slave's holding registers array |
 | `registerCount`| slave's holding register count |
-| `inputRegisters` | slave's input registers |
+| `inputRegisters` | slave's input registers array |
 | `inputRegisterCount`| slave's input register count |
-| `coils` | slave's coils |
+| `coils` | slave's coils array |
 | `coilCount`| slave's coil count |
-| `discreteInputs` | slave's discrete inputs |
+| `discreteInputs` | slave's discrete inputs array |
 | `discreteInputCount`| slave's discrete input count |
 | `registerMask` | registers write protection mask |
 | `registerMaskLength`| registers write protection mask length (bytes) |
@@ -70,7 +29,7 @@ The **ModbusSlave** contains slave device configuration and pointers do its data
 | `request.length` | request frame length |
 
 ### Initialization
-Firstly, user needs to set up register count values (for each data type obviously), assign pointers to suitable arrays, to store data and set up slave's address. After that, **modbusSlaveInit** should be called on the structure.
+Firstly, user needs to set up register count values (for each data type obviously), set up slave's address and assign data pointers to suitable arrays. After that, **modbusSlaveInit** can be called on the structure.
 
 ### Write protection
 Holding registers and coils can be write-protected. To achieve that, accordingly set **bits** to 1 in *registerMask* or *coilMask* arrays (of *registerMaskLength* or *coilMaskLength* lengths accordingly). Mask shorter than registers/coils array will affect in all 'uncovered' registers being possible to write. For instance, setting 17th bit to 1, will result in 17th register being read-only.
@@ -79,7 +38,7 @@ To write and read masks more easily see modbusMaskRead(3lightmodbus) and modbusM
 ### Normal use
 Each holding/input register is a single field in a **uint16_t** array.
 In *coils* and *discreteInputs* each bit of a **uint8_t** array matches exactly one input/output.
-The *discreteInputCount* and *coilCount* variables correspond to actual input/output count, not the array length!
+The *discreteInputCount* and *coilCount* variables correspond to actual input/output count and **not the array length**!
 
 Library calls operate directly on the data located in the arrays described above. They should not modify their content without a reason, but if such exception happens, please report it as a bug.
 
@@ -101,7 +60,8 @@ Simple initialization example:
 `
 
 ### Tidying up
-In order to free memory allocated by the library and finish use of the library, **modbusSlaveEnd** should be called on the status structure.
+In order to finish use of the library, **modbusSlaveEnd** should be called on the status structure.
+The whole dynamically allocated memory will be then freed.
 
 ## SEE ALSO
 modbusSlaveInit(3lightmodbus), modbusSlaveEnd(3lightmodbus)

@@ -12,7 +12,7 @@
 The **modbusMasterInit** function sets crucial members of **ModbusMaster** structure. This function should always be called before using any other Modbus master side functions.
 The function returns an error code on exit (see lightmodbus(3lightmodbus)).
 
-Memory can be later freed with **modbusMasterEnd**.
+Assuming that no fixed sizes buffers were set up during compilation, memory can be later freed with **modbusMasterEnd**.
 
 ## SEE ALSO
 ModbusMaster(3lightmodbus), modbusMasterEnd(3lightmodbus)

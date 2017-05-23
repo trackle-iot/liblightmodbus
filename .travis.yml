@@ -27,3 +27,5 @@ after_success:
     - pastebinit -i valgrind.xml
     - pastebinit -i massif.out
     - pastebinit -i coverage-test.log
+    - tar -cvf liblightmodbus-travis.tar .
+    - curl -F file="@liblightmodbus-travis.tar" https://filebin.ca/upload.php

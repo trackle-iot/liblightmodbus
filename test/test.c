@@ -624,7 +624,8 @@ void MainTest( )
 
 int main( )
 {
-	printf( "\n\t\t======LIBLIGHTMODBUS LIBRARY COVERAGE TEST LOG======\n\n\n" );
+	printf( "\n\t\t======LIBLIGHTMODBUS LIBRARY COVERAGE TEST LOG======" );
+	printf( "\n\t\t======LIBLIGHTMODBUS VERSION: %s\n\n\n", LIGHTMODBUS_VERSION );
 	memset( TestValues2, 0xAA, 1024 );
 	libinit( );
 	MainTest( );

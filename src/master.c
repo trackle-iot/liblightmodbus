@@ -196,6 +196,7 @@ uint8_t modbusMasterEnd( ModbusMaster *status )
 	//Free memory
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		free( status->request.frame );
+		status->request.frame = NULL;
 	#endif
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 		free( status->data.coils );

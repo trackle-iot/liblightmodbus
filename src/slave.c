@@ -211,6 +211,7 @@ uint8_t modbusSlaveEnd( ModbusSlave *status )
 	//Free memory
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		free( status->response.frame );
+		status->response.frame = NULL;
 	#endif
 
 	return MODBUS_ERROR_OK;

@@ -48,22 +48,7 @@ uint16_t modbusSwapEndian( uint16_t data )
 {
 	//Change big-endian to little-endian and vice versa
 
-	uint8_t swap;
-
-	//Create 2 bytes long union
-	union
-	{
-		uint16_t data;
-		uint8_t bytes[2];
-	} conversion;
-
-	//Swap bytes
-	conversion.data = data;
-	swap = conversion.bytes[0];
-	conversion.bytes[0] = conversion.bytes[1];
-	conversion.bytes[1] = swap;
-
-	return conversion.data;
+	return ( data << 8 ) | ( data >> 8 );
 }
 
 uint16_t modbusCRC( uint8_t *data, uint16_t length )

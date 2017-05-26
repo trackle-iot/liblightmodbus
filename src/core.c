@@ -71,5 +71,11 @@ uint16_t modbusCRC( uint8_t *data, uint16_t length )
 				crc >>= 1;
 		}
 	}
-	return crc;
+	#ifdef LIGHTMODBUS_BIG_ENDIAN
+		//modbusSwapEndian macro can't be used, because it doesn't do anything
+		//if BIG_ENDIAN macro is defined
+		return ( crc << 8 ) | ( crc >> 8 );
+	#else
+		return crc;
+	#endif
 }

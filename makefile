@@ -51,6 +51,8 @@ BUILDLOG = build.log
 MODCONF = .modules.conf
 LIBCONF = include/lightmodbus/libconf.h
 
+CONFFLAGS = 
+
 ifneq ("$(wildcard $(MODCONF))","")
 MODULES = $(shell cat $(MODCONF))
 else
@@ -85,7 +87,7 @@ uninstall:
 
 force:
 	$(call infoHeader,starting build)
-	./genconf.sh -v
+	./genconf.sh -v $(CONFFLAGS)
 	echo -n "" > $(BUILDLOG)
 	echo -n "[arch] " >> $(BUILDLOG)
 	echo $(ARCH) >> $(BUILDLOG)

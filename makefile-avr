@@ -53,6 +53,8 @@ export SLAVEFLAGS =
 export MMODULES = 01 02 03 04 05 06 15 16 22
 export SMODULES = 01 02 03 04 05 06 15 16 22
 
+export CONFFLAGS = --endian little
+
 ifneq ($(MAKECMDGOALS),clean)
 ifndef MCU
 $(error "MCU not specified!")

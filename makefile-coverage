@@ -1,24 +1,13 @@
+include .makeconf
+
 export CC = gcc
 export CFLAGS = -Wall -g --coverage -Iinclude
 export LD = ld
 export LDFLAGS =
 
-export MMODULES = 01 02 03 04 05 06 15 16 22
-export SMODULES = 01 02 03 04 05 06 15 16 22
-
 all: coverage-test valgrind-test massif-test
 
 compile: clean
-	# $(CC) $(CFLAGS) -c src/master/mpregs.c
-	# $(CC) $(CFLAGS) -c src/master/mbregs.c
-	# $(CC) $(CFLAGS) -c src/slave/sregs.c
-	# $(CC) $(CFLAGS) -c src/master/mpcoils.c
-	# $(CC) $(CFLAGS) -c src/master/mbcoils.c
-	# $(CC) $(CFLAGS) -c src/slave/scoils.c
-	# $(CC) $(CFLAGS) $(MASTERFLAGS) -c src/master.c
-	# $(CC) $(CFLAGS) $(SLAVEFLAGS) -c src/slave.c
-	# $(CC) $(CFLAGS) -c src/core.c
-	# $(CC) $(CFLAGS) test.o core.o master.o slave.o mpregs.o mbregs.o sregs.o mpcoils.o mbcoils.o scoils.o -o coverage-test
 	$(MAKE) -e all
 	$(CC) $(CFLAGS) -c test/test.c
 	$(CC) $(CFLAGS) test.o obj/lightmodbus.o -o coverage-test

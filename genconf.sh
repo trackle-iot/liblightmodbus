@@ -26,6 +26,7 @@ STATICMEM_SREQ=
 STATICMEM_MRES=
 STATICMEM_MREQ=
 STATICMEM_MDAT=
+ENDIAN=auto
 
 #Function to display help message
 function showhelp()
@@ -46,6 +47,7 @@ Supported options:
 	--mres <size> - enable fixed-size master response data buffer
 	--mreq <size> - enable fixed-size master request data buffer
 	--mdat <size> - enable fixed-size master parsed data buffer
+	--endian <endianness> - force endianness
 
 Where:
 	<modules> is list of two-digit Modbus function codes, which you want to be
@@ -60,6 +62,7 @@ Where:
 	greater than 0. The highest reasonable value for those settings is 256,
 	because it's the maximum Modbus frame size.
 
+	<endianness> can be either 'auto', 'little' or 'big'.
 EOM
 }
 
@@ -191,6 +194,23 @@ EOM
 	#Generate version number
 	genversion
 
+	#Adapt library to big-endian systems if necessary
+	case $ENDIAN in
+		auto) ENDIAN=-1;;
+		little) ENDIAN=1;;
+		big) ENDIAN=0;;
+		*) ENDIAN=-1;;
+	esac
+
+	if [[ $ENDIAN -eq -1 ]]; then
+		ENDIAN=$(echo -n I | od -to2 | head -n1 | cut -f2 -d" " | cut -c 6)
+	fi
+
+	if [[ $ENDIAN -eq 0 ]]; then
+		log "[info] using big-endian build configuration"
+		echo "#define LIGHTMODBUS_BIG_ENDIAN" >> $LIBCONF
+	fi
+
 	#Manage static buffers confiuration
 	genstaticmem "LIGHTMODBUS_STATICMEM_SLAVE_REQUEST" "slave request buffer size" $STATICMEM_SREQ
 	genstaticmem "LIGHTMODBUS_STATICMEM_SLAVE_RESPONSE" "slave response buffer size" $STATICMEM_SRES
@@ -277,6 +297,12 @@ while [[ $# -gt 0 ]]; do
 
 		--mdat)
 			STATICMEM_MDAT=$2
+			DEFAULTS=0
+			shift
+			;;
+
+		--endian)
+			ENDIAN=$2
 			DEFAULTS=0
 			shift
 			;;

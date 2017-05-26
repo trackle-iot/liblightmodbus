@@ -13,7 +13,7 @@ The \fBmodbusMasterInit\fP function sets crucial members of \fBModbusMaster\fP s
 The function returns an error code on exit (see 
 .BR lightmodbus (3lightmodbus)).
 .PP
-Memory can be later freed with \fBmodbusMasterEnd\fP\&.
+Assuming that no fixed sizes buffers were set up during compilation, memory can be later freed with \fBmodbusMasterEnd\fP\&.
 .SH SEE ALSO
 .PP
 .BR ModbusMaster (3lightmodbus), 

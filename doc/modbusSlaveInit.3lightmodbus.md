@@ -12,7 +12,7 @@
 The **modbusSlaveInit** function sets crucial members of **ModbuSlave** structure, enabling its use by the rest of the library. This function should always be called before using any other Modbus slave side functions.
 The function returns an error code on exit (see lightmodbus(3lightmodbus)).
 
-Memory can be later freed with **modbusSlaveEnd**.
+Structure can later be cleaned up with **modbusSlaveEnd**.
 
 ## SEE ALSO
 ModbusSlave(3lightmodbus), modbusSlaveEnd(3lightmodbus)

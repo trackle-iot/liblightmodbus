@@ -44,13 +44,6 @@ uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8
 	return value != 0;
 }
 
-uint16_t modbusSwapEndian( uint16_t data )
-{
-	//Change big-endian to little-endian and vice versa
-
-	return ( data << 8 ) | ( data >> 8 );
-}
-
 uint16_t modbusCRC( uint8_t *data, uint16_t length )
 {
 	//Calculate CRC16 checksum using given data and length

@@ -1,9 +1,4 @@
-[*.c]
-indent_style = tab
-indent_size = 4
-trim_trailing_whitespace = true
-
-[*.h]
+[*.{c,h,sh}]
 indent_style = tab
 indent_size = 4
 trim_trailing_whitespace = true

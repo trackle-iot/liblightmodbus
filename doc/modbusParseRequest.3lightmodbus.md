@@ -1,4 +1,4 @@
-# modbusParseRequest 3lightmodbus "25 March 2016" "v1.3"
+# modbusParseRequest 3lightmodbus "25 March 2017" "v1.3"
 
 ## NAME
 **modbusParseRequest** - parse request frame sent in by master device.

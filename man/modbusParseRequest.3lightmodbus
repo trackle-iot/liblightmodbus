@@ -1,4 +1,4 @@
-.TH modbusParseRequest 3lightmodbus "25 March 2016" "v1.3"
+.TH modbusParseRequest 3lightmodbus "25 March 2017" "v1.3"
 .SH NAME
 .PP
 \fBmodbusParseRequest\fP \- parse request frame sent in by master device.

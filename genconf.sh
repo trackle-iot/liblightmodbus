@@ -209,6 +209,8 @@ EOM
 	if [[ $ENDIAN -eq 0 ]]; then
 		log "[info] using big-endian build configuration"
 		echo "#define LIGHTMODBUS_BIG_ENDIAN" >> $LIBCONF
+	else
+		log "[info] using little-endian build configuration"
 	fi
 
 	#Manage static buffers confiuration

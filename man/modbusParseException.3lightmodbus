@@ -9,7 +9,7 @@
 \fB\fCuint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser );\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusParseException\fP function parses raw exception frame stored in \fIparser\fP union, and leaves results in \fIstatus.exception\fP\&. The function returns an error code on exit (see 
+The \fBmodbusParseException\fP function parses exception frame stored in \fIparser\fP union, and leaves results in \fIstatus.exception\fP\&. The function returns an error code on exit, which unusually is \fB\fCMODBUS_ERROR_EXCEPTION\fR on success (see 
 .BR lightmodbus (3lightmodbus)).
 .SH SEE ALSO
 .PP

@@ -1,5 +1,5 @@
 # liblightmodbus - a lightweight, multiplatform Modbus library
-# Copyright (C) 2016 Jacek Wieczorek <mrjjot@gmail.com>
+# Copyright (C) 2017 Jacek Wieczorek <mrjjot@gmail.com>
 
 # This file is part of liblightmodbus.
 

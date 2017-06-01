@@ -1,6 +1,6 @@
 /*
 	liblightmodbus - a lightweight, multiplatform Modbus library
-	Copyright (C) 2016 Jacek Wieczorek <mrjjot@gmail.com>
+	Copyright (C) 2017 Jacek Wieczorek <mrjjot@gmail.com>
 
 	This file is part of liblightmodbus.
 
@@ -23,7 +23,6 @@
 uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit )
 {
 	//Return nth bit from uint8_t array
-	//When 255 value is returned, an error occured
 
 	if ( mask == NULL ) return MODBUS_ERROR_OTHER;
 	if ( ( bit >> 3 ) >= maskLength ) return MODBUS_ERROR_OTHER;
@@ -33,7 +32,6 @@ uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit )
 uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8_t value )
 {
 	//Write nth bit in uint8_t array
-	//When 255 value is returned, an error occured
 
 	if ( mask == NULL ) return MODBUS_ERROR_OTHER;
 	if ( ( bit >> 3 ) >= maskLength ) return MODBUS_ERROR_OTHER;

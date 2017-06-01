@@ -1,4 +1,4 @@
-.TH modbusSwapEndian 3lightmodbus "25 March 2017" "v1.3"
+.TH modbusSwapEndian 3lightmodbus "27 May 2017" "v1.3"
 .SH NAME
 .PP
 \fBmodbusSwapEndian\fP \- change given 16\-bit integer's endianness.
@@ -6,10 +6,16 @@
 .PP
 \fB\fC#include <lightmodbus/core.h>\fR
 .PP
-\fB\fCuint16_t modbusSwapEndian( uint16_t data );\fR
+\fB\fC
+    #ifdef LIGHTMODBUS_BIG_ENDIAN
+    #define modbusSwapEndian( data ) ( data )
+    #else
+    #define modbusSwapEndian( data ) ( ( data << 8 ) | ( data >> 8 ) )
+    #endif
+\fR
 .SH DESCRIPTION
 .PP
-The \fBmodbusSwapEndian\fP function returns the same 16\-bit portion of data, it is given, but with bytes order swapped. Function is included, because most PCs use little\-endian architecture, while Modbus protocol tends to use big\-endian data format.   
+The \fBmodbusSwapEndian\fP macro returns the same 16\-bit portion of data it is given, but with bytes order swapped. It is included in the library, because most PCs use little\-endian architecture, while Modbus protocol tends to use big\-endian data format. It is important to mention, that when library is built on a big\-endian platform (\fBLIGHTMODBUS\fIBIG\fPENDIAN\fP is defined), the macro just returns the value it is given.  
 .SH AUTHORS
 .PP
 Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

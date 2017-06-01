@@ -1,6 +1,6 @@
 #!/bin/bash
 # liblightmodbus - a lightweight, multiplatform Modbus library
-# Copyright (C) 2016 Jacek Wieczorek <mrjjot@gmail.com>
+# Copyright (C) 2017 Jacek Wieczorek <mrjjot@gmail.com>
 
 # This file is part of liblightmodbus.
 
@@ -209,6 +209,8 @@ EOM
 	if [[ $ENDIAN -eq 0 ]]; then
 		log "[info] using big-endian build configuration"
 		echo "#define LIGHTMODBUS_BIG_ENDIAN" >> $LIBCONF
+	else
+		log "[info] using little-endian build configuration"
 	fi
 
 	#Manage static buffers confiuration

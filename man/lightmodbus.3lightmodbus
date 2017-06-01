@@ -4,36 +4,27 @@
 \fBlightmodbus\fP \- a lightweight, cross\-platform Modbus RTU library.
 .SH DESCRIPTION
 .PP
-The \fBlightmodbus\fP library allows communication with use of the Modbus RTU protocol. \fBlightmodbus\fP contains functions for parsing and creating Modbus frames, but \fBit is not\fP capable of sending or receiving them. Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
-Library itself, is easy to compile and modular \- only necessary modules can be included while building. Default version available for PC is complete and it contains all modules by default. Needless to say, the library is possible to build at any little\-endian platform.
+The \fBlightmodbus\fP library allows communication with use of the Modbus RTU protocol. \fBlightmodbus\fP contains functions for parsing and creating Modbus frames, but \fBit is not\fP capable of sending or receiving them. Modbus functions supported by the library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
+Library itself is easy to compile and modular \- only necessary modules can be included while building. Version available for PC through Debian packages is complete and contains all modules by default. Needless to say, the library is possible to build at any little\-endian platform.
 .SH BUILDING
 .PP
 There are three makefiles attached to the library.
-Usual \fB\fCmakefile\fR simply compiles source code, creating object files (\fB\fCobj\fR directory), as well as static library files in \fB\fClib\fR directory. Modules to be linked into the library can be specified by \fB\fCMMODULES\fR and \fB\fCSMODULES\fR variables passed to make from command line. Depending on their value, makefile compiles and links modules. Default settings are:
+Usual \fB\fCmakefile\fR simply compiles source code, leaving behind object files (\fB\fCobj\fR directory), as well as static library files in \fB\fClib\fR directory.
+Included modules, as well as other build settings \fBcan\fP (by default, everything is built with no fixed buffer sizes) be adjusted with \fB\fC\&./genconf.sh\fR script, which affects \fB\fCinclude/lightmodbus/libconf.h\fR and \fB\fC\&.modules.conf\fR files.
+Use \fB\fC\&./genconf.sh \-\-help\fR to get more information.
 .PP
+Example build process can be:
 \fB\fC
-    MMODULES = master\-registers master\-coils
-    SMODULES = slave\-registers slave\-coils
+    ./genconf.sh \-s "" \-\-mdat 256 \-\-mres 256 \-\-mreq 256
+    make
 \fR
 .PP
-Example make call would be: \fB\fCmake MMODULES="master\-reisters" SMODULES=""\fR which would affect in having only master side register operations module compiled.
+Which effects in having only master side of the library built with \fIresponse.frame\fP, \fIrequest.frame\fP and \fIdata.coils\fP (shared with \fIdata.regs\fP) arrays in \fIModbusMaster\fP structure of fixed 256b size (the highest reasonable value, because of Modbus 256b per frame limit)
 .PP
-Normally, the library uses dynamic memory allocation, which may be inadvisable in embedded applications. In order to disable it and use fixed\-length arrays to store data, additional makefile options can be used. Those include:
-.RS
-.IP \(bu 2
-\fBSTATICMEM_SRESPONSE\fP \- affects \fIresponse.frame\fP array in \fBModbusSlave\fP
-.IP \(bu 2
-\fBSTATICMEM_MREQUEST\fP \- affects \fIrequest.frame\fP array in \fBModbusMaster\fP
-.IP \(bu 2
-\fBSTATICMEM_MDATA\fP \- affect \fIdata.coils\fP and \fIdata.regs\fP array in \fBModbusMaster\fP
-.RE
-.PP
-Each of these options changes value of corresponding C macro, which adjust array sizes. The parameters should be set to desired array length in bytes following way: \fB\fCmake all STATICMEM_MDATA=256 STATICMEM_MREQUEST=256 STATICMEM_SRESPONSE=256\fR\&. For instance, this will set length of each array to 256 bytes. It is worth mentioning, that Modbus protocol allow maximum frame length of 256 bytes, so these settings seem to be highest reasonable ones.
-.PP
-\fB\fCmakefile\-coverage\fR builds library all on its own for coverage testing purposes (you probably don't need that, go on).
+\fB\fCmakefile\-coverage\fR builds library on its own for coverage testing purposes (you probably don't need that, go on).
 .SH AVR
 .PP
-\fB\fCmakefile\-avr\fR works exactly as normal \fB\fCmakefile\fR, but instead it uses \fB\fCavr\-gcc\fR compiler to build the library. Additionally, it requires MCU type to be specified by \fB\fCMCU\fR variable passed from command line.
+\fB\fCmakefile\-avr\fR bases on normal \fB\fCmakefile\fR, but instead it uses \fB\fCavr\-gcc\fR compiler to build the library. Additionally, it requires MCU type to be specified by \fB\fCMCU\fR variable passed from command line.
 .SH ROUTINES
 .PP
 Full listing of routines included in \fB\fClightmodbus\fR library available for user.
@@ -154,7 +145,7 @@ Function	Description
 .TE
 .SH MODBUS EXCEPTIONS
 .PP
-Modbus protocol provides exception codes returned when master request fails. Some of the exceptions have their C macros defined in \fBlightmodbus/core.h\fP\&.
+The Modbus protocol provides exception codes returned when master request fails. Some of the exceptions have their C macros defined in \fBlightmodbus/core.h\fP\&.
 .TS
 allbox;
 cb cb cb
@@ -179,7 +170,7 @@ Macro	Exception	Description
 .TE
 .SH RETURN VALUES
 .PP
-Most of routines contained in library return an error code. Description of those can be found below.
+Most of functions in the library return an error code. Description of those can be found below.
 .PP
 Error code macros are defined in \fBlightmodbus/core.h\fP\&.
 .TS
@@ -214,11 +205,20 @@ Macro	Value	Description
 .PP
 \fB\fCMODBUS_ERROR_CRC\fR is returned when CRC attached to frame is invalid. Obviously, frame is ignored in such a case.
 .PP
-\fB\fCMODBUS_ERROR_ALLOC\fR is returned when \fBmalloc\fP or \fBrealloc\fP call fails.
+\fB\fCMODBUS_ERROR_ALLOC\fR is returned when \fBmalloc\fP or \fBrealloc\fP call fails (or static buffer, set up during compilation process, is not long enough).
 .PP
-\fB\fCMODBUS_ERROR_OTHER\fR is returned when e.g. user tries to parse frame of 0 length, slave has been initialized with address 0 and in other cases of passing invalid arguments (such as null pointers) to library routines.
+\fB\fCMODBUS_ERROR_OTHER\fR can be returned when:
+    \- user attempts to parse frame of 0 length
+    \- user attempts to create frame that would be invalid (e.g. read to much data)
+    \- user attempts to throw exception 0
+    \- null pointer is passed as crucial function argument
+    \- in mask functions: read/write out of allowed range
+    \- slave is initialized with address 0
+    \- given frame was shorter than 4 bytes
+    \- sub\-parser function somehow gets wrong frame
+    \- something goes really wrong inside the library itself
 .PP
-\fB\fCMODBUS_ERROR_FRAME\fR is returned by master\-side parsing function, when error is contained in given frame (e.g. byte count doesn't match register count)
+\fB\fCMODBUS_ERROR_FRAME\fR is returned by master\-side parsing function when error is contained in the Modbus frame (e.g. byte count doesn't match register count)
 .SH EXAMPLES
 .PP
 Please refer to the \fBexamples\fP folder.

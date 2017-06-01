@@ -4,8 +4,8 @@
 **lightmodbus** - a lightweight, cross-platform Modbus RTU library.
 
 ## DESCRIPTION
-The **lightmodbus** library allows communication with use of the Modbus RTU protocol. **lightmodbus** contains functions for parsing and creating Modbus frames, but **it is not** capable of sending or receiving them. Modbus functions supported by library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
-Library itself, is easy to compile and modular - only necessary modules can be included while building. Default version available for PC is complete and it contains all modules by default. Needless to say, the library is possible to build at any little-endian platform.
+The **lightmodbus** library allows communication with use of the Modbus RTU protocol. **lightmodbus** contains functions for parsing and creating Modbus frames, but **it is not** capable of sending or receiving them. Modbus functions supported by the library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
+Library itself is easy to compile and modular - only necessary modules can be included while building. Version available for PC through Debian packages is complete and contains all modules by default. Needless to say, the library is possible to build at any little-endian platform.
 
 ## BUILDING
 There are three makefiles attached to the library.
@@ -15,10 +15,11 @@ Use `./genconf.sh --help` to get more information.
 
 Example build process can be:
 `  
-./genconf.sh -s "" --mdat 256 --mres 256 --mreq 256
-make
+	./genconf.sh -s "" --mdat 256 --mres 256 --mreq 256
+	make
 `
-Which effects in having only master side of the library built with *response.frame*, *request.frame* and *data.data* arrays in *ModbusMaster* structure of fixed 256b size (the highest reasonable value, because of Modbus 256b per frame limit)
+
+Which effects in having only master side of the library built with *response.frame*, *request.frame* and *data.coils* (shared with *data.regs*) arrays in *ModbusMaster* structure of fixed 256b size (the highest reasonable value, because of Modbus 256b per frame limit)
 
 `makefile-coverage` builds library on its own for coverage testing purposes (you probably don't need that, go on).
 
@@ -90,7 +91,7 @@ Modbus function codes meanings:
 | 22		| mask write single holding register								|
 
 ## MODBUS EXCEPTIONS
-Modbus protocol provides exception codes returned when master request fails. Some of the exceptions have their C macros defined in **lightmodbus/core.h**.
+The Modbus protocol provides exception codes returned when master request fails. Some of the exceptions have their C macros defined in **lightmodbus/core.h**.
 
 |  Macro                      | Exception | Description                           |
 |-----------------------------|-----------|---------------------------------------|
@@ -104,7 +105,7 @@ Modbus protocol provides exception codes returned when master request fails. Som
 |                             | 8         | memory parity error                   |
 
 ## RETURN VALUES
-Most of routines contained in library return an error code. Description of those can be found below.
+Most of functions in the library return an error code. Description of those can be found below.
 
 Error code macros are defined in **lightmodbus/core.h**.
 
@@ -129,11 +130,20 @@ Error code macros are defined in **lightmodbus/core.h**.
 
 `MODBUS_ERROR_CRC` is returned when CRC attached to frame is invalid. Obviously, frame is ignored in such a case.
 
-`MODBUS_ERROR_ALLOC` is returned when **malloc** or **realloc** call fails.
+`MODBUS_ERROR_ALLOC` is returned when **malloc** or **realloc** call fails (or static buffer, set up during compilation process, is not long enough).
 
-`MODBUS_ERROR_OTHER` is returned when e.g. user tries to parse frame of 0 length, slave has been initialized with address 0 and in other cases of passing invalid arguments (such as null pointers) to library routines.
+`MODBUS_ERROR_OTHER` can be returned when:
+	- user attempts to parse frame of 0 length
+	- user attempts to create frame that would be invalid (e.g. read to much data)
+	- user attempts to throw exception 0
+	- null pointer is passed as crucial function argument
+	- in mask functions: read/write out of allowed range
+	- slave is initialized with address 0
+	- given frame was shorter than 4 bytes
+	- sub-parser function somehow gets wrong frame
+	- something goes really wrong inside the library itself
 
-`MODBUS_ERROR_FRAME` is returned by master-side parsing function, when error is contained in given frame (e.g. byte count doesn't match register count)
+`MODBUS_ERROR_FRAME` is returned by master-side parsing function when error is contained in the Modbus frame (e.g. byte count doesn't match register count)
 
 ## EXAMPLES
 Please refer to the **examples** folder.

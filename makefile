@@ -24,20 +24,7 @@
 
 # This makefile is part of source deb package
 
-compileHeader = \
-	echo "[\033[32;1mcompiling\033[0m] \033[03m$(1)\033[0m" >&2
-
-linkHeader = \
-	echo "[\033[33;1mlinking\033[0m] \033[03m$(1)\033[0m" >&2
-
-warnHeader = \
-	echo "[\033[31;1mwarning\033[0m] \033[03m$(1)\033[0m" >&2
-
-cleanHeader = \
-	echo "[\033[36;1mcleaning up\033[0m] \033[03m$(1)\033[0m" >&2
-
-infoHeader = \
-	echo "[\033[36;1minfo\033[0m] \033[03m$(1)\033[0m" >&2
+include .makeconf
 
 ARCH = $(shell arch)
 CC = gcc
@@ -45,11 +32,6 @@ CFLAGS = -Wall -I./include
 LD = ld
 LDFLAGS =
 AR = ar
-
-CONFLOG = conf.log
-BUILDLOG = build.log
-MODCONF = .modules.conf
-LIBCONF = include/lightmodbus/libconf.h
 
 ifneq ("$(wildcard $(MODCONF))","")
 MODULES = $(shell cat $(MODCONF))

@@ -44,28 +44,6 @@ uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8
 	return value != 0;
 }
 
-uint16_t modbusSwapEndian( uint16_t data )
-{
-	//Change big-endian to little-endian and vice versa
-
-	uint8_t swap;
-
-	//Create 2 bytes long union
-	union
-	{
-		uint16_t data;
-		uint8_t bytes[2];
-	} conversion;
-
-	//Swap bytes
-	conversion.data = data;
-	swap = conversion.bytes[0];
-	conversion.bytes[0] = conversion.bytes[1];
-	conversion.bytes[1] = swap;
-
-	return conversion.data;
-}
-
 uint16_t modbusCRC( const uint8_t *data, uint16_t length )
 {
 	//Calculate CRC16 checksum using given data and length
@@ -93,5 +71,11 @@ uint16_t modbusCRC( const uint8_t *data, uint16_t length )
 				crc >>= 1;
 		}
 	}
-	return crc;
+	#ifdef LIGHTMODBUS_BIG_ENDIAN
+		//modbusSwapEndian macro can't be used, because it doesn't do anything
+		//if BIG_ENDIAN macro is defined
+		return ( crc << 8 ) | ( crc >> 8 );
+	#else
+		return crc;
+	#endif
 }

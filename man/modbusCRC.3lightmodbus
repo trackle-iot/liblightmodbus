@@ -1,4 +1,4 @@
-.TH modbusCRC 3lightmodbus "25 March 2017" "v1.3"
+.TH modbusCRC 3lightmodbus "01 June 2017" "v1.3"
 .SH NAME
 .PP
 \fBmodbusCRC\fP \- calculate Modbus 16\-bit CRC checksum of given data portion
@@ -6,7 +6,7 @@
 .PP
 \fB\fC#include <lightmodbus/core.h>\fR
 .PP
-\fB\fCuint16_t modbusCRC( uint8_t *data, uint16_t length );\fR
+\fB\fCuint16_t modbusCRC( const uint8_t *data, uint16_t length );\fR
 .SH DESCRIPTION
 .PP
 The \fBmodbusCRC\fP function calculates and returns cyclic redundancy checksum of \fIlength\fP bytes starting from \fIdata\fP pointer. When null \fIdata\fP pointer is passed, no action is taken and 0 is returned.

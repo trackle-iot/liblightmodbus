@@ -50,9 +50,9 @@
 #define BITSTOBYTES( n ) ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0 )
 
 //Function prototypes
-extern uint8_t modbusMaskRead( uint8_t *mask, uint16_t maskLength, uint16_t bit );
+extern uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit );
 extern uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8_t value );
 extern uint16_t modbusSwapEndian( uint16_t data );
-extern uint16_t modbusCRC( uint8_t *data, uint16_t length );
+extern uint16_t modbusCRC( const uint8_t *data, uint16_t length );
 
 #endif

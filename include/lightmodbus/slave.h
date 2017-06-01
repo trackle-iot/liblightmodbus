@@ -57,7 +57,7 @@ typedef struct
 		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
 			uint8_t frame[LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST];
 		#else
-			uint8_t *frame;
+			const uint8_t *frame;
 		#endif
 		uint8_t length;
 	} request;

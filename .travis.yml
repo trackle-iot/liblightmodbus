@@ -3,6 +3,7 @@ language: c
 branches:
     except:
         - packaging
+        - docsdevel
 
 before_install:
     - sudo apt-get update

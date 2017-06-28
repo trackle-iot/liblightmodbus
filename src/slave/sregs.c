@@ -187,7 +187,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		frameLength = 9 + parser->request16.length;
 		if ( status->request.length != frameLength )
 		{
-			return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VAL );
 			return MODBUS_ERROR_OK;
 		}
 	}

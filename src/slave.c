@@ -19,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <lightmodbus/core.h>
 #include <lightmodbus/slave.h>
 #include <lightmodbus/parser.h>
@@ -79,9 +80,14 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	if ( status->request.length < 4u || status->request.frame == NULL ) return MODBUS_ERROR_OTHER;
 
 	//Check CRC
-	if ( *( (uint16_t*)( status->request.frame + status->request.length - 2 ) )\
-		!= modbusCRC( status->request.frame, status->request.length - 2 ) )
-			return MODBUS_ERROR_CRC;
+    //The CRC of the frame is copied to a variable in order to avoid an unaligned memory access,
+    //which can cause runtime errors in some platforms like AVR and ARM.
+    uint16_t crc;
+
+    memcpy(&crc, status->request.frame + status->request.length - 2, 2);
+
+	if ( crc != modbusCRC( status->request.frame, status->request.length - 2 ) )
+		return MODBUS_ERROR_CRC;
 
 
 	union ModbusParser *parser = (union ModbusParser *) status->request.frame;

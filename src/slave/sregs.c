@@ -18,6 +18,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #include <lightmodbus/core.h>
 #include <lightmodbus/parser.h>
 #include <lightmodbus/slave.h>

@@ -5,6 +5,7 @@ AKA. The Worst Test File Ever
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <inttypes.h>
 

@@ -157,10 +157,11 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t in
 		builder->request15.values[i] = values[i];
 
 
-	//That could be written as a single line, without the temporary variable, but avr-gcc doesn't like that
-	//warning: dereferencing type-punned pointer will break strict-aliasing rules
-	uint16_t *crc = (uint16_t*)( builder->frame + frameLength - 2 );
-	*crc = modbusCRC( builder->frame, frameLength - 2 );
+	//That could be written as a single line, without the temporary variable, but it can cause
+    //an unaligned memory access, which can cause runtime errors in some platforms like AVR and ARM.
+    uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
+    
+    memcpy(builder->frame + frameLength - 2, &crc, 2);
 
 	status->request.length = frameLength;
 	if ( address ) status->predictedResponseLength = 4 + 4;

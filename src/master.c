@@ -19,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <lightmodbus/master.h>
 #include <lightmodbus/core.h>
 #include <lightmodbus/parser.h>
@@ -81,10 +82,10 @@ uint8_t modbusParseResponse( ModbusMaster *status )
     //which can cause runtime errors in some platforms like AVR and ARM.
     uint16_t crcresp;
     uint16_t crcreq;
-    
+
     memcpy(&crcresp, status->response.frame + status->response.length - 2, 2);
     memcpy(&crcreq,  status->request.frame  + status->request.length  - 2, 2);
-    
+
 	if ( crcresp != modbusCRC( status->response.frame, status->response.length - 2 ) ||
 		 crcreq  != modbusCRC( status->request.frame,  status->request.length  - 2 ) )
 			return MODBUS_ERROR_CRC;

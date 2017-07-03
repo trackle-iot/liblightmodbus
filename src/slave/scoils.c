@@ -19,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <lightmodbus/core.h>
 #include <lightmodbus/parser.h>
 #include <lightmodbus/slave.h>
@@ -91,7 +92,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
     //That could be written as a single line, without the temporary variable, but it can cause
     //an unaligned memory access, which can cause runtime errors in some platforms like AVR and ARM.
     uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
-    
+
     memcpy(builder->frame + frameLength - 2, &crc, 2);
 
 	//Set frame length - frame is ready

@@ -1,6 +1,6 @@
 # A lightweight, cross-platform Modbus library
 [![The GPL license](https://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
-[![Travis CI](https://img.shields.io/travis/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://travis-ci.org/Jacajack/liblightmodbus/master)
+[![Travis CI](https://img.shields.io/travis/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://travis-ci.org/Jacajack/liblightmodbus)
 [![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
 
 [More build results...](https://github.com/Jacajack/liblightmodbus/wiki/Build-results-history)

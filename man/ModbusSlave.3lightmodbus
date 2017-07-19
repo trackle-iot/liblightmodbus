@@ -1,10 +1,11 @@
-.TH ModbusSlave 3lightmodbus "25 March 2017" "v1.3"
+.TH ModbusSlave 3lightmodbus "19 July 2017" "v1.3"
 .SH NAME
 .PP
 \fBModbusSlave\fP \- data type containing all information about current slave device status and its configuration.
 .SH SYNOPSIS
 .PP
 Please refer to \fBlightmodbus/slave.h\fP\&.
+\fBModbusSlave\fP is equivalent of \fBstruct modbusSlave\fP\&.
 .SH DESCRIPTION
 .PP
 The \fBModbusSlave\fP contains slave device configuration and pointers do its data arrays.

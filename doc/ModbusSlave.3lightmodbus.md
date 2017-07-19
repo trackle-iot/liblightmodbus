@@ -1,10 +1,12 @@
-# ModbusSlave 3lightmodbus "25 March 2017" "v1.3"
+# ModbusSlave 3lightmodbus "19 July 2017" "v1.3"
 
 ## NAME
 **ModbusSlave** - data type containing all information about current slave device status and its configuration.
 
 ## SYNOPSIS
 Please refer to **lightmodbus/slave.h**.
+**ModbusSlave** is equivalent of **struct modbusSlave**.
+
 ## DESCRIPTION
 The **ModbusSlave** contains slave device configuration and pointers do its data arrays.
 

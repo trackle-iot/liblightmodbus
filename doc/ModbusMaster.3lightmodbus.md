@@ -1,10 +1,11 @@
-# ModbusMaster 3lightmodbus "25 March 2017" "v1.3"
+# ModbusMaster 3lightmodbus "19 July 2017" "v1.3"
 
 ## NAME
 **ModbusMaster** - data type containing all information about current master device status, its configuration and received data.
 
 ## SYNOPSIS
 Please refer to **lightmodbus/master.h**.
+**ModbusMaster** is equivalent of **struct modbusMaster**.
 
 ## DESCRIPTION
 The **ModbusMaster** contains information about master device configuration, status and received data.

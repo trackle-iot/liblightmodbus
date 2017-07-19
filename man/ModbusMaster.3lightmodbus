@@ -1,10 +1,11 @@
-.TH ModbusMaster 3lightmodbus "25 March 2017" "v1.3"
+.TH ModbusMaster 3lightmodbus "19 July 2017" "v1.3"
 .SH NAME
 .PP
 \fBModbusMaster\fP \- data type containing all information about current master device status, its configuration and received data.
 .SH SYNOPSIS
 .PP
 Please refer to \fBlightmodbus/master.h\fP\&.
+\fBModbusMaster\fP is equivalent of \fBstruct modbusMaster\fP\&.
 .SH DESCRIPTION
 .PP
 The \fBModbusMaster\fP contains information about master device configuration, status and received data.

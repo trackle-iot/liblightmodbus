@@ -52,7 +52,7 @@ uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t 
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
+	ModbusParser *builder = (ModbusParser *) status->request.frame;
 
 	builder->base.address = address;
 	builder->base.function = function;
@@ -93,7 +93,7 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t in
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
+	ModbusParser *builder = (ModbusParser *) status->request.frame;
 
 	builder->base.address = address;
 	builder->base.function = 6;
@@ -138,7 +138,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t in
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
+	ModbusParser *builder = (ModbusParser *) status->request.frame;
 
 	builder->base.address = address;
 	builder->base.function = 16;
@@ -183,7 +183,7 @@ uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t in
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
+	ModbusParser *builder = (ModbusParser *) status->request.frame;
 
 	builder->base.address = address;
 	builder->base.function = 22;

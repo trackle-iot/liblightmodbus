@@ -29,19 +29,19 @@
 #if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
 #define modbusParseResponse03 modbusParseResponse0304
 #define modbusParseResponse04 modbusParseResponse0304
-extern uint8_t modbusParseResponse0304( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+extern uint8_t modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #ifdef LIGHTMODBUS_F06M
-extern uint8_t modbusParseResponse06( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+extern uint8_t modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #ifdef LIGHTMODBUS_F16M
-extern uint8_t modbusParseResponse16( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+extern uint8_t modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #ifdef LIGHTMODBUS_F22M
-extern uint8_t modbusParseResponse22( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser );
+extern uint8_t modbusParseResponse22( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #endif

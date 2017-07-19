@@ -24,7 +24,7 @@
 #include <inttypes.h>
 #include "libconf.h"
 
-typedef struct
+typedef struct modbusSlave
 {
 	uint8_t address; //Slave address
 

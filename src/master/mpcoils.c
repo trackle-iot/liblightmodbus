@@ -26,7 +26,7 @@
 #include <lightmodbus/master/mpcoils.h>
 
 #if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
-uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser )
 {
 	//Parse slave response to request 01 (read multiple coils)
 
@@ -74,7 +74,7 @@ uint8_t modbusParseResponse0102( ModbusMaster *status, union ModbusParser *parse
 #endif
 
 #ifdef LIGHTMODBUS_F05M
-uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser )
 {
 	//Parse slave response to request 05 (write single coil)
 
@@ -114,7 +114,7 @@ uint8_t modbusParseResponse05( ModbusMaster *status, union ModbusParser *parser,
 #endif
 
 #ifdef LIGHTMODBUS_F15M
-uint8_t modbusParseResponse15( ModbusMaster *status, union ModbusParser *parser, union ModbusParser *requestParser )
+uint8_t modbusParseResponse15( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser )
 {
 	//Parse slave response to request 15 (write multiple coils)
 

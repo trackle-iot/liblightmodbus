@@ -29,7 +29,7 @@
 #define MODBUS_COIL 4
 #define MODBUS_DISCRETE_INPUT 8
 
-typedef struct
+typedef struct modbusMaster
 {
 	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data
 

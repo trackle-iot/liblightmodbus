@@ -32,15 +32,15 @@ extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint
 #if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
 #define modbusParseRequest01 modbusParseRequest0102
 #define modbusParseRequest02 modbusParseRequest0102
-extern uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F05S
-extern uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest05( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F15S
-extern uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser );
+extern uint8_t modbusParseRequest15( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #endif

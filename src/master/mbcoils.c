@@ -54,7 +54,7 @@ uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t 
 		memset( status->request.frame, 0, frameLength );
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
+	ModbusParser *builder = (ModbusParser *) status->request.frame;
 
 	builder->base.address = address;
 	builder->base.function = function;
@@ -97,7 +97,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t in
 		memset( status->request.frame, 0, frameLength );
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
+	ModbusParser *builder = (ModbusParser *) status->request.frame;
 
 	value = ( value != 0 ) ? 0xFF00 : 0x0000;
 
@@ -146,7 +146,7 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t in
 		memset( status->request.frame, 0, frameLength );
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->request.frame;
+	ModbusParser *builder = (ModbusParser *) status->request.frame;
 
 	builder->base.address = address;
 	builder->base.function = 15;

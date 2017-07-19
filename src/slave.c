@@ -42,7 +42,7 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t cod
 		if ( 5 * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *exception = (union ModbusParser *) status->response.frame;
+	ModbusParser *exception = (ModbusParser *) status->response.frame;
 
 	//Setup exception frame
 	exception->exception.address = status->address;
@@ -90,7 +90,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 		return MODBUS_ERROR_CRC;
 
 
-	union ModbusParser *parser = (union ModbusParser *) status->request.frame;
+	ModbusParser *parser = (ModbusParser *) status->request.frame;
 
 	//If frame is not broadcasted and address doesn't match skip parsing
 	if ( parser->base.address != status->address && parser->base.address != 0 )

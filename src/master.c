@@ -26,7 +26,7 @@
 #include <lightmodbus/master/mpregs.h>
 #include <lightmodbus/master/mpcoils.h>
 
-uint8_t modbusParseException( ModbusMaster *status, union ModbusParser *parser )
+uint8_t modbusParseException( ModbusMaster *status, ModbusParser *parser )
 {
 	//Parse exception frame and write data to MODBUSMaster structure
 
@@ -90,8 +90,8 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 		 crcreq  != modbusCRC( status->request.frame,  status->request.length  - 2 ) )
 			return MODBUS_ERROR_CRC;
 
-	union ModbusParser *parser = (union ModbusParser*) status->response.frame;
-	union ModbusParser *requestParser = (union ModbusParser*) status->request.frame;
+	ModbusParser *parser = (ModbusParser*) status->response.frame;
+	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
 
 	//Check if frame is exception response
 	if ( parser->base.function & 128 && status->response.length == 5 )

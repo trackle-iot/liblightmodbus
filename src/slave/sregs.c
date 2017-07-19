@@ -25,7 +25,7 @@
 #include <lightmodbus/slave/sregs.h>
 
 #if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_F04S)
-uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 {
 	//Read multiple holding registers or input registers
 	//Using data from union pointer
@@ -61,7 +61,7 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 	if ( index >= ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \
 		(uint32_t) index + (uint32_t) count > \
 		(uint32_t) ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \
-	 	( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL )
+		( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL )
 	{
 		//Illegal data address exception
 		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDR );
@@ -77,7 +77,7 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
+	ModbusParser *builder = (ModbusParser *) status->response.frame;
 
 	//Set up basic response data
 	builder->response0304.address = status->address;
@@ -98,7 +98,7 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, union ModbusParser *parser 
 #endif
 
 #ifdef LIGHTMODBUS_F06S
-uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write single holding reg
 	//Using data from union pointer
@@ -146,7 +146,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
+	ModbusParser *builder = (ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write reg
 	status->registers[index] = value;
@@ -170,7 +170,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, union ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F16S
-uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write multiple holding registers
 	//Using data from union pointer
@@ -241,7 +241,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
+	ModbusParser *builder = (ModbusParser *) status->response.frame;
 
 
 	//After all possible exceptions, write values to registers
@@ -267,7 +267,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, union ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F22S
-uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 {
 	//Mask write single holding reg
 	//Using data from union pointer
@@ -319,7 +319,7 @@ uint8_t modbusParseRequest22( ModbusSlave *status, union ModbusParser *parser )
 		if ( frameLength > LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ) return MODBUS_ERROR_ALLOC;
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
+	ModbusParser *builder = (ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write reg
 	status->registers[index] = ( status->registers[index] & andmask ) | ( ormask & ~andmask );

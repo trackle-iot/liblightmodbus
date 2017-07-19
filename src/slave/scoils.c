@@ -26,7 +26,7 @@
 #include <lightmodbus/slave/scoils.h>
 
 #if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
-uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 {
 	//Read multiple coils or discrete inputs
 	//Using data from union pointer
@@ -71,7 +71,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 		memset( status->response.frame, 0, frameLength );
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
+	ModbusParser *builder = (ModbusParser *) status->response.frame;
 
 	//Set up basic response data
 	builder->base.address = status->address;
@@ -89,9 +89,9 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 	}
 
 	//Calculate crc
-    //That could be written as a single line, without the temporary variable, but it can cause
-    //an unaligned memory access, which can cause runtime errors in some platforms like AVR and ARM.
-    uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
+	//That could be written as a single line, without the temporary variable, but it can cause
+	//an unaligned memory access, which can cause runtime errors in some platforms like AVR and ARM.
+	uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
 
     memcpy(builder->frame + frameLength - 2, &crc, 2);
 
@@ -102,7 +102,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, union ModbusParser *parser 
 #endif
 
 #ifdef LIGHTMODBUS_F05S
-uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write single coil
 	//Using data from union pointer
@@ -159,7 +159,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 		memset( status->response.frame, 0, frameLength );
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->response.frame;
+	ModbusParser *builder = (ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write coils
 	if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) == 255 )
@@ -184,7 +184,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, union ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F15S
-uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
+uint8_t modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write multiple coils
 	//Using data from union pointer
@@ -257,7 +257,7 @@ uint8_t modbusParseRequest15( ModbusSlave *status, union ModbusParser *parser )
 		memset( status->response.frame, 0, frameLength );
 	#endif
 
-	union ModbusParser *builder = (union ModbusParser *) status->response.frame; //Allocate memory for builder union
+	ModbusParser *builder = (ModbusParser *) status->response.frame; //Allocate memory for builder union
 
 	//After all possible exceptions write values to registers
 	for ( i = 0; i < count; i++ )

@@ -24,7 +24,7 @@
 #include <inttypes.h>
 #include "libconf.h"
 
-union ModbusParser
+typedef union modbusParser
 {
 	uint8_t frame[256];
 
@@ -173,6 +173,6 @@ union ModbusParser
 		uint16_t ormask;
 		uint16_t crc;
 	} response22; //Mask write single holding register
-};
+} ModbusParser;
 
 #endif

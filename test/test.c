@@ -17,7 +17,7 @@ AKA. The Worst Test File Ever
 #define DUMPSF( ) printf( "Dump response - length = %d:\n\t", sstatus.response.length ); for ( i = 0; i < sstatus.response.length; i++ ) printf( "%x%s", sstatus.response.frame[i], ( i == sstatus.response.length - 1 ) ? "\n" : ", " );
 
 ModbusMaster mstatus;
-ModbusSlave sstatus;
+struct modbusSlave sstatus; //This can be done this way as well
 uint16_t registers[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 uint8_t coils[4] = { 0, 0, 0, 0 };
 uint8_t discreteInputs[2] = { 255, 0 };

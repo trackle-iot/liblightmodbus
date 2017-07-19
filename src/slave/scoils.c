@@ -93,7 +93,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 	//an unaligned memory access, which can cause runtime errors in some platforms like AVR and ARM.
 	uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
 
-    memcpy(builder->frame + frameLength - 2, &crc, 2);
+	memcpy(builder->frame + frameLength - 2, &crc, 2);
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;

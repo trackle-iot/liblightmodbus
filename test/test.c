@@ -29,8 +29,8 @@ uint8_t TestValues3[512] = { 0b11001100, 0x00 };
 
 void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 {
-    if ( R > 5u || G > 5u || B > 5u ) return;
-    printf( "\033[38;5;%dm", 16 + B + G * 6 + R * 36 );
+	if ( R > 5u || G > 5u || B > 5u ) return;
+	printf( "\033[38;5;%dm", 16 + B + G * 6 + R * 36 );
 }
 
 void maxlentest( )
@@ -204,7 +204,7 @@ void Test( )
 	MasterError = modbusParseResponse( &mstatus );
 	if ( !SlaveError && mstatus.predictedResponseLength != sstatus.response.length && sstatus.response.length )
 		printf( "Response prediction doesn't match!! (p. %d vs a. %d)\n", mstatus.predictedResponseLength, \
-	 		sstatus.response.length );
+			sstatus.response.length );
 
 	if ( memcmp( f1, sstatus.response.frame, l ) ) printf( "!!!Master has malformed the frame!!!\n" );
 

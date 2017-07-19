@@ -159,10 +159,10 @@ uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t in
 
 
 	//That could be written as a single line, without the temporary variable, but it can cause
-    //an unaligned memory access, which can cause runtime errors in some platforms like AVR and ARM.
-    uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
+	//an unaligned memory access, which can cause runtime errors in some platforms like AVR and ARM.
+	uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
 
-    memcpy(builder->frame + frameLength - 2, &crc, 2);
+	memcpy(builder->frame + frameLength - 2, &crc, 2);
 
 	status->request.length = frameLength;
 	if ( address ) status->predictedResponseLength = 4 + 4;

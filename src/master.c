@@ -74,20 +74,20 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	//Check if frames are not too short and return error (to avoid problems with memory allocation)
 	//That enables us to ommit the check in each parsing function
 	if ( status->response.length < 4u || status->response.frame == NULL || \
-	 	status->request.length < 4u || status->request.frame == NULL )
+		status->request.length < 4u || status->request.frame == NULL )
 			return MODBUS_ERROR_OTHER;
 
 	//Check both response and request frames CRC
 	//The CRC of the frames are copied to a variable in order to avoid an unaligned memory access,
-    //which can cause runtime errors in some platforms like AVR and ARM.
-    uint16_t crcresp;
-    uint16_t crcreq;
+	//which can cause runtime errors in some platforms like AVR and ARM.
+	uint16_t crcresp;
+	uint16_t crcreq;
 
-    memcpy(&crcresp, status->response.frame + status->response.length - 2, 2);
-    memcpy(&crcreq,  status->request.frame  + status->request.length  - 2, 2);
+	memcpy(&crcresp, status->response.frame + status->response.length - 2, 2);
+	memcpy(&crcreq,	 status->request.frame	+ status->request.length  - 2, 2);
 
 	if ( crcresp != modbusCRC( status->response.frame, status->response.length - 2 ) ||
-		 crcreq  != modbusCRC( status->request.frame,  status->request.length  - 2 ) )
+		 crcreq	 != modbusCRC( status->request.frame,  status->request.length  - 2 ) )
 			return MODBUS_ERROR_CRC;
 
 	ModbusParser *parser = (ModbusParser*) status->response.frame;

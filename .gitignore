@@ -13,4 +13,5 @@ examples/example
 massif.out
 valgrind.xml
 *.tmp
+*.swp
 include/lightmodbus/libconf.h

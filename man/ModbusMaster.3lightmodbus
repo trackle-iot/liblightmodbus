@@ -48,7 +48,7 @@ member name	description
 \fB\fCexception.code\fR	exception code
 .TE
 .PP
-\fBNote:\fP In \fIstatus.data.coils\fP each \fBbit\fP corresponds to a \fBsingle\fP coil or an discrete input.
+\fBNote:\fP In \fIstatus.data.coils\fP each \fBbit\fP corresponds to a \fBsingle\fP coil or a discrete input.
 .SS Initialization
 .PP
 Unlike on slave side, there aren't many things to be done before start. User only needs to call \fBmodbusMasterInit\fP on the structure.

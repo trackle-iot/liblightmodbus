@@ -29,7 +29,7 @@ The **ModbusMaster** contains information about master device configuration, sta
 | `exception.function` | function that threw the exception |
 | `exception.code` | exception code |
 
-**Note:** In *status.data.coils* each **bit** corresponds to a **single** coil or an discrete input.
+**Note:** In *status.data.coils* each **bit** corresponds to a **single** coil or a discrete input.
 
 ### Initialization
 Unlike on slave side, there aren't many things to be done before start. User only needs to call **modbusMasterInit** on the structure.

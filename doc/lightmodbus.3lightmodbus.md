@@ -5,7 +5,7 @@
 
 ## DESCRIPTION
 The **lightmodbus** library allows communication with use of the Modbus RTU protocol. **lightmodbus** contains functions for parsing and creating Modbus frames, but **it is not** capable of sending or receiving them. Modbus functions supported by the library include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.
-Library itself is easy to compile and modular - only necessary modules can be included while building. Version available for PC through Debian packages is complete and contains all modules by default. Needless to say, the library is possible to build at any little-endian platform.
+Library itself is easy to compile and modular - only necessary modules can be included while building. Version available for PC through Debian packages is complete and contains all modules by default. Library can be built on both little and big endian platforms.
 
 ## BUILDING
 There are three makefiles attached to the library.

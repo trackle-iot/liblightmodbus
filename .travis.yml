@@ -16,11 +16,14 @@ script:
     - make all
     - ./genconf.sh --sres 256 --sreq 256 --mres 256 --mreq 256 --mdat 256
     - make -f makefile-coverage all
+    - cp coverage-test.log coverage-test-static256.log
     - ./genconf.sh --sres 1 --sreq 1 --mres 1 --mreq 1 --mdat 1
     - make -f makefile-coverage all
+    - cp coverage-test.log coverage-test-static1.log
     - ./genconf.sh -r
     - make conf
     - make -f makefile-coverage all
+    - cp coverage-test.log coverage-test-dynamic.log
 after_success:
     - coveralls --verbose --exclude test/test.c
     - find . -name "*.c" | xargs cppcheck > cppcheck.log

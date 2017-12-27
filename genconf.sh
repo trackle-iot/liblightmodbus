@@ -214,11 +214,11 @@ EOM
 	fi
 
 	#Manage static buffers confiuration
-	genstaticmem "LIGHTMODBUS_STATICMEM_SLAVE_REQUEST" "slave request buffer size" $STATICMEM_SREQ
-	genstaticmem "LIGHTMODBUS_STATICMEM_SLAVE_RESPONSE" "slave response buffer size" $STATICMEM_SRES
-	genstaticmem "LIGHTMODBUS_STATICMEM_MASTER_REQUEST" "master request buffer size" $STATICMEM_MREQ
-	genstaticmem "LIGHTMODBUS_STATICMEM_MASTER_RESPONSE" "master response buffer size" $STATICMEM_MRES
-	genstaticmem "LIGHTMODBUS_STATICMEM_MASTER_DATA" "master parsed data buffer size" $STATICMEM_MDAT
+	genstaticmem "LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST" "slave request buffer size" $STATICMEM_SREQ
+	genstaticmem "LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE" "slave response buffer size" $STATICMEM_SRES
+	genstaticmem "LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST" "master request buffer size" $STATICMEM_MREQ
+	genstaticmem "LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE" "master response buffer size" $STATICMEM_MRES
+	genstaticmem "LIGHTMODBUS_STATIC_MEM_MASTER_DATA" "master parsed data buffer size" $STATICMEM_MDAT
 
 	#Manage modules
 	genmodules "slave" "$SMODULES"

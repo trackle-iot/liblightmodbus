@@ -35,7 +35,7 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 
 void maxlentest( )
 {
-	#define CK2( n ) printf( "mec=%d, sec=%d\n", mec, sec ); printf( memcmp( mstatus.data.regs, bak, n ) ? "ERROR!\n" : "OK\n" );
+	#define CK2( n ) printf( "mec=%d, sec=%d\n", mec, sec ); printf( memcmp( mstatus.data.regs, bak, mstatus.data.length ) ? "ERROR!\n" : "OK\n" );
 	#define CK( n ) printf( "mec=%d, sec=%d\n", mec, sec ); printf( memcmp( vals, bak, n ) ? "ERROR!\n" : "OK\n" );
 	#define GEN( n ) for ( i = 0; i < n; i++ ) bak[i] = rand( );
 	uint8_t vals[250];
@@ -58,14 +58,22 @@ void maxlentest( )
 
 	GEN( 246 );
 	mec = modbusBuildRequest15( &mstatus, 0x20, 0, 1968, bak );
-	sstatus.request.frame = mstatus.request.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		memcpy( sstatus.request.frame, mstatus.request.frame, mstatus.request.length );
+	#else
+		sstatus.request.frame = mstatus.request.frame;
+	#endif
 	sstatus.request.length = mstatus.request.length;
 	sec = modbusParseRequest( &sstatus );
 	CK( 246 );
 
 	GEN( 246 );
 	mec = modbusBuildRequest16( &mstatus, 0x20, 0, 123, (uint16_t*)bak );
-	sstatus.request.frame = mstatus.request.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		memcpy( sstatus.request.frame, mstatus.request.frame, mstatus.request.length );
+	#else
+		sstatus.request.frame = mstatus.request.frame;
+	#endif
 	sstatus.request.length = mstatus.request.length;
 	sec = modbusParseRequest( &sstatus );
 	CK( 246 );
@@ -75,41 +83,74 @@ void maxlentest( )
 
 	GEN( 250 );
 	mec = modbusBuildRequest03( &mstatus, 0x20, 0, 125 );
-	sstatus.request.frame = mstatus.request.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		memcpy( sstatus.request.frame, mstatus.request.frame, mstatus.request.length );
+	#else
+		sstatus.request.frame = mstatus.request.frame;
+	#endif
 	sstatus.request.length = mstatus.request.length;
 	sec = modbusParseRequest( &sstatus );
-	mstatus.response.frame = sstatus.response.frame;
+
+	#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+		memcpy( mstatus.response.frame, sstatus.response.frame, sstatus.response.length );
+	#else
+		mstatus.response.frame = sstatus.response.frame;
+	#endif
 	mstatus.response.length = sstatus.response.length;
 	mec = modbusParseResponse( &mstatus );
 	CK2( 250 );
 
 	GEN( 250 );
 	mec = modbusBuildRequest04( &mstatus, 0x20, 0, 125 );
-	sstatus.request.frame = mstatus.request.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		memcpy( sstatus.request.frame, mstatus.request.frame, mstatus.request.length );
+	#else
+		sstatus.request.frame = mstatus.request.frame;
+	#endif
 	sstatus.request.length = mstatus.request.length;
 	sec = modbusParseRequest( &sstatus );
-	mstatus.response.frame = sstatus.response.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+		memcpy( mstatus.response.frame, sstatus.response.frame, sstatus.response.length );
+	#else
+		mstatus.response.frame = sstatus.response.frame;
+	#endif
 	mstatus.response.length = sstatus.response.length;
 	mec = modbusParseResponse( &mstatus );
 	CK2( 250 );
 
 	GEN( 250 );
 	mec = modbusBuildRequest01( &mstatus, 0x20, 0, 2000 );
-	sstatus.request.frame = mstatus.request.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		memcpy( sstatus.request.frame, mstatus.request.frame, mstatus.request.length );
+	#else
+		sstatus.request.frame = mstatus.request.frame;
+	#endif
 	sstatus.request.length = mstatus.request.length;
 	sec = modbusParseRequest( &sstatus );
 	DUMPSF( );
-	mstatus.response.frame = sstatus.response.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+		memcpy( mstatus.response.frame, sstatus.response.frame, sstatus.response.length );
+	#else
+		mstatus.response.frame = sstatus.response.frame;
+	#endif
 	mstatus.response.length = sstatus.response.length;
 	mec = modbusParseResponse( &mstatus );
 	CK2( 250 );
 
 	GEN( 250 );
 	mec = modbusBuildRequest02( &mstatus, 0x20, 0, 2000 );
-	sstatus.request.frame = mstatus.request.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		memcpy( sstatus.request.frame, mstatus.request.frame, mstatus.request.length );
+	#else
+		sstatus.request.frame = mstatus.request.frame;
+	#endif
 	sstatus.request.length = mstatus.request.length;
 	sec = modbusParseRequest( &sstatus );
-	mstatus.response.frame = sstatus.response.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+		memcpy( mstatus.response.frame, sstatus.response.frame, sstatus.response.length );
+	#else
+		mstatus.response.frame = sstatus.response.frame;
+	#endif
 	mstatus.response.length = sstatus.response.length;
 	mec = modbusParseResponse( &mstatus );
 	CK2( 250 );
@@ -166,7 +207,11 @@ void Test( )
 	memcpy( f1, mstatus.request.frame, l );
 
 	printf( "Let slave parse frame...\n" );
-	sstatus.request.frame = mstatus.request.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+		memcpy( sstatus.request.frame, mstatus.request.frame, mstatus.request.length );
+	#else
+		sstatus.request.frame = mstatus.request.frame;
+	#endif
 	sstatus.request.length = mstatus.request.length;
 	SlaveError = modbusParseRequest( &sstatus );
 	printf( "\tError - %d\n\tFinished - %d\n", SlaveError, 1 );
@@ -199,7 +244,11 @@ void Test( )
 	l = sstatus.response.length;
 	memcpy( f1, sstatus.response.frame, l );
 	printf( "Let master process response...\n" );
-	mstatus.response.frame = sstatus.response.frame;
+	#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+		memcpy( mstatus.response.frame, sstatus.response.frame, sstatus.response.length );
+	#else
+		mstatus.response.frame = sstatus.response.frame;
+	#endif
 	mstatus.response.length = sstatus.response.length;
 	MasterError = modbusParseResponse( &mstatus );
 	if ( !SlaveError && mstatus.predictedResponseLength != sstatus.response.length && sstatus.response.length )

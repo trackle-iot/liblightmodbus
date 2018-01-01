@@ -22,8 +22,8 @@
 #define LIGHTMODBUS_EXAMINE
 
 #include <inttypes.h>
-#include "core.h"
-#include "libconf.h"
+#include "../core.h"
+#include "../libconf.h"
 
 #define MODBUS_EXAMINE_REQUEST  0
 #define MODBUS_EXAMINE_RESPONSE 1

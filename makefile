@@ -43,7 +43,7 @@ all: $(MODULES)
 all: .modules.conf include/lightmodbus/libconf.h clean force core
 	$(call linkHeader,full object file)
 	echo "[linking] full object file (obj/lightmodbus.o)" >> $(BUILDLOG)
-	$(LD) $(LDFLAGS) -r obj/*.o -o obj/lightmodbus.o
+	$(LD) $(LDFLAGS) -r obj/*.o obj/addons/*.o -o obj/lightmodbus.o
 	$(call linkHeader,static library file)
 	echo "[creating] static library file (lib/liblightmodbus.a)" >> $(BUILDLOG)
 	$(AR) -cvq lib/liblightmodbus.a obj/lightmodbus.o
@@ -76,6 +76,7 @@ force:
 	-mkdir obj
 	-mkdir obj/slave
 	-mkdir obj/master
+	-mkdir obj/addons
 	-mkdir lib
 
 clean:
@@ -119,10 +120,10 @@ core: src/core.c include/lightmodbus/core.h
 	echo "[compiling] core module (obj/core.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/core.c -o obj/core.o
 
-addon-examine: src/examine.c include/lightmodbus/examine.h
+addon-examine: src/addons/examine.c include/lightmodbus/addons/examine.h
 	$(call compileHeader,frame examination addon)
-	echo "[compiling] frame examination addon (obj/examine.o)" >> $(BUILDLOG)
-	$(CC) $(CFLAGS) -c src/examine.c -o obj/examine.o
+	echo "[compiling] frame examination addon (obj/addons/examine.o)" >> $(BUILDLOG)
+	$(CC) $(CFLAGS) -c src/addons/examine.c -o obj/addons/examine.o
 
 master-base: src/master.c include/lightmodbus/master.h
 	$(call compileHeader,master base module)

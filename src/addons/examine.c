@@ -20,7 +20,7 @@
 
 #include <lightmodbus/core.h>
 #include <lightmodbus/parser.h>
-#include <lightmodbus/examine.h>
+#include <lightmodbus/addons/examine.h>
 #include <string.h>
 #include <stddef.h>
 

@@ -45,6 +45,12 @@
 #define MODBUS_EXCEP_ACK 5
 #define MODBUS_EXCEP_NACK 7
 
+//Modbus data types
+#define MODBUS_HOLDING_REGISTER 1
+#define MODBUS_INPUT_REGISTER 2
+#define MODBUS_COIL 4
+#define MODBUS_DISCRETE_INPUT 8
+
 #define BITSTOBYTES( n ) ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0 )
 
 //Function prototypes

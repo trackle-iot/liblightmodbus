@@ -24,11 +24,6 @@
 #include <inttypes.h>
 #include "libconf.h"
 
-#define MODBUS_HOLDING_REGISTER 1
-#define MODBUS_INPUT_REGISTER 2
-#define MODBUS_COIL 4
-#define MODBUS_DISCRETE_INPUT 8
-
 typedef struct modbusMaster
 {
 	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data

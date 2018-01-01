@@ -49,6 +49,40 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, uint8_t *frame, uint8
 	info->address = parser->base.address;
 	info->function = parser->base.function;
 
+	//Determine data type - filter out exception bit
+	switch ( info->function & 127 )
+	{
+		//Discrete inputs
+		case 2:
+			info->type = MODBUS_DISCRETE_INPUT;
+			break;
+
+		//Input registers
+		case 4:
+			info->type = MODBUS_INPUT_REGISTER;
+			break;
+
+		//Coils
+		case 01:
+		case 05:
+		case 15:
+			info->type = MODBUS_COIL;
+			break;
+
+		//Holding registers
+		case 03:
+		case 06:
+		case 16:
+		case 22:
+			info->type = MODBUS_HOLDING_REGISTER;
+			break;
+
+		//Unknown data type
+		default:
+			return MODBUS_ERROR_OTHER;
+			break;
+	}
+
 	//Interpret exception - we don't even care about data direction
 	if ( length == 5 )
 	{
@@ -59,7 +93,12 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, uint8_t *frame, uint8
 	//TODO parse requests and responses
 	if ( dir == MODBUS_EXAMINE_REQUEST )
 	{
-
+		switch ( info->function )
+		{
+			case 01:
+			case 02:
+				break;
+		}
 	}
 	else if ( MODBUS_EXAMINE_RESPONSE )
 	{

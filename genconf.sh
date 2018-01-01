@@ -92,6 +92,7 @@ function genaddons()
 {
 	if [[ $ADDONS == *"examine"* ]]; then
 		log "[info] frame examination module is going to be included"
+		echo "#define LIGHTMODBUS_ADDON_EXAMINE" >> $LIBCONF
 		echo "addon-examine" >> $MODCONF
 	fi
 }

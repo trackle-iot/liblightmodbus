@@ -21,6 +21,7 @@
 DEFAULTS=1
 MMODULES="01 02 03 04 05 06 15 16 22"
 SMODULES="01 02 03 04 05 06 15 16 22"
+ADDONS="examine"
 STATICMEM_SRES=
 STATICMEM_SREQ=
 STATICMEM_MRES=
@@ -42,6 +43,7 @@ Supported options:
 	-r - remove current configuration
 	-s <modules> - select slave modules to be included
 	-m <modules> - select master modules to be included
+	-a <addons> - select addons to be included
 	--sres <size> - enable fixed-size slave response data buffer
 	--sreq <size> - enable fixed-size slave request data buffer
 	--mres <size> - enable fixed-size master response data buffer
@@ -50,13 +52,17 @@ Supported options:
 	--endian <endianness> - force endianness
 
 Where:
-	<modules> is list of two-digit Modbus function codes, which you want to be
-	suported by either master or slave. For instance:
+	<modules> is a list of two-digit Modbus function codes, which you want to
+	be suported by either master or slave. For instance:
 	"01 15 22 16"
 
 	If an empty string is passed, all modules (including base) will be omitted.
 	To prevent such a behavior, "forcebase" can be used instead - it guarantees,
 	that base module will be compiled and linked.
+
+	<addons> represents list of to be added to the library. Currently available
+	ones are: "examine". Please refer to manpages to get more information about
+	supported addons.
 
 	<size> is fixed-length of given data buffer in bytes. Has to be an integer
 	greater than 0. The highest reasonable value for those settings is 256,
@@ -79,6 +85,15 @@ function rmconf()
 	rm -f $MODCONF
 	rm -f $CONFLOG
 	make clean &> /dev/null
+}
+
+#Generates module configuration based on addon list
+function genaddons()
+{
+	if [[ $ADDONS == *"examine"* ]]; then
+		log "[info] frame examination module is going to be included"
+		echo "addon-examine" >> $MODCONF
+	fi
 }
 
 #Generate module configuration based on given arguments (side name, desired functions)
@@ -223,6 +238,7 @@ EOM
 	#Manage modules
 	genmodules "slave" "$SMODULES"
 	genmodules "master" "$MMODULES"
+	genaddons
 
 	#Nicely end preprocessor if
 	echo "#endif" >> $LIBCONF
@@ -269,6 +285,12 @@ while [[ $# -gt 0 ]]; do
 
 		-m)
 			MMODULES=$2
+			DEFAULTS=0
+			shift
+			;;
+
+		-a)
+			ADDONS=$2
 			DEFAULTS=0
 			shift
 			;;

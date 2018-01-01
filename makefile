@@ -36,7 +36,7 @@ AR = ar
 ifneq ("$(wildcard $(MODCONF))","")
 MODULES = $(shell cat $(MODCONF))
 else
-MODULES = slave-coils slave-registers slave-base slave-link master-coils master-registers master-base master-link
+MODULES = slave-coils slave-registers slave-base slave-link master-coils master-registers master-base master-link addon-examine
 endif
 
 all: $(MODULES)
@@ -118,6 +118,11 @@ core: src/core.c include/lightmodbus/core.h
 	$(call compileHeader,core module)
 	echo "[compiling] core module (obj/core.o)" >> $(BUILDLOG)
 	$(CC) $(CFLAGS) -c src/core.c -o obj/core.o
+
+addon-examine: src/examine.c include/lightmodbus/examine.h
+	$(call compileHeader,frame examination addon)
+	echo "[compiling] frame examination addon (obj/examine.o)" >> $(BUILDLOG)
+	$(CC) $(CFLAGS) -c src/examine.c -o obj/examine.o
 
 master-base: src/master.c include/lightmodbus/master.h
 	$(call compileHeader,master base module)

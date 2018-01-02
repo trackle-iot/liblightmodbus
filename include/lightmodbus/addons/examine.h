@@ -25,8 +25,11 @@
 #include "../core.h"
 #include "../libconf.h"
 
-#define MODBUS_EXAMINE_REQUEST  0
-#define MODBUS_EXAMINE_RESPONSE 1
+#define MODBUS_EXAMINE_REQUEST  1
+#define MODBUS_EXAMINE_RESPONSE 2
+
+#define MODBUS_EXAMINE_READ 1
+#define MODBUS_EXAMINE_WRITE 2
 
 typedef struct modbusFrameInfo
 {
@@ -39,11 +42,15 @@ typedef struct modbusFrameInfo
 	uint8_t access; //Access type - read/write
 	uint16_t crc; //CRC
 
+	//In case of request 22
+	uint16_t andmask, ormask;
+
 	//Binary data - pointer and length in bytes
-	uint8_t *data;
+	//Important: Endianness of this data remains unchanged since this pointer points to the frame itself
+	void *data;
 	uint8_t length;
 } ModbusFrameInfo;
 
-extern uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, uint8_t *frame, uint8_t length );
+extern uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame, uint8_t length );
 
 #endif

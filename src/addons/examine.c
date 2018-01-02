@@ -28,7 +28,7 @@
 //This function doesn't perform ANY data checking apart from CRC check
 //Please keep in mind, that if return value is different from MODBUS_ERROR_OK
 //data returned in the structure is worthless
-uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, uint8_t *frame, uint8_t length )
+uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame, uint8_t length )
 {
 	union modbusParser *parser;
 
@@ -95,9 +95,50 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, uint8_t *frame, uint8
 	{
 		switch ( info->function )
 		{
+			//Reading multiple coils/discrete inputs
 			case 01:
 			case 02:
+				info->index = modbusSwapEndian( parser->request0102.index );
+				info->count = modbusSwapEndian( parser->request0102.count );
+				info->access = MODBUS_EXAMINE_READ;
 				break;
+
+			//Reading multiple holding/input registers
+			case 03:
+			case 04:
+				info->index = modbusSwapEndian( parser->request0304.index );
+				info->count = modbusSwapEndian( parser->request0304.count );
+				info->access = MODBUS_EXAMINE_READ;
+				break;
+
+			//Write single coil
+			case 05:
+				info->index = modbusSwapEndian( parser->request05.index );
+				info->data = &parser->request06.value;
+				info->length = 2;
+				info->count = 1;
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+
+			//Write single holding register
+			case 06:
+				info->index = modbusSwapEndian( parser->request06.index );
+				info->data = &parser->request06.value;
+				info->length = 2;
+				info->count = 1;
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+
+			//Write multiple coils
+			case 15:
+				info->index = modbusSwapEndian( parser->request15.index );
+				info->count = modbusSwapEndian( parser->request15.count );
+				info->data = parser->request15.values;
+				info->length = parser->request15.length;
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+
+
 		}
 	}
 	else if ( MODBUS_EXAMINE_RESPONSE )

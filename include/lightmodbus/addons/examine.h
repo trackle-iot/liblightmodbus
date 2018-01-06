@@ -33,6 +33,7 @@
 
 typedef struct modbusFrameInfo
 {
+	uint8_t direction; //Just a friendly reminder
 	uint8_t address; //Slave address
 	uint8_t function; //Function
 	uint8_t exception; //Exception number

@@ -12,6 +12,7 @@ AKA. The Worst Test File Ever
 #include <lightmodbus/core.h>
 #include <lightmodbus/master.h>
 #include <lightmodbus/slave.h>
+#include <lightmodbus/addons/examine.h>
 
 #define DUMPMF( ) printf( "Dump the frame:\n\t" ); for ( i = 0; i < mstatus.request.length; i++ ) printf( "%.2x%s", mstatus.request.frame[i], ( i == mstatus.request.length - 1 ) ? "\n" : "-" );
 #define DUMPSF( ) printf( "Dump response - length = %d:\n\t", sstatus.response.length ); for ( i = 0; i < sstatus.response.length; i++ ) printf( "%x%s", sstatus.response.frame[i], ( i == sstatus.response.length - 1 ) ? "\n" : ", " );
@@ -31,6 +32,86 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 {
 	if ( R > 5u || G > 5u || B > 5u ) return;
 	printf( "\033[38;5;%dm", 16 + B + G * 6 + R * 36 );
+}
+
+void examinedump( struct modbusFrameInfo info )
+{
+	int i;
+	/*
+	typedef struct modbusFrameInfo
+	{
+		uint8_t address; //Slave address
+		uint8_t function; //Function
+		uint8_t exception; //Exception number
+		uint8_t type; //Data type (coil/register and so on)
+		uint8_t index; //Register index
+		uint8_t count; //Data unit count
+		uint8_t access; //Access type - read/write
+		uint16_t crc; //CRC
+
+		//In case of request 22
+		uint16_t andmask, ormask;
+
+		//Binary data - pointer and length in bytes
+		//Important: Endianness of this data remains unchanged since this pointer points to the frame itself
+		void *data;
+		uint8_t length;
+	} ModbusFrameInfo;
+	*/
+
+	printf( "Frame examine:\n"\
+			"\tdirection: %s\n"\
+ 			"\taddress: %d\n"\
+			"\tfunction: %d\n"\
+			"\texception: %d\n"\
+			"\ttype: %s\n"\
+			"\tindex: %d\n"\
+			"\tcount: %d\n"\
+			"\taccess: %s\n"\
+			"\tcrc: %04x\n"\
+			"\tandmask: %04x\n"\
+			"\tormask: %04x\n"\
+			"\tdataptr: %p\n"\
+			"\tdatalen: %d\n"\
+			"\tdata: ",\
+
+			info.direction == MODBUS_EXAMINE_REQUEST ? "request" : "response",
+			info.address,\
+			info.function,\
+			info.exception,\
+			info.type  == MODBUS_HOLDING_REGISTER ? "reg" : ( info.type == MODBUS_COIL ? "coil" : ( info.type == MODBUS_DISCRETE_INPUT ? "discrete" : ( info.type == MODBUS_INPUT_REGISTER ? "input reg" : "bad"))),\
+			info.index,\
+			info.count,\
+			info.access == MODBUS_EXAMINE_READ ? "read" : "write",\
+			info.crc,\
+			info.andmask,\
+			info.ormask,\
+			info.data,\
+			info.length\
+		);
+
+	if ( info.data != NULL )
+	{
+		for ( i = 0; i < info.length; i++ )
+		{
+			printf( "%02x ", ((uint8_t*)info.data)[i] );
+		}
+	}
+	printf( "\n" );
+}
+
+void examinem( )
+{
+	struct modbusFrameInfo info;
+	modbusExamine( &info, MODBUS_EXAMINE_REQUEST, mstatus.request.frame, mstatus.request.length );
+	examinedump( info );
+}
+
+void examines( )
+{
+	struct modbusFrameInfo info;
+	modbusExamine( &info, MODBUS_EXAMINE_RESPONSE, sstatus.response.frame, sstatus.response.length );
+	examinedump( info );
 }
 
 void maxlentest( )
@@ -273,6 +354,9 @@ void Test( )
 		//TermRGB( 4, 1, 0 );
 		printf( "\t - ex addr: 0x%x, fun: 0x%x, code: 0x%x\n\r", mstatus.exception.address, mstatus.exception.function, mstatus.exception.code );
 	}
+
+	if ( MasterError == MODBUS_OK ) examinem( );
+	if ( SlaveError == MODBUS_OK ) examines( );
 
 	printf( "----------------------------------------\n\n" );
 }

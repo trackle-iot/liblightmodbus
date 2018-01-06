@@ -78,6 +78,7 @@ typedef union modbusParser
 		uint16_t crc;
 	} response0304; //Read multiple holding registers or input registers - response
 
+	//TODO merge request 05 and 06
 	struct __attribute__( ( __packed__ ) )
 	{
 		uint8_t address;

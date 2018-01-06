@@ -38,6 +38,7 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 	//Initial struct clenup
 	memset( info, 0, sizeof( struct modbusFrameInfo ) );
 	info->data = NULL; //This is for weird patforms that don't consider 0 to be NULL
+	info->direction = dir;
 
 	parser = (union modbusParser*) frame;
 
@@ -90,7 +91,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 		return MODBUS_ERROR_OK;
 	}
 
-	//TODO parse requests and responses
 	if ( dir == MODBUS_EXAMINE_REQUEST )
 	{
 		switch ( info->function )
@@ -114,7 +114,7 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			//Write single coil
 			case 05:
 				info->index = modbusSwapEndian( parser->request05.index );
-				info->data = &parser->request06.value;
+				info->data = &parser->request05.value;
 				info->length = 2;
 				info->count = 1;
 				info->access = MODBUS_EXAMINE_WRITE;
@@ -138,12 +138,82 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
+			//Write multiple registers
+			case 16:
+				info->index = modbusSwapEndian( parser->request15.index );
+				info->count = modbusSwapEndian( parser->request15.count );
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
 
+			//Mask write
+			case 22:
+				info->index = modbusSwapEndian( parser->request22.index );
+				info->andmask = modbusSwapEndian( parser->request22.andmask );
+				info->ormask = modbusSwapEndian( parser->request22.ormask );
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
 		}
 	}
-	else if ( MODBUS_EXAMINE_RESPONSE )
+	else if ( MODBUS_EXAMINE_RESPONSE ) //Response parsing
 	{
+		switch ( info->function )
+		{
+			//Reading multiple coils/discrete inputs
+			case 01:
+			case 02:
+				info->data = parser->response0102.values;
+				info->length = parser->response0102.length;
+				info->access = MODBUS_EXAMINE_READ;
+				break;
 
+			//Reading multiple holding/input registers
+			case 03:
+			case 04:
+				info->data = parser->response0304.values;
+				info->length = parser->response0304.length;
+				info->access = MODBUS_EXAMINE_READ;
+				break;
+
+			//Write single coil
+			case 05:
+				info->index = modbusSwapEndian( parser->response05.index );
+				info->data = &parser->response05.value;
+				info->length = 2;
+				info->count = 1;
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+
+			//Write single holding register
+			case 06:
+				info->index = modbusSwapEndian( parser->response06.index );
+				info->data = &parser->response06.value;
+				info->length = 2;
+				info->count = 1;
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+
+			//Write multiple coils
+			case 15:
+				info->index = modbusSwapEndian( parser->response15.index );
+				info->count = modbusSwapEndian( parser->response15.count );
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+
+			//Write multiple registers
+			case 16:
+				info->index = modbusSwapEndian( parser->response16.index );
+				info->count = modbusSwapEndian( parser->response16.count );
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+
+			//Mask write
+			case 22:
+				info->index = modbusSwapEndian( parser->response22.index );
+				info->andmask = modbusSwapEndian( parser->response22.andmask );
+				info->ormask = modbusSwapEndian( parser->response22.ormask );
+				info->access = MODBUS_EXAMINE_WRITE;
+				break;
+		}
 	}
 	else return MODBUS_ERROR_OTHER;
 

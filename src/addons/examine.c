@@ -39,9 +39,8 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 	info->data = NULL; //This is for weird patforms that don't consider 0 to be NULL
 	info->direction = dir;
 
-	//If the frame is of length zero, we can consider that fine and exit while passing null pointer is considered an error
-	if ( length == 0 ) return MODBUS_ERROR_OK;
-	if ( frame == NULL ) return MODBUS_ERROR_OTHER;
+	//Check for bad frame
+	if ( length == 0 || frame == NULL ) return MODBUS_ERROR_OTHER;
 
 	parser = (union modbusParser*) frame;
 
@@ -51,10 +50,10 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 
 	//Copy basic information
 	info->address = parser->base.address;
-	info->function = parser->base.function & 127;
+	info->function = parser->base.function;
 
 	//Determine data and access type - filter out exception bit
-	switch ( info->function & 127 )
+	switch ( parser->base.function & 127 )
 	{
 		//Coils - read
 		case 01:
@@ -63,19 +62,19 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			break;
 		
 		//Discrete inputs - read
-		case 2:
+		case 02:
 			info->type = MODBUS_DISCRETE_INPUT;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
 
 		//Holding registers - read
-		case 3:
+		case 03:
 			info->type = MODBUS_HOLDING_REGISTER;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
 			
 		//Input registers - read
-		case 4:
+		case 04:
 			info->type = MODBUS_INPUT_REGISTER;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
@@ -110,7 +109,7 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 
 	if ( dir == MODBUS_EXAMINE_REQUEST )
 	{
-		switch ( info->function )
+		switch ( parser->base.function )
 		{
 			//Reading multiple coils/discrete inputs
 			case 01:
@@ -161,6 +160,11 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->index = modbusSwapEndian( parser->request22.index );
 				info->andmask = modbusSwapEndian( parser->request22.andmask );
 				info->ormask = modbusSwapEndian( parser->request22.ormask );
+				break;
+
+			//Unknown function
+			default:
+				return MODBUS_ERROR_OTHER;
 				break;
 		}
 	}
@@ -215,6 +219,11 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->index = modbusSwapEndian( parser->response22.index );
 				info->andmask = modbusSwapEndian( parser->response22.andmask );
 				info->ormask = modbusSwapEndian( parser->response22.ormask );
+				break;
+
+			//Unknown function
+			default:
+				return MODBUS_ERROR_OTHER;
 				break;
 		}
 	}

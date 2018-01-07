@@ -33,12 +33,15 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 	union modbusParser *parser;
 
 	//Null pointer check
-	if ( info == NULL || frame == NULL || length == 0 ) return MODBUS_ERROR_OTHER;
+	if ( info == NULL ) return MODBUS_ERROR_OTHER;
 
-	//Initial struct clenup
+	//At least setup the struct if frame is invalid
 	memset( info, 0, sizeof( struct modbusFrameInfo ) );
 	info->data = NULL; //This is for weird patforms that don't consider 0 to be NULL
 	info->direction = dir;
+
+	//Further null pointer check
+	if ( frame == NULL || length == 0 ) return MODBUS_ERROR_OTHER;
 
 	parser = (union modbusParser*) frame;
 
@@ -48,7 +51,7 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 
 	//Copy basic information
 	info->address = parser->base.address;
-	info->function = parser->base.function;
+	info->function = parser->base.function & 127;
 
 	//Determine data type - filter out exception bit
 	switch ( info->function & 127 )

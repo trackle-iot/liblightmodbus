@@ -341,7 +341,7 @@ void Test( )
 		printf( "\t - ex addr: 0x%x, fun: 0x%x, code: 0x%x\n\r", mstatus.exception.address, mstatus.exception.function, mstatus.exception.code );
 	}
 
-	if ( mok == MODBUS_OK ) examinem( );
+	if ( mok == MODBUS_OK || mok == MODBUS_ERROR_EXCEPTION ) examinem( );
 	if ( sok == MODBUS_OK || sok == MODBUS_ERROR_EXCEPTION ) examines( );
 
 	printf( "----------------------------------------\n\n" );

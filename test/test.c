@@ -27,6 +27,7 @@ uint16_t defaults[512] = { 0xdead, 0xface, 0x1570, 0x01 };
 uint16_t TestValues[512] = { 0xface, 0xdead, 0xCC, 0xDD, 0xEE, 0xFF, 0xAAFF, 0xBBFF };
 uint16_t TestValues2[512] = {0};
 uint8_t TestValues3[512] = { 0b11001100, 0x00 };
+uint8_t ec;
 
 void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 {
@@ -60,14 +61,14 @@ void examinedump( struct modbusFrameInfo info )
 	*/
 
 	printf( "Frame examine:\n"\
-			"\tdirection: %s\n"\
+			"\tdirection: %s (%d)\n"\
  			"\taddress: %d\n"\
 			"\tfunction: %d\n"\
 			"\texception: %d\n"\
-			"\ttype: %s\n"\
+			"\ttype: %s (%d)\n"\
 			"\tindex: %d\n"\
 			"\tcount: %d\n"\
-			"\taccess: %s\n"\
+			"\taccess: %s (%d)\n"\
 			"\tcrc: %04x\n"\
 			"\tandmask: %04x\n"\
 			"\tormask: %04x\n"\
@@ -75,14 +76,17 @@ void examinedump( struct modbusFrameInfo info )
 			"\tdatalen: %d\n"\
 			"\tdata: ",\
 
-			info.direction == MODBUS_EXAMINE_REQUEST ? "request" : "response",
+			info.direction == MODBUS_EXAMINE_REQUEST ? "request" : ( info.direction == MODBUS_EXAMINE_RESPONSE ? "response" : "bad" ),\
+			info.direction,\
 			info.address,\
 			info.function,\
 			info.exception,\
 			info.type  == MODBUS_HOLDING_REGISTER ? "reg" : ( info.type == MODBUS_COIL ? "coil" : ( info.type == MODBUS_DISCRETE_INPUT ? "discrete" : ( info.type == MODBUS_INPUT_REGISTER ? "input reg" : "bad"))),\
+			info.type,\
 			info.index,\
 			info.count,\
-			info.access == MODBUS_EXAMINE_READ ? "read" : "write",\
+			info.access == MODBUS_EXAMINE_READ ? "read" : ( info.access == MODBUS_EXAMINE_WRITE ? "write" : "bad" ),\
+			info.access,\
 			info.crc,\
 			info.andmask,\
 			info.ormask,\
@@ -103,15 +107,17 @@ void examinedump( struct modbusFrameInfo info )
 void examinem( )
 {
 	struct modbusFrameInfo info;
-	modbusExamine( &info, MODBUS_EXAMINE_REQUEST, mstatus.request.frame, mstatus.request.length );
-	examinedump( info );
+	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_REQUEST, mstatus.request.frame, mstatus.request.length );
+	if ( err == MODBUS_OK ) examinedump( info );
+	else printf( "master frame examination error: %d\n", err );
 }
 
 void examines( )
 {
 	struct modbusFrameInfo info;
-	modbusExamine( &info, MODBUS_EXAMINE_RESPONSE, sstatus.response.frame, sstatus.response.length );
-	examinedump( info );
+	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_RESPONSE, sstatus.response.frame, sstatus.response.length );
+	if ( err == MODBUS_OK ) examinedump( info );
+	else printf( "slave frame examination error: %d\n", err );
 }
 
 void maxlentest( )
@@ -242,6 +248,7 @@ void Test( )
 {
 	uint8_t i = 0;
 	uint8_t SlaveError, MasterError;
+	uint8_t mok, sok;
 
 	//Clear registers
 	//memset( registers, 0, 8 * 2 );
@@ -294,7 +301,7 @@ void Test( )
 		sstatus.request.frame = mstatus.request.frame;
 	#endif
 	sstatus.request.length = mstatus.request.length;
-	SlaveError = modbusParseRequest( &sstatus );
+	sok = SlaveError = modbusParseRequest( &sstatus );
 	printf( "\tError - %d\n\tFinished - %d\n", SlaveError, 1 );
 
 	if ( memcmp( f1, mstatus.request.frame, l ) ) printf( "!!!Slave has malformed the frame!!!\n" );
@@ -331,7 +338,7 @@ void Test( )
 		mstatus.response.frame = sstatus.response.frame;
 	#endif
 	mstatus.response.length = sstatus.response.length;
-	MasterError = modbusParseResponse( &mstatus );
+	mok = MasterError = modbusParseResponse( &mstatus );
 	if ( !SlaveError && mstatus.predictedResponseLength != sstatus.response.length && sstatus.response.length )
 		printf( "Response prediction doesn't match!! (p. %d vs a. %d)\n", mstatus.predictedResponseLength, \
 			sstatus.response.length );
@@ -355,8 +362,8 @@ void Test( )
 		printf( "\t - ex addr: 0x%x, fun: 0x%x, code: 0x%x\n\r", mstatus.exception.address, mstatus.exception.function, mstatus.exception.code );
 	}
 
-	if ( MasterError == MODBUS_OK ) examinem( );
-	if ( SlaveError == MODBUS_OK ) examines( );
+	if ( mok == MODBUS_OK ) examinem( );
+	if ( sok == MODBUS_OK ) examines( );
 
 	printf( "----------------------------------------\n\n" );
 }

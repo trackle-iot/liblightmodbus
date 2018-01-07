@@ -40,8 +40,9 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 	info->data = NULL; //This is for weird patforms that don't consider 0 to be NULL
 	info->direction = dir;
 
-	//Further null pointer check
-	if ( frame == NULL || length == 0 ) return MODBUS_ERROR_OTHER;
+	//If the frame is of length zero, we can consider that fine and exit while passing null pointer is considered an error
+	if ( length == 0 ) return MODBUS_ERROR_OK;
+	if ( frame == NULL ) return MODBUS_ERROR_OTHER;
 
 	parser = (union modbusParser*) frame;
 

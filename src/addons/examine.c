@@ -26,8 +26,7 @@
 
 //Examines Modbus frame and returns information in ModbusFrameInfo
 //This function doesn't perform ANY data checking apart from CRC check
-//Please keep in mind, that if return value is different from MODBUS_ERROR_OK
-//data returned in the structure is worthless
+//Please keep in mind, that if return value is different from MODBUS_ERROR_OK or MODBUS_ERROR_EXCEPTION, the data returned in the structure is worthless
 uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame, uint8_t length )
 {
 	union modbusParser *parser;
@@ -102,11 +101,11 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			break;
 	}
 
-	//Interpret exception - we don't even care about data direction
-	if ( length == 5 )
+	//Interpret exception - we don't care about data direction
+	if ( length == 5 && ( parser->base.function & 128 ) )
 	{
 		info->exception = parser->exception.code;
-		return MODBUS_ERROR_OK;
+		return MODBUS_ERROR_EXCEPTION;
 	}
 
 	if ( dir == MODBUS_EXAMINE_REQUEST )
@@ -153,8 +152,8 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 
 			//Write multiple registers
 			case 16:
-				info->index = modbusSwapEndian( parser->request15.index );
-				info->count = modbusSwapEndian( parser->request15.count );
+				info->index = modbusSwapEndian( parser->request16.index );
+				info->count = modbusSwapEndian( parser->request16.count );
 				break;
 
 			//Mask write

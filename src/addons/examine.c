@@ -54,35 +54,49 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 	info->address = parser->base.address;
 	info->function = parser->base.function & 127;
 
-	//Determine data type - filter out exception bit
+	//Determine data and access type - filter out exception bit
 	switch ( info->function & 127 )
 	{
-		//Discrete inputs
+		//Coils - read
+		case 01:
+			info->type = MODBUS_COIL;
+			info->access = MODBUS_EXAMINE_READ;
+			break;
+		
+		//Discrete inputs - read
 		case 2:
 			info->type = MODBUS_DISCRETE_INPUT;
+			info->access = MODBUS_EXAMINE_READ;
 			break;
 
-		//Input registers
+		//Holding registers - read
+		case 3:
+			info->type = MODBUS_HOLDING_REGISTER;
+			info->access = MODBUS_EXAMINE_READ;
+			break;
+			
+		//Input registers - read
 		case 4:
 			info->type = MODBUS_INPUT_REGISTER;
+			info->access = MODBUS_EXAMINE_READ;
 			break;
 
-		//Coils
-		case 01:
+		//Coils - write
 		case 05:
 		case 15:
 			info->type = MODBUS_COIL;
+			info->access = MODBUS_EXAMINE_WRITE;
 			break;
 
-		//Holding registers
-		case 03:
+		//Holding registers - write
 		case 06:
 		case 16:
 		case 22:
 			info->type = MODBUS_HOLDING_REGISTER;
+			info->access = MODBUS_EXAMINE_WRITE;
 			break;
 
-		//Unknown data type
+		//Unknown function
 		default:
 			return MODBUS_ERROR_OTHER;
 			break;
@@ -104,7 +118,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			case 02:
 				info->index = modbusSwapEndian( parser->request0102.index );
 				info->count = modbusSwapEndian( parser->request0102.count );
-				info->access = MODBUS_EXAMINE_READ;
 				break;
 
 			//Reading multiple holding/input registers
@@ -112,7 +125,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			case 04:
 				info->index = modbusSwapEndian( parser->request0304.index );
 				info->count = modbusSwapEndian( parser->request0304.count );
-				info->access = MODBUS_EXAMINE_READ;
 				break;
 
 			//Write single coil
@@ -121,7 +133,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->data = &parser->request05.value;
 				info->length = 2;
 				info->count = 1;
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Write single holding register
@@ -130,7 +141,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->data = &parser->request06.value;
 				info->length = 2;
 				info->count = 1;
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Write multiple coils
@@ -139,14 +149,12 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->count = modbusSwapEndian( parser->request15.count );
 				info->data = parser->request15.values;
 				info->length = parser->request15.length;
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Write multiple registers
 			case 16:
 				info->index = modbusSwapEndian( parser->request15.index );
 				info->count = modbusSwapEndian( parser->request15.count );
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Mask write
@@ -154,7 +162,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->index = modbusSwapEndian( parser->request22.index );
 				info->andmask = modbusSwapEndian( parser->request22.andmask );
 				info->ormask = modbusSwapEndian( parser->request22.ormask );
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 		}
 	}
@@ -167,7 +174,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			case 02:
 				info->data = parser->response0102.values;
 				info->length = parser->response0102.length;
-				info->access = MODBUS_EXAMINE_READ;
 				break;
 
 			//Reading multiple holding/input registers
@@ -175,7 +181,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			case 04:
 				info->data = parser->response0304.values;
 				info->length = parser->response0304.length;
-				info->access = MODBUS_EXAMINE_READ;
 				break;
 
 			//Write single coil
@@ -184,7 +189,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->data = &parser->response05.value;
 				info->length = 2;
 				info->count = 1;
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Write single holding register
@@ -193,21 +197,18 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->data = &parser->response06.value;
 				info->length = 2;
 				info->count = 1;
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Write multiple coils
 			case 15:
 				info->index = modbusSwapEndian( parser->response15.index );
 				info->count = modbusSwapEndian( parser->response15.count );
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Write multiple registers
 			case 16:
 				info->index = modbusSwapEndian( parser->response16.index );
 				info->count = modbusSwapEndian( parser->response16.count );
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 
 			//Mask write
@@ -215,7 +216,6 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 				info->index = modbusSwapEndian( parser->response22.index );
 				info->andmask = modbusSwapEndian( parser->response22.andmask );
 				info->ormask = modbusSwapEndian( parser->response22.ormask );
-				info->access = MODBUS_EXAMINE_WRITE;
 				break;
 		}
 	}

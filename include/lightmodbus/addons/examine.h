@@ -25,11 +25,19 @@
 #include "../core.h"
 #include "../libconf.h"
 
+//Create macro aliases so they can be more easily connected to the modbusExamine call
+#define MODBUS_EXAMINE_COIL MODBUS_COIL
+#define MODBUS_EXAMINE_DISCRETE_INPUT MODBUS_DISCRETE_INPUT
+#define MODBUS_EXAMINE_HOLDING_REGISTER MODBUS_HOLDING_REGISTER
+#define MODBUS_EXAMINE_INPUT_REGISTER MODBUS_INPUT_REGISTER
+
 #define MODBUS_EXAMINE_REQUEST  1
 #define MODBUS_EXAMINE_RESPONSE 2
 
 #define MODBUS_EXAMINE_READ 1
 #define MODBUS_EXAMINE_WRITE 2
+
+#define MODBUS_EXAMINE_UNDEFINED (-1)
 
 typedef struct modbusFrameInfo
 {

@@ -57,32 +57,32 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 	{
 		//Coils - read
 		case 01:
-			info->type = MODBUS_COIL;
+			info->type = MODBUS_EXAMINE_COIL;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
 		
 		//Discrete inputs - read
 		case 02:
-			info->type = MODBUS_DISCRETE_INPUT;
+			info->type = MODBUS_EXAMINE_DISCRETE_INPUT;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
 
 		//Holding registers - read
 		case 03:
-			info->type = MODBUS_HOLDING_REGISTER;
+			info->type = MODBUS_EXAMINE_HOLDING_REGISTER;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
 			
 		//Input registers - read
 		case 04:
-			info->type = MODBUS_INPUT_REGISTER;
+			info->type = MODBUS_EXAMINE_INPUT_REGISTER;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
 
 		//Coils - write
 		case 05:
 		case 15:
-			info->type = MODBUS_COIL;
+			info->type = MODBUS_EXAMINE_COIL;
 			info->access = MODBUS_EXAMINE_WRITE;
 			break;
 
@@ -90,7 +90,7 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 		case 06:
 		case 16:
 		case 22:
-			info->type = MODBUS_HOLDING_REGISTER;
+			info->type = MODBUS_EXAMINE_HOLDING_REGISTER;
 			info->access = MODBUS_EXAMINE_WRITE;
 			break;
 

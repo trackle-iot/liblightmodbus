@@ -38,28 +38,7 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 void examinedump( struct modbusFrameInfo info )
 {
 	int i;
-	/*
-	typedef struct modbusFrameInfo
-	{
-		uint8_t address; //Slave address
-		uint8_t function; //Function
-		uint8_t exception; //Exception number
-		uint8_t type; //Data type (coil/register and so on)
-		uint8_t index; //Register index
-		uint8_t count; //Data unit count
-		uint8_t access; //Access type - read/write
-		uint16_t crc; //CRC
-
-		//In case of request 22
-		uint16_t andmask, ormask;
-
-		//Binary data - pointer and length in bytes
-		//Important: Endianness of this data remains unchanged since this pointer points to the frame itself
-		void *data;
-		uint8_t length;
-	} ModbusFrameInfo;
-	*/
-
+	
 	printf( "Frame examine:\n"\
 			"\tdirection: %s (%d)\n"\
  			"\taddress: %d\n"\
@@ -108,16 +87,16 @@ void examinem( )
 {
 	struct modbusFrameInfo info;
 	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_REQUEST, mstatus.request.frame, mstatus.request.length );
-	if ( err == MODBUS_OK ) examinedump( info );
-	else printf( "master frame examination error: %d\n", err );
+	if ( err == MODBUS_OK || err == MODBUS_ERROR_EXCEPTION ) examinedump( info );
+	else printf( "request frame examination error: %d\n", err );
 }
 
 void examines( )
 {
 	struct modbusFrameInfo info;
 	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_RESPONSE, sstatus.response.frame, sstatus.response.length );
-	if ( err == MODBUS_OK ) examinedump( info );
-	else printf( "slave frame examination error: %d\n", err );
+	if ( err == MODBUS_OK || err == MODBUS_ERROR_EXCEPTION ) examinedump( info );
+	else printf( "response frame examination error: %d\n", err );
 }
 
 void maxlentest( )
@@ -363,7 +342,7 @@ void Test( )
 	}
 
 	if ( mok == MODBUS_OK ) examinem( );
-	if ( sok == MODBUS_OK ) examines( );
+	if ( sok == MODBUS_OK || sok == MODBUS_ERROR_EXCEPTION ) examines( );
 
 	printf( "----------------------------------------\n\n" );
 }

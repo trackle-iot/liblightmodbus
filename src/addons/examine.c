@@ -153,11 +153,14 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			case 16:
 				info->index = modbusSwapEndian( parser->request16.index );
 				info->count = modbusSwapEndian( parser->request16.count );
+				info->data = parser->request16.values;
+				info->length = parser->request16.length;
 				break;
 
 			//Mask write
 			case 22:
 				info->index = modbusSwapEndian( parser->request22.index );
+				info->count = 1;
 				info->andmask = modbusSwapEndian( parser->request22.andmask );
 				info->ormask = modbusSwapEndian( parser->request22.ormask );
 				break;
@@ -217,6 +220,7 @@ uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame,
 			//Mask write
 			case 22:
 				info->index = modbusSwapEndian( parser->response22.index );
+				info->count = 1;
 				info->andmask = modbusSwapEndian( parser->response22.andmask );
 				info->ormask = modbusSwapEndian( parser->response22.ormask );
 				break;

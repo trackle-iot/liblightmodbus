@@ -46,8 +46,8 @@ typedef struct modbusFrameInfo
 	uint8_t function; //Function
 	uint8_t exception; //Exception number
 	uint8_t type; //Data type (MODBUS_EXAMINE_COIL/MODBUS_EXAMINE_HOLDING_REGISTER etc.)
-	uint8_t index; //Register index
-	uint8_t count; //Data unit count
+	uint16_t index; //Register index
+	uint16_t count; //Data unit count
 	uint8_t access; //Access type (MODBUS_EXAMINE_READ/MODBUS_EXAMINE_WRITE)
 	uint16_t crc; //CRC
 

@@ -117,19 +117,25 @@ function genmodules()
 		addbase=1
 	fi
 
-	for i in ${!modules[@]}; do
+    # for each function in the passed string, ie 3, 4, 22 in -m "03 04 22" or -m "3 4 22"
+    for argv in $2; do
+        # for each available module
+        for i in ${!modules[@]}; do
+            # if the function passed in matches an available module
+            if [[ $argv == "$i" || $argv == "0$i" ]]; then
+                printf "#define LIGHTMODBUS_F%02d%01s\n" $i $suffix >> $LIBCONF
 
-		if [[ $2 == *"$i"* ]]; then
-			printf "#define LIGHTMODBUS_F%02d%01s\n" $i $suffix >> $LIBCONF
+                log "[info] $1 function $i is going to be included"
 
-			log "[info] $1 function $i is going to be included"
+                if [[ -n ${modules[$i]} ]]; then
+                    echo "$1-${modules[$i]}" >> $MODCONF
+                    addbase=1
+                fi
 
-			if [[ -n ${modules[$i]} ]]; then
-				echo "$1-${modules[$i]}" >> $MODCONF
-				addbase=1
-			fi
-		fi
-	done
+                break
+            fi
+        done
+    done
 
 	if [[ $addbase -eq 1 ]]; then
 		echo "$1-base $1-link" >> $MODCONF

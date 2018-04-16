@@ -20,6 +20,13 @@ Check [wiki](https://github.com/Jacajack/liblightmodbus/wiki) and [docs](https:/
 
 If you need help - [email me](mailto:mrjjot@gmail.com). If you want to help - contribute here, on Github. **All contributions are welcome!**
 
+## Platforms on which liblightmodbus is known to run
+ - 8-bit AVR (ATmega 8, ATmega 328, etc.)
+ - STM32 ARM (STM32F103, STM32L151, etc.)
+ - Raspberry Pi
+ - i386, amd64
+ - PowerPC
+
 ## PPA
 `liblightmodbus` can be obtained from [PPA](https://code.launchpad.net/~mrjjot/+archive/ubuntu/liblightmodbus) (Personal Package Archive).
 

@@ -94,7 +94,7 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
 
 	//Check if frame is exception response
-	if ( parser->base.function & 128 && status->response.length == 5 )
+	if ( ( parser->base.function & 128 ) && status->response.length == 5 )
 	{
 		err = modbusParseException( status, parser );
 	}

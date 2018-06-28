@@ -55,7 +55,7 @@ typedef struct modbusMaster
 		uint16_t index; //Address of the first element (in slave device)
 		uint16_t count; //Count of data units (coils, registers, etc.)
 		uint8_t length; //Length of data in bytes
-		uint8_t type; //Type of data
+		ModbusDataType type; //Type of data
 		uint8_t function; //Function that accessed the data
 
 		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_DATA

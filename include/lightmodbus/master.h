@@ -22,6 +22,7 @@
 #define LIGHTMODBUS_MASTER_BASE_H
 
 #include <inttypes.h>
+#include "core.h"
 #include "libconf.h"
 
 typedef struct modbusMaster
@@ -82,8 +83,8 @@ typedef struct modbusMaster
 #include "master/mbregs.h"
 #include "master/mbcoils.h"
 
-extern uint8_t modbusParseResponse( ModbusMaster *status );
-extern uint8_t modbusMasterInit( ModbusMaster *status );
-extern uint8_t modbusMasterEnd( ModbusMaster *status ); //Free memory used by master
+extern ModbusError modbusParseResponse( ModbusMaster *status );
+extern ModbusError modbusMasterInit( ModbusMaster *status );
+extern ModbusError modbusMasterEnd( ModbusMaster *status ); //Free memory used by master
 
 #endif

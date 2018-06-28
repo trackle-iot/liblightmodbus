@@ -23,25 +23,26 @@
 
 #include <inttypes.h>
 #include "../libconf.h"
+#include "../core.h"
 #include "../master.h"
 
 //Functions for building requests
 #if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
 #define modbusBuildRequest03( status, address, index, count ) modbusBuildRequest0304( (status), 3, (address), (index), (count) )
 #define modbusBuildRequest04( status, address, index, count ) modbusBuildRequest0304( (status), 4, (address), (index), (count) )
-extern uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
+extern ModbusError modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
 #endif
 
 #ifdef LIGHTMODBUS_F06M
-extern uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
+extern ModbusError modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
 #endif
 
 #ifdef LIGHTMODBUS_F16M
-extern uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values );
+extern ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values );
 #endif
 
 #ifdef LIGHTMODBUS_F22M
-extern uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t andmask, uint16_t ormask );
+extern ModbusError modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t andmask, uint16_t ormask );
 #endif
 
 #endif

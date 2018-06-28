@@ -27,7 +27,7 @@
 //Examines Modbus frame and returns information in ModbusFrameInfo
 //This function doesn't perform ANY data checking apart from CRC check
 //Please keep in mind, that if return value is different from MODBUS_ERROR_OK or MODBUS_ERROR_EXCEPTION, the data returned in the structure is worthless
-uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame, uint8_t length )
+ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame, uint8_t length )
 {
 	union modbusParser *parser;
 

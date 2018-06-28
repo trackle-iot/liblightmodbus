@@ -23,24 +23,25 @@
 
 #include <inttypes.h>
 #include "../libconf.h"
+#include "../core.h"
 #include "../slave.h"
 
 //Functions needed from other modules
-extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode );
+extern ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusExceptionCode exceptionCode );
 
 //Functions for parsing requests
 #if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
 #define modbusParseRequest01 modbusParseRequest0102
 #define modbusParseRequest02 modbusParseRequest0102
-extern uint8_t modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser );
+extern ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F05S
-extern uint8_t modbusParseRequest05( ModbusSlave *status, ModbusParser *parser );
+extern ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F15S
-extern uint8_t modbusParseRequest15( ModbusSlave *status, ModbusParser *parser );
+extern ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #endif

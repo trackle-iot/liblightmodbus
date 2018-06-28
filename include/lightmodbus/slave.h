@@ -22,6 +22,7 @@
 #define LIGHTMODBUS_SLAVE_BASE_H
 
 #include <inttypes.h>
+#include "core.h"
 #include "libconf.h"
 
 typedef struct modbusSlave
@@ -65,9 +66,9 @@ typedef struct modbusSlave
 } ModbusSlave; //Type containing slave device configuration data
 
 //Function prototypes
-extern uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t exceptionCode ); //Build an exception
-extern uint8_t modbusParseRequest( ModbusSlave *status ); //Parse and interpret given modbus frame on slave-side
-extern uint8_t modbusSlaveInit( ModbusSlave *status ); //Very basic init of slave side
-extern uint8_t modbusSlaveEnd( ModbusSlave *status ); //Free memory used by slave
+extern ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusExceptionCode exceptionCode ); //Build an exception
+extern ModbusError modbusParseRequest( ModbusSlave *status ); //Parse and interpret given modbus frame on slave-side
+extern ModbusError modbusSlaveInit( ModbusSlave *status ); //Very basic init of slave side
+extern ModbusError modbusSlaveEnd( ModbusSlave *status ); //Free memory used by slave
 
 #endif

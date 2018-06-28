@@ -26,7 +26,7 @@
 #include <lightmodbus/slave/scoils.h>
 
 #if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
-uint8_t modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
+ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 {
 	//Read multiple coils or discrete inputs
 	//Using data from union pointer
@@ -102,7 +102,7 @@ uint8_t modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F05S
-uint8_t modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
+ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write single coil
 	//Using data from union pointer
@@ -184,7 +184,7 @@ uint8_t modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F15S
-uint8_t modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
+ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write multiple coils
 	//Using data from union pointer

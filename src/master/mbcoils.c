@@ -26,7 +26,7 @@
 #include <lightmodbus/master/mbcoils.h>
 
 #if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
-uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )
+ModbusError modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )
 {
 	//Build request01 frame, to send it so slave
 	//Read multiple coils
@@ -72,7 +72,7 @@ uint8_t modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t 
 #endif
 
 #ifdef LIGHTMODBUS_F05M
-uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value )
+ModbusError modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value )
 {
 	//Build request05 frame, to send it so slave
 	//Write single coil
@@ -117,7 +117,7 @@ uint8_t modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t in
 #endif
 
 #ifdef LIGHTMODBUS_F15M
-uint8_t modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values )
+ModbusError modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values )
 {
 	//Build request15 frame, to send it so slave
 	//Write multiple coils

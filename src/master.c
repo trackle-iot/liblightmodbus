@@ -26,7 +26,7 @@
 #include <lightmodbus/master/mpregs.h>
 #include <lightmodbus/master/mpcoils.h>
 
-uint8_t modbusParseException( ModbusMaster *status, ModbusParser *parser )
+ModbusError modbusParseException( ModbusMaster *status, ModbusParser *parser )
 {
 	//Parse exception frame and write data to MODBUSMaster structure
 
@@ -41,7 +41,7 @@ uint8_t modbusParseException( ModbusMaster *status, ModbusParser *parser )
 	return MODBUS_ERROR_EXCEPTION;
 }
 
-uint8_t modbusParseResponse( ModbusMaster *status )
+ModbusError modbusParseResponse( ModbusMaster *status )
 {
 	//This function parses response from master
 	//Calling it will lead to losing all data and exceptions stored in MODBUSMaster (space will be reallocated)
@@ -154,7 +154,7 @@ uint8_t modbusParseResponse( ModbusMaster *status )
 	return err;
 }
 
-uint8_t modbusMasterInit( ModbusMaster *status )
+ModbusError modbusMasterInit( ModbusMaster *status )
 {
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
@@ -194,7 +194,7 @@ uint8_t modbusMasterInit( ModbusMaster *status )
 	return MODBUS_ERROR_OK;
 }
 
-uint8_t modbusMasterEnd( ModbusMaster *status )
+ModbusError modbusMasterEnd( ModbusMaster *status )
 {
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;

@@ -23,21 +23,22 @@
 
 #include <inttypes.h>
 #include "../libconf.h"
+#include "../core.h"
 #include "../master.h"
 
 //Functions for parsing responses
 #if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
 #define modbusParseResponse01 modbusParseResponse0102
 #define modbusParseResponse02 modbusParseResponse0102
-extern uint8_t modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
+extern ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #ifdef LIGHTMODBUS_F05M
-extern uint8_t modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
+extern ModbusError modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #ifdef LIGHTMODBUS_F15M
-extern uint8_t modbusParseResponse15( ModbusMaster *status, ModbusParser *parser,  ModbusParser *requestParser );
+extern ModbusError modbusParseResponse15( ModbusMaster *status, ModbusParser *parser,  ModbusParser *requestParser );
 #endif
 
 #endif

@@ -25,7 +25,7 @@
 #include <lightmodbus/master/mbregs.h>
 
 #if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
-uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )
+ModbusError modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count )
 {
 	//Build request03 frame, to send it so slave
 	//Read multiple holding registers
@@ -69,7 +69,7 @@ uint8_t modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint8_t 
 #endif
 
 #ifdef LIGHTMODBUS_F06M
-uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value )
+ModbusError modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value )
 {
 	//Build request06 frame, to send it so slave
 	//Write single holding reg
@@ -110,7 +110,7 @@ uint8_t modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_t in
 #endif
 
 #ifdef LIGHTMODBUS_F15M
-uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values )
+ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values )
 {
 	//Build request16 frame, to send it so slave
 	//Write multiple holding registers
@@ -159,7 +159,7 @@ uint8_t modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t in
 #endif
 
 #ifdef LIGHTMODBUS_F22M
-uint8_t modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t andmask, uint16_t ormask )
+ModbusError modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t andmask, uint16_t ormask )
 {
 	//Build request22 frame, to send it so slave
 	//Mask write single holding reg

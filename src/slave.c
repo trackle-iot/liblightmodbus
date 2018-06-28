@@ -26,7 +26,7 @@
 #include <lightmodbus/slave/sregs.h>
 #include <lightmodbus/slave/scoils.h>
 
-uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t code )
+ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusExceptionCode code )
 {
 	//Generates modbus exception frame in allocated memory frame
 	//Returns generated frame length
@@ -58,7 +58,7 @@ uint8_t modbusBuildException( ModbusSlave *status, uint8_t function, uint8_t cod
 	return MODBUS_ERROR_EXCEPTION;
 }
 
-uint8_t modbusParseRequest( ModbusSlave *status )
+ModbusError modbusParseRequest( ModbusSlave *status )
 {
 	//Parse and interpret given modbus frame on slave-side
 	uint8_t err = 0;
@@ -153,7 +153,7 @@ uint8_t modbusParseRequest( ModbusSlave *status )
 	return err;
 }
 
-uint8_t modbusSlaveInit( ModbusSlave *status )
+ModbusError modbusSlaveInit( ModbusSlave *status )
 {
 	//Very basic init of slave side
 	//User has to modify pointers etc. himself
@@ -210,7 +210,7 @@ uint8_t modbusSlaveInit( ModbusSlave *status )
 	return MODBUS_ERROR_OK;
 }
 
-uint8_t modbusSlaveEnd( ModbusSlave *status )
+ModbusError modbusSlaveEnd( ModbusSlave *status )
 {
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;

@@ -25,7 +25,7 @@
 #include <lightmodbus/slave/sregs.h>
 
 #if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_F04S)
-uint8_t modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
+ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 {
 	//Read multiple holding registers or input registers
 	//Using data from union pointer
@@ -98,7 +98,7 @@ uint8_t modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F06S
-uint8_t modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
+ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write single holding reg
 	//Using data from union pointer
@@ -170,7 +170,7 @@ uint8_t modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F16S
-uint8_t modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
+ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 {
 	//Write multiple holding registers
 	//Using data from union pointer
@@ -267,7 +267,7 @@ uint8_t modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 #endif
 
 #ifdef LIGHTMODBUS_F22S
-uint8_t modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
+ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 {
 	//Mask write single holding reg
 	//Using data from union pointer

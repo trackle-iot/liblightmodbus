@@ -60,6 +60,6 @@ typedef struct modbusFrameInfo
 	uint8_t length;
 } ModbusFrameInfo;
 
-extern uint8_t modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame, uint8_t length );
+extern ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *frame, uint8_t length );
 
 #endif

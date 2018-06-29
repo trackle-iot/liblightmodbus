@@ -40,7 +40,7 @@ typedef enum modbusError
 	MODBUS_OK = MODBUS_ERROR_OK
 } ModbusError;
 
-//Exception codes
+//Exception codes (defined by Modbus protocol)
 typedef enum modbusExceptionCode
 {
 	MODBUS_EXCEP_ILLEGAL_FUNCTION = 1,

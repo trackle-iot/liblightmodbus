@@ -32,7 +32,7 @@ typedef enum modbusError
 {
 	MODBUS_ERROR_OK = 0, //Everything is ok
 	MODBUS_ERROR_EXCEPTION = 1, //Slave has thrown an exception and it's stored in status->exception
-	MODBUS_ERROR_BAD_FUNCTION = 2, //Slave/master did not parse frame, because the function is not supported
+	MODBUS_ERROR_BAD_FUNCTION = 2, //Slave/master did not parse frame, because the function is not supported (in case of slave, exception is also thrown)
 	MODBUS_ERROR_CRC = 4, //Invalid CRC error
 	MODBUS_ERROR_ALLOC = 8, //Memory allocation problem (eg. system ran out of RAM)
 	MODBUS_ERROR_OTHER = 16, //Other reason function was exited (eg. bad function parameter)

@@ -28,9 +28,11 @@
 
 //Functions for building requests
 #if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
-#define modbusBuildRequest01( status, address, index, count ) modbusBuildRequest0102( (status), 1, (address), (index), (count) )
-#define modbusBuildRequest02( status, address, index, count ) modbusBuildRequest0102( (status), 2, (address), (index), (count) )
 extern ModbusError modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
+static inline ModbusError modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count ) 
+	{ return modbusBuildRequest0102( (status), 1, (address), (index), (count) ); }
+static inline ModbusError modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count ) 
+	{ return modbusBuildRequest0102( (status), 2, (address), (index), (count) ); }
 #endif
 
 #ifdef LIGHTMODBUS_F05M

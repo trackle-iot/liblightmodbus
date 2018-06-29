@@ -96,55 +96,77 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	if ( parser->base.address != status->address && parser->base.address != 0 )
 		return MODBUS_ERROR_OK;
 
-	switch ( parser->base.function )
+	//Firstly, check user function array
+	if ( status->userFunctions != NULL && status->userFunctionCount != 0 )
 	{
-		#if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
-			case 1: //Read multiple coils
-			case 2: //Read multiple discrete inputs
-				err = modbusParseRequest0102( status, parser );
-				break;
-		#endif
+		uint16_t i;
+		for ( i = 0; i < status->userFunctionCount; i++ )
+		{
+			if ( status->userFunctions[i].function == parser->base.function )
+			{
+				//If the function is overriden and handler pointer is valid, user the callback
+				if ( status->userFunctions[i].handler != NULL ) 
+					err = status->userFunctions[i].handler( status, parser );
+				else
+					err = MODBUS_ERROR_PARSE; //Function overriden, but pointer is invalid
 
-		#if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_F04S)
-			case 3: //Read multiple holding registers
-			case 4: //Read multiple input registers
-				err = modbusParseRequest0304( status, parser );
+				//Search till first match
 				break;
-		#endif
+			}
+		}
+	}
+	else //User did not override any function
+	{
+		switch ( parser->base.function )
+		{
+			#if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
+				case 1: //Read multiple coils
+				case 2: //Read multiple discrete inputs
+					err = modbusParseRequest0102( status, parser );
+					break;
+			#endif
 
-		#ifdef LIGHTMODBUS_F05S
-			case 5: //Write single coil
-				err = modbusParseRequest05( status, parser );
+			#if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_F04S)
+				case 3: //Read multiple holding registers
+				case 4: //Read multiple input registers
+					err = modbusParseRequest0304( status, parser );
+					break;
+			#endif
+
+			#ifdef LIGHTMODBUS_F05S
+				case 5: //Write single coil
+					err = modbusParseRequest05( status, parser );
+					break;
+			#endif
+
+			#ifdef LIGHTMODBUS_F06S
+				case 6: //Write single holding reg
+					err = modbusParseRequest06( status, parser );
+					break;
+			#endif
+
+			#ifdef LIGHTMODBUS_F15S
+				case 15: //Write multiple coils
+					err = modbusParseRequest15( status, parser );
+					break;
+			#endif
+
+			#ifdef LIGHTMODBUS_F16S
+				case 16: //Write multiple holding registers
+					err = modbusParseRequest16( status, parser );
+					break;
+			#endif
+
+			#ifdef LIGHTMODBUS_F22S
+				case 22: //Mask write single register
+					err = modbusParseRequest22( status, parser );
+					break;
+			#endif
+
+			default:
+				err = MODBUS_ERROR_PARSE;
 				break;
-		#endif
-
-		#ifdef LIGHTMODBUS_F06S
-			case 6: //Write single holding reg
-				err = modbusParseRequest06( status, parser );
-				break;
-		#endif
-
-		#ifdef LIGHTMODBUS_F15S
-			case 15: //Write multiple coils
-				err = modbusParseRequest15( status, parser );
-				break;
-		#endif
-
-		#ifdef LIGHTMODBUS_F16S
-			case 16: //Write multiple holding registers
-				err = modbusParseRequest16( status, parser );
-				break;
-		#endif
-
-		#ifdef LIGHTMODBUS_F22S
-			case 22: //Mask write single register
-				err = modbusParseRequest22( status, parser );
-				break;
-		#endif
-
-		default:
-			err = MODBUS_ERROR_PARSE;
-			break;
+		}
 	}
 
 	if ( err == MODBUS_ERROR_PARSE )

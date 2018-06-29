@@ -23,7 +23,16 @@
 
 #include <inttypes.h>
 #include "core.h"
+#include "parser.h"
 #include "libconf.h"
+
+//Struct associating user defined parser function with function ID
+struct modbusSlave;
+typedef struct modbusUserFunction
+{
+	uint8_t function; //Function code
+	ModbusError ( *handler )( struct modbusSlave *status, union modbusParser *parser ); //Pointer to user defined function
+} ModbusUserFunction;
 
 typedef struct modbusSlave
 {
@@ -42,6 +51,10 @@ typedef struct modbusSlave
 	uint16_t registerMaskLength; //Masks length (each byte covers 8 registers)
 	uint8_t *coilMask; //Masks for coil write protection (bit of value 1 - write protection)
 	uint16_t coilMaskLength; //Masks length (each byte covers 8 coils)
+
+	//Array of user defined functions - these can override default Modbus functions
+	ModbusUserFunction *userFunctions;
+	uint16_t userFunctionCount;
 
 	struct //Slave response formatting status
 	{

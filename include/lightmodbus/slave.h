@@ -27,12 +27,14 @@
 #include "libconf.h"
 
 //Struct associating user defined parser function with function ID
+#ifdef LIGHTMODBUS_USER_FUNCTIONS
 struct modbusSlave;
 typedef struct modbusUserFunction
 {
 	uint8_t function; //Function code
 	ModbusError ( *handler )( struct modbusSlave *status, union modbusParser *parser ); //Pointer to user defined function
 } ModbusUserFunction;
+#endif
 
 typedef struct modbusSlave
 {
@@ -53,8 +55,10 @@ typedef struct modbusSlave
 	uint16_t coilMaskLength; //Masks length (each byte covers 8 coils)
 
 	//Array of user defined functions - these can override default Modbus functions
+	#ifdef LIGHTMODBUS_USER_FUNCTIONS
 	ModbusUserFunction *userFunctions;
 	uint16_t userFunctionCount;
+	#endif
 
 	struct //Slave response formatting status
 	{

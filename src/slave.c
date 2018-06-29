@@ -97,6 +97,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		return MODBUS_ERROR_OK;
 
 	//Firstly, check user function array
+	#ifdef LIGHTMODBUS_USER_FUNCTIONS
 	if ( status->userFunctions != NULL && status->userFunctionCount != 0 )
 	{
 		uint16_t i;
@@ -116,6 +117,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		}
 	}
 	else //User did not override any function
+	#endif
 	{
 		switch ( parser->base.function )
 		{

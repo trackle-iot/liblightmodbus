@@ -34,6 +34,9 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 	//Check if given pointer is valid
 	if ( status == NULL || code == 0 ) return MODBUS_ERROR_OTHER;
 
+	//Setup 'last exception' in slave struct
+	status->lastException = code;
+
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		//Reallocate frame memory
 		status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
@@ -171,10 +174,9 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		}
 	}
 
-	if ( err == MODBUS_ERROR_BAD_FUNCTION ) //Build exception on bad function
-		if ( parser->base.address != 0 ) //Only if frame is not broadcasted
-			if ( ( err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION ) ) == MODBUS_ERROR_EXCEPTION ) //If building exception succeeds, return BAD_FUNCTION error, else return modbusBuildException error
-				err = MODBUS_ERROR_BAD_FUNCTION;
+	//If function is unknown, return MODBUS_ERROR_EXCEPTION or anything returned by modbusBuildException
+	if ( err == MODBUS_ERROR_BAD_FUNCTION )
+		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION );
 
 	return err;
 }

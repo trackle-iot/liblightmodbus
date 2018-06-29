@@ -45,7 +45,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE );
 
 	//Swap endianness of longer members (but not crc)
 	uint16_t index = modbusMatchEndian( parser->request0102.index );
@@ -53,12 +53,12 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if coil is in valid range
 	if ( count == 0 || count > 2000 )
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
+		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE );
 
 	if ( index >= ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
 		(uint32_t) index + (uint32_t) count > (uint32_t) ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
 		( parser->base.function == 1 ? status->coils : status->discreteInputs ) == NULL )
-			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDR );
+			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
 
 	//Respond
 	frameLength = 5 + BITSTOBYTES( count );
@@ -116,7 +116,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
 	{
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_VAL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_VALUE );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -128,7 +128,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	if ( value != 0x0000 && value != 0xFF00 )
 	{
 		//Illegal data address error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_VAL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_VALUE );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -136,7 +136,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	if ( index >= status->coilCount || status->coils == NULL )
 	{
 		//Illegal data address error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDR );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -144,7 +144,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index ) == 1 )
 	{
 		//Slave failure exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAIL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAILURE );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -203,13 +203,13 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		frameLength = 9 + parser->request15.length;
 		if ( status->request.length != frameLength )
 		{
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VAL );
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE );
 			return MODBUS_ERROR_OK;
 		}
 	}
 	else
 	{
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VAL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -224,7 +224,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		count > 1968 )
 	{
 		//Illegal data value error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VAL );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -233,7 +233,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		(uint32_t) index + (uint32_t) count > (uint32_t) status->coilCount )
 	{
 		//Illegal data address error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDR );
+		if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS );
 		return MODBUS_ERROR_OK;
 	}
 
@@ -242,7 +242,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index + i ) == 1 )
 		{
 			//Slave failure exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAIL );
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAILURE );
 			return MODBUS_ERROR_OK;
 		}
 

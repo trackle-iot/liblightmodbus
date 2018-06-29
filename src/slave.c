@@ -172,7 +172,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	}
 
 	if ( err == MODBUS_ERROR_BAD_FUNCTION )
-		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNC );
+		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION );
 
 	return err;
 }

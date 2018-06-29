@@ -171,8 +171,10 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		}
 	}
 
-	if ( err == MODBUS_ERROR_BAD_FUNCTION )
-		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION );
+	if ( err == MODBUS_ERROR_BAD_FUNCTION ) //Build exception on bad function
+		if ( parser->base.address != 0 ) //Only if frame is not broadcasted
+			if ( ( err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION ) ) == MODBUS_ERROR_EXCEPTION ) //If building exception succeeds, return BAD_FUNCTION error, else return modbusBuildException error
+				err = MODBUS_ERROR_BAD_FUNCTION;
 
 	return err;
 }

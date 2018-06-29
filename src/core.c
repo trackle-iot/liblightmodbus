@@ -70,10 +70,11 @@ uint16_t modbusCRC( const uint8_t *data, uint16_t length )
 				crc >>= 1;
 		}
 	}
+
+	//CRC is always little endian
+	//Note: modbusSwapEndian can be used since commit 75b5391
 	#ifdef LIGHTMODBUS_BIG_ENDIAN
-		//modbusSwapEndian macro can't be used, because it doesn't do anything
-		//if BIG_ENDIAN macro is defined
-		return ( crc << 8 ) | ( crc >> 8 );
+		return modbusSwapEndian( crc );
 	#else
 		return crc;
 	#endif

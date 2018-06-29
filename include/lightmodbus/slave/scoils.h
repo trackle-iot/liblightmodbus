@@ -26,9 +26,6 @@
 #include "../core.h"
 #include "../slave.h"
 
-//Functions needed from other modules
-extern ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusExceptionCode exceptionCode );
-
 //Functions for parsing requests
 #if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
 #define modbusParseRequest01 modbusParseRequest0102

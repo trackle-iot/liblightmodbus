@@ -60,7 +60,7 @@ uint16_t modbusCRC( const uint8_t *data, uint16_t length )
 		for ( j = 8; j != 0; j-- )
 		{
 			//For each bit
-			//Is least-significant-bit is set?
+			//Is least-significant-bit set?
 			if ( ( crc & 0x0001 ) != 0 )
 			{
 				crc >>= 1; //Shift to right and xor

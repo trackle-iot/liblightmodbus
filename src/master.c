@@ -147,7 +147,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 			#endif
 
 			default: //Function code not known by master
-				err = MODBUS_ERROR_PARSE;
+				err = MODBUS_ERROR_BAD_FUNCTION;
 				break;
 		}
 	}

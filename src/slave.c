@@ -109,7 +109,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 				if ( status->userFunctions[i].handler != NULL ) 
 					err = status->userFunctions[i].handler( status, parser );
 				else
-					err = MODBUS_ERROR_PARSE; //Function overriden, but pointer is invalid
+					err = MODBUS_ERROR_BAD_FUNCTION; //Function overriden, but pointer is invalid
 
 				//Search till first match
 				break;
@@ -166,12 +166,12 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 			#endif
 
 			default:
-				err = MODBUS_ERROR_PARSE;
+				err = MODBUS_ERROR_BAD_FUNCTION;
 				break;
 		}
 	}
 
-	if ( err == MODBUS_ERROR_PARSE )
+	if ( err == MODBUS_ERROR_BAD_FUNCTION )
 		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNC );
 
 	return err;

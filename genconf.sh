@@ -21,7 +21,7 @@
 DEFAULTS=1
 MMODULES="01 02 03 04 05 06 15 16 22"
 SMODULES="01 02 03 04 05 06 15 16 22"
-ADDONS="examine"
+ADDONS="examine user_functions"
 STATICMEM_SRES=
 STATICMEM_SREQ=
 STATICMEM_MRES=
@@ -90,10 +90,17 @@ function rmconf()
 #Generates module configuration based on addon list
 function genaddons()
 {
+	#Examine addon
 	if [[ $ADDONS == *"examine"* ]]; then
 		log "[info] frame examination module is going to be included"
 		echo "#define LIGHTMODBUS_ADDON_EXAMINE" >> $LIBCONF
 		echo "addon-examine" >> $MODCONF
+	fi
+
+	#User functions handlers
+	if [[ $ADDONS == *"user_functions"* ]]; then
+		log "[info] user defined function handling is going to be included"
+		echo "#define LIGHTMODBUS_USER_FUNCTIONS" >> $LIBCONF
 	fi
 }
 
@@ -245,6 +252,8 @@ EOM
 	#Manage modules
 	genmodules "slave" "$SMODULES"
 	genmodules "master" "$MMODULES"
+
+	#Manage addons
 	genaddons
 
 	#Nicely end preprocessor if

@@ -48,8 +48,8 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 	}
 
 	//Swap endianness of longer members (but not crc)
-	uint16_t index = modbusSwapEndian( parser->request0304.index );
-	uint16_t count = modbusSwapEndian( parser->request0304.count );
+	uint16_t index = modbusMatchEndian( parser->request0304.index );
+	uint16_t count = modbusMatchEndian( parser->request0304.count );
 
 	//Check if reg is in valid range
 	if ( count == 0 || count > 125 )
@@ -86,7 +86,7 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 
 	//Copy registers to response frame
 	for ( i = 0; i < count; i++ )
-		builder->response0304.values[i] = modbusSwapEndian( ( parser->base.function == 3 ? status->registers : status->inputRegisters )[index + i] );
+		builder->response0304.values[i] = modbusMatchEndian( ( parser->base.function == 3 ? status->registers : status->inputRegisters )[index + i] );
 
 	//Calculate crc
 	builder->response0304.values[count] = modbusCRC( builder->frame, frameLength - 2 );
@@ -117,8 +117,8 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 	}
 
 	//Swap endianness of longer members (but not crc)
-	uint16_t index = modbusSwapEndian( parser->request06.index );
-	uint16_t value = modbusSwapEndian( parser->request06.value );
+	uint16_t index = modbusMatchEndian( parser->request06.index );
+	uint16_t value = modbusMatchEndian( parser->request06.value );
 
 	//Check if reg is in valid range
 	if ( index >= status->registerCount || status->registers == NULL )
@@ -158,7 +158,7 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 	builder->response06.address = status->address;
 	builder->response06.function = parser->request06.function;
 	builder->response06.index = parser->request06.index;
-	builder->response06.value = modbusSwapEndian( status->registers[index] );
+	builder->response06.value = modbusMatchEndian( status->registers[index] );
 
 	//Calculate crc
 	builder->response06.crc = modbusCRC( builder->frame, frameLength - 2 );
@@ -199,8 +199,8 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 	}
 
 	//Swap endianness of longer members (but not crc)
-	uint16_t index = modbusSwapEndian( parser->request16.index );
-	uint16_t count = modbusSwapEndian( parser->request16.count );
+	uint16_t index = modbusMatchEndian( parser->request16.index );
+	uint16_t count = modbusMatchEndian( parser->request16.count );
 
 	//Data checks
 	if ( parser->request16.length == 0 || \
@@ -246,7 +246,7 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 
 	//After all possible exceptions, write values to registers
 	for ( i = 0; i < count; i++ )
-		status->registers[index + i] = modbusSwapEndian( parser->request16.values[i] );
+		status->registers[index + i] = modbusMatchEndian( parser->request16.values[i] );
 
 	//Do not respond when frame is broadcasted
 	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
@@ -289,9 +289,9 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request22.crc ) return MODBUS_ERROR_CRC;
 
 	//Swap endianness of longer members (but not crc)
-	uint16_t index = modbusSwapEndian( parser->request22.index );
-	uint16_t andmask = modbusSwapEndian( parser->request22.andmask );
-	uint16_t ormask = modbusSwapEndian( parser->request22.ormask );
+	uint16_t index = modbusMatchEndian( parser->request22.index );
+	uint16_t andmask = modbusMatchEndian( parser->request22.andmask );
+	uint16_t ormask = modbusMatchEndian( parser->request22.ormask );
 
 	//Check if reg is in valid range
 	if ( index >= status->registerCount || status->registers == NULL )

@@ -62,13 +62,17 @@ typedef enum modbusDataType
 
 #define BITSTOBYTES( n ) ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0 )
 
-//Function prototypes
+//Always swaps endianness - modbusSwapEndian
+static inline uint16_t modbusSwapEndian( uint16_t data ) { return ( data << 8 ) | ( data >> 8 ); }
+
+//Matches endianness with Modbus - works conditionally - modbusMatchEndian
 #ifdef LIGHTMODBUS_BIG_ENDIAN
-#define modbusSwapEndian( data ) ( data )
+static inline uint16_t modbusMatchEndian( uint16_t data ) { return data; }
 #else
-#define modbusSwapEndian( data ) ( ( data << 8 ) | ( data >> 8 ) )
+static inline uint16_t modbusMatchEndian( uint16_t data ) { return modbusSwapEndian( data ); }
 #endif
 
+//Function prototypes
 extern uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit );
 extern uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8_t value );
 extern uint16_t modbusCRC( const uint8_t *data, uint16_t length );

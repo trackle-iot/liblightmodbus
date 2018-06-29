@@ -40,7 +40,7 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
 	if ( status->response.length != 5 + parser->response0102.length || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
 
-	uint16_t count = modbusSwapEndian( requestParser->request0102.count );
+	uint16_t count = modbusMatchEndian( requestParser->request0102.count );
 
 	//Check between data sent to slave and received from slave
 	dataok &= parser->base.address != 0;
@@ -65,7 +65,7 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 	status->data.function = parser->base.function;
 	status->data.address = parser->base.address;
 	status->data.type = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
-	status->data.index = modbusSwapEndian( requestParser->request0102.index );
+	status->data.index = modbusMatchEndian( requestParser->request0102.index );
 	status->data.count = count;
 	memcpy( status->data.coils, parser->response0102.values, parser->response0102.length );
 	status->data.length = parser->response0102.length;
@@ -105,7 +105,7 @@ ModbusError modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, M
 	status->data.function = 5;
 	status->data.address = parser->base.address;
 	status->data.type = MODBUS_COIL;
-	status->data.index = modbusSwapEndian( requestParser->request05.index );
+	status->data.index = modbusMatchEndian( requestParser->request05.index );
 	status->data.count = 1;
 	status->data.coils[0] = parser->response05.value != 0;
 	status->data.length = 1;
@@ -139,8 +139,8 @@ ModbusError modbusParseResponse15( ModbusMaster *status, ModbusParser *parser, M
 	status->data.address = parser->base.address;
 	status->data.function = 15;
 	status->data.type = MODBUS_COIL;
-	status->data.index = modbusSwapEndian( parser->response15.index );
-	status->data.count = modbusSwapEndian( parser->response15.count );
+	status->data.index = modbusMatchEndian( parser->response15.index );
+	status->data.count = modbusMatchEndian( parser->response15.count );
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }

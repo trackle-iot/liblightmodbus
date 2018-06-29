@@ -56,8 +56,8 @@ ModbusError modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint
 
 	builder->base.address = address;
 	builder->base.function = function;
-	builder->request0304.index = modbusSwapEndian( index );
-	builder->request0304.count = modbusSwapEndian( count );
+	builder->request0304.index = modbusMatchEndian( index );
+	builder->request0304.count = modbusMatchEndian( count );
 
 	//Calculate crc
 	builder->request0304.crc = modbusCRC( builder->frame, frameLength - 2 );
@@ -97,8 +97,8 @@ ModbusError modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_
 
 	builder->base.address = address;
 	builder->base.function = 6;
-	builder->request06.index = modbusSwapEndian( index );
-	builder->request06.value = modbusSwapEndian( value );
+	builder->request06.index = modbusMatchEndian( index );
+	builder->request06.value = modbusMatchEndian( value );
 
 	//Calculate crc
 	builder->request06.crc = modbusCRC( builder->frame, frameLength - 2 );
@@ -142,12 +142,12 @@ ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_
 
 	builder->base.address = address;
 	builder->base.function = 16;
-	builder->request16.index = modbusSwapEndian( index );
-	builder->request16.count = modbusSwapEndian( count );
+	builder->request16.index = modbusMatchEndian( index );
+	builder->request16.count = modbusMatchEndian( count );
 	builder->request16.length = count << 1;
 
 	for ( i = 0; i < count; i++ )
-		builder->request16.values[i] = modbusSwapEndian( values[i] );
+		builder->request16.values[i] = modbusMatchEndian( values[i] );
 
 	builder->request16.values[count] = modbusCRC( builder->frame, frameLength - 2 );
 
@@ -187,9 +187,9 @@ ModbusError modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_
 
 	builder->base.address = address;
 	builder->base.function = 22;
-	builder->request22.index = modbusSwapEndian( index );
-	builder->request22.andmask = modbusSwapEndian( andmask );
-	builder->request22.ormask = modbusSwapEndian( ormask );
+	builder->request22.index = modbusMatchEndian( index );
+	builder->request22.andmask = modbusMatchEndian( andmask );
+	builder->request22.ormask = modbusMatchEndian( ormask );
 
 	//Calculate crc
 	builder->request22.crc = modbusCRC( builder->frame, frameLength - 2 );

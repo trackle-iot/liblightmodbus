@@ -114,20 +114,20 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 			//Reading multiple coils/discrete inputs
 			case 01:
 			case 02:
-				info->index = modbusSwapEndian( parser->request0102.index );
-				info->count = modbusSwapEndian( parser->request0102.count );
+				info->index = modbusMatchEndian( parser->request0102.index );
+				info->count = modbusMatchEndian( parser->request0102.count );
 				break;
 
 			//Reading multiple holding/input registers
 			case 03:
 			case 04:
-				info->index = modbusSwapEndian( parser->request0304.index );
-				info->count = modbusSwapEndian( parser->request0304.count );
+				info->index = modbusMatchEndian( parser->request0304.index );
+				info->count = modbusMatchEndian( parser->request0304.count );
 				break;
 
 			//Write single coil
 			case 05:
-				info->index = modbusSwapEndian( parser->request05.index );
+				info->index = modbusMatchEndian( parser->request05.index );
 				info->data = &parser->request05.value;
 				info->length = 2;
 				info->count = 1;
@@ -135,7 +135,7 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 
 			//Write single holding register
 			case 06:
-				info->index = modbusSwapEndian( parser->request06.index );
+				info->index = modbusMatchEndian( parser->request06.index );
 				info->data = &parser->request06.value;
 				info->length = 2;
 				info->count = 1;
@@ -143,26 +143,26 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 
 			//Write multiple coils
 			case 15:
-				info->index = modbusSwapEndian( parser->request15.index );
-				info->count = modbusSwapEndian( parser->request15.count );
+				info->index = modbusMatchEndian( parser->request15.index );
+				info->count = modbusMatchEndian( parser->request15.count );
 				info->data = parser->request15.values;
 				info->length = parser->request15.length;
 				break;
 
 			//Write multiple registers
 			case 16:
-				info->index = modbusSwapEndian( parser->request16.index );
-				info->count = modbusSwapEndian( parser->request16.count );
+				info->index = modbusMatchEndian( parser->request16.index );
+				info->count = modbusMatchEndian( parser->request16.count );
 				info->data = parser->request16.values;
 				info->length = parser->request16.length;
 				break;
 
 			//Mask write
 			case 22:
-				info->index = modbusSwapEndian( parser->request22.index );
+				info->index = modbusMatchEndian( parser->request22.index );
 				info->count = 1;
-				info->andmask = modbusSwapEndian( parser->request22.andmask );
-				info->ormask = modbusSwapEndian( parser->request22.ormask );
+				info->andmask = modbusMatchEndian( parser->request22.andmask );
+				info->ormask = modbusMatchEndian( parser->request22.ormask );
 				break;
 
 			//Unknown function
@@ -191,7 +191,7 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 
 			//Write single coil
 			case 05:
-				info->index = modbusSwapEndian( parser->response05.index );
+				info->index = modbusMatchEndian( parser->response05.index );
 				info->data = &parser->response05.value;
 				info->length = 2;
 				info->count = 1;
@@ -199,7 +199,7 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 
 			//Write single holding register
 			case 06:
-				info->index = modbusSwapEndian( parser->response06.index );
+				info->index = modbusMatchEndian( parser->response06.index );
 				info->data = &parser->response06.value;
 				info->length = 2;
 				info->count = 1;
@@ -207,22 +207,22 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 
 			//Write multiple coils
 			case 15:
-				info->index = modbusSwapEndian( parser->response15.index );
-				info->count = modbusSwapEndian( parser->response15.count );
+				info->index = modbusMatchEndian( parser->response15.index );
+				info->count = modbusMatchEndian( parser->response15.count );
 				break;
 
 			//Write multiple registers
 			case 16:
-				info->index = modbusSwapEndian( parser->response16.index );
-				info->count = modbusSwapEndian( parser->response16.count );
+				info->index = modbusMatchEndian( parser->response16.index );
+				info->count = modbusMatchEndian( parser->response16.count );
 				break;
 
 			//Mask write
 			case 22:
-				info->index = modbusSwapEndian( parser->response22.index );
+				info->index = modbusMatchEndian( parser->response22.index );
 				info->count = 1;
-				info->andmask = modbusSwapEndian( parser->response22.andmask );
-				info->ormask = modbusSwapEndian( parser->response22.ormask );
+				info->andmask = modbusMatchEndian( parser->response22.andmask );
+				info->ormask = modbusMatchEndian( parser->response22.ormask );
 				break;
 
 			//Unknown function

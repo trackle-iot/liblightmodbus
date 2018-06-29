@@ -48,8 +48,8 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VAL );
 
 	//Swap endianness of longer members (but not crc)
-	uint16_t index = modbusSwapEndian( parser->request0102.index );
-	uint16_t count = modbusSwapEndian( parser->request0102.count );
+	uint16_t index = modbusMatchEndian( parser->request0102.index );
+	uint16_t count = modbusMatchEndian( parser->request0102.count );
 
 	//Check if coil is in valid range
 	if ( count == 0 || count > 2000 )
@@ -121,8 +121,8 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	}
 
 	//Swap endianness of longer members (but not crc)
-	uint16_t index = modbusSwapEndian( parser->request05.index );
-	uint16_t value = modbusSwapEndian( parser->request05.value );
+	uint16_t index = modbusMatchEndian( parser->request05.index );
+	uint16_t value = modbusMatchEndian( parser->request05.value );
 
 	//Check if coil value is valid
 	if ( value != 0x0000 && value != 0xFF00 )
@@ -214,8 +214,8 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	}
 
 	//Swap endianness of longer members (but not crc)
-	uint16_t index = modbusSwapEndian( parser->request15.index );
-	uint16_t count = modbusSwapEndian( parser->request15.count );
+	uint16_t index = modbusMatchEndian( parser->request15.index );
+	uint16_t count = modbusMatchEndian( parser->request15.count );
 
 	//Data checks
 	if ( parser->request15.length == 0 || \

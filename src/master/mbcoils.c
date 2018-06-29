@@ -58,8 +58,8 @@ ModbusError modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint
 
 	builder->base.address = address;
 	builder->base.function = function;
-	builder->request0102.index = modbusSwapEndian( index );
-	builder->request0102.count = modbusSwapEndian( count );
+	builder->request0102.index = modbusMatchEndian( index );
+	builder->request0102.count = modbusMatchEndian( count );
 
 	//Calculate crc
 	builder->request0102.crc = modbusCRC( builder->frame, frameLength - 2 );
@@ -103,8 +103,8 @@ ModbusError modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_
 
 	builder->base.address = address;
 	builder->base.function = 5;
-	builder->request05.index = modbusSwapEndian( index );
-	builder->request05.value = modbusSwapEndian( value );
+	builder->request05.index = modbusMatchEndian( index );
+	builder->request05.value = modbusMatchEndian( value );
 
 	//Calculate crc
 	builder->request05.crc = modbusCRC( builder->frame, frameLength - 2 );
@@ -150,8 +150,8 @@ ModbusError modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_
 
 	builder->base.address = address;
 	builder->base.function = 15;
-	builder->request15.index = modbusSwapEndian( index );
-	builder->request15.count = modbusSwapEndian( count );
+	builder->request15.index = modbusMatchEndian( index );
+	builder->request15.count = modbusMatchEndian( count );
 	builder->request15.length = BITSTOBYTES( count );
 
 	for ( i = 0; i < builder->request15.length; i++ )

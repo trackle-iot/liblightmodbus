@@ -7,9 +7,11 @@ branches:
 
 before_install:
     - sudo apt-get update
+
 install:
     - sudo apt-get install gcc-avr binutils-avr avr-libc valgrind pastebinit cppcheck
     - pip install --user cpp-coveralls
+
 script:
     - make -f makefile-avr MCU=atmega328p
     - make -f makefile-avr clean
@@ -20,10 +22,14 @@ script:
     - ./genconf.sh --sres 1 --sreq 1 --mres 1 --mreq 1 --mdat 1
     - make -f makefile-coverage all
     - cp coverage-test.log coverage-test-static1.log
+    - ./genconf.sh -a "experimental register_callback coil_callback"
+    - make -f makefile-coverage all
+    - cp coverage-test.log coverage-callbacks.log
     - ./genconf.sh -r
     - make conf
     - make -f makefile-coverage all
     - cp coverage-test.log coverage-test-dynamic.log
+
 after_success:
     - coveralls --verbose --exclude test/test.c
     - find . -name "*.c" | xargs cppcheck > cppcheck.log

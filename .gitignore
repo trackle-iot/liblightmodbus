@@ -12,8 +12,15 @@ coverage-test
 examples/example
 massif.out
 valgrind.xml
+
+#Editors' stuff
 *.tmp
 *.swp
 *.*~
+
+#CMake dir
 build
+
+#Local configuration
 include/lightmodbus/libconf.h
+.modules.conf

@@ -53,13 +53,23 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-		status->data.coils = (uint8_t*) calloc( BITSTOBYTES( count ), sizeof( uint8_t ) );
+	#ifdef LIGHTMODBUS_NO_MASTER_DATA_BUFFER
+		//When no data buffer is used, pointer has to point inside frame provided by user
+		//That implies, frame cannot be copied for parsing!
+		status->data.coils = parser->response0102.values;
 		status->data.regs = (uint16_t*) status->data.coils;
-		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
-		if ( BITSTOBYTES( count ) * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
-		memset( status->data.coils, 0, BITSTOBYTES( count ) * sizeof( uint8_t ) );
+		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+			status->data.coils = (uint8_t*) calloc( BITSTOBYTES( count ), sizeof( uint8_t ) );
+			status->data.regs = (uint16_t*) status->data.coils;
+			if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+		#else
+			if ( BITSTOBYTES( count ) * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+			memset( status->data.coils, 0, BITSTOBYTES( count ) * sizeof( uint8_t ) );
+		#endif
+
+		//Copy the data
+		memcpy( status->data.coils, parser->response0102.values, parser->response0102.length );
 	#endif
 
 	status->data.function = parser->base.function;
@@ -67,7 +77,6 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 	status->data.type = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
 	status->data.index = modbusMatchEndian( requestParser->request0102.index );
 	status->data.count = count;
-	memcpy( status->data.coils, parser->response0102.values, parser->response0102.length );
 	status->data.length = parser->response0102.length;
 	return MODBUS_ERROR_OK;
 }
@@ -93,13 +102,23 @@ ModbusError modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, M
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-		status->data.coils = (uint8_t*) calloc( 1, sizeof( uint8_t ) );
+	#ifdef LIGHTMODBUS_NO_MASTER_DATA_BUFFER
+		//When no data buffer is used, pointer has to point inside frame provided by user
+		//That implies, frame cannot be copied for parsing!
+		status->data.coils = &parser->response05.value;
 		status->data.regs = (uint16_t*) status->data.coils;
-		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 	#else
-		if ( 1 * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
-		memset( status->data.coils, 0, 1 * sizeof( uint8_t ) );
+		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+			status->data.coils = (uint8_t*) calloc( 1, sizeof( uint8_t ) );
+			status->data.regs = (uint16_t*) status->data.coils;
+			if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+		#else
+			if ( 1 * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+			memset( status->data.coils, 0, 1 * sizeof( uint8_t ) );
+		#endif
+
+		//Copy the data
+		status->data.coils[0] = parser->response05.value != 0;
 	#endif
 
 	status->data.function = 5;
@@ -107,7 +126,6 @@ ModbusError modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, M
 	status->data.type = MODBUS_COIL;
 	status->data.index = modbusMatchEndian( requestParser->request05.index );
 	status->data.count = 1;
-	status->data.coils[0] = parser->response05.value != 0;
 	status->data.length = 1;
 	return MODBUS_ERROR_OK;
 }

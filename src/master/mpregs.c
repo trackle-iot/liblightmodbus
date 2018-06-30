@@ -54,13 +54,24 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 	//If data is bad, abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-		//Allocate memory for ModbusData structures array
-		status->data.coils = (uint8_t*) calloc( parser->response0304.length >> 1, sizeof( uint16_t ) );
-		status->data.regs = (uint16_t*) status->data.coils;
-		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifdef LIGHTMODBUS_NO_MASTER_DATA_BUFFER
+		//When no data buffer is used, pointer has to point inside frame provided by user
+		//That implies, frame cannot be copied for parsing!
+		status->data.regs = parser->response0304.values;
+		status->data.coils = (uint16_t*) status->data.regs;
 	#else
-		if ( ( parser->response0304.length >> 1 ) * sizeof( uint16_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+			//Allocate memory for ModbusData structures array
+			status->data.coils = (uint8_t*) calloc( parser->response0304.length >> 1, sizeof( uint16_t ) );
+			status->data.regs = (uint16_t*) status->data.coils;
+			if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+		#else
+			if ( ( parser->response0304.length >> 1 ) * sizeof( uint16_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+		#endif
+
+		//Copy received data (with swapping endianness)
+		for ( i = 0; i < count; i++ )
+			status->data.regs[i] = modbusMatchEndian( parser->response0304.values[i] );
 	#endif
 
 	status->data.address = parser->base.address;
@@ -68,10 +79,6 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 	status->data.type = parser->base.function == 3 ? MODBUS_HOLDING_REGISTER : MODBUS_INPUT_REGISTER;
 	status->data.index = modbusMatchEndian( requestParser->request0304.index );
 	status->data.count = count;
-
-	//Copy received data (with swapping endianness)
-	for ( i = 0; i < count; i++ )
-		status->data.regs[i] = modbusMatchEndian( parser->response0304.values[i] );
 
 	status->data.length = parser->response0304.length;
 	return MODBUS_ERROR_OK;
@@ -101,13 +108,23 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 	//If data is bad abort parsing, and set error flag
 	if ( !dataok ) return MODBUS_ERROR_FRAME;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-		//Set up new data table
-		status->data.coils = (uint8_t*) calloc( 1, sizeof( uint16_t ) );
-		status->data.regs = (uint16_t*) status->data.coils;
-		if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+	#ifdef LIGHTMODBUS_NO_MASTER_DATA_BUFFER
+		//When no data buffer is used, pointer has to point inside frame provided by user
+		//That implies, frame cannot be copied for parsing!
+		status->data.regs = &parser->response06.value;
+		status->data.coils = (uint16_t*) status->data.regs;
 	#else
-		if ( 1 * sizeof( uint16_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+			//Set up new data table
+			status->data.coils = (uint8_t*) calloc( 1, sizeof( uint16_t ) );
+			status->data.regs = (uint16_t*) status->data.coils;
+			if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
+		#else
+			if ( 1 * sizeof( uint16_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+		#endif
+
+		//Copy the data
+		status->data.regs[0] = modbusMatchEndian( parser->response06.value );
 	#endif
 
 	status->data.function = 6;
@@ -115,7 +132,6 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 	status->data.type = MODBUS_HOLDING_REGISTER;
 	status->data.index = modbusMatchEndian( parser->response06.index );
 	status->data.count = 1;
-	status->data.regs[0] = modbusMatchEndian( parser->response06.value );
 	status->data.length = 2;
 	return MODBUS_ERROR_OK;
 }
@@ -153,9 +169,12 @@ ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, M
 	status->data.type = MODBUS_HOLDING_REGISTER;
 	status->data.index = modbusMatchEndian( parser->response16.index );
 	status->data.count = count;
+
+	//If master data buffer is disabled, this is still valid
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-		status->data.regs = NULL;
+		status->data.regs = status->data.coils = NULL;
 	#endif
+	
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }

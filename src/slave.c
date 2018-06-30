@@ -26,6 +26,7 @@
 #include <lightmodbus/slave/sregs.h>
 #include <lightmodbus/slave/scoils.h>
 
+#ifdef LIGHTMODBUS_SLAVE_BASE
 ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusExceptionCode code )
 {
 	//Generates modbus exception frame in allocated memory frame
@@ -60,7 +61,9 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 	//That's the reason exception should be thrown - just like that, an information
 	return MODBUS_ERROR_EXCEPTION;
 }
+#endif
 
+#ifdef LIGHTMODBUS_SLAVE_BASE
 ModbusError modbusParseRequest( ModbusSlave *status )
 {
 	//Parse and interpret given modbus frame on slave-side
@@ -186,7 +189,9 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 	return err;
 }
+#endif
 
+#ifdef LIGHTMODBUS_SLAVE_BASE
 ModbusError modbusSlaveInit( ModbusSlave *status )
 {
 	//Very basic init of slave side
@@ -263,7 +268,9 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_SLAVE_BASE
 ModbusError modbusSlaveEnd( ModbusSlave *status )
 {
 	//Check if given pointer is valid
@@ -277,3 +284,4 @@ ModbusError modbusSlaveEnd( ModbusSlave *status )
 
 	return MODBUS_ERROR_OK;
 }
+#endif

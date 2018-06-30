@@ -53,9 +53,8 @@ string( REGEX REPLACE "\n$" "" PROJECT_GIT_VERSION "${PROJECT_GIT_VERSION}" ) #S
 #Include dirs
 include_directories( "${PROJECT_SOURCE_DIR}/include" )
 
-#List of all modules that can be enabled
-set( AVAILABLE_MODULES 
-	#Slave functions
+#List of all slave modules
+set( SLAVE_MODULES 
 	"F01S"
 	"F02S"
 	"F03S"
@@ -65,8 +64,12 @@ set( AVAILABLE_MODULES
 	"F15S"
 	"F16S"
 	"F22S"
-	
-	#Master functions
+	"USER_FUNCTIONS"
+	"REGISTER_CALLBACK"
+)
+
+#List of all master modules
+set( MASTER_MODULES
 	"F01M"
 	"F02M"
 	"F03M"
@@ -76,43 +79,35 @@ set( AVAILABLE_MODULES
 	"F15M"
 	"F16M"
 	"F22M"
-
-	#Other modules
-	"ADDON_EXAMINE"
-	"USER_FUNCTIONS"
 	"NO_MASTER_DATA_BUFFER"
 	"MASTER_INVASIVE_PARSING"
-	"REGISTER_CALLBACK"
+)
+
+#List of all modules that can be enabled
+set( AVAILABLE_MODULES 
+	"SLAVE_BASE"
+	"${SLAVE_MODULES}"
+	"MASTER_BASE"
+	"${MASTER_MODULES}"
+
+	#Misc
 	"EXPERIMENTAL"
+	"ADDON_EXAMINE"
 )
 
 #List of modules enabled by default
 set( DEFAULT_MODULES 
-	#Slave functions
-	"F01S"
-	"F02S"
-	"F03S"
-	"F04S"
-	"F05S"
-	"F06S"
-	"F15S"
-	"F16S"
-	"F22S"
+	#Slave
+	"SLAVE_BASE"
+	"F01S" "F02S" "F03S" "F04S" "F05S" "F06S" "F15S" "F16S" "F22S"
+	"USER_FUNCTIONS"
 	
-	#Master functions
-	"F01M"
-	"F02M"
-	"F03M"
-	"F04M"
-	"F05M"
-	"F06M"
-	"F15M"
-	"F16M"
-	"F22M"
+	#Master
+	"MASTER_BASE"
+	"F01M" "F02M" "F03M" "F04M" "F05M" "F06M" "F15M" "F16M" "F22M"
 
 	#Other modules
 	"ADDON_EXAMINE"
-	"USER_FUNCTIONS"
 )
 
 #Macros to be written to libconf.h
@@ -134,6 +129,14 @@ foreach( MODULE ${MODULES} )
 	#If that module doesn't exit raise an error
 	if ( NOT ${MODULE} IN_LIST AVAILABLE_MODULES )
 		message( FATAL_ERROR "`${MODULE}' is not a valid module name. Available modules are: `${AVAILABLE_MODULES}'")
+	endif( )
+
+	#If module needs base, but base is not included
+	if ( ${MODULE} IN_LIST SLAVE_MODULES AND NOT "SLAVE_BASE" IN_LIST MODULES )
+		message( FATAL_ERROR "You seem to be needing ${MODULE} module, but it requires slave base module to be included. Please add SLAVE_BASE to your MODULES list" )
+	endif( )
+	if ( ${MODULE} IN_LIST MASTER_MODULES AND NOT "MASTER_BASE" IN_LIST MODULES )
+		message( FATAL_ERROR "You seem to be needing ${MODULE} module, but it requires master base module to be included. Please add MASTER_BASE to your MODULES list" )
 	endif( )
 
 	#Generate proper #define directive

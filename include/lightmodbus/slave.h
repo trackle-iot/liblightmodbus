@@ -18,13 +18,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIGHTMODBUS_SLAVE_BASE_H
-#define LIGHTMODBUS_SLAVE_BASE_H
+#ifndef LIGHTMODBUS_SLAVE_H
+#define LIGHTMODBUS_SLAVE_H
 
 #include <inttypes.h>
 #include "lightmodbus.h"
 #include "parser.h"
 #include "libconf.h"
+
+#ifdef LIGHTMODBUS_SLAVE_BASE
 
 //Struct associating user defined parser function with function ID
 #ifdef LIGHTMODBUS_USER_FUNCTIONS
@@ -105,11 +107,14 @@ typedef struct modbusSlave
 	} request;
 
 } ModbusSlave; //Type containing slave device configuration data
+#endif
 
 //Function prototypes
+#ifdef LIGHTMODBUS_SLAVE_BASE
 extern ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusExceptionCode exceptionCode ); //Build an exception
 extern ModbusError modbusParseRequest( ModbusSlave *status ); //Parse and interpret given modbus frame on slave-side
 extern ModbusError modbusSlaveInit( ModbusSlave *status ); //Very basic init of slave side
 extern ModbusError modbusSlaveEnd( ModbusSlave *status ); //Free memory used by slave
+#endif
 
 #endif

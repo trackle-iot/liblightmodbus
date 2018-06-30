@@ -26,6 +26,7 @@
 #include <lightmodbus/master/mpregs.h>
 #include <lightmodbus/master/mpcoils.h>
 
+#ifdef LIGHTMODBUS_MASTER_BASE
 ModbusError modbusParseException( ModbusMaster *status, ModbusParser *parser )
 {
 	//Parse exception frame and write data to MODBUSMaster structure
@@ -40,7 +41,9 @@ ModbusError modbusParseException( ModbusMaster *status, ModbusParser *parser )
 
 	return MODBUS_ERROR_EXCEPTION;
 }
+#endif
 
+#ifdef LIGHTMODBUS_MASTER_BASE
 ModbusError modbusParseResponse( ModbusMaster *status )
 {
 	//This function parses response from master
@@ -153,7 +156,9 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	}
 	return err;
 }
+#endif
 
+#ifdef LIGHTMODBUS_MASTER_BASE
 ModbusError modbusMasterInit( ModbusMaster *status )
 {
 	//Check if given pointer is valid
@@ -193,7 +198,9 @@ ModbusError modbusMasterInit( ModbusMaster *status )
 
 	return MODBUS_ERROR_OK;
 }
+#endif
 
+#ifdef LIGHTMODBUS_MASTER_BASE
 ModbusError modbusMasterEnd( ModbusMaster *status )
 {
 	//Check if given pointer is valid
@@ -212,3 +219,4 @@ ModbusError modbusMasterEnd( ModbusMaster *status )
 
 	return MODBUS_ERROR_OK;
 }
+#endif

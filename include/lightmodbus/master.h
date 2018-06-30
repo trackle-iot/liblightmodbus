@@ -18,12 +18,14 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIGHTMODBUS_MASTER_BASE_H
-#define LIGHTMODBUS_MASTER_BASE_H
+#ifndef LIGHTMODBUS_MASTER_H
+#define LIGHTMODBUS_MASTER_H
 
 #include <inttypes.h>
 #include "lightmodbus.h"
 #include "libconf.h"
+
+#ifdef LIGHTMODBUS_MASTER_BASE
 
 #if defined( LIGHTMODBUS_MASTER_INVASIVE_PARSING ) && ~defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER )
 	#warning LIGHTMODBUS_MASTER_INVASIVE_PARSING has no effect if LIGHTMODBUS_NO_MASTER_DATA_BUFFER is not defined
@@ -87,12 +89,15 @@ typedef struct modbusMaster
 	} exception;
 
 } ModbusMaster; //Type containing master device configuration data
+#endif
 
 #include "master/mbregs.h"
 #include "master/mbcoils.h"
 
+#ifdef LIGHTMODBUS_MASTER_BASE
 extern ModbusError modbusParseResponse( ModbusMaster *status );
 extern ModbusError modbusMasterInit( ModbusMaster *status );
 extern ModbusError modbusMasterEnd( ModbusMaster *status ); //Free memory used by master
+#endif
 
 #endif

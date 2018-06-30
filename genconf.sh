@@ -144,7 +144,10 @@ function genmodules()
         done
     done
 
+	local side_upper=$(echo $1 | tr /a-z/ /A-Z/)
+
 	if [[ $addbase -eq 1 ]]; then
+		printf "#define LIGHTMODBUS_%s_BASE\n" $side_upper >> $LIBCONF
 		echo "$1-base $1-link" >> $MODCONF
 		log "[info] $1 base is going to be included"
 	else

@@ -23,7 +23,7 @@
 
 #include <inttypes.h>
 #include "../libconf.h"
-#include "../core.h"
+#include "../lightmodbus.h"
 #include "../master.h"
 
 //Functions for parsing responses

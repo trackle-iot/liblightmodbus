@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_EXAMINE
 
 #include <inttypes.h>
-#include "../core.h"
+#include "../lightmodbus.h"
 #include "../libconf.h"
 
 //Create macro aliases so they can be more easily connected to the modbusExamine call

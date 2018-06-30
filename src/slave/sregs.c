@@ -19,7 +19,7 @@
 */
 
 #include <stdlib.h>
-#include <lightmodbus/core.h>
+#include <lightmodbus/lightmodbus.h>
 #include <lightmodbus/parser.h>
 #include <lightmodbus/slave.h>
 #include <lightmodbus/slave/sregs.h>

@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_MASTER_BASE_H
 
 #include <inttypes.h>
-#include "core.h"
+#include "lightmodbus.h"
 #include "libconf.h"
 
 typedef struct modbusMaster

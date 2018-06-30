@@ -19,7 +19,7 @@
 */
 
 #include <stdlib.h>
-#include <lightmodbus/core.h>
+#include <lightmodbus/lightmodbus.h>
 
 uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit )
 {

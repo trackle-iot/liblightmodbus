@@ -9,7 +9,7 @@ AKA. The Worst Test File Ever
 #include <unistd.h>
 #include <inttypes.h>
 
-#include <lightmodbus/core.h>
+#include <lightmodbus/lightmodbus.h>
 #include <lightmodbus/master.h>
 #include <lightmodbus/slave.h>
 #include <lightmodbus/addons/examine.h>

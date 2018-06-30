@@ -22,7 +22,7 @@
 #define LIGHTMODBUS_SLAVE_BASE_H
 
 #include <inttypes.h>
-#include "core.h"
+#include "lightmodbus.h"
 #include "parser.h"
 #include "libconf.h"
 

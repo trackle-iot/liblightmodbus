@@ -31,7 +31,7 @@
 	#warning LIGHTMODBUS_MASTER_INVASIVE_PARSING has no effect if LIGHTMODBUS_NO_MASTER_DATA_BUFFER is not defined
 #endif
 
-#if defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER ) && !defined( LIGHTMOBUS_EXPERIMENTAL )
+#if defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER ) && !defined( LIGHTMODBUS_EXPERIMENTAL )
 	#error Disabling exclusive master data buffer is an experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message, but please make sure your system permits unaligned memory acces beforehand.
 #endif
 

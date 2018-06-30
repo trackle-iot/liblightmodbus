@@ -9,6 +9,7 @@ set( CMAKE_C_FLAGS_RELEASE "-Os -Wall" )
 
 #For coverage testing
 if ( DEFINED COVERAGE_TEST AND NOT DEFINED AVR )
+	message( STATUS "Build for coverage testing" )
 	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage" )
 endif( )
 

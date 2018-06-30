@@ -83,6 +83,7 @@ set( AVAILABLE_MODULES
 	"NO_MASTER_DATA_BUFFER"
 	"MASTER_INVASIVE_PARSING"
 	"REGISTER_CALLBACK"
+	"EXPERIMENTAL"
 )
 
 #List of modules enabled by default
@@ -137,7 +138,7 @@ foreach( MODULE ${MODULES} )
 
 	#Generate proper #define directive
 	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_${MODULE}\n" )
-	message( STATUS "Enabling module ${MODULE}" )
+	message( STATUS "Enabling LIGHTMODBUS_${MODULE}" )
 endforeach( )
 
 #Fixed size buffers
@@ -185,12 +186,6 @@ else( )
 	else( )
 		message( FATAL_ERROR "Bad ENDIANNESS value. Use 'big' or 'little'." )
 	endif( )
-endif( )
-
-#Experimental features
-if ( DEFINED EXPERIMENTAL )
-	message( STATUS "Enabling experimental features (LIGHTMODBUS_EXPERIMENTAL)" )
-	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_EXPERIMENTAL\n" )
 endif( )
 
 #Emit configuration file

@@ -111,12 +111,11 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		{
 			if ( status->userFunctions[i].function == parser->base.function )
 			{
+				functionMatch = 1;
+
 				//If the function is overriden and handler pointer is valid, user the callback
 				if ( status->userFunctions[i].handler != NULL )
-				{
 					err = status->userFunctions[i].handler( status, parser );
-					functionMatch = 1;
-				}
 				else
 					err = MODBUS_ERROR_BAD_FUNCTION; //Function overriden, but pointer is invalid
 

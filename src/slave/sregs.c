@@ -191,7 +191,7 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 
 	//After all possible exceptions, write reg
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index, modbusMatchEndian( value ) );
+		status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index, value );
 	#else
 		status->registers[index] = value;
 	#endif

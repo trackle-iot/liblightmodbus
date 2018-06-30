@@ -4,8 +4,8 @@ project( liblightmodbus VERSION 1.3 DESCRIPTION "liblightmodbus is a lightweight
 include( TestBigEndian )
 
 #Debug/release options
-set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin" )
-set( CMAKE_C_FLAGS_RELEASE "-Os" )
+set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin -Wall" )
+set( CMAKE_C_FLAGS_RELEASE "-Os -Wall" )
 
 #User defined compiler and linker
 if ( DEFINED CC )

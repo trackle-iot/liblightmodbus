@@ -62,7 +62,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	status->exception.function = 0;
 	status->exception.code = 0;
 
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+	#if !defined( LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) && !defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER  )
 		free( status->data.coils );
 		status->data.coils = NULL;
 		status->data.regs = NULL;
@@ -211,7 +211,7 @@ ModbusError modbusMasterEnd( ModbusMaster *status )
 		free( status->request.frame );
 		status->request.frame = NULL;
 	#endif
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
+	#if !defined( LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) && !defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER  )
 		free( status->data.coils );
 		status->data.coils = NULL;
 		status->data.regs = NULL;

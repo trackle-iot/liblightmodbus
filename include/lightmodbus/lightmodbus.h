@@ -18,14 +18,19 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* This is main header file that is ought to be included as library */
+
 #ifndef LIGHTMODBUS_H
 #define LIGHTMODBUS_H
-
-/* This is main header file that is ought to be included as library */
 
 //Include proper header files
 #include <inttypes.h>
 #include "libconf.h"
+
+//Some protection
+#if defined(LIGHTMODBUS_BIG_ENDIAN) && defined(LIGHTMODBUS_LITTLE_ENDIAN)
+#error LIGHTMODBUS_BIG_ENDIAN and LIGHTMODBUS_LITTLE_ENDIAN cannot be used at once!
+#endif
 
 //Error codes
 typedef enum modbusError

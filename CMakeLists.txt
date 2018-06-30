@@ -80,6 +80,36 @@ set( AVAILABLE_MODULES
 	#Other modules
 	"ADDON_EXAMINE"
 	"USER_FUNCTIONS"
+	"NO_MASTER_DATA_BUFFER"
+)
+
+#List of modules enabled by default
+set( DEFAULT_MODULES 
+	#Slave functions
+	"F01S"
+	"F02S"
+	"F03S"
+	"F04S"
+	"F05S"
+	"F06S"
+	"F15S"
+	"F16S"
+	"F22S"
+	
+	#Master functions
+	"F01M"
+	"F02M"
+	"F03M"
+	"F04M"
+	"F05M"
+	"F06M"
+	"F15M"
+	"F16M"
+	"F22M"
+
+	#Other modules
+	"ADDON_EXAMINE"
+	"USER_FUNCTIONS"
 )
 
 #Macros to be written to libconf.h
@@ -87,8 +117,8 @@ set( LIBCONF "" )
 
 #If module set is not specified, include all known modules
 if ( NOT DEFINED MODULES )
-	set( MODULES ${AVAILABLE_MODULES} )
-	message( WARNING "MODULES not set. Enabling all by default.")
+	set( MODULES ${DEFAULT_MODULES} )
+	message( WARNING "MODULES not set. Enabling deafults.")
 endif( )
 
 #Iterate through modules list

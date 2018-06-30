@@ -2,6 +2,13 @@
 cmake_minimum_required( VERSION 3.3 )
 project( liblightmodbus VERSION 1.3 DESCRIPTION "liblightmodbus is a lightweight cross-platform Modbus RTU library." )
 
+#Get git version (LIGHTMODBUS_GIT_VERSION)
+execute_process( COMMAND "git" "describe" "--abbrev=6" "--dirty" "--always" "--tag" RESULT_VARIABLE GIT_EXIT_CODE OUTPUT_VARIABLE PROJECT_GIT_VERSION )
+if ( GIT_EXIT_CODE )
+	set( PROJECT_GIT_VERSION "no-vcs-found" )
+endif( )
+string( REGEX REPLACE "\n$" "" PROJECT_GIT_VERSION "${PROJECT_GIT_VERSION}" ) #Strip newline
+
 #Include dirs
 include_directories( "${PROJECT_SOURCE_DIR}/include" )
 

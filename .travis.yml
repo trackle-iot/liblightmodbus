@@ -57,5 +57,6 @@ script:
 after_success:
     - coveralls --verbose --exclude test/test.c
     - find . -name "*.c" | xargs cppcheck > cppcheck.log
-    - tar -cvf `date +liblightmodbus-travis-%Y-%m-%d--%H-%M-%S.tar` .
-    - curl -F file="@liblightmodbus-travis.tar" https://filebin.ca/upload.php
+    - TARBALL=$(date +liblightmodbus-travis-%Y-%m-%d--%H-%M-%S.tar)
+    - tar -cvf $TARBALL .
+    - curl -F file="@$TARBALL" https://filebin.ca/upload.php

@@ -13,6 +13,7 @@ install:
     - pip install --user cpp-coveralls
 
 script:
+    - ./genconf.sh
     - make -f makefile-avr MCU=atmega328p
     - make -f makefile-avr clean
     - make all
@@ -27,7 +28,7 @@ script:
     - ./genconf.sh --sres 1 --sreq 1 --mres 1 --mreq 1 --mdat 1
     - make -f makefile-coverage all
     - cp coverage-test.log coverage-test-static1.log
-    - ./genconf.sh -a "experimental register_callback coil_callback"
+    - ./genconf.sh -a "experimental examine register_callback coil_callback"
     - make -f makefile-coverage all
     - cp coverage-test.log coverage-callbacks.log
     - ./genconf.sh -r

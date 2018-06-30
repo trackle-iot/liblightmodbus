@@ -118,7 +118,7 @@ set( LIBCONF "" )
 #If module set is not specified, include all known modules
 if ( NOT DEFINED MODULES )
 	set( MODULES ${DEFAULT_MODULES} )
-	message( WARNING "MODULES not set. Enabling deafults.")
+	message( STATUS "MODULES not set. Enabling deafults.")
 endif( )
 
 #Iterate through modules list

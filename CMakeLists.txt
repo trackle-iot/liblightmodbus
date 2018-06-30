@@ -50,20 +50,6 @@ string( REGEX REPLACE "\n$" "" PROJECT_GIT_VERSION "${PROJECT_GIT_VERSION}" ) #S
 #Include dirs
 include_directories( "${PROJECT_SOURCE_DIR}/include" )
 
-#Sources list
-add_library( 
-	lightmodbus 
-	"${PROJECT_SOURCE_DIR}/src/lightmodbus.c" 
-	"${PROJECT_SOURCE_DIR}/src/slave.c" 
-	"${PROJECT_SOURCE_DIR}/src/master.c" 
-	"${PROJECT_SOURCE_DIR}/src/slave/scoils.c"
-	"${PROJECT_SOURCE_DIR}/src/slave/sregs.c"
-	"${PROJECT_SOURCE_DIR}/src/master/mpcoils.c"
-	"${PROJECT_SOURCE_DIR}/src/master/mbcoils.c"
-	"${PROJECT_SOURCE_DIR}/src/master/mpregs.c"
-	"${PROJECT_SOURCE_DIR}/src/master/mbregs.c"
-	)
-
 #List of all modules that can be enabled
 set( AVAILABLE_MODULES 
 	#Slave functions
@@ -93,6 +79,9 @@ set( AVAILABLE_MODULES
 	"USER_FUNCTIONS"
 )
 
+#Macros to be written to libconf.h
+set( LIBCONF "" )
+
 #If module set is not specified, include all known modules
 if ( NOT DEFINED MODULES )
 	set( MODULES ${AVAILABLE_MODULES} )
@@ -100,7 +89,6 @@ if ( NOT DEFINED MODULES )
 endif( )
 
 #Iterate through modules list
-set( MODULES_DEFINES "" )
 foreach( MODULE ${MODULES} )
 	#If that module doesn't exit raise an error
 	if ( NOT ${MODULE} IN_LIST AVAILABLE_MODULES )
@@ -108,14 +96,50 @@ foreach( MODULE ${MODULES} )
 	endif( )
 
 	#Generate proper #define directive
-	set( MODULES_DEFINES "${MODULES_DEFINES}#define LIGHTMODBUS_${MODULE}\n" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_${MODULE}\n" )
 	message( STATUS "Enabling module ${MODULE}" )
 endforeach( )
+
+#Fixed size buffers
+if ( STATIC_MEM_SLAVE_REQUEST )
+	message( STATUS "Enabling static slave request buffer of size ${STATIC_MEM_SLAVE_REQUEST} bytes" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST ${STATIC_MEM_SLAVE_REQUEST}" )
+endif( )
+if ( STATIC_MEM_SLAVE_RESPONSE ) 
+	message( STATUS "Enabling static slave response buffer of size ${STATIC_MEM_SLAVE_RESPONSE} bytes" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ${STATIC_MEM_SLAVE_RESPONSE}" )
+endif( )
+if ( STATIC_MEM_MASTER_REQUEST )
+	message( STATUS "Enabling static master request buffer of size ${STATIC_MEM_MASTER_REQUEST} bytes" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ${STATIC_MEM_MASTER_REQUEST}" )
+endif( )
+if ( STATIC_MEM_MASTER_RESPONSE ) 
+	message( STATUS "Enabling static master response buffer of size ${STATIC_MEM_MASTER_RESPONSE} bytes" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE ${STATIC_MEM_MASTER_RESPONSE}" )
+endif( )
+if ( STATIC_MEM_MASTER_RESPONSE )
+	message( STATUS "Enabling static master data buffer of size ${STATIC_MEM_MASTER_DATA} bytes" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_DATA ${STATIC_MEM_MASTER_DATA}" )
+endif( )
 
 #Emit configuration file
 configure_file( 
 	"${PROJECT_SOURCE_DIR}/include/lightmodbus/libconf.h.in"
 	"${PROJECT_SOURCE_DIR}/include/lightmodbus/libconf.h"
+	)
+
+#Library sources list
+add_library( 
+	lightmodbus 
+	"${PROJECT_SOURCE_DIR}/src/lightmodbus.c" 
+	"${PROJECT_SOURCE_DIR}/src/slave.c" 
+	"${PROJECT_SOURCE_DIR}/src/master.c" 
+	"${PROJECT_SOURCE_DIR}/src/slave/scoils.c"
+	"${PROJECT_SOURCE_DIR}/src/slave/sregs.c"
+	"${PROJECT_SOURCE_DIR}/src/master/mpcoils.c"
+	"${PROJECT_SOURCE_DIR}/src/master/mbcoils.c"
+	"${PROJECT_SOURCE_DIR}/src/master/mpregs.c"
+	"${PROJECT_SOURCE_DIR}/src/master/mbregs.c"
 	)
 
 #Set library version

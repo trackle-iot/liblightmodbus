@@ -218,7 +218,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index, value == 0xFF00 );
 	#else
-		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) == 255 )
+		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) != MODBUS_ERROR_OK )
 			return MODBUS_ERROR_OTHER;
 	#endif
 
@@ -345,12 +345,12 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	for ( i = 0; i < count; i++ )
 	{
 		uint8_t coil;
-		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
+		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) != MODBUS_ERROR_OK ) return MODBUS_ERROR_OTHER;
 		
 		#ifdef LIGHTMODBUS_COIL_CALLBACK
 			status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index + i, coil );
 		#else
-			if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
+			if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index + i, coil ) != MODBUS_ERROR_OK ) return MODBUS_ERROR_OTHER;
 		#endif
 	}
 

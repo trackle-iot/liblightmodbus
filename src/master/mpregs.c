@@ -59,6 +59,13 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 		//That implies, frame cannot be copied for parsing!
 		status->data.regs = parser->response0304.values;
 		status->data.coils = (uint8_t*) status->data.regs;
+
+		//If frame is allowed to be modified
+		#ifdef LIGHTMODBUS_MASTER_INVASIVE_PARSING
+			//Overwrite data in buffer
+			for ( i = 0; i < count; i++ )
+				status->data.regs[i] = modbusMatchEndian( parser->response0304.values[i] );
+		#endif
 	#else
 		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 			//Allocate memory for ModbusData structures array
@@ -113,6 +120,12 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 		//That implies, frame cannot be copied for parsing!
 		status->data.regs = &parser->response06.value;
 		status->data.coils = (uint8_t*) status->data.regs;
+
+		//If frame is allowed to be modified
+		#ifdef LIGHTMODBUS_MASER_INVASIVE_PARSING
+			//Overwrite data in buffer
+			status->data.regs[0] = modbusMatchEndian( parser->response06.value );
+		#endif
 	#else
 		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 			//Set up new data table
@@ -169,13 +182,6 @@ ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, M
 	status->data.type = MODBUS_HOLDING_REGISTER;
 	status->data.index = modbusMatchEndian( parser->response16.index );
 	status->data.count = count;
-
-	//If master data buffer is disabled, this is still valid
-	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-		status->data.regs = NULL;
-		status->data.coils = NULL;
-	#endif
-
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }

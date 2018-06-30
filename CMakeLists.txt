@@ -81,6 +81,7 @@ set( AVAILABLE_MODULES
 	"ADDON_EXAMINE"
 	"USER_FUNCTIONS"
 	"NO_MASTER_DATA_BUFFER"
+	"MASTER_INVASIVE_PARSING"
 )
 
 #List of modules enabled by default

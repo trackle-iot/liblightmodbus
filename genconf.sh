@@ -62,8 +62,9 @@ Where:
 	that base module will be compiled and linked.
 
 	<addons> represents list of to be added to the library. Currently available
-	ones are: "examine". Please refer to manpages to get more information about
-	supported addons.
+	ones are: examine, user_functions, register_callback, coil_callback, experimental,
+	no_master_data_buffer, master_invasive_parsing.
+	Please refer to manpages to get more information about supported addons.
 
 	<size> is fixed-length of given data buffer in bytes. Has to be an integer
 	greater than 0. The highest reasonable value for those settings is 256,
@@ -102,6 +103,36 @@ function genaddons()
 	if [[ $ADDONS == *"user_functions"* ]]; then
 		log "[info] user defined function handling is going to be included"
 		echo "#define LIGHTMODBUS_USER_FUNCTIONS" >> $LIBCONF
+	fi
+
+	#No master data buffer
+	if [[ $ADDONS == *"no_master_data_buffer"* ]]; then
+		log "[info] master exclusive data buffer is disabled"
+		echo "#define LIGHTMODBUS_NO_MASTER_DATA_BUFFER" >> $LIBCONF
+	fi
+
+	#Invasive parsing
+	if [[ $ADDONS == *"master_invasive_parsing"* ]]; then
+		log "[info] master invasive parsing is enabled"
+		echo "#define LIGHTMODBUS_MASTER_INVASIVE_PARSING" >> $LIBCONF
+	fi
+
+	#Experimental stuff
+	if [[ $ADDONS == *"experimental"* ]]; then
+		log "[info] experimental features enabled"
+		echo "#define LIGHTMODBUS_EXPERIMENTAL" >> $LIBCONF
+	fi
+
+	#Register callback
+	if [[ $ADDONS == *"register_callback"* ]]; then
+		log "[info] register callback enabled"
+		echo "#define LIGHTMODBUS_REGISTER_CALLBACK" >> $LIBCONF
+	fi
+
+	#Coil callback
+	if [[ $ADDONS == *"coil_callback"* ]]; then
+		log "[info] coil callback enabled"
+		echo "#define LIGHTMODBUS_COIL_CALLBACK" >> $LIBCONF
 	fi
 }
 

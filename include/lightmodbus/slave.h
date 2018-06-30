@@ -28,29 +28,50 @@
 
 //Struct associating user defined parser function with function ID
 #ifdef LIGHTMODBUS_USER_FUNCTIONS
-struct modbusSlave;
-typedef struct modbusUserFunction
-{
-	uint8_t function; //Function code
-	ModbusError ( *handler )( struct modbusSlave *status, union modbusParser *parser ); //Pointer to user defined function
-} ModbusUserFunction;
+	struct modbusSlave;
+	typedef struct modbusUserFunction
+	{
+		uint8_t function; //Function code
+		ModbusError ( *handler )( struct modbusSlave *status, union modbusParser *parser ); //Pointer to user defined function
+	} ModbusUserFunction;
+#endif
+
+//Register callback function
+#ifdef LIGHTMODBUS_REGISTER_CALLBACK
+	#ifndef LIGHTMODBUS_EXPERIMENTAL
+		#error Register callback functions are experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message.
+	#endif
+	typedef enum modbusRegisterQuery
+	{
+		MODBUS_REGQ_R, //Requests callback function to return register value
+		MODBUS_REGQ_W, //Requests callback function to write the register
+		MODBUS_REGQ_R_CHECK, //Asks callback function if register can be read
+		MODBUS_REGQ_W_CHECK //Asks callback function if register can be written
+	} ModbusRegisterQuery;
+	typedef uint16_t ( *ModbusRegisterCallback )( ModbusRegisterQuery query, ModbusDataType datatype, uint16_t index, uint16_t value );
 #endif
 
 typedef struct modbusSlave
 {
 	uint8_t address; //Slave address
 
-	uint16_t *registers; //Slave holding registers
+	//Slave holding registers array or callback function
+	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
+		ModbusRegisterCallback registerCallback;
+	#else
+		uint16_t *registers; //Register array
+		uint16_t *inputRegisters; //Slave input registers
+		uint8_t *registerMask; //Masks for register write protection (bit of value 1 - write protection)
+		uint16_t registerMaskLength; //Masks length (each byte covers 8 registers)
+	#endif
 	uint16_t registerCount; //Slave register count
-	uint16_t *inputRegisters; //Slave input registers
 	uint16_t inputRegisterCount; //Slave input count
+
 	uint8_t *coils; //Slave coils
 	uint16_t coilCount; //Slave coil count
 	uint8_t *discreteInputs; //Slave discrete input
 	uint16_t discreteInputCount; //Slave discrete input count
 
-	uint8_t *registerMask; //Masks for register write protection (bit of value 1 - write protection)
-	uint16_t registerMaskLength; //Masks length (each byte covers 8 registers)
 	uint8_t *coilMask; //Masks for coil write protection (bit of value 1 - write protection)
 	uint16_t coilMaskLength; //Masks length (each byte covers 8 coils)
 

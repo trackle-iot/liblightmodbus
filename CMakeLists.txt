@@ -82,6 +82,7 @@ set( AVAILABLE_MODULES
 	"USER_FUNCTIONS"
 	"NO_MASTER_DATA_BUFFER"
 	"MASTER_INVASIVE_PARSING"
+	"REGISTER_CALLBACK"
 )
 
 #List of modules enabled by default
@@ -184,6 +185,12 @@ else( )
 	else( )
 		message( FATAL_ERROR "Bad ENDIANNESS value. Use 'big' or 'little'." )
 	endif( )
+endif( )
+
+#Experimental features
+if ( DEFINED EXPERIMENTAL )
+	message( STATUS "Enabling experimental features (LIGHTMODBUS_EXPERIMENTAL)" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_EXPERIMENTAL\n" )
 endif( )
 
 #Emit configuration file

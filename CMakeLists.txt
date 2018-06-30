@@ -66,6 +66,7 @@ set( SLAVE_MODULES
 	"F22S"
 	"USER_FUNCTIONS"
 	"REGISTER_CALLBACK"
+	"COIL_CALLBACK"
 )
 
 #List of all master modules

@@ -51,8 +51,8 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 	uint16_t index = modbusMatchEndian( parser->request0304.index );
 	uint16_t count = modbusMatchEndian( parser->request0304.count );
 
+	//Currently handled data type
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		//Currently handled data type
 		ModbusDataType datatype = parser->base.function == 3 ? MODBUS_HOLDING_REGISTER : MODBUS_INPUT_REGISTER;
 	#endif
 
@@ -65,9 +65,11 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if registers are accessible
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		if ( status->registerCallback == NULL ) modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+		if ( status->registerCallback == NULL ) 
+			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
 	#else
-		if ( ( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL ) modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+		if ( ( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL ) 
+			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
 	#endif
 
 	if ( index >= ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \

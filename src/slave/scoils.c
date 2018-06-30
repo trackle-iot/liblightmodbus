@@ -33,7 +33,6 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Update frame length
 	uint8_t frameLength = 8;
-	uint8_t coil = 0;
 	uint16_t i = 0;
 
 	//Check if given pointers are valid
@@ -51,14 +50,34 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 	uint16_t index = modbusMatchEndian( parser->request0102.index );
 	uint16_t count = modbusMatchEndian( parser->request0102.count );
 
+	//Currently handled data type
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		ModbusDataType datatype = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
+	#endif
+
 	//Check if coil is in valid range
 	if ( count == 0 || count > 2000 )
 		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE );
 
-	if ( index >= ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
-		(uint32_t) index + (uint32_t) count > (uint32_t) ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
-		( parser->base.function == 1 ? status->coils : status->discreteInputs ) == NULL )
+	//Check if coils are accessible
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		if ( status->registerCallback == NULL ) 
 			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+	#else
+		if ( ( parser->base.function == 1 ? status->coils : status->discreteInputs ) == NULL ) 
+			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+	#endif
+
+	if ( index >= ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
+		(uint32_t) index + (uint32_t) count > (uint32_t) ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) )
+			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+
+	//Check if coils can be written (if using callback function)
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		for ( i = 0; i < count; i++ )
+			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0 ) == 0 )
+				return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_SLAVE_FAILURE );
+	#endif
 
 	//Respond
 	frameLength = 5 + BITSTOBYTES( count );
@@ -81,10 +100,18 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 	//Copy registers to response frame
 	for ( i = 0; i < count; i++ )
 	{
-		if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
-			BITSTOBYTES( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ), i + index ) ) == 255 )
-				return MODBUS_ERROR_OTHER;
-		if ( modbusMaskWrite( builder->response0102.values, builder->response0102.length, i, coil ) == 255 )
+		uint8_t coil;
+
+		#ifdef LIGHTMODBUS_COIL_CALLBACK
+			coil = status->registerCallback( MODBUS_REGQ_R, datatype, index + i, 0 );
+		#else
+			if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
+				BITSTOBYTES( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ), i + index ) ) != MODBUS_ERROR_OK )
+					return MODBUS_ERROR_OTHER;
+		#endif
+
+		//Write to new frame
+		if ( modbusMaskWrite( builder->response0102.values, builder->response0102.length, i, coil ) != MODBUS_ERROR_OK )
 			return MODBUS_ERROR_OTHER;
 	}
 
@@ -132,8 +159,25 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 		return MODBUS_ERROR_OK;
 	}
 
+	//Check if coils are accessible
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		if ( status->registerCallback == NULL )
+		{
+			//Illegal data address error
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return MODBUS_ERROR_OK;
+		}
+	#else
+		if ( status->coils == NULL )
+		{
+			//Illegal data address error
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return MODBUS_ERROR_OK;
+		}
+	#endif
+
 	//Check if coil is in valid range
-	if ( index >= status->coilCount || status->coils == NULL )
+	if ( index >= status->coilCount )
 	{
 		//Illegal data address error
 		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS );
@@ -141,12 +185,21 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	}
 
 	//Check if reg is allowed to be written
-	if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index ) == 1 )
-	{
-		//Slave failure exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAILURE );
-		return MODBUS_ERROR_OK;
-	}
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_COIL, index, 0 ) == 0 )
+		{
+			//Slave failure exception
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAILURE );
+			return MODBUS_ERROR_OK;
+		}
+	#else
+		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index ) == 1 )
+		{
+			//Slave failure exception
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAILURE );
+			return MODBUS_ERROR_OK;
+		}
+	#endif
 
 	//Respond
 	frameLength = 8;
@@ -162,8 +215,12 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	ModbusParser *builder = (ModbusParser *) status->response.frame;
 
 	//After all possible exceptions, write coils
-	if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) == 255 )
-		return MODBUS_ERROR_OTHER;
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index, value == 0xFF00 );
+	#else
+		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) == 255 )
+			return MODBUS_ERROR_OTHER;
+	#endif
 
 	//Do not respond when frame is broadcasted
 	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
@@ -192,7 +249,6 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	//Update frame length
 	uint16_t i = 0;
 	uint8_t frameLength;
-	uint8_t coil = 0;
 
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
@@ -228,8 +284,24 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		return MODBUS_ERROR_OK;
 	}
 
+	//Check if coils are accessible
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		if ( status->registerCallback == NULL )
+		{
+			//Illegal data address error
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return MODBUS_ERROR_OK;
+		}
+	#else
+		if ( status->coils == NULL )
+		{
+			//Illegal data address error
+			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return MODBUS_ERROR_OK;
+		}
+	#endif
+
 	if ( index >= status->coilCount || \
-		status->coils == NULL || \
 		(uint32_t) index + (uint32_t) count > (uint32_t) status->coilCount )
 	{
 		//Illegal data address error
@@ -238,13 +310,23 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	}
 
 	//Check for write protection
-	for ( i = 0; i < count; i++ )
-		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index + i ) == 1 )
-		{
-			//Slave failure exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAILURE );
-			return MODBUS_ERROR_OK;
-		}
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		for ( i = 0; i < count; i++ )
+			if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_COIL, index + i, 0 ) == 0 )
+			{
+				//Slave failure exception
+				if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAILURE );
+				return MODBUS_ERROR_OK;
+			}
+	#else
+		for ( i = 0; i < count; i++ )
+			if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index + i ) == 1 )
+			{
+				//Slave failure exception
+				if ( parser->base.address != 0 ) return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAILURE );
+				return MODBUS_ERROR_OK;
+			}
+	#endif
 
 	//Respond
 	frameLength = 8;
@@ -262,8 +344,14 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	//After all possible exceptions write values to registers
 	for ( i = 0; i < count; i++ )
 	{
+		uint8_t coil;
 		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
-		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
+		
+		#ifdef LIGHTMODBUS_COIL_CALLBACK
+			status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index + i, coil );
+		#else
+			if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
+		#endif
 	}
 
 	//Do not respond when frame is broadcasted

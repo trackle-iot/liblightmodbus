@@ -222,49 +222,37 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 	}
 
 	//Some safety checks
-	if ( status->registerCount == 0 || 
-		#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-			status->registerCallback == NULL
-		#else
-			status->registers == NULL
-		#endif
-		)
-	{
-		status->registerCount = 0;
-		#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-			status->registerCallback = NULL;
-		#else
+	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
+		if ( status->registerCallback == NULL ) status->registerCount = status->inputRegisterCount = 0;
+	#else
+		if ( status->registerCount == 0 || status->registers == NULL )
+		{
+			status->registerCount = 0;
 			status->registers = NULL;
-		#endif
-	}
+		}
 
-	if ( status->coilCount == 0 || status->coils == NULL )
-	{
-		status->coilCount = 0;
-		status->coils = NULL;
-	}
-
-	if ( status->discreteInputCount == 0 || status->discreteInputs == NULL )
-	{
-		status->discreteInputCount = 0;
-		status->discreteInputs = NULL;
-	}
-
-	if ( status->inputRegisterCount == 0 ||
-		#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-			status->registerCallback == NULL
-		#else
-			status->inputRegisters == NULL
-		#endif
-		)
-	{
-		status->inputRegisterCount = 0;
-		#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-			status->registerCallback = NULL;
-		#else
+		if ( status->inputRegisterCount == 0 || status->inputRegisters == NULL )
+		{
+			status->inputRegisterCount = 0;
 			status->inputRegisters = NULL;
-		#endif
-	}
+		}
+	#endif
+
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		if ( status->registerCallback == NULL ) status->coilCount = status->discreteInputCount = 0;
+	#else
+		if ( status->coilCount == 0 || status->coils == NULL )
+		{
+			status->coilCount = 0;
+			status->coils = NULL;
+		}
+
+		if ( status->discreteInputCount == 0 || status->discreteInputs == NULL )
+		{
+			status->discreteInputCount = 0;
+			status->discreteInputs = NULL;
+		}
+	#endif
 
 	return MODBUS_ERROR_OK;
 }

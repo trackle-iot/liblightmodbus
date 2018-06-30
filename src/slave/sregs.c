@@ -67,7 +67,7 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( status->registerCallback == NULL ) modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
 	#else
-		if ( ( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL ) ) modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+		if ( ( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL ) modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
 	#endif
 
 	if ( index >= ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \
@@ -267,7 +267,7 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 			return MODBUS_ERROR_OK;
 		}
 	#else
-		if ( status->registers == NULL ) )
+		if ( status->registers == NULL )
 		{
 			//Illegal data address error
 			if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_ADDRESS );
@@ -440,7 +440,7 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	#else
 		status->registers[index] = value;
 	#endif
-	
+
 	//Do not respond when frame is broadcasted
 	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
 

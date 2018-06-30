@@ -121,6 +121,11 @@ if ( NOT DEFINED MODULES )
 	message( STATUS "MODULES not set. Enabling deafults.")
 endif( )
 
+#Add modules deined in ADD_MODULES
+if ( DEFINED ADD_MODULES )
+	set( MODULES "${MODULES};${ADD_MODULES}" )
+endif( )
+
 #Iterate through modules list
 foreach( MODULE ${MODULES} )
 	#If that module doesn't exit raise an error

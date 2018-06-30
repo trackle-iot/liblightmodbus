@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #The default configuration
+VERSION="1.3"
 DEFAULTS=1
 MMODULES="01 02 03 04 05 06 15 16 22"
 SMODULES="01 02 03 04 05 06 15 16 22"
@@ -179,15 +180,17 @@ function genstaticmem()
 #Update version number in configuration header
 function genversion()
 {
+	local linegit=$(grep -no 'LIGHTMODBUS_GIT_VERSION' $LIBCONF | grep -Eo '^[^:]+')
 	local line=$(grep -no 'LIGHTMODBUS_VERSION' $LIBCONF | grep -Eo '^[^:]+')
-	local version=""
+	local gitversion=""
 	if gitver=$(git describe --abbrev=6 --dirty --always --tag 2> /dev/null); then
-		version=$gitver
+		gitversion=$gitver
 	else
-		version="no-vcs-found"
+		gitversion="no-vcs-found"
 	fi
 	log "[info] updating version number"
-	sed -i "$line s/.*/#define LIGHTMODBUS_VERSION \"$version\"/" $LIBCONF
+	sed -i "$linegit s/.*/#define LIGHTMODBUS_GIT_VERSION \"$gitversion\"/" $LIBCONF
+	sed -i "$line s/.*/#define LIGHTMODBUS_VERSION \"$VERSION\"/" $LIBCONF
 }
 
 #Generates new configuration
@@ -221,6 +224,7 @@ function genconf()
 #ifndef LIGHTMODBUS_LIBCONF_H
 #define LIGHTMODBUS_LIBCONF_H
 #define LIGHTMODBUS_VERSION
+#define LIGHTMODBUS_GIT_VERSION
 EOM
 
 	#Generate version number

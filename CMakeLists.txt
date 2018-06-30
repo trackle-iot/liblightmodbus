@@ -14,7 +14,7 @@ configure_file(
 #Sources list
 add_library( 
 	liblightmodbus 
-	"${PROJECT_SOURCE_DIR}/src/core.c" 
+	"${PROJECT_SOURCE_DIR}/src/lightmodbus.c" 
 	"${PROJECT_SOURCE_DIR}/src/slave.c" 
 	"${PROJECT_SOURCE_DIR}/src/master.c" 
 	"${PROJECT_SOURCE_DIR}/src/slave/scoils.c"
@@ -24,6 +24,11 @@ add_library(
 	"${PROJECT_SOURCE_DIR}/src/master/mpregs.c"
 	"${PROJECT_SOURCE_DIR}/src/master/mbregs.c"
 	)
+
+#set( ENABLED_FUNCTIONS faki sraki )
+foreach( FUNCTION ${ENABLED_FUNCTIONS} )
+	message( "${FUNCTION}\n" )
+endforeach( )
 
 #Set library version
 set_target_properties( liblightmodbus PROPERTIES VERSION ${PROJECT_VERSION} )

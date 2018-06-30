@@ -116,10 +116,10 @@ include/lightmodbus/libconf.h:
 	$(call warnHeader,generating default configuration)
 	./genconf.sh
 
-core: src/core.c include/lightmodbus/core.h
+core: src/lightmodbus.c include/lightmodbus/lightmodbus.h
 	$(call compileHeader,core module)
 	echo "[compiling] core module (obj/core.o)" >> $(BUILDLOG)
-	$(CC) $(CFLAGS) -c src/core.c -o obj/core.o
+	$(CC) $(CFLAGS) -c src/lightmodbus.c -o obj/core.o
 
 addon-examine: src/addons/examine.c include/lightmodbus/addons/examine.h
 	$(call compileHeader,frame examination addon)

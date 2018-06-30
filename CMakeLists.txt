@@ -5,6 +5,12 @@ project( liblightmodbus VERSION 1.3 DESCRIPTION "liblightmodbus is a lightweight
 #Include dirs
 include_directories( "${PROJECT_SOURCE_DIR}/include" )
 
+#Configuration file
+configure_file( 
+	"${PROJECT_SOURCE_DIR}/include/lightmodbus/libconf.h.in"
+	"${PROJECT_SOURCE_DIR}/include/lightmodbus/libconf.h"
+	)
+
 #Sources list
 add_library( 
 	liblightmodbus 

@@ -58,7 +58,7 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 		//When no data buffer is used, pointer has to point inside frame provided by user
 		//That implies, frame cannot be copied for parsing!
 		status->data.regs = parser->response0304.values;
-		status->data.coils = (uint16_t*) status->data.regs;
+		status->data.coils = (uint8_t*) status->data.regs;
 	#else
 		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 			//Allocate memory for ModbusData structures array
@@ -112,7 +112,7 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 		//When no data buffer is used, pointer has to point inside frame provided by user
 		//That implies, frame cannot be copied for parsing!
 		status->data.regs = &parser->response06.value;
-		status->data.coils = (uint16_t*) status->data.regs;
+		status->data.coils = (uint8_t*) status->data.regs;
 	#else
 		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 			//Set up new data table
@@ -172,9 +172,10 @@ ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, M
 
 	//If master data buffer is disabled, this is still valid
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-		status->data.regs = status->data.coils = NULL;
+		status->data.regs = NULL;
+		status->data.coils = NULL;
 	#endif
-	
+
 	status->data.length = 0;
 	return MODBUS_ERROR_OK;
 }

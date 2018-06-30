@@ -105,7 +105,7 @@ ModbusError modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, M
 	#ifdef LIGHTMODBUS_NO_MASTER_DATA_BUFFER
 		//When no data buffer is used, pointer has to point inside frame provided by user
 		//That implies, frame cannot be copied for parsing!
-		status->data.coils = &parser->response05.value;
+		status->data.coils = (uint8_t*) &parser->response05.value;
 		status->data.regs = (uint16_t*) status->data.coils;
 	#else
 		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA

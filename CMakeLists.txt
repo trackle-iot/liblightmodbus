@@ -1,6 +1,7 @@
 #Basic stuff
 cmake_minimum_required( VERSION 3.3 )
 project( liblightmodbus VERSION 1.3 DESCRIPTION "liblightmodbus is a lightweight cross-platform Modbus RTU library." )
+include( TestBigEndian )
 
 #Debug/release options
 set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin" )
@@ -16,7 +17,7 @@ endif( )
 
 #AVR build options
 if ( DEFINED AVR )
-	message( STATUS, "Building for AVR" )
+	message( STATUS "Building for AVR" )
 
 	#MCU has to be set
 	if ( "${AVR}" STREQUAL "" )
@@ -38,6 +39,8 @@ if ( DEFINED AVR )
 		set( CMAKE_LINKER "avr-ld" ) #Default AVR linker
 	endif( )
 
+	#AVRs are little endian
+	set( ENDIANNESS "little" )
 endif( )
 
 #Get git version (LIGHTMODBUS_GIT_VERSION)
@@ -103,23 +106,48 @@ endforeach( )
 #Fixed size buffers
 if ( STATIC_MEM_SLAVE_REQUEST )
 	message( STATUS "Enabling static slave request buffer of size ${STATIC_MEM_SLAVE_REQUEST} bytes" )
-	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST ${STATIC_MEM_SLAVE_REQUEST}" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST ${STATIC_MEM_SLAVE_REQUEST}\n" )
 endif( )
 if ( STATIC_MEM_SLAVE_RESPONSE ) 
 	message( STATUS "Enabling static slave response buffer of size ${STATIC_MEM_SLAVE_RESPONSE} bytes" )
-	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ${STATIC_MEM_SLAVE_RESPONSE}" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ${STATIC_MEM_SLAVE_RESPONSE}\n" )
 endif( )
 if ( STATIC_MEM_MASTER_REQUEST )
 	message( STATUS "Enabling static master request buffer of size ${STATIC_MEM_MASTER_REQUEST} bytes" )
-	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ${STATIC_MEM_MASTER_REQUEST}" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ${STATIC_MEM_MASTER_REQUEST}\n" )
 endif( )
 if ( STATIC_MEM_MASTER_RESPONSE ) 
 	message( STATUS "Enabling static master response buffer of size ${STATIC_MEM_MASTER_RESPONSE} bytes" )
-	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE ${STATIC_MEM_MASTER_RESPONSE}" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE ${STATIC_MEM_MASTER_RESPONSE}\n" )
 endif( )
 if ( STATIC_MEM_MASTER_RESPONSE )
 	message( STATUS "Enabling static master data buffer of size ${STATIC_MEM_MASTER_DATA} bytes" )
-	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_DATA ${STATIC_MEM_MASTER_DATA}" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_DATA ${STATIC_MEM_MASTER_DATA}\n" )
+endif( )
+
+#Detect endianness if not defined
+if ( NOT DEFINED ENDIANNESS )
+	message( STATUS "ENDIANNESS not defined - will be automatically adjusted for this system" )
+	TEST_BIG_ENDIAN( IS_BIG_ENDIAN )
+	if ( IS_BIG_ENDIAN )
+		set( ENDIANNESS "big" )
+	else( )
+		set( ENDIANNESS "little" )
+	endif( )
+endif( )
+
+#Write endianness to libconf.h
+string( TOLOWER "${ENDIANNESS}" ENDIANNESS )
+if ( "${ENDIANNESS}" STREQUAL "big" )
+	message( STATUS "Using big-endian configuration" )
+	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_BIG_ENDIAN\n" )
+else( )
+	if ( "${ENDIANNESS}" STREQUAL "little" )
+		message( STATUS "Using little-endian configuration" )
+		set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_LITTLE_ENDIAN\n" )
+	else( )
+		message( FATAL_ERROR "Bad ENDIANNESS value. Use 'big' or 'little'." )
+	endif( )
 endif( )
 
 #Emit configuration file

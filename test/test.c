@@ -6,7 +6,7 @@ AKA. The Worst Test File Ever
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <assert.h>
 #include <inttypes.h>
 
 #include <lightmodbus/lightmodbus.h>
@@ -43,7 +43,7 @@ ModbusError userModbusFunction( ModbusSlave *status, ModbusParser *parser )
 }
 
 //Register callback function
-#ifdef LIGHTMODBUS_REGISTER_CALLBACK
+#if defined(LIGHTMODBUS_REGISTER_CALLBACK) || defined(LIGHTMODBUS_COIL_CALLBACK)
 uint16_t reg_callback( ModbusRegisterQuery query, ModbusDataType datatype, uint16_t index, uint16_t value )
 {
 	//All can be written and read
@@ -60,6 +60,12 @@ uint16_t reg_callback( ModbusRegisterQuery query, ModbusDataType datatype, uint1
 			case MODBUS_INPUT_REGISTER:
 				return inputRegisters[index];
 
+			case MODBUS_COIL:
+				return modbusMaskRead( coils, sizeof( coils ) * 8, index );
+
+			case MODBUS_DISCRETE_INPUT:
+				return modbusMaskRead( discreteInputs, sizeof( discreteInputs ) * 8, index );
+
 			default:
 				return 0;
 		}
@@ -74,11 +80,12 @@ uint16_t reg_callback( ModbusRegisterQuery query, ModbusDataType datatype, uint1
 				registers[index] = value;
 				break;
 
-			case MODBUS_INPUT_REGISTER:
-				inputRegisters[index] = value;
+			case MODBUS_COIL:
+				modbusMaskWrite( coils, sizeof( coils ) * 8, index, value != 0 );
 				break;
 
 			default:
+				assert( 0 && "tried to write input register or discrete input" );
 				break;
 		}
 	}
@@ -151,7 +158,7 @@ void examines( )
 	else printf( "response frame examination error: %d\n", err );
 }
 
-#ifndef LIGHTMODBUS_REGISTER_CALLBACK
+#if !defined(LIGHTMODBUS_REGISTER_CALLBACK) && !defined(LIGHTMODBUS_COIL_CALLBACK)
 void maxlentest( )
 {
 	#define CK2( n ) printf( "mec=%d, sec=%d\n", mec, sec ); printf( memcmp( mstatus.data.regs, bak, mstatus.data.length ) ? "ERROR!\n" : "OK\n" );
@@ -414,11 +421,14 @@ void libinit( )
 		sstatus.inputRegisters = inputRegisters;
 	#endif
 
-	sstatus.coils = coils;
 	sstatus.coilCount = 32;
-
-	sstatus.discreteInputs = discreteInputs;
 	sstatus.discreteInputCount = 16;
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+		sstatus.registerCallback = reg_callback;
+	#else
+		sstatus.coils = coils;
+		sstatus.discreteInputs = discreteInputs;
+	#endif
 
 	
 	sstatus.address = 32;
@@ -754,7 +764,11 @@ void MainTest( )
 	Test( );
 
 	//WRITE PROTECTION TEST
-	uint8_t mask[1] = { 0 };
+	
+	#if !defined(LIGHTMODBUS_COIL_CALLBACK) || !defined(LIGHTMODBUS_REGISTER_CALLBACK)
+		uint8_t mask[1] = { 0 };
+	#endif
+	
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 	#else
 		printf( "\t\t--Register write protection test--\n" );
@@ -781,28 +795,31 @@ void MainTest( )
 	#endif
 
 	//WRITE PROTECTION TEST 2
-	printf( "\t\t--Coil write protection test--\n" );
-	sstatus.coilMask = mask;
-	sstatus.coilMaskLength = 1;
+	#ifdef LIGHTMODBUS_COIL_CALLBACK
+	#else
+		printf( "\t\t--Coil write protection test--\n" );
+		sstatus.coilMask = mask;
+		sstatus.coilMaskLength = 1;
 
-	modbusMaskWrite( mask, 1, 2, 1 );
+		modbusMaskWrite( mask, 1, 2, 1 );
 
-	modbusBuildRequest05( &mstatus, 0x20, 2, 16 );
-	Test( );
-	modbusBuildRequest05( &mstatus, 0x20, 0, 16 );
-	Test( );
+		modbusBuildRequest05( &mstatus, 0x20, 2, 16 );
+		Test( );
+		modbusBuildRequest05( &mstatus, 0x20, 0, 16 );
+		Test( );
 
-	modbusBuildRequest15( &mstatus, 0x20, 0, 16, TestValues3 );
-	Test( );
-	modbusBuildRequest15( &mstatus, 0x20, 0, 2, TestValues3 );
-	Test( );
+		modbusBuildRequest15( &mstatus, 0x20, 0, 16, TestValues3 );
+		Test( );
+		modbusBuildRequest15( &mstatus, 0x20, 0, 2, TestValues3 );
+		Test( );
 
-	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 0 ) );
-	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 1 ) );
-	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 2 ) );
-	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 3 ) );
-	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 4 ) );
-	sstatus.coilMaskLength = 0;
+		printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 0 ) );
+		printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 1 ) );
+		printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 2 ) );
+		printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 3 ) );
+		printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 4 ) );
+		sstatus.coilMaskLength = 0;
+	#endif
 
 }
 
@@ -858,7 +875,7 @@ int main( )
 	libinit( );
 	userf_test( );
 	MainTest( );
-	#ifndef LIGHTMODBUS_REGISTER_CALLBACK
+	#if !defined(LIGHTMODBUS_REGISTER_CALLBACK) && !defined(LIGHTMODBUS_COIL_CALLBACK)
 		maxlentest( );
 	#endif
 

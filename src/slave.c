@@ -99,6 +99,9 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	if ( parser->base.address != status->address && parser->base.address != 0 )
 		return MODBUS_ERROR_OK;
 
+	
+	uint8_t functionMatch = 0;
+
 	//Firstly, check user function array
 	#ifdef LIGHTMODBUS_USER_FUNCTIONS
 	if ( status->userFunctions != NULL && status->userFunctionCount != 0 )
@@ -109,8 +112,11 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 			if ( status->userFunctions[i].function == parser->base.function )
 			{
 				//If the function is overriden and handler pointer is valid, user the callback
-				if ( status->userFunctions[i].handler != NULL ) 
+				if ( status->userFunctions[i].handler != NULL )
+				{
 					err = status->userFunctions[i].handler( status, parser );
+					functionMatch = 1;
+				}
 				else
 					err = MODBUS_ERROR_BAD_FUNCTION; //Function overriden, but pointer is invalid
 
@@ -119,8 +125,9 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 			}
 		}
 	}
-	else //User did not override any function
 	#endif
+
+	if ( !functionMatch )
 	{
 		switch ( parser->base.function )
 		{

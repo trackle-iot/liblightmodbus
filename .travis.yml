@@ -31,10 +31,17 @@ script:
     - ./genconf.sh -a "experimental examine register_callback coil_callback"
     - make -f makefile-coverage all
     - cp coverage-test.log coverage-callbacks.log
-    - ./genconf.sh -r
-    - make conf
-    - make -f makefile-coverage all
-    - cp coverage-test.log coverage-test-dynamic.log
+    - rm -rf build
+    - mkdir build
+    - cd build
+    - cmake .. -DCOVERAGE_TEST="1"
+    - make
+    - ./coverage-test
+    - cd .. 
+#   - ./genconf.sh -r
+#   - make conf
+#   - make -f makefile-coverage all
+#   - cp coverage-test.log coverage-test-dynamic.log
 
 after_success:
     - coveralls --verbose --exclude test/test.c

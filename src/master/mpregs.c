@@ -122,7 +122,7 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 		status->data.coils = (uint8_t*) status->data.regs;
 
 		//If frame is allowed to be modified
-		#ifdef LIGHTMODBUS_MASER_INVASIVE_PARSING
+		#ifdef LIGHTMODBUS_MASTER_INVASIVE_PARSING
 			//Overwrite data in buffer
 			status->data.regs[0] = modbusMatchEndian( parser->response06.value );
 		#endif

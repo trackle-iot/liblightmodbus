@@ -744,12 +744,14 @@ void MainTest( )
 	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 2 ) );
 	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 3 ) );
 	printf( "Bitval: %d\r\n", modbusMaskRead( mask, 1, 4 ) );
-
 	sstatus.registerMaskLength = 0;
 
+}
 
+
+void userf_test( )
+{
 	//User defined functions check
-
 	#ifdef LIGHTMODBUS_USER_FUNCTIONS
 		static ModbusUserFunction userf[2] =
 		{
@@ -788,9 +790,7 @@ void MainTest( )
 	#else
 		printf( "\n\n-------\n\n user functions are disabled!\n" );
 	#endif
-
 }
-
 
 int main( )
 {
@@ -798,6 +798,7 @@ int main( )
 	printf( "\n\t\t======LIBLIGHTMODBUS VERSION: %s\n\n\n", LIGHTMODBUS_VERSION );
 	memset( TestValues2, 0xAA, 1024 );
 	libinit( );
+	userf_test( );
 	MainTest( );
 	maxlentest( );
 

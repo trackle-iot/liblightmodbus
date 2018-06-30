@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #The default configuration
-VERSION="1.3"
+VERSION="1.4"
 DEFAULTS=1
 MMODULES="01 02 03 04 05 06 15 16 22"
 SMODULES="01 02 03 04 05 06 15 16 22"

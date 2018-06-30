@@ -215,6 +215,7 @@ add_library(
 	"${PROJECT_SOURCE_DIR}/src/master/mbcoils.c"
 	"${PROJECT_SOURCE_DIR}/src/master/mpregs.c"
 	"${PROJECT_SOURCE_DIR}/src/master/mbregs.c"
+	"${PROJECT_SOURCE_DIR}/src/addons/examine.c"
 	)
 
 #Set library version

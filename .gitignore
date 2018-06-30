@@ -12,6 +12,7 @@ coverage-test
 examples/example
 massif.out
 valgrind.xml
+test-out
 
 #Editors' stuff
 *.tmp

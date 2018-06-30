@@ -7,6 +7,11 @@ include( TestBigEndian )
 set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin -Wall" )
 set( CMAKE_C_FLAGS_RELEASE "-Os -Wall" )
 
+#For coverage testing
+if ( DEFINED COVERAGE_TEST AND NOT DEFINED AVR )
+	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage" )
+endif( )
+
 #User defined compiler and linker
 if ( DEFINED CC )
 	set( CMAKE_C_COMPILER ${CC} )
@@ -214,6 +219,18 @@ add_library(
 
 #Set library version
 set_target_properties( lightmodbus PROPERTIES VERSION ${PROJECT_VERSION} )
+
+#Coverage test
+if ( DEFINED COVERAGE_TEST AND NOT DEFINED AVR )
+	add_executable(
+		coverage-test
+		"test/test.c"
+	)
+	target_link_libraries(
+		coverage-test
+		lightmodbus
+	)
+endif( )
 
 #Run avr-size after build
 if ( DEFINED AVR )

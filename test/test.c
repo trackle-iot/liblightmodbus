@@ -58,7 +58,7 @@ void examinedump( struct modbusFrameInfo info )
 			"\tcrc: %04x\n"\
 			"\tandmask: %04x\n"\
 			"\tormask: %04x\n"\
-			"\tdataptr: %p\n"\
+			//"\tdataptr: ---discarded, to make output comaprison easier--\n"
 			"\tdatalen: %d\n"\
 			"\tdata: ",\
 
@@ -76,7 +76,7 @@ void examinedump( struct modbusFrameInfo info )
 			info.crc,\
 			info.andmask,\
 			info.ormask,\
-			info.data,\
+			//info.data,
 			info.length\
 		);
 

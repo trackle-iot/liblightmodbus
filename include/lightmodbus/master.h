@@ -25,6 +25,14 @@
 #include "lightmodbus.h"
 #include "libconf.h"
 
+#if defined( LIGHTMODBUS_MASTER_INVASIVE_PARSING ) && ~defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER )
+	#warning LIGHTMODBUS_MASTER_INVASIVE_PARSING has no effect if LIGHTMODBUS_NO_MASTER_DATA_BUFFER is not defined
+#endif
+
+#if defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER ) && !defined( LIGHTMOBUS_EXPERIMENTAL )
+	#error Disabling exclusive master data buffer is an experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message, but please make sure your system permits unaligned memory acces beforehand.
+#endif
+
 typedef struct modbusMaster
 {
 	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data

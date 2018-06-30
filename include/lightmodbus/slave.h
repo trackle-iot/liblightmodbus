@@ -39,7 +39,7 @@
 //Register callback function
 #ifdef LIGHTMODBUS_REGISTER_CALLBACK
 	#ifndef LIGHTMODBUS_EXPERIMENTAL
-		#error Register callback functions are experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message.
+		#error Register callback functions are an experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message.
 	#endif
 	typedef enum modbusRegisterQuery
 	{

@@ -2,6 +2,44 @@
 cmake_minimum_required( VERSION 3.3 )
 project( liblightmodbus VERSION 1.3 DESCRIPTION "liblightmodbus is a lightweight cross-platform Modbus RTU library." )
 
+#Debug/release options
+set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin" )
+set( CMAKE_C_FLAGS_RELEASE "-Os" )
+
+#User defined compiler and linker
+if ( DEFINED CC )
+	set( CMAKE_C_COMPILER ${CC} )
+endif( )
+if( DEFINED LD )
+	set( CMAKE_LINKER ${LD} )
+endif( )
+
+#AVR build options
+if ( DEFINED AVR )
+	message( STATUS, "Building for AVR" )
+
+	#MCU has to be set
+	if ( "${AVR}" STREQUAL "" )
+		message( FATAL_ERROR "Please specify AVR MCU type!" )
+	endif( )
+
+	#Set MCU
+	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmcu=${AVR}" )
+
+	#Default AVR compiler
+	if ( NOT DEFINED CC )
+		message( STATUS "Using default AVR compiler - avr-gcc")
+		set( CMAKE_C_COMPILER "avr-gcc" ) #Default AVR compiler
+	endif( )
+
+	#Default AVR linker
+	if ( NOT DEFINED LD )
+		message( STATUS "Using default AVR linker - avr-ld")
+		set( CMAKE_LINKER "avr-ld" ) #Default AVR linker
+	endif( )
+
+endif( )
+
 #Get git version (LIGHTMODBUS_GIT_VERSION)
 execute_process( COMMAND "git" "describe" "--abbrev=6" "--dirty" "--always" "--tag" RESULT_VARIABLE GIT_EXIT_CODE OUTPUT_VARIABLE PROJECT_GIT_VERSION )
 if ( GIT_EXIT_CODE )
@@ -14,7 +52,7 @@ include_directories( "${PROJECT_SOURCE_DIR}/include" )
 
 #Sources list
 add_library( 
-	liblightmodbus 
+	lightmodbus 
 	"${PROJECT_SOURCE_DIR}/src/lightmodbus.c" 
 	"${PROJECT_SOURCE_DIR}/src/slave.c" 
 	"${PROJECT_SOURCE_DIR}/src/master.c" 
@@ -81,4 +119,12 @@ configure_file(
 	)
 
 #Set library version
-set_target_properties( liblightmodbus PROPERTIES VERSION ${PROJECT_VERSION} )
+set_target_properties( lightmodbus PROPERTIES VERSION ${PROJECT_VERSION} )
+
+#Run avr-size after build
+if ( DEFINED AVR )
+	add_custom_command(
+		TARGET lightmodbus POST_BUILD
+		COMMAND "avr-size" "-C" "--mcu=${AVR}" "${CMAKE_BINARY_DIR}/liblightmodbus.a"
+	)
+endif( )

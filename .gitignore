@@ -15,4 +15,5 @@ valgrind.xml
 *.tmp
 *.swp
 *.*~
+build
 include/lightmodbus/libconf.h

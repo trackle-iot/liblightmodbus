@@ -107,7 +107,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 	//Firstly, check user function array
 	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS
-	if ( status->userFunctions != NULL && status->userFunctionCount != 0 )
+	if ( status->userFunctions != NULL )
 	{
 		uint16_t i;
 		for ( i = 0; i < status->userFunctionCount; i++ )

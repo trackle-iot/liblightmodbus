@@ -42,7 +42,7 @@
 	typedef struct modbusMasterUserFunction
 	{
 		uint8_t function; //Function code
-		ModbusError ( *handler )( struct modbusMaster *status, ModbusParser *parser ); //Pointer to user defined function
+		ModbusError ( *handler )( struct modbusMaster *status, ModbusParser *parser, ModbusParser *requestParser ); //Pointer to user defined function
 	} ModbusMasterUserFunction;
 #endif
 

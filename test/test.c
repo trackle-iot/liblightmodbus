@@ -38,10 +38,11 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 //User defined function
 ModbusError userModbusFunction( ModbusSlave *status, ModbusParser *parser )
 {
+	modbusBuildException( status, 78, MODBUS_EXCEP_ACK );
 	printf( "<<Hello, this is the parsing function. I'm alive and working>>\n" );
 	return MODBUS_OK;
 }
-ModbusError userModbusMasterFunction( ModbusMaster *status, ModbusParser *parser )
+ModbusError userModbusMasterFunction( ModbusMaster *status, ModbusParser *parser, ModbusParser *rqp )
 {
 	printf( "<<And I am the master parsing function!>>\n" );
 	return MODBUS_OK;
@@ -852,7 +853,10 @@ void userf_test( )
 			{255, userModbusMasterFunction}
 		};
 		mstatus.userFunctions = muserf;
-		mstatus.userFunctionCount = 2;	
+		mstatus.userFunctionCount = 2;
+		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST	
+			free( mstatus.request.frame );
+		#endif
 	#endif
 
 	//Frames setup
@@ -888,7 +892,13 @@ void userf_test( )
 		#else
 			mstatus.response.frame = userf_frame1;
 		#endif
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+			memcpy( mstatus.request.frame, userf_frame1, sizeof( userf_frame1 ) );
+		#else
+			mstatus.request.frame = userf_frame1;
+		#endif
 		mstatus.response.length = sizeof userf_frame1;
+		mstatus.request.length = sizeof userf_frame1;
 		printf( "MASTER PARSE RESULT 1: %d\n", modbusParseResponse( &mstatus ) );
 	#endif
 
@@ -910,7 +920,13 @@ void userf_test( )
 		#else
 			mstatus.response.frame = userf_frame2;
 		#endif
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+			memcpy( mstatus.request.frame, userf_frame2, sizeof( userf_frame2 ) );
+		#else
+			mstatus.request.frame = userf_frame2;
+		#endif
 		mstatus.response.length = sizeof userf_frame2;
+		mstatus.request.length = sizeof userf_frame2;
 		printf( "MASTER PARSE RESULT 2: %d\n", modbusParseResponse( &mstatus ) );
 	#endif
 		
@@ -920,6 +936,10 @@ void userf_test( )
 
 	#if !defined(LIGHTMODBUS_MASTER_USER_FUNCTIONS)
 		printf( "\n\n-------\n\n master user functions are disabled!\n" );
+	#else
+		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+			mstatus.request.frame = NULL; //To stop master from freeing it
+		#endif
 	#endif
 	
 }

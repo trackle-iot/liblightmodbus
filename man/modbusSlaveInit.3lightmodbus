@@ -1,0 +1,23 @@
+.TH modbusSlaveInit 3lightmodbus "25 March 2017" "v1.3"
+.SH NAME
+.PP
+\fBmodbusSlaveInit\fP \- setup \fBModbusSlave\fP structure for use.
+.SH SYNOPSIS
+.PP
+\fB\fC#include <lightmodbus/slave.h>\fR
+.PP
+\fB\fCuint8_t modbusSlaveInit( ModbusSlave *status );\fR
+.SH DESCRIPTION
+.PP
+The \fBmodbusSlaveInit\fP function sets crucial members of \fBModbuSlave\fP structure, enabling its use by the rest of the library. This function should always be called before using any other Modbus slave side functions.
+The function returns an error code on exit (see 
+.BR lightmodbus (3lightmodbus)).
+.PP
+Structure can later be cleaned up with \fBmodbusSlaveEnd\fP\&.
+.SH SEE ALSO
+.PP
+.BR ModbusSlave (3lightmodbus), 
+.BR modbusSlaveEnd (3lightmodbus)
+.SH AUTHORS
+.PP
+Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

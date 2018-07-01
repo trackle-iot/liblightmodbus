@@ -1,0 +1,96 @@
+.TH ModbusSlave 3lightmodbus "19 July 2017" "v1.3"
+.SH NAME
+.PP
+\fBModbusSlave\fP \- data type containing all information about current slave device status and its configuration.
+.SH SYNOPSIS
+.PP
+Please refer to \fBlightmodbus/slave.h\fP\&.
+\fBModbusSlave\fP is equivalent of \fBstruct modbusSlave\fP\&.
+.SH DESCRIPTION
+.PP
+The \fBModbusSlave\fP contains slave device configuration and pointers do its data arrays.
+.TS
+allbox;
+cb cb
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+.
+member name	description
+\fB\fCaddress\fR	the slave's address
+\fB\fCregisters\fR	slave's holding registers array
+\fB\fCregisterCount\fR	slave's holding register count
+\fB\fCinputRegisters\fR	slave's input registers array
+\fB\fCinputRegisterCount\fR	slave's input register count
+\fB\fCcoils\fR	slave's coils array
+\fB\fCcoilCount\fR	slave's coil count
+\fB\fCdiscreteInputs\fR	slave's discrete inputs array
+\fB\fCdiscreteInputCount\fR	slave's discrete input count
+\fB\fCregisterMask\fR	registers write protection mask
+\fB\fCregisterMaskLength\fR	registers write protection mask length (bytes)
+\fB\fCcoilMask\fR	registers write protection mask
+\fB\fCcoilMaskLength\fR	coil write protection mask length (bytes)
+\fB\fCresponse.frame\fR	response frame for master device
+\fB\fCresponse.length\fR	response frame length
+\fB\fCrequest.frame\fR	request frame for slave device
+\fB\fCrequest.length\fR	request frame length
+.TE
+.SS Initialization
+.PP
+Firstly, user needs to set up register count values (for each data type obviously), set up slave's address and assign data pointers to suitable arrays. After that, \fBmodbusSlaveInit\fP can be called on the structure.
+.SS Write protection
+.PP
+Holding registers and coils can be write\-protected. To achieve that, accordingly set \fBbits\fP to 1 in \fIregisterMask\fP or \fIcoilMask\fP arrays (of \fIregisterMaskLength\fP or \fIcoilMaskLength\fP lengths accordingly). Mask shorter than registers/coils array will affect in all 'uncovered' registers being possible to write. For instance, setting 17th bit to 1, will result in 17th register being read\-only.
+To write and read masks more easily see 
+.BR modbusMaskRead (3lightmodbus) 
+and 
+.BR modbusMaskWrite (3lightmodbus).
+.SS Normal use
+.PP
+Each holding/input register is a single field in a \fBuint16_t\fP array.
+In \fIcoils\fP and \fIdiscreteInputs\fP each bit of a \fBuint8_t\fP array matches exactly one input/output.
+The \fIdiscreteInputCount\fP and \fIcoilCount\fP variables correspond to actual input/output count and \fBnot the array length\fP!
+.PP
+Library calls operate directly on the data located in the arrays described above. They should not modify their content without a reason, but if such exception happens, please report it as a bug.
+.PP
+Simple initialization example:
+\fB\fC
+    ModbusSlave status;
+    uint16_t arr[7];
+    uint8_t arr2[5];
+    status.address = 16;
+    status.registers = arr;
+    status.registerCount = 7;
+    status.coils = arr2;
+    status.coilCount = 5 * 8; //40
+    status.inputRegisters = NULL;
+    status.inputRegisterCount = 0;
+    status.discreteInputs = NULL;
+    status.discreteInputCount = 0;
+    modbusSlaveInit( &status );
+\fR
+.SS Tidying up
+.PP
+In order to finish use of the library, \fBmodbusSlaveEnd\fP should be called on the status structure.
+The whole dynamically allocated memory will be then freed.
+.SH SEE ALSO
+.PP
+.BR modbusSlaveInit (3lightmodbus), 
+.BR modbusSlaveEnd (3lightmodbus)
+.SH AUTHORS
+.PP
+Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

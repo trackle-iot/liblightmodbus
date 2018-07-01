@@ -1,0 +1,76 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[total={6.5in,9in}]{geometry}
+
+\title{\textbf{User manual for liblightmodbus v1.4}}
+\author{Jacek Wieczorek\\and all the contributors}
+
+\begin{document}
+
+%Title page
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+%Table of contents
+\tableofcontents
+\newpage
+
+%About
+\section{About liblightmodbus}
+Liblightmodbus is a lightweight cross-platform Modbus RTU library.
+
+\section{Building liblightmodbus}
+
+%Core part
+\section{Library core}
+\subsection{Data types}
+\subsubsection{Error type - \texttt{ModbusError}}
+\subsubsection{Modbus exception type - \texttt{ModbusExceptionCode}}
+\subsubsection{Modbus data type type - \texttt{ModbusDataType}}
+\subsubsection{Modbus parsing helper type - \texttt{ModbusParser}}
+\subsection{Functions}
+\subsubsection{Bit masks operation functions - \texttt{modbusMaskRead}, \texttt{modbusMaskWrite}}
+\subsubsection{Modbus 16-bit CRC calculation function - \texttt{modbusCRC}}
+\subsubsection{Modbus endianness functions - \texttt{modbusSwapEndian}, \texttt{modbusMatchEndian}}
+
+%Slave part
+\section{Slave device functionality}
+\subsection{Slave-related data types}
+\subsubsection{Slave device data container - \texttt{ModbusSlave}}
+\subsubsection{Register query type - \texttt{ModbusRegisterQuery}}
+\subsubsection{User-defined Modbus function type - \texttt{ModbusUserFunction}}
+\subsubsection{Register callback function type - \texttt{ModbusRegisterCallbackFunction}}
+\subsection{Setup and cleanup}
+\subsubsection{Slave initialization function - \texttt{modbusSlaveInit}}
+\subsubsection{Slave destructor function - \texttt{modbusSlaveEnd}}
+\subsection{Request processing}
+\subsubsection{Universal request parser function - \texttt{modbusParseRequest}}
+\subsubsection{Modbus exception builder function - \texttt{modbusBuildException}}
+\subsubsection{User-defined Modbus functions}
+\subsubsection{User-defined register/coil callback functions}
+
+%Master part
+\section{Master device functionality}
+\subsection{Master-related data types}
+\subsubsection{Master device data container - \texttt{ModbusMaster}}
+\subsection{Setup and cleanup}
+\subsubsection{Master initialization function - \texttt{modbusMasterInit}}
+\subsubsection{Master destructor function - \texttt{modbusMasterEnd}}
+\subsection{Making requests}
+\subsubsection{\texttt{modbusBuildRequest0102}}
+\subsubsection{\texttt{modbusBuildRequest01}}
+\subsubsection{\texttt{modbusBuildRequest02}}
+\subsubsection{\texttt{modbusBuildRequest0304}}
+\subsubsection{\texttt{modbusBuildRequest03}}
+\subsubsection{\texttt{modbusBuildRequest04}}
+\subsubsection{\texttt{modbusBuildRequest05}}
+\subsubsection{\texttt{modbusBuildRequest06}}
+\subsubsection{\texttt{modbusBuildRequest16}}
+\subsubsection{\texttt{modbusBuildRequest15}}
+\subsubsection{\texttt{modbusBuildRequest22}}
+\subsection{Processing slaves' responses}
+\subsubsection{Universal response parser function - \texttt{modbusParseResponse}}
+
+\section{Addons}
+
+\end{document}

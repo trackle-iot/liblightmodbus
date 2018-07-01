@@ -1,0 +1,24 @@
+.TH modbusParseResponse 3lightmodbus "25 March 2017" "v1.3"
+.SH NAME
+.PP
+\fBmodbusParseResponse\fP \- parse response frame returned by slave device.
+.SH SYNOPSIS
+.PP
+\fB\fC#include <lightmodbus/master.h>\fR
+.PP
+\fB\fCuint8_t modbusParseResponse( ModbusMaster *status );\fR
+.SH DESCRIPTION
+.PP
+The \fBmodbusParseResponse\fP function parses request frame located in \fIstatus.response.frame\fP of \fIstatus.response.length\fP bytes length. Results are written into \fIstatus.data\fP, when the function exits. It also returns an error code (see 
+.BR lightmodbus (3lightmodbus)).
+.PP
+In case the received frame is an exception, no data will be loaded into \fIstatus.data\fP, but \fIstatus.exception\fP will be filled information about the exception. In such case \fB\fCMODBUS_ERROR_EXCEPTION\fR is returned.
+.PP
+It is important to mention, that parsing responses often requires having unchanged request frames loaded into \fIstatus.request\fP\&.
+.SH SEE ALSO
+.PP
+.BR lightmodbus (3lightmodbus), 
+.BR ModbusMaster (3lightmodbus)
+.SH AUTHORS
+.PP
+Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

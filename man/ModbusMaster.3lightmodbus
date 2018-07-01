@@ -1,0 +1,110 @@
+.TH ModbusMaster 3lightmodbus "19 July 2017" "v1.3"
+.SH NAME
+.PP
+\fBModbusMaster\fP \- data type containing all information about current master device status, its configuration and received data.
+.SH SYNOPSIS
+.PP
+Please refer to \fBlightmodbus/master.h\fP\&.
+\fBModbusMaster\fP is equivalent of \fBstruct modbusMaster\fP\&.
+.SH DESCRIPTION
+.PP
+The \fBModbusMaster\fP contains information about master device configuration, status and received data.
+.TS
+allbox;
+cb cb
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+l l
+.
+member name	description
+\fB\fCpredictedResponseLength\fR	the predicted length of response
+\fB\fCrequest.frame\fR	request frame for slave device
+\fB\fCrequest.length\fR	request frame length
+\fB\fCresponse.frame\fR	incoming response frame
+\fB\fCresponse.length\fR	response frame length
+\fB\fCdata.address\fR	address of the slave the data comes from
+\fB\fCdata.index\fR	starting index of received data
+\fB\fCdata.count\fR	number of received data units \- \fBnot bytes!\fP
+\fB\fCdata.length\fR	length of received data in bytes
+\fB\fCdata.type\fR	type of received data
+\fB\fCdata.function\fR	function that returned the data
+\fB\fCdata.coils\fR	received coils or discrete input values
+\fB\fCdata.regs\fR	received (input or holding) register values
+\fB\fCexception.address\fR	address of device that threw the exception
+\fB\fCexception.function\fR	function that threw the exception
+\fB\fCexception.code\fR	exception code
+.TE
+.PP
+\fBNote:\fP In \fIstatus.data.coils\fP each \fBbit\fP corresponds to a \fBsingle\fP coil or a discrete input.
+.SS Initialization
+.PP
+Unlike on slave side, there aren't many things to be done before start. User only needs to call \fBmodbusMasterInit\fP on the structure.
+.PP
+Simple initialization example:
+\fB\fC
+    ModbusMaster status;
+    modbusMasterInit( &status );
+\fR
+.SS Normal use
+.PP
+Normally, master initiates the transmission, by sending a request to slave device, and then awaits its response. Let's say we want to write a single holding register \- that's how it looks in code:
+.PP
+\fB\fC
+    //Assume:
+    //Slave ID: 17
+    //Register ID: 32
+    //Register value: 89
+    modbusBuildRequest06( &status, 17, 32, 89 );
+\fR
+.PP
+\fB\fC
+    //Here send status.request.frame content to slave
+    //and get response back into status.response.frame
+\fR
+.PP
+\fB\fC
+    modbusParseResponse( &status );
+    //After successful parsing you should get:
+    //status.data.address = 17
+    //status.data.function = 6
+    //status.data.index = 32
+    //status.data.type = 1
+    //status.data.count = 1
+    //status.data.length = 2
+    //status.data.regs[0] = 89
+\fR
+.PP
+To see more examples, please take a look into examples folder.
+.SS Tidying up
+.PP
+In order to free memory (not always!) used by the received data and finish use of the library, \fBmodbusMasterEnd\fP should be called on the status structure.
+.SH NOTES
+.PP
+There are 4 macros responsible for describing Modbus data types (\fIstatus.data.type\fP). Please refer to the code sample below.
+.PP
+\fB\fC
+    #define MODBUS_HOLDING_REGISTER 1
+    #define MODBUS_INPUT_REGISTER 2
+    #define MODBUS_COIL 4
+    #define MODBUS_DISCRETE_INPUT 8
+\fR
+.SH SEE ALSO
+.PP
+.BR modbusMasterInit (3lightmodbus), 
+.BR modbusMasterEnd (3lightmodbus)
+.SH AUTHORS
+.PP
+Jacek Wieczorek (Jacajack) \- \[la]mrjjot@gmail.com\[ra]

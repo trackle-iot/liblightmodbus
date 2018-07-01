@@ -96,7 +96,7 @@ typedef struct modbusMaster
 	{
 		uint8_t address; //Device address
 		uint8_t function; //In which function exception occured
-		uint8_t code; //Exception code
+		ModbusExceptionCode code; //Exception code
 	} exception;
 
 	//User defined functions

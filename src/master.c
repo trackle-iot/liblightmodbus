@@ -96,62 +96,91 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	ModbusParser *parser = (ModbusParser*) status->response.frame;
 	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
 
-	//Check if frame is exception response
-	if ( ( parser->base.function & 128 ) && status->response.length == 5 )
-	{
-		err = modbusParseException( status, parser );
-	}
-	else
-	{
-		switch ( parser->base.function )
+	uint8_t functionMatch = 0;
+
+	//Check user defined functions
+	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
+		if ( status->userFunctions != NULL )
 		{
-			#if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
-				case 1: //Read multiple coils
-				case 2: //Read multiple discrete inputs
-					err = modbusParseResponse0102( status, parser, requestParser );
-					break;
-			#endif
+			uint16_t i;
+			for ( i = 0; i < status->userFunctionCount; i++ )
+			{
+				if ( status->userFunctions[i].function == parser->base.function )
+				{
+					functionMatch = 1;
 
-			#if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
-				case 3: //Read multiple holding registers
-				case 4: //Read multiple input registers
-					err = modbusParseResponse0304( status, parser, requestParser );
-					break;
-			#endif
+					//If the function is overriden and handler pointer is valid, user the callback
+					if ( status->userFunctions[i].handler != NULL )
+						err = status->userFunctions[i].handler( status, parser );
+					else
+						err = MODBUS_ERROR_BAD_FUNCTION; //Function overriden, but pointer is invalid
 
-			#ifdef LIGHTMODBUS_F05M
-				case 5: //Write single coil
-					err = modbusParseResponse05( status, parser, requestParser );
+					//Search till first match
 					break;
-			#endif
+				}
+			}
+		}
+	#endif
+	
+	if ( !functionMatch )
+	{
+		//Catching exceptions can be overriden by user functions
+		if ( ( parser->base.function & 128 ) && status->response.length == 5 )
+		{
+			err = modbusParseException( status, parser );
+		}
+		else
+		{
+			switch ( parser->base.function )
+			{
+				#if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
+					case 1: //Read multiple coils
+					case 2: //Read multiple discrete inputs
+						err = modbusParseResponse0102( status, parser, requestParser );
+						break;
+				#endif
 
-			#ifdef LIGHTMODBUS_F06M
-				case 6: //Write single holding reg
-					err = modbusParseResponse06( status, parser, requestParser );
+				#if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_F04M)
+					case 3: //Read multiple holding registers
+					case 4: //Read multiple input registers
+						err = modbusParseResponse0304( status, parser, requestParser );
+						break;
+				#endif
+
+				#ifdef LIGHTMODBUS_F05M
+					case 5: //Write single coil
+						err = modbusParseResponse05( status, parser, requestParser );
+						break;
+				#endif
+
+				#ifdef LIGHTMODBUS_F06M
+					case 6: //Write single holding reg
+						err = modbusParseResponse06( status, parser, requestParser );
+						break;
+				#endif
+
+				#ifdef LIGHTMODBUS_F15M
+					case 15: //Write multiple coils
+						err = modbusParseResponse15( status, parser, requestParser );
+						break;
+				#endif
+
+				#ifdef LIGHTMODBUS_F16M
+					case 16: //Write multiple holding registers
+						err = modbusParseResponse16( status, parser, requestParser );
+						break;
+				#endif
+
+				#ifdef LIGHTMODBUS_F22M
+					case 22: //Mask write holding register
+						err = modbusParseResponse22( status, parser, requestParser );
+						break;
+				#endif
+
+				default: //Function code not known by master
+					err = MODBUS_ERROR_BAD_FUNCTION;
 					break;
-			#endif
-
-			#ifdef LIGHTMODBUS_F15M
-				case 15: //Write multiple coils
-					err = modbusParseResponse15( status, parser, requestParser );
-					break;
-			#endif
-
-			#ifdef LIGHTMODBUS_F16M
-				case 16: //Write multiple holding registers
-					err = modbusParseResponse16( status, parser, requestParser );
-					break;
-			#endif
-
-			#ifdef LIGHTMODBUS_F22M
-				case 22: //Mask write holding register
-					err = modbusParseResponse22( status, parser, requestParser );
-					break;
-			#endif
-
-			default: //Function code not known by master
-				err = MODBUS_ERROR_BAD_FUNCTION;
-				break;
+			}
 		}
 	}
 	return err;

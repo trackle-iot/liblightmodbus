@@ -22,8 +22,9 @@
 #define LIGHTMODBUS_MASTER_H
 
 #include <inttypes.h>
-#include "lightmodbus.h"
+#include "parser.h"
 #include "libconf.h"
+#include "lightmodbus.h"
 
 #ifdef LIGHTMODBUS_MASTER_BASE
 
@@ -33,6 +34,16 @@
 
 #if defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER ) && !defined( LIGHTMODBUS_EXPERIMENTAL )
 	#error Disabling exclusive master data buffer is an experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message, but please make sure your system permits unaligned memory acces beforehand.
+#endif
+
+//Struct associating user defined parser function with function ID
+#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
+	struct modbusMaster;
+	typedef struct modbusMasterUserFunction
+	{
+		uint8_t function; //Function code
+		ModbusError ( *handler )( struct modbusMaster *status, ModbusParser *parser ); //Pointer to user defined function
+	} ModbusMasterUserFunction;
 #endif
 
 typedef struct modbusMaster
@@ -87,6 +98,12 @@ typedef struct modbusMaster
 		uint8_t function; //In which function exception occured
 		uint8_t code; //Exception code
 	} exception;
+
+	//User defined functions
+	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
+		ModbusMasterUserFunction *userFunctions;
+		uint16_t userFunctionCount;
+	#endif
 
 } ModbusMaster; //Type containing master device configuration data
 #endif

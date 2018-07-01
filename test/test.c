@@ -41,6 +41,11 @@ ModbusError userModbusFunction( ModbusSlave *status, ModbusParser *parser )
 	printf( "<<Hello, this is the parsing function. I'm alive and working>>\n" );
 	return MODBUS_OK;
 }
+ModbusError userModbusMasterFunction( ModbusMaster *status, ModbusParser *parser )
+{
+	printf( "<<And I am the master parsing function!>>\n" );
+	return MODBUS_OK;
+}
 
 //Register callback function
 #if defined(LIGHTMODBUS_REGISTER_CALLBACK) || defined(LIGHTMODBUS_COIL_CALLBACK)
@@ -824,18 +829,34 @@ void MainTest( )
 }
 
 
+//User defined functions check
 void userf_test( )
 {
-	//User defined functions check
-	#ifdef LIGHTMODBUS_USER_FUNCTIONS
-		static ModbusUserFunction userf[2] =
+	//SLAVE
+	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS
+		static ModbusSlaveUserFunction userf[2] =
 		{
 			{254, NULL},
 			{255, userModbusFunction}
 		};
+
 		sstatus.userFunctions = userf;
 		sstatus.userFunctionCount = 2;
+	#endif
 
+	//MASTER
+	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
+		static ModbusMasterUserFunction muserf[2] =
+		{
+			{254, NULL},
+			{255, userModbusMasterFunction}
+		};
+		mstatus.userFunctions = muserf;
+		mstatus.userFunctionCount = 2;	
+	#endif
+
+	//Frames setup
+	#if defined(LIGHTMODBUS_SLAVE_USER_FUNCTIONS) || defined(LIGHTMODBUS_MASTER_USER_FUNCTIONS)
 		printf( "\n\n-----------\n\nUser defined functions test\n" );
 		uint8_t userf_frame1[] = {0x20, 0xFF, 0x58, 0x30};
 		printf( "using frame: " );
@@ -843,6 +864,14 @@ void userf_test( )
 		for ( k = 0; k < sizeof userf_frame1; k++ ) printf( "%x, ", userf_frame1[k] );
 		printf( "\nCRC: 0x%x\n", modbusCRC( userf_frame1, sizeof( userf_frame1 ) - 2 ) );
 
+		uint8_t userf_frame2[] = {0x20, 0xFE, 0x99, 0xF0};
+		printf( "using frame: " );
+		for ( k = 0; k < sizeof userf_frame2; k++ ) printf( "%x, ", userf_frame2[k] );
+		printf( "\nCRC: 0x%x\n", modbusCRC( userf_frame2, sizeof( userf_frame2 ) - 2 ) );
+	#endif
+
+	//SLAVE
+	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS
 		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
 			memcpy( sstatus.request.frame, userf_frame1, sizeof( userf_frame1 ) );
 		#else
@@ -850,11 +879,21 @@ void userf_test( )
 		#endif
 		sstatus.request.length = sizeof userf_frame1;
 		printf( "PARSE RESULT 1: %d\n", modbusParseRequest( &sstatus ) );
+	#endif
 
-		uint8_t userf_frame2[] = {0x20, 0xFE, 0x99, 0xF0};
-		printf( "using frame: " );
-		for ( k = 0; k < sizeof userf_frame2; k++ ) printf( "%x, ", userf_frame2[k] );
-		printf( "\nCRC: 0x%x\n", modbusCRC( userf_frame2, sizeof( userf_frame2 ) - 2 ) );
+	//MASTER
+	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+			memcpy( mstatus.response.frame, userf_frame1, sizeof( userf_frame1 ) );
+		#else
+			mstatus.response.frame = userf_frame1;
+		#endif
+		mstatus.response.length = sizeof userf_frame1;
+		printf( "MASTER PARSE RESULT 1: %d\n", modbusParseResponse( &mstatus ) );
+	#endif
+
+	//SLAVE
+	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS
 		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
 			memcpy( sstatus.request.frame, userf_frame2, sizeof( userf_frame2 ) );
 		#else
@@ -862,9 +901,27 @@ void userf_test( )
 		#endif
 		sstatus.request.length = sizeof userf_frame2;
 		printf( "PARSE RESULT 2: %d\n", modbusParseRequest( &sstatus ) );
-	#else
-		printf( "\n\n-------\n\n user functions are disabled!\n" );
 	#endif
+
+	//MASTER
+	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+			memcpy( mstatus.response.frame, userf_frame2, sizeof( userf_frame2 ) );
+		#else
+			mstatus.response.frame = userf_frame2;
+		#endif
+		mstatus.response.length = sizeof userf_frame2;
+		printf( "MASTER PARSE RESULT 2: %d\n", modbusParseResponse( &mstatus ) );
+	#endif
+		
+	#if !defined(LIGHTMODBUS_SLAVE_USER_FUNCTIONS)
+		printf( "\n\n-------\n\n slave user functions are disabled!\n" );
+	#endif
+
+	#if !defined(LIGHTMODBUS_MASTER_USER_FUNCTIONS)
+		printf( "\n\n-------\n\n master user functions are disabled!\n" );
+	#endif
+	
 }
 
 int main( )

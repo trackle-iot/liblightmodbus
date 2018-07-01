@@ -100,9 +100,13 @@ function genaddons()
 	fi
 
 	#User functions handlers
-	if [[ $ADDONS == *"user_functions"* ]]; then
-		log "[info] user defined function handling is going to be included"
-		echo "#define LIGHTMODBUS_USER_FUNCTIONS" >> $LIBCONF
+	if [[ $ADDONS == *"slave_user_functions"* ]]; then
+		log "[info] slave user defined function handling is going to be included"
+		echo "#define LIGHTMODBUS_SLAVE_USER_FUNCTIONS" >> $LIBCONF
+	fi
+	if [[ $ADDONS == *"master_user_functions"* ]]; then
+		log "[info] master user defined function handling is going to be included"
+		echo "#define LIGHTMODBUS_MASTER_USER_FUNCTIONS" >> $LIBCONF
 	fi
 
 	#No master data buffer

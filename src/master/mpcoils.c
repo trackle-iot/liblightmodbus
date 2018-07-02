@@ -32,7 +32,11 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_NULLPTR;
-	if ( parser->base.function != 1 && parser->base.function != 2 ) return MODBUS_ERROR_OTHER;
+	if ( parser->base.function != 1 && parser->base.function != 2 )
+	{
+		status->parseError = MODBUS_FERROR_BADFUN;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case

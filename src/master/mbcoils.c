@@ -39,7 +39,7 @@ ModbusError modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint
 	if ( function != 1 && function != 2 )
 	{
 		status->buildError = MODBUS_FERROR_BADFUN;
-		return MODBUS_ERROR_OTHER;
+		return MODBUS_ERROR_BUILD;
 	}
 
 	if ( address == 0 )

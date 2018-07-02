@@ -147,7 +147,7 @@ ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_
 	if ( count == 0 || count > 123 )
 	{
 		status->buildError = MODBUS_FERROR_COUNT;
-		return MODBUS_ERROR_OTHER;
+		return MODBUS_ERROR_BUILD;
 	}
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST

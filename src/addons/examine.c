@@ -32,7 +32,7 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 	union modbusParser *parser;
 
 	//Null pointer check
-	if ( info == NULL ) return MODBUS_ERROR_OTHER;
+	if ( info == NULL|| frame == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//At least setup the struct if frame is invalid
 	memset( info, 0, sizeof( struct modbusFrameInfo ) );
@@ -40,7 +40,7 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 	info->direction = dir;
 
 	//Check for bad frame
-	if ( length == 0 || frame == NULL ) return MODBUS_ERROR_NULLPTR;
+	if ( length == 0 ) return MODBUS_ERROR_PARSE;
 
 	parser = (union modbusParser*) frame;
 

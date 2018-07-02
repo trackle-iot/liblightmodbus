@@ -33,7 +33,18 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 	//Returns generated frame length
 
 	//Check if given pointer is valid
-	if ( status == NULL || code == 0 ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+
+	//If request is broadcasted, do not form exception frame
+	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
+	if ( requestParser != NULL && requestParser->base.address == 0 )
+	{
+		#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
+			status->response.frame = NULL;
+		#endif 
+		status->response.length = 0;
+		return MODBUS_OK;
+	}
 
 	//Setup 'last exception' in slave struct
 	status->lastException = code;

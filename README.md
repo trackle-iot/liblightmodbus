@@ -3,20 +3,19 @@
 [![Travis CI](https://img.shields.io/travis/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://travis-ci.org/Jacajack/liblightmodbus)
 [![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
 
-[More build results...](https://github.com/Jacajack/liblightmodbus/wiki/Build-results-history)
-<br>[Library on launchpad...](https://launchpad.net/liblightmodbus)
+<br>[Liblightmodbus on launchpad...](https://launchpad.net/liblightmodbus)
 
-`liblightmodbus` is a very lightweight, platform-independent Modbus RTU library. It is developed mainly with thought of embedded targets, but it is meant for personal computers as well.
+`liblightmodbus` is a very lightweight, highly configurable, platform-independent Modbus RTU library.
 
 ## Features
 - Minimal resources usage
 - Relatively easy to use
-- Supports all basic Modbus functions
-- Library can be installed as a `deb` package on computer
-- You can pick modules, that you want to be built
+- Supports all basic Modbus functions and allows users to define thier own Modbus function handlers
+- You can pick specific modules, you want to be included during customized build process
+- Supports register/coil access callback functions
 
 *Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.*
-Check [wiki](https://github.com/Jacajack/liblightmodbus/wiki) and [docs](https://github.com/Jacajack/liblightmodbus/tree/master/doc) for more technical information.
+Check out [docs](https://github.com/Jacajack/liblightmodbus/tree/master/doc) for more technical information and manual.
 
 If you need help - [email me](mailto:mrjjot@gmail.com). If you want to help - contribute here, on Github. **All contributions are welcome!**
 
@@ -28,9 +27,9 @@ If you need help - [email me](mailto:mrjjot@gmail.com). If you want to help - co
  - PowerPC
 
 ## PPA
-`liblightmodbus` can be obtained from [PPA](https://code.launchpad.net/~mrjjot/+archive/ubuntu/liblightmodbus) (Personal Package Archive).
+On Ubuntu/Debian `liblightmodbus` can be obtained from [PPA](https://code.launchpad.net/~mrjjot/+archive/ubuntu/liblightmodbus) (Personal Package Archive).
 
-This is how to install it (if you run Ubuntu):
+This is how to install it:
  - Add PPA to your system - `sudo add-apt-repository ppa:mrjjot/liblightmodbus`
  - Update software lists - `sudo apt-get update`
  - Install development package - `sudo apt-get install liblightmodbus-dev`

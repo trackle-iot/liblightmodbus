@@ -34,14 +34,29 @@ ModbusError modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint
 	uint8_t frameLength = 8;
 
 	//Check if given pointer is valid
-	if ( status == NULL || ( function != 3 && function != 4 ) ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
+	if ( function != 3 && function != 4 ) 
+	{
+		status->buildError = MODBUS_FERROR_BADFUN;
+		return MODBUS_ERROR_BUILD;
+	}
+
+	if ( address == 0 )
+	{
+		status->buildError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_BUILD;
+	}
 
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( count == 0 || count > 125 || address == 0 ) return MODBUS_ERROR_OTHER;
+	if ( count == 0 || count > 125 )
+	{
+		status->buildError = MODBUS_FERROR_COUNT;
+		return MODBUS_ERROR_BUILD;
+	}
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		//Reallocate memory for final frame
@@ -78,7 +93,7 @@ ModbusError modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_
 	uint8_t frameLength = 8;
 
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
@@ -119,15 +134,19 @@ ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_
 	uint8_t frameLength = 9 + ( count << 1 );
 	uint8_t i = 0;
 
-	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	//Check if given pointers are valid
+	if ( status == NULL || values == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;
 	status->predictedResponseLength = 0;
 
 	//Check values pointer
-	if ( values == NULL || count == 0 || count > 123 ) return MODBUS_ERROR_OTHER;
+	if ( count == 0 || count > 123 )
+	{
+		status->buildError = MODBUS_FERROR_COUNT;
+		return MODBUS_ERROR_OTHER;
+	}
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 		//Reallocate memory for final frame
@@ -168,7 +187,7 @@ ModbusError modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_
 	uint8_t frameLength = 10;
 
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Set output frame length to 0 (in case of interrupts)
 	status->request.length = 0;

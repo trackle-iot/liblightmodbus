@@ -40,13 +40,13 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 	info->direction = dir;
 
 	//Check for bad frame
-	if ( length == 0 || frame == NULL ) return MODBUS_ERROR_OTHER;
+	if ( length == 0 || frame == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	parser = (union modbusParser*) frame;
 
 	//CRC check (should satisfy both little and big endian platforms - see modbusCRC)
 	info->crc = modbusCRC( frame, length - 2 );
-	if ( info->crc != ( frame[length - 2] | ( frame[length - 1] << 8 ) ) ) return MODBUS_ERROR_CRC;
+	if ( info->crc != ( frame[length - 2] | ( frame[length - 1] << 8 ) ) ) return MODBUS_ERROR_PARSE;
 
 	//Copy basic information
 	info->address = parser->base.address;

@@ -36,7 +36,8 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 	uint16_t i = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL || ( parser->base.function != 1 && parser->base.function != 2 ) ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
+	if ( parser->base.function != 1 && parser->base.function != 2 ) return MODBUS_ERROR_OTHER;
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
@@ -44,7 +45,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE );
+		return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
 
 	//Swap endianness of longer members (but not crc)
 	uint16_t index = modbusMatchEndian( parser->request0102.index );
@@ -55,28 +56,28 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 		ModbusDataType datatype = parser->base.function == 1 ? MODBUS_COIL : MODBUS_DISCRETE_INPUT;
 	#endif
 
-	//Check if coil is in valid range
+	//Check if coil count is in valid range
 	if ( count == 0 || count > 2000 )
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE );
+		return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_COUNT );
 
 	//Check if coils are accessible
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		if ( status->registerCallback == NULL ) 
-			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#else
 		if ( ( parser->base.function == 1 ? status->coils : status->discreteInputs ) == NULL ) 
-			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 
 	if ( index >= ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) || \
 		(uint32_t) index + (uint32_t) count > (uint32_t) ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) )
-			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 
 	//Check if coils can be written (if using callback function)
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		for ( i = 0; i < count; i++ )
 			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0 ) == 0 )
-				return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_SLAVE_FAILURE );
+				return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOREAD );
 	#endif
 
 	//Respond
@@ -138,11 +139,11 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	uint8_t frameLength = 8;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
-		return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_VALUE );
+		return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
 
 	//Swap endianness of longer members (but not crc)
 	uint16_t index = modbusMatchEndian( parser->request05.index );
@@ -150,30 +151,30 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if coil value is valid
 	if ( value != 0x0000 && value != 0xFF00 )
-		return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_VALUE );
+		return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_VALUE );
 
 
 	//Check if coils are accessible
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		if ( status->registerCallback == NULL )
-			return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#else
 		if ( status->coils == NULL )
-			return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 
 	//Check if coil is in valid range
 	if ( index >= status->coilCount )
-		return modbusBuildException( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+		return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 
 
 	//Check if reg is allowed to be written
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_COIL, index, 0 ) == 0 )
-			return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAILURE );
+			return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index ) == 1 )
-			return modbusBuildException( status, 5, MODBUS_EXCEP_SLAVE_FAILURE );
+			return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#endif
 
 	//Respond
@@ -226,19 +227,19 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	uint8_t frameLength;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check if frame length is valid
 	if ( status->request.length >= 7u )
 	{
 		frameLength = 9 + parser->request15.length;
 		if ( status->request.length != frameLength )
-			return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE );
+			return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
 
 	}
 	else
 	{
-		return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE );
+		return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -250,34 +251,34 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		count == 0 || \
 		BITSTOBYTES( count ) != parser->request15.length || \
 		count > 1968 )
-			return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE );
+			return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_COUNT );
 
 
 	//Check if coils are accessible
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		if ( status->registerCallback == NULL )
-			return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 
 	#else
 		if ( status->coils == NULL )
-			return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 
 	if ( index >= status->coilCount || \
 		(uint32_t) index + (uint32_t) count > (uint32_t) status->coilCount )
-			return modbusBuildException( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 
 
 	//Check for write protection
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		for ( i = 0; i < count; i++ )
 			if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_COIL, index + i, 0 ) == 0 )
-				return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAILURE );
+				return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 
 	#else
 		for ( i = 0; i < count; i++ )
 			if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index + i ) == 1 )
-				return modbusBuildException( status, 15, MODBUS_EXCEP_SLAVE_FAILURE );
+				return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#endif
 
 	//Respond

@@ -30,29 +30,52 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 	//Parse slave response to request 03
 	//Read multiple holding registers
 
-	uint8_t dataok = 1;
 	uint8_t i = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL || requestParser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) )
-		return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_NULLPTR;
+	if ( parser->base.function != 3 && parser->base.function != 4 )
+	{
+		status->parseError = MODBUS_FERROR_BADFUN;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	if ( status->response.length != 5 + parser->response0304.length || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
+	if ( status->response.length != 5 + parser->response0304.length || status->request.length != 8 )
+	{
+		status->parseError = MODBUS_FERROR_LENGTH;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	uint16_t count = modbusMatchEndian( requestParser->request0304.count );
 
-	//Check between data sent to slave and received from slave
-	dataok &= parser->base.address != 0;
-	dataok &= parser->response0304.address == requestParser->request0304.address;
-	dataok &= parser->response0304.function == requestParser->request0304.function;
-	dataok &= parser->response0304.length != 0;
-	dataok &= parser->response0304.length == count << 1 ;
-	dataok &= parser->response0304.length <= 250;
+	//Check if frame was broadcast
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_PARSE;
+	}
 
-	//If data is bad, abort parsing, and set error flag
-	if ( !dataok ) return MODBUS_ERROR_FRAME;
+	//Check slave address in response and request
+	if ( parser->base.address != requestParser->base.address )
+	{
+		status->parseError = MODBUS_FERROR_MISM_ADDR;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	//Check function in response and request
+	if ( parser->base.function != requestParser->base.function )
+	{
+		status->parseError = MODBUS_FERROR_MISM_FUN;
+		return MODBUS_ERROR_PARSE;
+	}
+	
+	if ( parser->response0304.length == 0 || parser->response0304.length != count << 1 || parser->response0304.length > 250 )
+	{
+		status->parseError = MODBUS_FERROR_LENGTH;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	#ifdef LIGHTMODBUS_NO_MASTER_DATA_BUFFER
 		//When no data buffer is used, pointer has to point inside frame provided by user
@@ -100,20 +123,50 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 	uint8_t dataok = 1;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	if ( status->response.length != 8 || status->request.length != 8 ) return MODBUS_ERROR_FRAME;
+	if ( status->response.length != 8 || status->request.length != 8 )
+	{
+		status->parseError = MODBUS_FERROR_LENGTH;
+		return MODBUS_ERROR_PARSE;
+	}
 
-	//Check between data sent to slave and received from slave
-	dataok &= parser->response06.address == requestParser->request06.address;
-	dataok &= parser->response06.function == requestParser->request06.function;
-	dataok &= parser->response06.index == requestParser->request06.index;
-	dataok &= parser->response06.value == requestParser->request06.value;
+	//Check if frame was broadcast
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_PARSE;
+	}
 
-	//If data is bad abort parsing, and set error flag
-	if ( !dataok ) return MODBUS_ERROR_FRAME;
+	//Check slave address in response and request
+	if ( parser->base.address != requestParser->base.address )
+	{
+		status->parseError = MODBUS_FERROR_MISM_ADDR;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	//Check function in response and request
+	if ( parser->base.function != requestParser->base.function )
+	{
+		status->parseError = MODBUS_FERROR_MISM_FUN;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	//Check index in response and request
+	if ( parser->response06.index != requestParser->request06.index )
+	{
+		status->parseError = MODBUS_FERROR_MISM_INDEX;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	//Check value in response and request
+	if ( parser->response06.value != requestParser->request06.value )
+	{
+		status->parseError = MODBUS_FERROR_MISM_VALUE;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	#ifdef LIGHTMODBUS_NO_MASTER_DATA_BUFFER
 		//When no data buffer is used, pointer has to point inside frame provided by user
@@ -155,26 +208,53 @@ ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, M
 {
 	//Parse slave response to request 16 (write multiple holding reg)
 
-	uint8_t dataok = 1;
-
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check frame lengths
-	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request16.length ) return MODBUS_ERROR_FRAME;
-	if ( status->response.length != 8 ) return MODBUS_ERROR_FRAME;
-
-	uint16_t count = modbusMatchEndian( parser->response16.count );
+	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request16.length || status->response.length != 8 ) 
+	{
+		status->parseError = MODBUS_FERROR_LENGTH;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check between data sent to slave and received from slave
-	dataok &= parser->response16.address == requestParser->request16.address;
-	dataok &= parser->response16.function == requestParser->request16.function;
-	dataok &= parser->response16.index == requestParser->request16.index;
-	dataok &= parser->response16.count == requestParser->request16.count;
-	dataok &= count <= 123;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_PARSE;
+	}
 
-	//If data is bad abort parsing, and set error flag
-	if ( !dataok ) return MODBUS_ERROR_FRAME;
+	if ( parser->base.address != requestParser->base.address )
+	{
+		status->parseError = MODBUS_FERROR_MISM_ADDR;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	if ( parser->base.function != requestParser->base.function )
+	{
+		status->parseError = MODBUS_FERROR_MISM_FUN;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	if ( parser->response16.index != requestParser->request16.index )
+	{
+		status->parseError = MODBUS_FERROR_MISM_INDEX;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	if ( parser->response16.count != requestParser->request16.count )
+	{
+		status->parseError = MODBUS_FERROR_MISM_COUNT;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	uint16_t count = modbusMatchEndian( parser->response16.count );
+	if ( count > 123 )
+	{
+		status->parseError = MODBUS_FERROR_COUNT;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Set up data length - response successfully parsed
 	status->data.address = parser->base.address;
@@ -192,24 +272,47 @@ ModbusError modbusParseResponse22( ModbusMaster *status, ModbusParser *parser, M
 {
 	//Parse slave response to request 22 (mask write single holding reg)
 
-	uint8_t dataok = 1;
-
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check if frame length is valid
 	//Frame has to be at least 4 bytes long so byteCount can always be accessed in this case
-	if ( status->response.length != 10 || status->request.length != 10 ) return MODBUS_ERROR_FRAME;
+	if ( status->response.length != 10 || status->request.length != 10 )
+	{
+		status->parseError = MODBUS_FERROR_LENGTH;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check between data sent to slave and received from slave
-	dataok &= parser->response22.address == requestParser->request22.address;
-	dataok &= parser->response22.function == requestParser->request22.function;
-	dataok &= parser->response22.index == requestParser->request22.index;
-	dataok &= parser->response22.andmask == requestParser->request22.andmask;
-	dataok &= parser->response22.ormask == requestParser->request22.ormask;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_PARSE;
+	}
 
-	//If data is bad abort parsing, and set error flag
-	if ( !dataok ) return MODBUS_ERROR_FRAME;
+	if ( parser->base.address != requestParser->base.address )
+	{
+		status->parseError = MODBUS_FERROR_MISM_ADDR;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	if ( parser->base.function != requestParser->base.function )
+	{
+		status->parseError = MODBUS_FERROR_MISM_FUN;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	if ( parser->response22.index != requestParser->request22.index )
+	{
+		status->parseError = MODBUS_FERROR_MISM_INDEX;
+		return MODBUS_ERROR_PARSE;
+	}
+
+	if ( parser->response22.andmask != requestParser->request22.andmask || parser->response22.ormask != requestParser->request22.ormask )
+	{
+		status->parseError = MODBUS_FERROR_MISM_MASK;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Set up new data table
 	status->data.address = parser->base.address;

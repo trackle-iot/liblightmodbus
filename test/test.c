@@ -367,6 +367,7 @@ void Test( )
 
 	//Start test
 	//TermRGB( 4, 2, 0 );
+	printf( "Master build errors - %s\n", modbusferrstr(mstatus.buildError) );
 	printf( "Test started...\n" );
 
 	//Dump frame
@@ -473,6 +474,7 @@ void Test( )
 	if ( sok == MODBUS_OK || sok == MODBUS_ERROR_EXCEPTION ) examines( );
 
 	printf( "----------------------------------------\n\n" );
+	mstatus.request.length = 0;
 }
 
 void libinit( )

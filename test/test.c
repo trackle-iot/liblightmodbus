@@ -35,6 +35,64 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 	printf( "\033[38;5;%dm", 16 + B + G * 6 + R * 36 );
 }
 
+const char *modbuserrstr( ModbusError err )
+{
+	static const char str[]=
+	{
+		"MODBUS_ERROR_OK\0"\
+		"MODBUS_ERROR_EXCEPTION\0"\
+		"MODBUS_ERROR_ALLOC\0"\
+		"MODBUS_ERROR_OTHER\0"\
+		"MODBUS_ERROR_NULLPTR\0"\
+		"MODBUS_ERROR_PARSE\0"\
+		"MODBUS_ERROR_BUILD\0"
+	};
+
+	int num = err;
+	const char *ptr = str;
+
+	//Don't try this at home!
+	while ( num-- )
+		ptr = memchr( ptr, 0, sizeof(str) ) + 1;
+
+	return ptr;
+}
+
+const char *modbusferrstr( ModbusFrameError err )
+{
+	static const char str[]=
+	{
+		"MODBUS_FERROR_OK\0"\
+		"MODBUS_FERROR_CRC\0"\
+		"MODBUS_FERROR_LENGTH\0"\
+		"MODBUS_FERROR_COUNT\0"\
+		"MODBUS_FERROR_VALUE\0"\
+		"MODBUS_FERROR_RANGE\0"\
+		"MODBUS_FERROR_NOSRC\0"\
+		"MODBUS_FERROR_NOREAD\0"\
+		"MODBUS_FERROR_NOWRITE\0"\
+		"MODBUS_FERROR_NOFUN\0"\
+		"MODBUS_FERROR_BADFUN\0"\
+		"MODBUS_FERROR_NULLFUN\0"\
+		"MODBUS_FERROR_MISM_FUN\0"\
+		"MODBUS_FERROR_MISM_ADDR\0"\
+		"MODBUS_FERROR_MISM_INDEX\0"\
+		"MODBUS_FERROR_MISM_COUNT\0"\
+		"MODBUS_FERROR_MISM_VALUE\0"\
+		"MODBUS_FERROR_MISM_MASK\0"\
+		"MODBUS_FERROR_BROADCAST\0"\
+	};
+
+	int num = err;
+	const char *ptr = str;
+
+	//Don't try this at home!
+	while ( num-- )
+		ptr = memchr( ptr, 0, sizeof(str) ) + 1;
+
+	return ptr;
+}
+
 //User defined function
 ModbusError userModbusFunction( ModbusSlave *status, ModbusParser *parser )
 {
@@ -153,7 +211,7 @@ void examinem( )
 	struct modbusFrameInfo info;
 	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_REQUEST, mstatus.request.frame, mstatus.request.length );
 	if ( err == MODBUS_OK || err == MODBUS_ERROR_EXCEPTION ) examinedump( info );
-	else printf( "request frame examination error: %d\n", err );
+	else printf( "request frame examination error: %s\n", modbuserrstr(err) );
 }
 
 void examines( )
@@ -161,7 +219,7 @@ void examines( )
 	struct modbusFrameInfo info;
 	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_RESPONSE, sstatus.response.frame, sstatus.response.length );
 	if ( err == MODBUS_OK || err == MODBUS_ERROR_EXCEPTION ) examinedump( info );
-	else printf( "response frame examination error: %d\n", err );
+	else printf( "response frame examination error: %s\n", modbuserrstr(err) );
 }
 
 #if !defined(LIGHTMODBUS_REGISTER_CALLBACK) && !defined(LIGHTMODBUS_COIL_CALLBACK)
@@ -309,6 +367,7 @@ void Test( )
 
 	//Start test
 	//TermRGB( 4, 2, 0 );
+	printf( "Master build errors - %s\n", modbusferrstr(mstatus.buildError) );
 	printf( "Test started...\n" );
 
 	//Dump frame
@@ -349,7 +408,8 @@ void Test( )
 	#endif
 	sstatus.request.length = mstatus.request.length;
 	sok = SlaveError = modbusParseRequest( &sstatus );
-	printf( "\tError - %d\n\tFinished - %d\n", SlaveError, 1 );
+	printf( "\tError - %s\n\tFinished - %d\n", modbuserrstr(SlaveError), 1 );
+	printf( "\tparseError - %s\n", modbusferrstr(SlaveError != MODBUS_OK ? sstatus.parseError : 0) );
 
 	if ( memcmp( f1, mstatus.request.frame, l ) ) printf( "!!!Slave has malformed the frame!!!\n" );
 
@@ -393,7 +453,8 @@ void Test( )
 	if ( memcmp( f1, sstatus.response.frame, l ) ) printf( "!!!Master has malformed the frame!!!\n" );
 
 	//Dump parsed data
-	printf( "\tError - %d\n\tFinished - 1\n", MasterError );
+	printf( "\tError - %s\n\tFinished - 1\n", modbuserrstr(MasterError) );
+	printf( "\tparseError - %s\n", modbusferrstr(MasterError != MODBUS_OK && MasterError !=  MODBUS_ERROR_EXCEPTION? mstatus.parseError : 0) );
 
 	if ( mstatus.data.length )
 		for ( i = 0; i < mstatus.data.count; i++ )
@@ -413,6 +474,7 @@ void Test( )
 	if ( sok == MODBUS_OK || sok == MODBUS_ERROR_EXCEPTION ) examines( );
 
 	printf( "----------------------------------------\n\n" );
+	mstatus.request.length = 0;
 }
 
 void libinit( )
@@ -476,6 +538,11 @@ void MainTest( )
 	modbusBuildRequest03( &mstatus,0x00, 0x00, 0x08 );
 	Test( );
 
+	//request03 - bad register count and first register
+	printf( "\t\t03 - bad broadcast...\n" );
+	modbusBuildRequest03( &mstatus,0x00, 9, 32 );
+	Test( );
+
 	//request03 - other slave address
 	printf( "\t\t03 - other address...\n" );
 	modbusBuildRequest03( &mstatus,0x10, 0x00, 0x08 );
@@ -500,6 +567,11 @@ void MainTest( )
 	//request06 - broadcast
 	printf( "\t\t06 - broadcast...\n" );
 	modbusBuildRequest06( &mstatus, 0x00, 0x06, 0xf6 );
+	Test( );
+
+	//request06 - bad register
+	printf( "\t\t06 - bad broadcast...\n" );
+	modbusBuildRequest06( &mstatus,0x00, 0xf6, 0xf6 );
 	Test( );
 
 	//request06 - other slave address
@@ -548,6 +620,11 @@ void MainTest( )
 	modbusBuildRequest16( &mstatus, 0x00, 0x00, 0x04, TestValues );
 	Test( );
 
+	//request16 - bad register range
+	printf( "\t\t16 - bad broadcast...\n" );
+	modbusBuildRequest16( &mstatus, 0x00, 0x00, 65, TestValues2 );
+	Test( );
+
 	//request16 - other slave address
 	printf( "\t\t16 - other address...\n" );
 	modbusBuildRequest16( &mstatus, 0x10, 0x00, 0x04, TestValues );
@@ -582,6 +659,11 @@ void MainTest( )
 	//request02 - broadcast
 	printf( "\t\t02 - broadcast...\n" );
 	modbusBuildRequest02( &mstatus, 0x00, 0x00, 0x10 );
+	Test( );
+
+	//request02 - bad first discrete input
+	printf( "\t\t02 - bad broadcast...\n" );
+	modbusBuildRequest02( &mstatus, 0x00, 0xff, 0x10 );
 	Test( );
 
 	//request02 - other slave address
@@ -625,6 +707,11 @@ void MainTest( )
 	modbusBuildRequest01( &mstatus, 0x00, 0x00, 0x04 );
 	Test( );
 
+	//request01 - bad register count
+	printf( "\t\t01 - bad broadcast...\n" );
+	modbusBuildRequest01( &mstatus, 0x00, 0x00, 0xff );
+	Test( );
+
 	//request01 - other slave address
 	printf( "\t\t01 - other address...\n" );
 	modbusBuildRequest01( &mstatus, 0x10, 0x00, 0x04 );
@@ -654,6 +741,11 @@ void MainTest( )
 	//request05 - broadcast
 	printf( "\t\t05 - broadcast...\n" );
 	modbusBuildRequest05( &mstatus, 0x00, 0x03, 0xff00 );
+	Test( );
+
+	//request05 - bad register
+	printf( "\t\t05 - bad broadcast...\n" );
+	modbusBuildRequest05( &mstatus, 0x00, 0xf3, 0xff00 );
 	Test( );
 
 	//request05 - other slave address
@@ -702,6 +794,11 @@ void MainTest( )
 	modbusBuildRequest15( &mstatus, 0x00, 0x00, 0x04, TestValues3 );
 	Test( );
 
+	//request15 - bad register range 2
+	printf( "\t\t15 - bad broadcast...\n" );
+	modbusBuildRequest15( &mstatus, 0x00, 0x00, 0x20, TestValues3 );
+	Test( );
+
 	//request15 - other slave address
 	printf( "\t\t15 - other address...\n" );
 	modbusBuildRequest15( &mstatus, 0x10, 0x00, 0x04, TestValues3 );
@@ -738,6 +835,11 @@ void MainTest( )
 	modbusBuildRequest04( &mstatus, 0x00, 0x00, 0x04 );
 	Test( );
 
+	//request04 - bad register count and first register
+	printf( "\t\t04 - bad broadcast...\n" );
+	modbusBuildRequest04( &mstatus, 0x00, 0x01, 0x05 );
+	Test( );
+
 	//request04 - other slave address
 	printf( "\t\t04 - other address...\n" );
 	modbusBuildRequest04( &mstatus, 0x10, 0x00, 0x04 );
@@ -762,6 +864,11 @@ void MainTest( )
 	//request06 - broadcast
 	printf( "\t\t22 - broadcast...\n" );
 	modbusBuildRequest22( &mstatus, 0x00, 0x06, 14 << 8, 56 << 8 );
+	Test( );
+
+	//request06 - bad register
+	printf( "\t\t22 - bad broadcast...\n" );
+	modbusBuildRequest22( &mstatus,0x00, 0xf6, 14 << 8, 56 << 8 );
 	Test( );
 
 	//request06 - other slave address

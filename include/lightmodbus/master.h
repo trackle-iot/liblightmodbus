@@ -99,6 +99,10 @@ typedef struct modbusMaster
 		ModbusExceptionCode code; //Exception code
 	} exception;
 
+	//Additional error info
+	ModbusFrameError parseError;
+	ModbusFrameError buildError;
+
 	//User defined functions
 	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
 		ModbusMasterUserFunction *userFunctions;

@@ -25,8 +25,8 @@ uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit )
 {
 	//Return nth bit from uint8_t array
 
-	if ( mask == NULL ) return MODBUS_ERROR_OTHER;
-	if ( ( bit >> 3 ) >= maskLength ) return MODBUS_ERROR_OTHER;
+	if ( mask == NULL ) return 255;
+	if ( ( bit >> 3 ) >= maskLength ) return 255;
 	return ( mask[bit >> 3] & ( 1 << ( bit % 8 ) ) ) >> ( bit % 8 );
 }
 
@@ -34,8 +34,8 @@ uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8
 {
 	//Write nth bit in uint8_t array
 
-	if ( mask == NULL ) return MODBUS_ERROR_OTHER;
-	if ( ( bit >> 3 ) >= maskLength ) return MODBUS_ERROR_OTHER;
+	if ( mask == NULL ) return 255;
+	if ( ( bit >> 3 ) >= maskLength ) return 255;
 	if ( value )
 		mask[bit >> 3] |= ( 1 << ( bit % 8 ) );
 	else

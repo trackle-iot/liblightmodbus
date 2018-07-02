@@ -35,16 +35,25 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 	uint8_t i = 0;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL || ( parser->base.function != 3 && parser->base.function != 4 ) ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
+	if ( parser->base.function != 3 && parser->base.function != 4 )
+	{
+		status->parseError = MODBUS_FERROR_BADFUN;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 ) 
+	{
+		status->parseError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
 	{
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE );
+		return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
 	}
 
 	//Swap endianness of longer members (but not crc)
@@ -60,16 +69,16 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 	if ( count == 0 || count > 125 )
 	{
 		//Illegal data value error
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE );
+		return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_COUNT );
 	}
 
 	//Check if registers are accessible
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( status->registerCallback == NULL ) 
-			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#else
 		if ( ( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL ) 
-			return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 
 	if ( index >= ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) || \
@@ -77,14 +86,14 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 		(uint32_t) ( parser->base.function == 3 ? status->registerCount : status->inputRegisterCount ) )
 	{
 		//Illegal data address exception
-		return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS );
+		return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 	}
 
 	//Check if all registers can be read (when using callback function)
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		for ( i = 0; i < count; i++ )
 			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0 ) == 0 )
-				return modbusBuildException( status, parser->base.function, MODBUS_EXCEP_SLAVE_FAILURE );
+				return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOREAD );
 	#endif
 
 	//Respond
@@ -118,6 +127,7 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -132,14 +142,12 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 	uint8_t frameLength = 8;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
-	{
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_VALUE );
-		return MODBUS_ERROR_OK;
-	}
+		return modbusBuildExceptionErr( status, 6, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
+
 
 	//Swap endianness of longer members (but not crc)
 	uint16_t index = modbusMatchEndian( parser->request06.index );
@@ -148,35 +156,19 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 	//Check if reg is in valid range
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( index >= status->registerCount || status->registerCallback == NULL )
-		{
-			//Illegal data address exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 6, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 	#else
 		if ( index >= status->registerCount || status->registers == NULL )
-		{
-			//Illegal data address exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 6, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 	#endif
 
 	//Check if reg is allowed to be written
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 )
-		{
-			//Slave failure exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_SLAVE_FAILURE );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 6, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		if ( modbusMaskRead( status->registerMask, status->registerMaskLength, index ) == 1 )
-		{
-			//Slave failure exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 6, MODBUS_EXCEP_SLAVE_FAILURE );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 6, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#endif
 
 	//Respond
@@ -199,7 +191,11 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 	#endif
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Set up basic response data
 	builder->response06.address = status->address;
@@ -212,6 +208,7 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -227,23 +224,17 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 	uint8_t frameLength;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check if frame length is valid
 	if ( status->request.length >= 7u )
 	{
 		frameLength = 9 + parser->request16.length;
 		if ( status->request.length != frameLength )
-		{
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VALUE );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
+
 	}
-	else
-	{
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VALUE );
-		return MODBUS_ERROR_OK;
-	}
+	else return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
 
 	//Swap endianness of longer members (but not crc)
 	uint16_t index = modbusMatchEndian( parser->request16.index );
@@ -254,54 +245,31 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 		count == 0 || \
 		count != ( parser->request16.length >> 1 ) || \
 		count > 123 )
-	{
-		//Illegal data value error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_VALUE );
-		return MODBUS_ERROR_OK;
-	}
+			return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_COUNT );
+
 
 	//Check if registers are accessible
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( status->registerCallback == NULL )
-		{
-			//Illegal data address error
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#else
 		if ( status->registers == NULL )
-		{
-			//Illegal data address error
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 
 	if ( index >= status->registerCount || \
 		(uint32_t) index + (uint32_t) count > (uint32_t) status->registerCount )
-	{
-		//Illegal data address error
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-		return MODBUS_ERROR_OK;
-	}
+			return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 
 	//Check for write protection
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		for ( i = 0; i < count; i++ )
 			if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index + i, 0 ) == 0 )
-			{
-				//Slave failure exception
-				if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_SLAVE_FAILURE );
-				return MODBUS_ERROR_OK;
-			}
+				return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		for ( i = 0; i < count; i++ )
 			if ( modbusMaskRead( status->registerMask, status->registerMaskLength, index + i ) == 1 )
-			{
-				//Slave failure exception
-				if ( parser->base.address != 0 ) return modbusBuildException( status, 16, MODBUS_EXCEP_SLAVE_FAILURE );
-				return MODBUS_ERROR_OK;
-			}
+				return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#endif
 
 	//Respond
@@ -327,7 +295,11 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 	#endif
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Set up basic response data
 	builder->response16.address = status->address;
@@ -340,6 +312,7 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -354,17 +327,11 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	uint8_t frameLength = 10;
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
-	{
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_ILLEGAL_VALUE );
-		return MODBUS_ERROR_OK;
-	}
-
-	//Check frame crc
-	if ( modbusCRC( parser->frame, frameLength - 2 ) != parser->request22.crc ) return MODBUS_ERROR_CRC;
+		return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_LENGTH );
 
 	//Swap endianness of longer members (but not crc)
 	uint16_t index = modbusMatchEndian( parser->request22.index );
@@ -374,44 +341,26 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	//Check if registers are accessible
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( status->registerCallback == NULL )
-		{
-			//Illegal data address exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
+
 	#else
 		if ( status->registers == NULL )
-		{
-			//Illegal data address exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 	
 	//Check if reg is in valid range
 	if ( index >= status->registerCount )
-	{
-		//Illegal data address exception
-		if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS );
-		return MODBUS_ERROR_OK;
-	}
+		return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 
 	//Check if reg is allowed to be written and read
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 || 
-			status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 )
-		{
-			//Slave failure exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_SLAVE_FAILURE );
-			return MODBUS_ERROR_OK;
-		}
+		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 )
+			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOREAD );
+		if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 )
+			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		if ( modbusMaskRead( status->registerMask, status->registerMaskLength, index ) == 1 )
-		{
-			//Slave failure exception
-			if ( parser->base.address != 0 ) return modbusBuildException( status, 22, MODBUS_EXCEP_SLAVE_FAILURE );
-			return MODBUS_ERROR_OK;
-		}
+			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#endif
 
 	//Respond
@@ -444,7 +393,11 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	#endif
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Set up basic response data
 	builder->response22.address = status->address;
@@ -458,6 +411,7 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif

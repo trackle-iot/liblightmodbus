@@ -36,14 +36,40 @@
 typedef enum modbusError
 {
 	MODBUS_ERROR_OK = 0, //Everything is ok
-	MODBUS_ERROR_EXCEPTION = 1, //Slave has thrown an exception and it's stored in status->exception
-	MODBUS_ERROR_BAD_FUNCTION = 2, //Slave/master did not parse frame, because the function is not supported (only used internally in slave)
-	MODBUS_ERROR_CRC = 4, //Invalid CRC error
-	MODBUS_ERROR_ALLOC = 8, //Memory allocation problem (eg. system ran out of RAM)
-	MODBUS_ERROR_OTHER = 16, //Other reason function was exited (eg. bad function parameter)
-	MODBUS_ERROR_FRAME = 32, //Frame contained incorrect data, and exception could not be thrown (eg. bytes count != reg count * 2 in slave's response)
-	MODBUS_OK = MODBUS_ERROR_OK
+	MODBUS_ERROR_EXCEPTION = 1, //Slave has thrown an exception (on slave side: check ModbusSlave.lastException, lastParseError)
+	MODBUS_ERROR_ALLOC, //Memory allocation problem (eg. system ran out of RAM)
+	MODBUS_ERROR_OTHER, //Other reason function was exited (eg. bad function parameter)
+	MODBUS_ERROR_NULLPTR, //Null pointer instead some crucial data
+	MODBUS_ERROR_PARSE, //Parsing error occurred - check parseError
+	MODBUS_ERROR_BUILD, //Building error occurred - check buildError
+	MODBUS_OK = MODBUS_ERROR_OK,
 } ModbusError;
+
+//Frame processing (buidling/parsing) errors
+//These errors are not critical and serve just as additional source of information for user
+typedef enum modbusFrameError
+{
+	MODBUS_FERROR_OK = MODBUS_OK,
+	MODBUS_FERROR_CRC, //Invalid CRC
+	MODBUS_FERROR_LENGTH, //Invalid frame length
+	MODBUS_FERROR_COUNT, //Invalid declared data item count
+	MODBUS_FERROR_VALUE, //Illegal data value (e.g. single coil)
+	MODBUS_FERROR_RANGE, //Invalid register range
+	MODBUS_FERROR_NOSRC, //There's neither callback function nor value array provided for this data type
+	MODBUS_FERROR_NOREAD, //No read access to one of regsiters
+	MODBUS_FERROR_NOWRITE, //No write access to one of regsiters
+	MODBUS_FERROR_NOFUN, //Function not supported
+	MODBUS_FERROR_BADFUN, //Requested bad function
+	MODBUS_FERROR_NULLFUN, //Function overriden by user with NULL
+	MODBUS_FERROR_MISM_FUN, //Function request-response mismatch
+	MODBUS_FERROR_MISM_ADDR, //Slave address request-response mismatch
+	MODBUS_FERROR_MISM_INDEX, //Index value request-response mismatch
+	MODBUS_FERROR_MISM_COUNT, //Count value request-response mismatch
+	MODBUS_FERROR_MISM_VALUE, //Data value request-response mismatch
+	MODBUS_FERROR_MISM_MASK, //Mask value request-response mismatch
+	MODBUS_FERROR_BROADCAST //Received response for broadcast message?
+
+} ModbusFrameError;
 
 //Exception codes (defined by Modbus protocol)
 typedef enum modbusExceptionCode

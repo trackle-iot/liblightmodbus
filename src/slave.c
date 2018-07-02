@@ -33,11 +33,22 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 	//Returns generated frame length
 
 	//Check if given pointer is valid
-	if ( status == NULL || code == 0 ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Setup 'last exception' in slave struct
 	status->lastException = code;
 
+	//If request is broadcasted, do not form exception frame
+	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
+	if ( requestParser != NULL && requestParser->base.address == 0 )
+	{
+		#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
+			status->response.frame = NULL;
+		#endif 
+		status->response.length = 0;
+		return MODBUS_OK;
+	}
+	
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		//Reallocate frame memory
 		status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
@@ -70,7 +81,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	uint8_t err = 0;
 
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Reset response frame status
 	status->response.length = 0;
@@ -83,7 +94,11 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 	//If user tries to parse an empty frame return error
 	//That enables us to ommit the check in each parsing function
-	if ( status->request.length < 4u || status->request.frame == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status->request.length < 4u || status->request.frame == NULL ) 
+	{
+		status->parseError = MODBUS_FERROR_LENGTH;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check CRC
 	//The CRC of the frame is copied to a variable in order to avoid an unaligned memory access,
@@ -93,7 +108,10 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	memcpy(&crc, status->request.frame + status->request.length - 2, 2);
 
 	if ( crc != modbusCRC( status->request.frame, status->request.length - 2 ) )
-		return MODBUS_ERROR_CRC;
+	{
+		status->parseError = MODBUS_FERROR_CRC;
+		return MODBUS_ERROR_PARSE;
+	}
 
 
 	ModbusParser *parser = (ModbusParser *) status->request.frame;
@@ -103,7 +121,8 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		return MODBUS_ERROR_OK;
 
 	
-	uint8_t functionMatch = 0;
+	uint8_t functionMatch = 0, functionExec = 0;
+	status->parseError = MODBUS_OK;
 
 	//Firstly, check user function array
 	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS
@@ -118,9 +137,12 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 				//If the function is overriden and handler pointer is valid, user the callback
 				if ( status->userFunctions[i].handler != NULL )
+				{
 					err = status->userFunctions[i].handler( status, parser );
+					functionExec = 1;
+				}
 				else
-					err = MODBUS_ERROR_BAD_FUNCTION; //Function overriden, but pointer is invalid
+					functionExec = 0;
 
 				//Search till first match
 				break;
@@ -131,6 +153,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 	if ( !functionMatch )
 	{
+		functionExec = 1;
 		switch ( parser->base.function )
 		{
 			#if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
@@ -178,14 +201,20 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 			#endif
 
 			default:
-				err = MODBUS_ERROR_BAD_FUNCTION;
+				err = MODBUS_OK;
+				functionExec = 0;
 				break;
 		}
 	}
 
-	//If function is unknown, return MODBUS_ERROR_EXCEPTION or anything returned by modbusBuildException
-	if ( err == MODBUS_ERROR_BAD_FUNCTION )
-		if ( parser->base.address != 0 ) err = modbusBuildException( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION );
+	//Function did not execute
+	if ( !functionExec ) 
+	{
+		if ( functionMatch ) //Matched but not executed
+			err = modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION, MODBUS_FERROR_NULLFUN ); //User override
+		else
+			err = modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION, MODBUS_FERROR_NOFUN ); //No override, no support
+	}
 
 	return err;
 }
@@ -198,7 +227,7 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 	//User has to modify pointers etc. himself
 
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Reset response frame status
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
@@ -215,11 +244,9 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 	#endif
 	status->response.length = 0;
 
+	//Slave cannot have boradcast address
 	if ( status->address == 0 )
-	{
-		status->address = 1;
 		return MODBUS_ERROR_OTHER;
-	}
 
 	//Some safety checks
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
@@ -262,7 +289,7 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 ModbusError modbusSlaveEnd( ModbusSlave *status )
 {
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Free memory
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE

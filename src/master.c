@@ -32,7 +32,7 @@ ModbusError modbusParseException( ModbusMaster *status, ModbusParser *parser )
 	//Parse exception frame and write data to MODBUSMaster structure
 
 	//Check if given pointers are valid
-	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Copy data (modbusParseResponse checked if length is 5 so it should be safe)
 	status->exception.address = parser->exception.address;
@@ -55,7 +55,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	uint8_t err = 0;
 
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Reset output registers before parsing frame
 	status->exception.address = 0;
@@ -78,7 +78,10 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	//That enables us to ommit the check in each parsing function
 	if ( status->response.length < 4u || status->response.frame == NULL || \
 		status->request.length < 4u || status->request.frame == NULL )
-			return MODBUS_ERROR_OTHER;
+		{
+			status->parseError = MODBUS_FERROR_LENGTH;
+			return MODBUS_ERROR_PARSE;
+		}
 
 	//Check both response and request frames CRC
 	//The CRC of the frames are copied to a variable in order to avoid an unaligned memory access,
@@ -91,12 +94,16 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 
 	if ( crcresp != modbusCRC( status->response.frame, status->response.length - 2 ) ||
 		 crcreq	 != modbusCRC( status->request.frame,  status->request.length  - 2 ) )
-			return MODBUS_ERROR_CRC;
+	{
+		status->parseError = MODBUS_FERROR_CRC;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	ModbusParser *parser = (ModbusParser*) status->response.frame;
 	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
 
-	uint8_t functionMatch = 0;
+	uint8_t functionMatch = 0, functionExec = 0;
+	status->parseError = MODBUS_OK;
 
 	//Check user defined functions
 	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
@@ -111,9 +118,12 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 
 					//If the function is overriden and handler pointer is valid, user the callback
 					if ( status->userFunctions[i].handler != NULL )
+					{
 						err = status->userFunctions[i].handler( status, parser, requestParser );
+						functionExec = 1;
+					}
 					else
-						err = MODBUS_ERROR_BAD_FUNCTION; //Function overriden, but pointer is invalid
+						functionExec = 0; //Function overriden, but pointer is invalid
 
 					//Search till first match
 					break;
@@ -124,6 +134,8 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	
 	if ( !functionMatch )
 	{
+		functionExec = 1;
+
 		//Catching exceptions can be overriden by user functions
 		if ( ( parser->base.function & 128 ) && status->response.length == 5 )
 		{
@@ -178,11 +190,24 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 				#endif
 
 				default: //Function code not known by master
-					err = MODBUS_ERROR_BAD_FUNCTION;
+					functionExec = 0;
 					break;
 			}
 		}
 	}
+
+	//Function not executed
+	if ( !functionExec )
+	{
+		if ( functionMatch )
+			status->parseError = MODBUS_FERROR_NULLFUN; //User override
+		else
+			status->parseError = MODBUS_FERROR_NOFUN; //Unsupported function
+	
+		return MODBUS_ERROR_PARSE;
+	}
+
+
 	return err;
 }
 #endif
@@ -191,7 +216,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 ModbusError modbusMasterInit( ModbusMaster *status )
 {
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Very basic init of master side
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
@@ -233,7 +258,7 @@ ModbusError modbusMasterInit( ModbusMaster *status )
 ModbusError modbusMasterEnd( ModbusMaster *status )
 {
 	//Check if given pointer is valid
-	if ( status == NULL ) return MODBUS_ERROR_OTHER;
+	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Free memory
 	#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST

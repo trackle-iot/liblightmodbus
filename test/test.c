@@ -476,6 +476,11 @@ void MainTest( )
 	modbusBuildRequest03( &mstatus,0x00, 0x00, 0x08 );
 	Test( );
 
+	//request03 - bad register count and first register
+	printf( "\t\t03 - bad broadcast...\n" );
+	modbusBuildRequest03( &mstatus,0x00, 9, 32 );
+	Test( );
+
 	//request03 - other slave address
 	printf( "\t\t03 - other address...\n" );
 	modbusBuildRequest03( &mstatus,0x10, 0x00, 0x08 );
@@ -500,6 +505,11 @@ void MainTest( )
 	//request06 - broadcast
 	printf( "\t\t06 - broadcast...\n" );
 	modbusBuildRequest06( &mstatus, 0x00, 0x06, 0xf6 );
+	Test( );
+
+	//request06 - bad register
+	printf( "\t\t06 - bad broadcast...\n" );
+	modbusBuildRequest06( &mstatus,0x00, 0xf6, 0xf6 );
 	Test( );
 
 	//request06 - other slave address
@@ -548,6 +558,11 @@ void MainTest( )
 	modbusBuildRequest16( &mstatus, 0x00, 0x00, 0x04, TestValues );
 	Test( );
 
+	//request16 - bad register range
+	printf( "\t\t16 - bad broadcast...\n" );
+	modbusBuildRequest16( &mstatus, 0x00, 0x00, 65, TestValues2 );
+	Test( );
+
 	//request16 - other slave address
 	printf( "\t\t16 - other address...\n" );
 	modbusBuildRequest16( &mstatus, 0x10, 0x00, 0x04, TestValues );
@@ -582,6 +597,11 @@ void MainTest( )
 	//request02 - broadcast
 	printf( "\t\t02 - broadcast...\n" );
 	modbusBuildRequest02( &mstatus, 0x00, 0x00, 0x10 );
+	Test( );
+
+	//request02 - bad first discrete input
+	printf( "\t\t02 - bad broadcast...\n" );
+	modbusBuildRequest02( &mstatus, 0x00, 0xff, 0x10 );
 	Test( );
 
 	//request02 - other slave address
@@ -625,6 +645,11 @@ void MainTest( )
 	modbusBuildRequest01( &mstatus, 0x00, 0x00, 0x04 );
 	Test( );
 
+	//request01 - bad register count
+	printf( "\t\t01 - bad broadcast...\n" );
+	modbusBuildRequest01( &mstatus, 0x00, 0x00, 0xff );
+	Test( );
+
 	//request01 - other slave address
 	printf( "\t\t01 - other address...\n" );
 	modbusBuildRequest01( &mstatus, 0x10, 0x00, 0x04 );
@@ -654,6 +679,11 @@ void MainTest( )
 	//request05 - broadcast
 	printf( "\t\t05 - broadcast...\n" );
 	modbusBuildRequest05( &mstatus, 0x00, 0x03, 0xff00 );
+	Test( );
+
+	//request05 - bad register
+	printf( "\t\t05 - bad broadcast...\n" );
+	modbusBuildRequest05( &mstatus, 0x00, 0xf3, 0xff00 );
 	Test( );
 
 	//request05 - other slave address
@@ -702,6 +732,11 @@ void MainTest( )
 	modbusBuildRequest15( &mstatus, 0x00, 0x00, 0x04, TestValues3 );
 	Test( );
 
+	//request15 - bad register range 2
+	printf( "\t\t15 - bad broadcast...\n" );
+	modbusBuildRequest15( &mstatus, 0x00, 0x00, 0x20, TestValues3 );
+	Test( );
+
 	//request15 - other slave address
 	printf( "\t\t15 - other address...\n" );
 	modbusBuildRequest15( &mstatus, 0x10, 0x00, 0x04, TestValues3 );
@@ -738,6 +773,11 @@ void MainTest( )
 	modbusBuildRequest04( &mstatus, 0x00, 0x00, 0x04 );
 	Test( );
 
+	//request04 - bad register count and first register
+	printf( "\t\t04 - bad broadcast...\n" );
+	modbusBuildRequest04( &mstatus, 0x00, 0x01, 0x05 );
+	Test( );
+
 	//request04 - other slave address
 	printf( "\t\t04 - other address...\n" );
 	modbusBuildRequest04( &mstatus, 0x10, 0x00, 0x04 );
@@ -762,6 +802,11 @@ void MainTest( )
 	//request06 - broadcast
 	printf( "\t\t22 - broadcast...\n" );
 	modbusBuildRequest22( &mstatus, 0x00, 0x06, 14 << 8, 56 << 8 );
+	Test( );
+
+	//request06 - bad register
+	printf( "\t\t22 - bad broadcast...\n" );
+	modbusBuildRequest22( &mstatus,0x00, 0xf6, 14 << 8, 56 << 8 );
 	Test( );
 
 	//request06 - other slave address

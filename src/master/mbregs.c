@@ -79,6 +79,7 @@ ModbusError modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint
 
 	status->request.length = frameLength;
 	status->predictedResponseLength = 4 + 1 + ( count << 1 );
+	status->buildError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -120,6 +121,7 @@ ModbusError modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_
 
 	status->request.length = frameLength;
 	if ( address ) status->predictedResponseLength = 8;
+	status->buildError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -173,6 +175,7 @@ ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_
 	status->request.length = frameLength;
 	if ( address ) status->predictedResponseLength = 4 + 4;
 
+	status->buildError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -215,6 +218,7 @@ ModbusError modbusBuildRequest22( ModbusMaster *status, uint8_t address, uint16_
 
 	status->request.length = frameLength;
 	if ( address ) status->predictedResponseLength = 10;
+	status->buildError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif

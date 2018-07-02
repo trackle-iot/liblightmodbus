@@ -109,8 +109,8 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 	status->data.type = parser->base.function == 3 ? MODBUS_HOLDING_REGISTER : MODBUS_INPUT_REGISTER;
 	status->data.index = modbusMatchEndian( requestParser->request0304.index );
 	status->data.count = count;
-
 	status->data.length = parser->response0304.length;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -199,6 +199,7 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 	status->data.index = modbusMatchEndian( parser->response06.index );
 	status->data.count = 1;
 	status->data.length = 2;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -263,6 +264,7 @@ ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, M
 	status->data.index = modbusMatchEndian( parser->response16.index );
 	status->data.count = count;
 	status->data.length = 0;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -321,6 +323,7 @@ ModbusError modbusParseResponse22( ModbusMaster *status, ModbusParser *parser, M
 	status->data.index = modbusMatchEndian( parser->response22.index );
 	status->data.count = 1;
 	status->data.length = 0;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif

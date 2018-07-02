@@ -37,11 +37,19 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
-	if ( parser->base.function != 1 && parser->base.function != 2 ) return MODBUS_ERROR_OTHER;
+	if ( parser->base.function != 1 && parser->base.function != 2 ) 
+	{
+		status->parseError = MODBUS_FERROR_BADFUN;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 ) 
+	{
+		status->parseError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
@@ -107,12 +115,12 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 			coil = status->registerCallback( MODBUS_REGQ_R, datatype, index + i, 0 );
 		#else
 			if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
-				BITSTOBYTES( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ), i + index ) ) == MODBUS_ERROR_OTHER )
+				BITSTOBYTES( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ), i + index ) ) == 255 )
 					return MODBUS_ERROR_OTHER;
 		#endif
 
 		//Write to new frame
-		if ( modbusMaskWrite( builder->response0102.values, builder->response0102.length, i, coil ) == MODBUS_ERROR_OTHER )
+		if ( modbusMaskWrite( builder->response0102.values, builder->response0102.length, i, coil ) == 255 )
 			return MODBUS_ERROR_OTHER;
 	}
 
@@ -194,12 +202,16 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index, value == 0xFF00 );
 	#else
-		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) == MODBUS_ERROR_OTHER )
+		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) == 255 )
 			return MODBUS_ERROR_OTHER;
 	#endif
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	} 
 
 	//Set up basic response data
 	builder->base.address = status->address;
@@ -212,6 +224,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -298,17 +311,21 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	for ( i = 0; i < count; i++ )
 	{
 		uint8_t coil;
-		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) == MODBUS_ERROR_OTHER ) return MODBUS_ERROR_OTHER;
+		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
 		
 		#ifdef LIGHTMODBUS_COIL_CALLBACK
 			status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index + i, coil );
 		#else
-			if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index + i, coil ) == MODBUS_ERROR_OTHER ) return MODBUS_ERROR_OTHER;
+			if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
 		#endif
 	}
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Set up basic response data
 	builder->base.address = status->address;
@@ -321,6 +338,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
-	return 0;
+	status->parseError = MODBUS_OK;
+	return MODBUS_OK;
 }
 #endif

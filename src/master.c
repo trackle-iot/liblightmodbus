@@ -103,6 +103,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
 
 	uint8_t functionMatch = 0, functionExec = 0;
+	status->parseError = MODBUS_OK;
 
 	//Check user defined functions
 	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS

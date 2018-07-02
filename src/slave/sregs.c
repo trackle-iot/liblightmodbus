@@ -36,11 +36,19 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
-	if ( parser->base.function != 3 && parser->base.function != 4 ) return MODBUS_ERROR_OTHER;
+	if ( parser->base.function != 3 && parser->base.function != 4 )
+	{
+		status->parseError = MODBUS_FERROR_BADFUN;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 ) 
+	{
+		status->parseError = MODBUS_FERROR_BROADCAST;
+		return MODBUS_ERROR_PARSE;
+	}
 
 	//Check if frame length is valid
 	if ( status->request.length != frameLength )
@@ -119,6 +127,7 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -182,7 +191,11 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 	#endif
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Set up basic response data
 	builder->response06.address = status->address;
@@ -195,6 +208,7 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -281,7 +295,11 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 	#endif
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Set up basic response data
 	builder->response16.address = status->address;
@@ -294,6 +312,7 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -374,7 +393,11 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	#endif
 
 	//Do not respond when frame is broadcasted
-	if ( parser->base.address == 0 ) return MODBUS_ERROR_OK;
+	if ( parser->base.address == 0 )
+	{
+		status->parseError = MODBUS_OK;
+		return MODBUS_ERROR_OK;
+	}
 
 	//Set up basic response data
 	builder->response22.address = status->address;
@@ -388,6 +411,7 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
+	status->parseError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif

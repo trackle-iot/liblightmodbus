@@ -122,6 +122,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 	
 	uint8_t functionMatch = 0, functionExec = 0;
+	status->parseError = MODBUS_OK;
 
 	//Firstly, check user function array
 	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS

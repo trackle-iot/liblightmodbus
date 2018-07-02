@@ -35,6 +35,9 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_OTHER;
 
+	//Setup 'last exception' in slave struct
+	status->lastException = code;
+
 	//If request is broadcasted, do not form exception frame
 	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
 	if ( requestParser != NULL && requestParser->base.address == 0 )
@@ -45,10 +48,7 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 		status->response.length = 0;
 		return MODBUS_OK;
 	}
-
-	//Setup 'last exception' in slave struct
-	status->lastException = code;
-
+	
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		//Reallocate frame memory
 		status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );

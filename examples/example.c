@@ -117,6 +117,7 @@ int main( )
 	mstatus.response.frame = sstatus.response.frame;
 	mstatus.response.length = sstatus.response.length;
 
+	//Let master parse the frame
 	mec = modbusParseResponse( &mstatus );
 
 	//Dump status again

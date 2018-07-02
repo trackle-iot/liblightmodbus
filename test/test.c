@@ -35,6 +35,64 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 	printf( "\033[38;5;%dm", 16 + B + G * 6 + R * 36 );
 }
 
+const char *modbuserrstr( ModbusError err )
+{
+	static const char str[]=
+	{
+		"MODBUS_ERROR_OK\0"\
+		"MODBUS_ERROR_EXCEPTION\0"\
+		"MODBUS_ERROR_ALLOC\0"\
+		"MODBUS_ERROR_OTHER\0"\
+		"MODBUS_ERROR_NULLPTR\0"\
+		"MODBUS_ERROR_PARSE\0"\
+		"MODBUS_ERROR_BUILD\0"
+	};
+
+	int num = err;
+	const char *ptr = str;
+
+	//Don't try this at home!
+	while ( num-- )
+		ptr = memchr( ptr, 0, sizeof(str) ) + 1;
+
+	return ptr;
+}
+
+const char *modbusferrstr( ModbusFrameError err )
+{
+	static const char str[]=
+	{
+		"MODBUS_FERROR_OK\0"\
+		"MODBUS_FERROR_CRC\0"\
+		"MODBUS_FERROR_LENGTH\0"\
+		"MODBUS_FERROR_COUNT\0"\
+		"MODBUS_FERROR_VALUE\0"\
+		"MODBUS_FERROR_RANGE\0"\
+		"MODBUS_FERROR_NOSRC\0"\
+		"MODBUS_FERROR_NOREAD\0"\
+		"MODBUS_FERROR_NOWRITE\0"\
+		"MODBUS_FERROR_NOFUN\0"\
+		"MODBUS_FERROR_BADFUN\0"\
+		"MODBUS_FERROR_NULLFUN\0"\
+		"MODBUS_FERROR_MISM_FUN\0"\
+		"MODBUS_FERROR_MISM_ADDR\0"\
+		"MODBUS_FERROR_MISM_INDEX\0"\
+		"MODBUS_FERROR_MISM_COUNT\0"\
+		"MODBUS_FERROR_MISM_VALUE\0"\
+		"MODBUS_FERROR_MISM_MASK\0"\
+		"MODBUS_FERROR_BROADCAST\0"\
+	};
+
+	int num = err;
+	const char *ptr = str;
+
+	//Don't try this at home!
+	while ( num-- )
+		ptr = memchr( ptr, 0, sizeof(str) ) + 1;
+
+	return ptr;
+}
+
 //User defined function
 ModbusError userModbusFunction( ModbusSlave *status, ModbusParser *parser )
 {
@@ -153,7 +211,7 @@ void examinem( )
 	struct modbusFrameInfo info;
 	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_REQUEST, mstatus.request.frame, mstatus.request.length );
 	if ( err == MODBUS_OK || err == MODBUS_ERROR_EXCEPTION ) examinedump( info );
-	else printf( "request frame examination error: %d\n", err );
+	else printf( "request frame examination error: %s\n", modbuserrstr(err) );
 }
 
 void examines( )
@@ -161,7 +219,7 @@ void examines( )
 	struct modbusFrameInfo info;
 	uint8_t err = modbusExamine( &info, MODBUS_EXAMINE_RESPONSE, sstatus.response.frame, sstatus.response.length );
 	if ( err == MODBUS_OK || err == MODBUS_ERROR_EXCEPTION ) examinedump( info );
-	else printf( "response frame examination error: %d\n", err );
+	else printf( "response frame examination error: %s\n", modbuserrstr(err) );
 }
 
 #if !defined(LIGHTMODBUS_REGISTER_CALLBACK) && !defined(LIGHTMODBUS_COIL_CALLBACK)
@@ -349,7 +407,8 @@ void Test( )
 	#endif
 	sstatus.request.length = mstatus.request.length;
 	sok = SlaveError = modbusParseRequest( &sstatus );
-	printf( "\tError - %d\n\tFinished - %d\n", SlaveError, 1 );
+	printf( "\tError - %s\n\tFinished - %d\n", modbuserrstr(SlaveError), 1 );
+	printf( "\tparseError - %s\n", modbusferrstr(SlaveError != MODBUS_OK ? sstatus.parseError : 0) );
 
 	if ( memcmp( f1, mstatus.request.frame, l ) ) printf( "!!!Slave has malformed the frame!!!\n" );
 
@@ -393,7 +452,8 @@ void Test( )
 	if ( memcmp( f1, sstatus.response.frame, l ) ) printf( "!!!Master has malformed the frame!!!\n" );
 
 	//Dump parsed data
-	printf( "\tError - %d\n\tFinished - 1\n", MasterError );
+	printf( "\tError - %s\n\tFinished - 1\n", modbuserrstr(MasterError) );
+	printf( "\tparseError - %s\n", modbusferrstr(MasterError != MODBUS_OK && MasterError !=  MODBUS_ERROR_EXCEPTION? mstatus.parseError : 0) );
 
 	if ( mstatus.data.length )
 		for ( i = 0; i < mstatus.data.count; i++ )

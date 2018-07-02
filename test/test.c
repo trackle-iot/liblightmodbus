@@ -37,60 +37,50 @@ void TermRGB( unsigned char R, unsigned char G, unsigned char B )
 
 const char *modbuserrstr( ModbusError err )
 {
-	static const char str[]=
+	static const char *str[]=
 	{
-		"MODBUS_ERROR_OK\0"\
-		"MODBUS_ERROR_EXCEPTION\0"\
-		"MODBUS_ERROR_ALLOC\0"\
-		"MODBUS_ERROR_OTHER\0"\
-		"MODBUS_ERROR_NULLPTR\0"\
-		"MODBUS_ERROR_PARSE\0"\
-		"MODBUS_ERROR_BUILD\0"
+		"MODBUS_ERROR_OK",
+		"MODBUS_ERROR_EXCEPTION",
+		"MODBUS_ERROR_ALLOC",
+		"MODBUS_ERROR_OTHER",
+		"MODBUS_ERROR_NULLPTR",
+		"MODBUS_ERROR_PARSE",
+		"MODBUS_ERROR_BUILD",
 	};
 
-	int num = err;
-	const char *ptr = str;
-
-	//Don't try this at home!
-	while ( num-- )
-		ptr = memchr( ptr, 0, sizeof(str) ) + 1;
-
-	return ptr;
+	if ( err < sizeof(str) / sizeof(str[0]) )
+		return str[err];
+	else return NULL;
 }
 
 const char *modbusferrstr( ModbusFrameError err )
 {
-	static const char str[]=
+	static const char *str[]=
 	{
-		"MODBUS_FERROR_OK\0"\
-		"MODBUS_FERROR_CRC\0"\
-		"MODBUS_FERROR_LENGTH\0"\
-		"MODBUS_FERROR_COUNT\0"\
-		"MODBUS_FERROR_VALUE\0"\
-		"MODBUS_FERROR_RANGE\0"\
-		"MODBUS_FERROR_NOSRC\0"\
-		"MODBUS_FERROR_NOREAD\0"\
-		"MODBUS_FERROR_NOWRITE\0"\
-		"MODBUS_FERROR_NOFUN\0"\
-		"MODBUS_FERROR_BADFUN\0"\
-		"MODBUS_FERROR_NULLFUN\0"\
-		"MODBUS_FERROR_MISM_FUN\0"\
-		"MODBUS_FERROR_MISM_ADDR\0"\
-		"MODBUS_FERROR_MISM_INDEX\0"\
-		"MODBUS_FERROR_MISM_COUNT\0"\
-		"MODBUS_FERROR_MISM_VALUE\0"\
-		"MODBUS_FERROR_MISM_MASK\0"\
-		"MODBUS_FERROR_BROADCAST\0"\
+		"MODBUS_FERROR_OK",
+		"MODBUS_FERROR_CRC",
+		"MODBUS_FERROR_LENGTH",
+		"MODBUS_FERROR_COUNT",
+		"MODBUS_FERROR_VALUE",
+		"MODBUS_FERROR_RANGE",
+		"MODBUS_FERROR_NOSRC",
+		"MODBUS_FERROR_NOREAD",
+		"MODBUS_FERROR_NOWRITE",
+		"MODBUS_FERROR_NOFUN",
+		"MODBUS_FERROR_BADFUN",
+		"MODBUS_FERROR_NULLFUN",
+		"MODBUS_FERROR_MISM_FUN",
+		"MODBUS_FERROR_MISM_ADDR",
+		"MODBUS_FERROR_MISM_INDEX",
+		"MODBUS_FERROR_MISM_COUNT",
+		"MODBUS_FERROR_MISM_VALUE",
+		"MODBUS_FERROR_MISM_MASK",
+		"MODBUS_FERROR_BROADCAST",
 	};
 
-	int num = err;
-	const char *ptr = str;
-
-	//Don't try this at home!
-	while ( num-- )
-		ptr = memchr( ptr, 0, sizeof(str) ) + 1;
-
-	return ptr;
+	if ( err < sizeof(str) / sizeof(str[0]) )
+		return str[err];
+	else return NULL;
 }
 
 //User defined function

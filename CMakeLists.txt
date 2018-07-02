@@ -243,3 +243,15 @@ if ( DEFINED AVR )
 		COMMAND "avr-size" "-C" "--mcu=${AVR}" "${CMAKE_BINARY_DIR}/liblightmodbus.a"
 	)
 endif( )
+
+
+#Installation
+install( 
+	TARGETS lightmodbus
+	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/usr/lib/"
+)
+
+#Install headers
+install(
+	DIRECTORY "${CMAKE_SOURCE_DIR}/include/" DESTINATION "${CMAKE_INSTALL_PREFIX}/usr/include/" FILES_MATCHING PATTERN "*.h"
+)

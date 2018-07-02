@@ -72,9 +72,9 @@ static inline uint16_t modbusSwapEndian( uint16_t data ) { return ( data << 8 ) 
 
 //Matches endianness with Modbus - works conditionally - modbusMatchEndian
 #ifdef LIGHTMODBUS_BIG_ENDIAN
-static inline uint16_t modbusMatchEndian( uint16_t data ) { return data; }
+	static inline uint16_t modbusMatchEndian( uint16_t data ) { return data; }
 #else
-static inline uint16_t modbusMatchEndian( uint16_t data ) { return modbusSwapEndian( data ); }
+	static inline uint16_t modbusMatchEndian( uint16_t data ) { return modbusSwapEndian( data ); }
 #endif
 
 //Function prototypes

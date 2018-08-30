@@ -75,7 +75,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 	status->data.function = 0;
 
 	//Check if frames are not too short and return error (to avoid problems with memory allocation)
-	//That enables us to ommit the check in each parsing function
+	//That enables us to omit the check in each parsing function
 	if ( status->response.length < 4u || status->response.frame == NULL || \
 		status->request.length < 4u || status->request.frame == NULL )
 		{

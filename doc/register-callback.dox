@@ -1,0 +1,8 @@
+/**
+\page register-callback User-defined Modbus register callback function
+
+\note Register callback function is still considered an experimental feature.
+In order to include this functionality during build process, please include
+`EXPERIMENTAL` module (see \ref building).
+
+*/

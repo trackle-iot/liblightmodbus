@@ -18,6 +18,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+	\file
+	\brief Slave's coil-related requests built-in parsing functions
+*/
+
 #ifndef LIGHTMODBUS_SCOILS_H
 #define LIGHTMODBUS_SCOILS_H
 
@@ -30,14 +35,36 @@
 #if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_F02S)
 #define modbusParseRequest01 modbusParseRequest0102
 #define modbusParseRequest02 modbusParseRequest0102
+/**
+	\brief Processes requests 01 (read multiple coils) and 02 (read multiple discrete inputs).
+	\note Requires `F03S` or `F04S` module (see \ref building)
+	\todo Replace `modbusParseRequest01` and `modbusParseRequest` macros with static inline functions
+	\param status The slave structure to work with
+	\param parser A parser structure containing request data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F05S
+/**
+	\brief Processes request 05 (write a single coil)
+	\note Requires `F05S` module (see \ref building)
+	\param status The slave structure to work with
+	\param parser A parser structure containing request data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F15S
+/**
+	\brief Processes request 15 (write multiple coils)
+	\note Requires `F15S` module (see \ref building)
+	\param status The slave structure to work with
+	\param parser A parser structure containing request data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser );
 #endif
 

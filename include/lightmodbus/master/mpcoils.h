@@ -18,6 +18,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+	\file
+	\brief Master's coil-related parsing functions
+*/
+
 #ifndef LIGHTMODBUS_MPCOILS_H
 #define LIGHTMODBUS_MPCOILS_H
 
@@ -30,14 +35,36 @@
 #if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
 #define modbusParseResponse01 modbusParseResponse0102
 #define modbusParseResponse02 modbusParseResponse0102
+/**
+	\brief Processes responses for requests 01 (read multiple coils) and 02 (read multiple discrete inputs)
+	\note Requires `F01M` or `F02M` module (see \ref building)
+	\todo Replace the `modbusParseResponse01` and `modbusParseResponse02` macros with static inline functions
+	\param status The master structure to work with
+	\param parser A parser structure containing response data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #ifdef LIGHTMODBUS_F05M
+/**
+	\brief Processes responses for request 05 (write a single coil)
+	\note Requires `F05M` module (see \ref building)
+	\param status The master structure to work with
+	\param parser A parser structure containing response data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseResponse05( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
 #endif
 
 #ifdef LIGHTMODBUS_F15M
+/**
+	\brief Processes responses for request 15 (write multiple coils)
+	\note Requires `F15M` module (see \ref building)
+	\param status The master structure to work with
+	\param parser A parser structure containing response data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseResponse15( ModbusMaster *status, ModbusParser *parser,  ModbusParser *requestParser );
 #endif
 

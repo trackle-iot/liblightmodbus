@@ -18,6 +18,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+	\file
+	\brief Master's coil-related frame building functions
+*/
+
 #ifndef LIGHTMODBUS_MBCOILS_H
 #define LIGHTMODBUS_MBCOILS_H
 
@@ -28,18 +33,77 @@
 
 //Functions for building requests
 #if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_F02M)
+/**
+	\brief Builds request 01 (read multiple coils) or 02 (read multiple discrete inputs) frame
+	\note Requires `F01M` or `F02M` module (see \ref building)
+	\param status The master structure to load with the request frame
+	\param function Function to be used in the request (01 or 02)
+	\param address Address of slave to be requested
+	\param index Address of the first discrete input/coil
+	\param count Number of coils to be read
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint8_t address, uint16_t index, uint16_t count );
+
+/**
+	\brief Builds request 01 (read multiple coils) frame
+	\note Requires `F01M` or `F02M` module (see \ref building)
+
+
+	Calls \ref modbusBuildRequest0102 with 1 as the second parameter
+
+	\param status The master structure to load with the request frame
+	\param address Address of slave to be requested
+	\param index Address of the first coil
+	\param count Number of coils to be read
+	\return A \ref ModbusError error code
+*/
 static inline ModbusError modbusBuildRequest01( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count ) 
 	{ return modbusBuildRequest0102( (status), 1, (address), (index), (count) ); }
+
+/**
+	\brief Builds request 02 (read multiple discrete inputs) frame
+	\note Requires `F01M` or `F02M` module (see \ref building)
+	
+	Calls \ref modbusBuildRequest0102 with 2 as the second parameter
+
+	\param status The master structure to load with the request frame
+	\param address Address of slave to be requested
+	\param index Address of the first discrete input
+	\param count Number of discrete inputs to be read
+	\return A \ref ModbusError error code
+*/
 static inline ModbusError modbusBuildRequest02( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count ) 
 	{ return modbusBuildRequest0102( (status), 2, (address), (index), (count) ); }
 #endif
 
 #ifdef LIGHTMODBUS_F05M
+/**
+	\brief Builds request 05 (write a single coil) frame
+	\note Requires `F01M` or `F02M` module (see \ref building)
+
+	\param status The master structure to load with the request frame
+	\param address Address of slave to be requested
+	\param index Address of the coil
+	\param value Coil value to be written
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusBuildRequest05( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t value );
 #endif
 
-#ifdef LIGHTMODBUS_F05M
+#ifdef LIGHTMODBUS_F15M
+/**
+	\brief Builds request 15 (write multiple coils) frame
+	\note Requires `LIGHTMODBUS_F15M` macro to be defined
+	\note Requires `F05M` module (see \ref building)
+	
+	\param status The master structure to load with the request frame
+	\param address Address of slave to be requested
+	\param index Address of the first coil
+	\param count Number of coils to be written
+	\param value Coil values to be written (each bit corresponds to one coil)
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values );
 #endif
 

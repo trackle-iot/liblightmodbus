@@ -18,6 +18,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+	\file
+	\brief General Modbus master functions
+*/
+
 #ifndef LIGHTMODBUS_MASTER_H
 #define LIGHTMODBUS_MASTER_H
 
@@ -36,89 +41,206 @@
 	#error Disabling exclusive master data buffer is an experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message, but please make sure your system permits unaligned memory acces beforehand.
 #endif
 
-//Struct associating user defined parser function with function ID
 #ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
 	struct modbusMaster;
+
+	/**
+		\brief Associates user-defined response parser function with the function ID
+	*/
 	typedef struct modbusMasterUserFunction
 	{
-		uint8_t function; //Function code
-		ModbusError ( *handler )( struct modbusMaster *status, ModbusParser *parser, ModbusParser *requestParser ); //Pointer to user defined function
+		uint8_t function; //!< The function code
+		ModbusError ( *handler )( struct modbusMaster *status, ModbusParser *parser, ModbusParser *requestParser ); //!< Pointer to the user defined parsing function
 	} ModbusMasterUserFunction;
 #endif
 
+/**
+	\brief Represents Modbus master device's status and configuration
+*/
 typedef struct modbusMaster
 {
-	uint8_t predictedResponseLength; //If everything goes fine, slave will return this amout of data
+	//! Predicted number of response bytes to be received from slave upon succesful request.
+	uint8_t predictedResponseLength;
 
-	struct //Formatted request for slave
+	/**
+		\brief Struct containing master's request for the slave
+
+		\note Declaration of the `frame` member depends on the library configuration.
+		It can be either a statically allocated array or a pointer to dynamically allocated memory.
+		The behavior is dependant on definition of the `LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST` macro
+
+		\see \ref static-mem
+	*/
+	struct
 	{
 		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+			//! Statically allocated memory for the request frame
 			uint8_t frame[LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST];
 		#else
+			//! A pointer to dynamically allocated memory for the request frame
 			uint8_t *frame;
 		#endif
+
+		//! Length of the request frame in bytes
 		uint8_t length;
 	} request;
 
+	/**
+		\brief Struct containing slave's response to the master's request
+
+		\note Declaration of the `frame` member depends on the library configuration.
+		It can be either a statically allocated array or a pointer to dynamically allocated memory.
+		The behavior is dependant on definition of the `LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE` macro
+
+		\see \ref static-mem
+	*/
 	struct //Response from slave should be put here
 	{
 		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+			//! Statically allocated memory for the response frame
 			uint8_t frame[LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE];
 		#else
+			//! A pointer to dynamically allocated memory for the response frame
 			const uint8_t *frame;
 		#endif
+
+		//! Length of the response frame in bytes 
 		uint8_t length;
 	} response;
 
-	struct //Data read from slave
+	/**
+		\brief Contains data received from the slave
+
+		The space for data inside this structure can either be dynamically or
+		statically allocated (see \ref static-mem).
+	*/
+	struct
 	{
-		uint8_t address; //Addres of slave
-		uint16_t index; //Address of the first element (in slave device)
-		uint16_t count; //Count of data units (coils, registers, etc.)
-		uint8_t length; //Length of data in bytes
-		ModbusDataType type; //Type of data
-		uint8_t function; //Function that accessed the data
+		uint8_t address; //!< Addres of slave that sent in the data
+		uint16_t index; //!< Modbus address of the first register/coil
+		uint16_t count; //!< Number of data units (coils, registers, etc.)
+		uint8_t length; //!< Length of data in bytes
+		ModbusDataType type; //!< Type of data
+		uint8_t function; //!< Function that accessed the data
 
 		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 			union
 			{
+				/** 
+					\brief Statically allocated array for received coils data.
+
+					Each bit of this array corresponds to one coil value.
+					\see modbusMaskRead()
+
+				*/
 				uint8_t coils[LIGHTMODBUS_STATIC_MEM_MASTER_DATA];
+
+
+				/** 
+					\brief Statically allocated array for received registers data
+
+					Data in this array always has currently used platform's native endianness.
+				*/
 				uint16_t regs[LIGHTMODBUS_STATIC_MEM_MASTER_DATA >> 1];
 			};
 		#else
 			//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
-			uint8_t *coils; //Received data
-			uint16_t *regs; //And the same received data, but converted to uint16_t pointer for convenience
+			
+			/** 
+				\brief A pointer to dynamically allocated memory for the received coils data
+
+				Each bit of this array corresponds to one coil value.
+				\see modbusMaskRead()
+			*/
+			uint8_t *coils;
+
+			/** 
+				\brief A pointer to dynamically allocated memory for the received registers data
+
+				Data in this array always has currently used platform's native endianness.
+			*/
+			uint16_t *regs;
 		#endif
 	} data;
 
-	struct //Exceptions read are stored in this structure
+	/**
+		\brief Contains exception data received from the slave
+
+		\note Data in this structure is only valid if the processed
+		response frame was an exception frame. 
+	*/
+	struct
 	{
-		uint8_t address; //Device address
-		uint8_t function; //In which function exception occured
-		ModbusExceptionCode code; //Exception code
+		uint8_t address; //!< Slave device address
+		uint8_t function; //!< Function that has thrown the exception 
+		ModbusExceptionCode code; //!< Exception code
 	} exception;
 
-	//Additional error info
+	//! More precise information according encountered frame parsing error
 	ModbusFrameError parseError;
+
+	//! More precise information according encountered frame building error
 	ModbusFrameError buildError;
 
 	//User defined functions
 	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
+		/**
+			\brief A pointer to an array of user-defined Modbus functions
+			\see user-functions
+		*/
 		ModbusMasterUserFunction *userFunctions;
-		uint16_t userFunctionCount;
+		uint16_t userFunctionCount; //!< Number of the user functions in the array
 	#endif
 
-} ModbusMaster; //Type containing master device configuration data
+} ModbusMaster;
 #endif
 
 #include "master/mbregs.h"
 #include "master/mbcoils.h"
 
 #ifdef LIGHTMODBUS_MASTER_BASE
+
+/**
+	\brief Interprets the incoming response frame located in the master structure
+
+	Calling this function results in processing the frame located in \ref ModbusMaster::response.
+	The received data will be located in \ref ModbusMaster::data or \ref ModbusMaster::exception
+	if slave has responded with an exception frame.
+
+	Firstly, this function resets and freed data previously stored in 
+	\ref ModbusMaster::exception and \ref ModbusMaster::data.
+
+	Afterwards, the frame is validated using \ref modbusCRC() function.
+	If it's not consistent, it's discarded at this point and 
+	\ref MODBUS_ERROR_PARSE is returned.
+
+	Then, array of user-defined functions is searched. It is important
+	to mention that, user functions override built-in functions. That means,
+	one can disable specific function by simply inserting NULL pointer
+	into the array,
+
+	If matching function is found among user-defined or built-in functions,
+	the modbusParseResponse() returns the exact error code the parsing
+	function had returned. Otherwise, \ref MODBUS_ERROR_PARSE is returned.
+
+	\param status The master structure to work on
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseResponse( ModbusMaster *status );
+
+/**
+	\brief Performs initialization of the \ref ModbusMaster structure
+	\param status The master structure to be initialized
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusMasterInit( ModbusMaster *status );
-extern ModbusError modbusMasterEnd( ModbusMaster *status ); //Free memory used by master
+
+/**
+	\brief Frees memory used by the \ref ModbusMaster structure, previously initialized with \ref modbusMasterInit
+	\param status The master structure to be freed
+	\return A \ref ModbusError error code
+*/
+extern ModbusError modbusMasterEnd( ModbusMaster *status );
 #endif
 
 #endif

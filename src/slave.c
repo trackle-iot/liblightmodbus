@@ -93,7 +93,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	#endif
 
 	//If user tries to parse an empty frame return error
-	//That enables us to ommit the check in each parsing function
+	//That enables us to omit the check in each parsing function
 	if ( status->request.length < 4u || status->request.frame == NULL ) 
 	{
 		status->parseError = MODBUS_FERROR_LENGTH;

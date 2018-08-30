@@ -18,6 +18,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+	\file
+	\brief Slave's register-related built-in parsing functions
+*/
+
 #ifndef LIGHTMODBUS_SREGS_H
 #define LIGHTMODBUS_SREGS_H
 
@@ -30,18 +35,47 @@
 #if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_F04S)
 #define modbusParseRequest03 modbusParseRequest0304
 #define modbusParseRequest04 modbusParseRequest0304
+/**
+	\brief Processes request 03 (read multiple holding registers) and 04 (read multiple input registers)
+	\note Requires `F03S` or `F04S` module (see \ref building)
+	\todo Replace `modbusParseRequest03` and `modbusParseRequest04` macros with static inline functions
+	\param status The slave structure to work with
+	\param parser A parser structure containing request data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F06S
+/**
+	\brief Processes request 06 (write multiple holding registers)
+	\note Requires `F06S` module (see \ref building)
+	\param status The slave structure to work with
+	\param parser A parser structure containing request data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F16S
+/**
+	\brief Processes request 15 (write multiple holding registers)
+	\note Requires `F16S` module (see \ref building)
+	\param status The slave structure to work with
+	\param parser A parser structure containing request data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser );
 #endif
 
 #ifdef LIGHTMODBUS_F22S
+/**
+	\brief Processes request 22 (mask-write holding register)
+	\note Requires `F22S` module (see \ref building)
+	\param status The slave structure to work with
+	\param parser A parser structure containing request data
+	\return A \ref ModbusError error code
+*/
 extern ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser );
 #endif
 

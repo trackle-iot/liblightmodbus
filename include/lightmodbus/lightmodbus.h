@@ -18,7 +18,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* This is main header file that is ought to be included as library */
+/**
+	\file
+	\brief Core Modbus functions
+	
+	This is main header file that is ought to be included as library 
+*/
 
 #ifndef LIGHTMODBUS_H
 #define LIGHTMODBUS_H
@@ -32,80 +37,156 @@
 #error LIGHTMODBUS_BIG_ENDIAN and LIGHTMODBUS_LITTLE_ENDIAN cannot be used at once!
 #endif
 
-//Error codes
+/**
+	\brief Represents a library runtime error code. 
+*/
 typedef enum modbusError
 {
-	MODBUS_ERROR_OK = 0, //Everything is ok
-	MODBUS_ERROR_EXCEPTION = 1, //Slave has thrown an exception (on slave side: check ModbusSlave.lastException, lastParseError)
-	MODBUS_ERROR_ALLOC, //Memory allocation problem (eg. system ran out of RAM)
-	MODBUS_ERROR_OTHER, //Other reason function was exited (eg. bad function parameter)
-	MODBUS_ERROR_NULLPTR, //Null pointer instead some crucial data
-	MODBUS_ERROR_PARSE, //Parsing error occurred - check parseError
-	MODBUS_ERROR_BUILD, //Building error occurred - check buildError
-	MODBUS_OK = MODBUS_ERROR_OK,
+	MODBUS_ERROR_OK = 0, //!< No error
+	/**
+		\brief Indicates that slave had thrown an exception.
+
+		This exception can be thrown either by master's parsing function
+		(indicating incoming exception frame) or by slave's building function
+		(indicating that some problem caused the slave to **build an exception frame**).
+
+		\note This error code handles the superset of problems handled by \ref MODBUS_ERROR_PARSE.
+
+		When thrown on slave side, check \ref ModbusSlave.lastException and \ref ModbusSlave.lastParseError
+		for more information.
+	*/
+	MODBUS_ERROR_EXCEPTION = 1,
+	MODBUS_ERROR_ALLOC, //!< Memory allocation problem
+	MODBUS_ERROR_OTHER, //!< Other reason causing the function to abort (eg. bad function parameter)
+	MODBUS_ERROR_NULLPTR, //!< A NULL pointer provided as some crucial parameter
+	/**
+		Parsing error occurred - check \ref ModbusSlave.parseError
+
+		\note This error code is returned instead of \ref MODBUS_ERROR_EXCEPTION
+		when exception should have been thrown, but wasn't (eg. due to broadcasted
+		request frame). These two error code should be treated similarly.
+	*/
+	MODBUS_ERROR_PARSE, //!< 
+	MODBUS_ERROR_BUILD, //!< Building error occurred - check \ref ModbusMaster.buildError
+	MODBUS_OK = MODBUS_ERROR_OK, //!< No error. Alias of \ref MODBUS_ERROR_OK
 } ModbusError;
 
-//Frame processing (buidling/parsing) errors
-//These errors are not critical and serve just as additional source of information for user
+/**
+	\brief Provides more information on frame building/parsing error.
+
+	These error code should serve as an additional source of information for the user.
+*/
 typedef enum modbusFrameError
 {
-	MODBUS_FERROR_OK = MODBUS_OK,
-	MODBUS_FERROR_CRC, //Invalid CRC
-	MODBUS_FERROR_LENGTH, //Invalid frame length
-	MODBUS_FERROR_COUNT, //Invalid declared data item count
-	MODBUS_FERROR_VALUE, //Illegal data value (e.g. single coil)
-	MODBUS_FERROR_RANGE, //Invalid register range
-	MODBUS_FERROR_NOSRC, //There's neither callback function nor value array provided for this data type
-	MODBUS_FERROR_NOREAD, //No read access to one of regsiters
-	MODBUS_FERROR_NOWRITE, //No write access to one of regsiters
-	MODBUS_FERROR_NOFUN, //Function not supported
-	MODBUS_FERROR_BADFUN, //Requested bad function
-	MODBUS_FERROR_NULLFUN, //Function overriden by user with NULL
-	MODBUS_FERROR_MISM_FUN, //Function request-response mismatch
-	MODBUS_FERROR_MISM_ADDR, //Slave address request-response mismatch
-	MODBUS_FERROR_MISM_INDEX, //Index value request-response mismatch
-	MODBUS_FERROR_MISM_COUNT, //Count value request-response mismatch
-	MODBUS_FERROR_MISM_VALUE, //Data value request-response mismatch
-	MODBUS_FERROR_MISM_MASK, //Mask value request-response mismatch
-	MODBUS_FERROR_BROADCAST //Received response for broadcast message?
+	MODBUS_FERROR_OK = MODBUS_OK, //!< Modbus frame OK. No error.
+	MODBUS_FERROR_CRC, //!< Invalid CRC
+	MODBUS_FERROR_LENGTH, //!< Invalid frame length
+	MODBUS_FERROR_COUNT, //!< Invalid declared data item count
+	MODBUS_FERROR_VALUE, //!< Illegal data value (eg. when writing a single coil)
+	MODBUS_FERROR_RANGE, //!< Invalid register range
+	MODBUS_FERROR_NOSRC, //!< There's neither callback function nor value array provided for this data type
+	MODBUS_FERROR_NOREAD, //!< No read access to at least one of requested regsiters
+	MODBUS_FERROR_NOWRITE, //!< No write access to one of requested regsiters
+	MODBUS_FERROR_NOFUN, //!< Function not supported
+	MODBUS_FERROR_BADFUN, //!< Requested a parsing function to parse a frame with wrong function code
+	MODBUS_FERROR_NULLFUN, //!< Function overriden by user with NULL pointer.
+	MODBUS_FERROR_MISM_FUN, //!< Function request-response mismatch
+	MODBUS_FERROR_MISM_ADDR, //!< Slave address request-response mismatch
+	MODBUS_FERROR_MISM_INDEX, //!< Index value request-response mismatch
+	MODBUS_FERROR_MISM_COUNT, //!< Count value request-response mismatch
+	MODBUS_FERROR_MISM_VALUE, //!< Data value request-response mismatch
+	MODBUS_FERROR_MISM_MASK, //!< Mask value request-response mismatch
+	MODBUS_FERROR_BROADCAST //!< Received response for broadcast message
 
 } ModbusFrameError;
 
-//Exception codes (defined by Modbus protocol)
+/**
+	\brief Represents a Modbus exception code, defined by the standart.
+*/
 typedef enum modbusExceptionCode
 {
-	MODBUS_EXCEP_ILLEGAL_FUNCTION = 1,
-	MODBUS_EXCEP_ILLEGAL_ADDRESS = 2,
-	MODBUS_EXCEP_ILLEGAL_VALUE = 3,
-	MODBUS_EXCEP_SLAVE_FAILURE = 4,
-	MODBUS_EXCEP_ACK = 5,
-	MODBUS_EXCEP_NACK = 7
+	MODBUS_EXCEP_ILLEGAL_FUNCTION = 1, //!< Illegal function code
+	MODBUS_EXCEP_ILLEGAL_ADDRESS = 2, //!< Illegal data address
+	MODBUS_EXCEP_ILLEGAL_VALUE = 3, //!< Illegal data value
+	MODBUS_EXCEP_SLAVE_FAILURE = 4, //!< Slave could not process the request
+	MODBUS_EXCEP_ACK = 5, //!< Acknowledge 
+	MODBUS_EXCEP_NACK = 7 //!< Negative acknowledge
 } ModbusExceptionCode;
 
-//Modbus data types
+/**
+	\brief Stores information about Modbus data types
+*/
 typedef enum modbusDataType
 {
-	MODBUS_HOLDING_REGISTER = 1,
-	MODBUS_INPUT_REGISTER = 2,
-	MODBUS_COIL = 4,
-	MODBUS_DISCRETE_INPUT = 8
+	MODBUS_HOLDING_REGISTER = 1, //!< Holding register
+	MODBUS_INPUT_REGISTER = 2, //!< Input register
+	MODBUS_COIL = 4, //!< Coil
+	MODBUS_DISCRETE_INPUT = 8 //!< Discrete input
 } ModbusDataType;
 
+/**
+	\brief Converts number of bits to number of bytes required to store them
+	\todo Replace `BITSTOBYTES` macro with a static inline function
+	\param n Number of bits
+	\returns Number of bytes of required memory
+*/
 #define BITSTOBYTES( n ) ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0 )
 
-//Always swaps endianness - modbusSwapEndian
+
+/**
+	\brief Swaps endianness of provided 16-bit data portion
+
+	\note This function, unlike \ref modbusMatchEndian, works unconditionally
+
+	\param data A 16-bit data portion.
+	\returns The same data, but with bytes swapped
+	\see modbusMatchEndian
+*/
 static inline uint16_t modbusSwapEndian( uint16_t data ) { return ( data << 8 ) | ( data >> 8 ); }
 
-//Matches endianness with Modbus - works conditionally - modbusMatchEndian
+/**
+	\brief Swaps endianness of provided 16-bit data portion if needed
+
+	\note This function works conditionally
+
+	\param data A 16-bit data portion.
+	\returns The same data, but with bytes swapped if the system is little-endian
+	\see modbusSwapEndian
+*/
 #ifdef LIGHTMODBUS_BIG_ENDIAN
 	static inline uint16_t modbusMatchEndian( uint16_t data ) { return data; }
 #else
 	static inline uint16_t modbusMatchEndian( uint16_t data ) { return modbusSwapEndian( data ); }
 #endif
 
-//Function prototypes
+/**
+	\brief Reads n-th bit from an array
+
+	\param mask A pointer to the array
+	\param maskLength The length of the array in bytes
+	\param bit Number of the bit to be read
+	\returns The bit value, or 255 if the bit lies outside the array.
+*/
 extern uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit );
+
+/**
+	\brief Writes n-th bit in an array
+
+	\param mask A pointer to the array
+	\param maskLength The length of the array in bytes
+	\param bit Number of the bit to write
+	\param value Bit value to be written
+	\returns Bit value on success, 255 if the bit lies outside the array.
+*/
 extern uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8_t value );
+
+/**
+	\brief Calculates 16-bit Modbus CRC of provided data
+
+	\param data A pointer to the data to be processed
+	\param length Number of bytes, starting at the `data` pointer, to process
+	\returns 16-bit Modbus CRC value 
+*/
 extern uint16_t modbusCRC( const uint8_t *data, uint16_t length );
 
 //For user convenience

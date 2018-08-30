@@ -18,12 +18,20 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+	\file 
+	\brief Contains the \ref modbusParser union used during frame creation and parsing.
+*/
+
 #ifndef LIGHTMODBUS_PARSER_H
 #define LIGHTMODBUS_PARSER_H
 
 #include <inttypes.h>
 #include "libconf.h"
 
+/**
+	\brief A big union of structures used for parsing standard Modbus requests and building responses.
+*/
 typedef union modbusParser
 {
 	uint8_t frame[256];
@@ -32,7 +40,7 @@ typedef union modbusParser
 	{
 		uint8_t address;
 		uint8_t function;
-	} base; //Base shared bytes, which have always same meaning
+	} base; //Base shared bytes, common for all frames, which always have the same meaning
 
 	struct __attribute__( ( __packed__ ) )
 	{

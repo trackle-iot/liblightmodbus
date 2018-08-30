@@ -37,8 +37,7 @@
 #define modbusParseRequest02 modbusParseRequest0102
 /**
 	\brief Processes requests 01 (read multiple coils) and 02 (read multiple discrete inputs).
-	\note Requires `F03S` or `F04S` module (see \ref building)
-	\todo Replace `modbusParseRequest01` and `modbusParseRequest` macros with static inline functions
+	\note Requires `F01S` or `F02S` module (see \ref building)
 	\param status The slave structure to work with
 	\param parser A parser structure containing request data
 	\return A \ref ModbusError error code

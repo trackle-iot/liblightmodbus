@@ -38,7 +38,6 @@
 /**
 	\brief Processes request 03 (read multiple holding registers) and 04 (read multiple input registers)
 	\note Requires `F03S` or `F04S` module (see \ref building)
-	\todo Replace `modbusParseRequest03` and `modbusParseRequest04` macros with static inline functions
 	\param status The slave structure to work with
 	\param parser A parser structure containing request data
 	\return A \ref ModbusError error code

@@ -92,6 +92,8 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		status->response.frame = NULL;
 	#endif
 
+	status->parseError = MODBUS_OK;
+
 	//If user tries to parse an empty frame return error
 	//That enables us to omit the check in each parsing function
 	if ( status->request.length < 4u || status->request.frame == NULL ) 
@@ -122,7 +124,6 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 	
 	uint8_t functionMatch = 0, functionExec = 0;
-	status->parseError = MODBUS_OK;
 
 	//Firstly, check user function array
 	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS

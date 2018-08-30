@@ -225,7 +225,6 @@ extern ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, 
 	Otherwise, an exception informing the master device of illegal 
 	function code is constructed, and \ref MODBUS_ERROR_EXCEPTION is returned.
 
-	\todo Reset \ref ModbusSlave::parseError here, earlier
 	\param status The slave structure to work on
 	\returns A \ref ModbusError error code.
 */

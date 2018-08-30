@@ -19,6 +19,10 @@ test-out
 *.swp
 *.*~
 
+#Doxygen output
+doc/html
+doc/latex
+
 #CMake dir
 build
 

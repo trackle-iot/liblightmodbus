@@ -1,0 +1,4 @@
+[submodule "master/doc/html"]
+	path = master/doc/html
+	url = https://www.github.com/Jacajack/liblightmodbus.git
+	branch = gh-pages

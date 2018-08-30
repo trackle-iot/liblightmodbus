@@ -41,6 +41,10 @@
 	#error Disabling exclusive master data buffer is an experimental feature that may cause problems. Please define LIGHTMODBUS_EXPERIMENTAL to dismiss this error message, but please make sure your system permits unaligned memory acces beforehand.
 #endif
 
+#if defined( LIGHTMODBUS_NO_MASTER_DATA_BUFFER ) && defined( LIGHTMODBUS_STATIC_MEM_MASTER_DATA )
+	#error LIGHTMODBUS_STATIC_MEM_MASTER_DATA and LIGHTMODBUS_NO_MASTER_DATA_BUFFER cannot be used at once. Please make up your mind.
+#endif
+
 #ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
 	struct modbusMaster;
 

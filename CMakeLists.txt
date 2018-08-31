@@ -226,6 +226,7 @@ if ( DEFINED COVERAGE_TEST AND NOT DEFINED AVR )
 	add_executable(
 		coverage-test
 		"test/test.c"
+		"src/addons/examine.c"
 	)
 	target_link_libraries(
 		coverage-test

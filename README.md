@@ -15,7 +15,7 @@
 - Supports register/coil access callback functions
 
 *Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.*
-Check out [docs](https://github.com/Jacajack/liblightmodbus/tree/master/doc) for more technical information and manual.
+Check out the [online documentation](https://jacajack.github.io/liblightmodbus/) for more technical information and user guide.
 
 If you need help - [email me](mailto:mrjjot@gmail.com). If you want to help - contribute here, on Github. **All contributions are welcome!**
 

@@ -102,7 +102,6 @@ set( AVAILABLE_MODULES
 
 	#Misc
 	"EXPERIMENTAL"
-	"ADDON_EXAMINE"
 )
 
 #List of modules enabled by default
@@ -116,9 +115,6 @@ set( DEFAULT_MODULES
 	"MASTER_BASE"
 	"F01M" "F02M" "F03M" "F04M" "F05M" "F06M" "F15M" "F16M" "F22M"
 	"MASTER_USER_FUNCTIONS"
-
-	#Other modules
-	"ADDON_EXAMINE"
 )
 
 #Macros to be written to libconf.h
@@ -220,7 +216,6 @@ add_library(
 	"${PROJECT_SOURCE_DIR}/src/master/mbcoils.c"
 	"${PROJECT_SOURCE_DIR}/src/master/mpregs.c"
 	"${PROJECT_SOURCE_DIR}/src/master/mbregs.c"
-	"${PROJECT_SOURCE_DIR}/src/addons/examine.c"
 	)
 
 #Set library version

@@ -101,7 +101,7 @@ extern ModbusError modbusBuildRequest05( ModbusMaster *status, uint8_t address, 
 	\param address Address of slave to be requested
 	\param index Address of the first coil
 	\param count Number of coils to be written
-	\param value Coil values to be written (each bit corresponds to one coil)
+	\param values Coil values to be written (each bit corresponds to one coil)
 	\return A \ref ModbusError error code
 */
 extern ModbusError modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint8_t *values );

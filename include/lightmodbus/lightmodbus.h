@@ -58,10 +58,16 @@ typedef enum modbusError
 
 		\note This error code handles the superset of problems handled by \ref MODBUS_ERROR_PARSE.
 
-		When thrown on slave side, check \ref ModbusSlave.lastException and \ref ModbusSlave.lastParseError
+		When thrown on slave side, check \ref ModbusSlave.lastException and \ref ModbusSlave.parseError
 		for more information.
 	*/
 	MODBUS_ERROR_EXCEPTION = 1,
+	/**
+		\brief Memory problem
+
+		Either one of memory allocation functions returned NULL or
+		fixed-size buffer is not big enough to fit the data (see \ref static-mem).
+	*/
 	MODBUS_ERROR_ALLOC, //!< Memory allocation problem
 	MODBUS_ERROR_OTHER, //!< Other reason causing the function to abort (eg. bad function parameter)
 	MODBUS_ERROR_NULLPTR, //!< A NULL pointer provided as some crucial parameter
@@ -72,8 +78,8 @@ typedef enum modbusError
 		when exception should have been thrown, but wasn't (eg. due to broadcasted
 		request frame). These two error code should be treated similarly.
 	*/
-	MODBUS_ERROR_PARSE, //!< 
-	MODBUS_ERROR_BUILD, //!< Building error occurred - check \ref ModbusMaster.buildError
+	MODBUS_ERROR_PARSE,
+	MODBUS_ERROR_BUILD, //!< Frame building error occurred - check \ref ModbusMaster.buildError
 	MODBUS_OK = MODBUS_ERROR_OK, //!< No error. Alias of \ref MODBUS_ERROR_OK
 } ModbusError;
 
@@ -153,7 +159,7 @@ static inline uint16_t modbusSwapEndian( uint16_t data ) { return ( data << 8 ) 
 /**
 	\brief Swaps endianness of provided 16-bit data portion if needed
 
-	\note This function works conditionally
+	\note This function works only if the system is not big-endian
 
 	\param data A 16-bit data portion.
 	\returns The same data, but with bytes swapped if the system is little-endian

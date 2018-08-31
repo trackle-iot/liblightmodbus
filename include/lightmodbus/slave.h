@@ -51,7 +51,13 @@ extern "C" {
 	typedef struct modbusSlaveUserFunction
 	{
 		uint8_t function; //!< The function code
-		ModbusError ( *handler )( struct modbusSlave *status, ModbusParser *parser ); //!< Pointer to the user defined function
+		/**
+			\brief Pointer to the user defined function
+			\param status Slave structure to work with
+			\param parser The parser structure containing frame data
+			\returns A \ref ModbusError error code
+		*/
+		ModbusError ( *handler )( struct modbusSlave *status, ModbusParser *parser );
 	} ModbusSlaveUserFunction;
 #endif
 
@@ -62,7 +68,7 @@ extern "C" {
 	/**
 		\brief Represents register callback function 
 		\note Requires `REGISTER_CALLBACK` or `COIL_CALLBACK` module (see \ref building)	
-		\see register-callback 
+		\see \ref register-callback 
 	*/
 	typedef enum modbusRegisterQuery
 	{
@@ -74,7 +80,12 @@ extern "C" {
 
 	/**
 		\brief Type representing a pointer to the user-defined register callback function
-		\see register-callbacks
+		\see \ref register-callback
+		\param query A register query (see \ref ModbusRegisterQuery)
+		\param datatype Modbus data type
+		\param index Address of the register
+		\param value Value of the register (only used with write access queries)
+		\param ctx User's context data (passed from \ref ModbusSlave::registerCallbackContext)
 	*/
 	typedef uint16_t ( *ModbusRegisterCallbackFunction )( ModbusRegisterQuery query, ModbusDataType datatype, uint16_t index, uint16_t value, void *ctx );
 #endif
@@ -204,16 +215,19 @@ typedef struct modbusSlave
 /**
 	\brief Builds an exception frame and stores it in the \ref ModbusSlave structure
 
-	Updates \ref lastException member in provided \ref ModbusSlave structure.
+	The exception frame is only built if the request was not broadcasted.
+
+	Updates \ref ModbusSlave::lastException member in provided \ref ModbusSlave structure.
 
 	This function is used by more sophisticated \ref modbusBuildExceptionErr().
 
 	\param status The slave structure to work on
 	\param function Function code of function throwing the exception
 	\param code A Modbus exception code
+	\todo Make not alter \ref ModbusSlave::response frame if broadcasted (may cause memory leaks in user code)
 	\returns A \ref ModbusError error code. Unlike other library functions, this one
-	returns `MODBUS_ERROR_EXCEPTION` on success as a form of information that exception
-	had been thrown.
+	returns \ref MODBUS_ERROR_EXCEPTION on success as a form of information that exception
+	had been thrown. If the request was broadcasted, returns \ref MODBUS_ERROR_OK
 */
 extern ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusExceptionCode code );
 

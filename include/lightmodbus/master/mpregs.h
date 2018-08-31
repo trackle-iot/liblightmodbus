@@ -40,6 +40,7 @@
 	\note Requires `F03M` or `F04M` module (see \ref building)
 	\param status The master structure to work with
 	\param parser A parser structure containing response data
+	\param requestParser A parser structure containing request data
 	\return A \ref ModbusError error code
 */
 extern ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
@@ -51,6 +52,7 @@ extern ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *
 	\note Requires `F06M` module (see \ref building)
 	\param status The master structure to work with
 	\param parser A parser structure containing response data
+	\param requestParser A parser structure containing request data
 	\return A \ref ModbusError error code
 */
 extern ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
@@ -62,6 +64,7 @@ extern ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *pa
 	\note Requires `F16M` module (see \ref building)
 	\param status The master structure to work with
 	\param parser A parser structure containing response data
+	\param requestParser A parser structure containing request data
 	\return A \ref ModbusError error code
 */
 extern ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );
@@ -73,6 +76,7 @@ extern ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *pa
 	\note Requires `F22M` module (see \ref building)
 	\param status The master structure to work with
 	\param parser A parser structure containing response data
+	\param requestParser A parser structure containing request data
 	\return A \ref ModbusError error code
 */
 extern ModbusError modbusParseResponse22( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser );

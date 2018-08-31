@@ -97,7 +97,7 @@ extern ModbusError modbusBuildRequest06( ModbusMaster *status, uint8_t address, 
 	\param address Address of slave to be requested
 	\param index Address of the first register
 	\param count Number of registers to be written
-	\param value The value to be written
+	\param values The value to be written
 	\return A \ref ModbusError error code
 */
 extern ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values );

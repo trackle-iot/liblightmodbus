@@ -109,7 +109,7 @@ typedef struct modbusSlave
 		/**
 			\brief The user data pointer passed to the callback function each time it's used
 			\warning This pointer is not managed nor controlled by library.
-			It's only set to NULL by \ref modbusSlaveInit().
+			So, what you set is what you get.
 		*/
 		void *registerCallbackContext;
 	#endif

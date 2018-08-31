@@ -249,7 +249,6 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 	//Some safety checks
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( status->registerCallback == NULL ) status->registerCount = status->inputRegisterCount = 0;
-		status->registerCallbackContext = NULL;
 	#else
 		if ( status->registerCount == 0 || status->registers == NULL )
 		{
@@ -266,7 +265,6 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		if ( status->registerCallback == NULL ) status->coilCount = status->discreteInputCount = 0;
-		status->registerCallbackContext = NULL;
 	#else
 		if ( status->coilCount == 0 || status->coils == NULL )
 		{

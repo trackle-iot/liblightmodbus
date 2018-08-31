@@ -23,10 +23,16 @@
 	\brief Core Modbus functions
 	
 	This is main header file that is ought to be included as library 
+	\note This header file is suitable for C++
 */
 
 #ifndef LIGHTMODBUS_H
 #define LIGHTMODBUS_H
+
+// For C++
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //Include proper header files
 #include <inttypes.h>
@@ -192,5 +198,10 @@ extern uint16_t modbusCRC( const uint8_t *data, uint16_t length );
 //For user convenience
 #include "master.h"
 #include "slave.h"
+
+// For C++ (closes `extern "C"` )
+#ifdef __cplusplus
+}
+#endif
 
 #endif

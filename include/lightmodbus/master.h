@@ -21,10 +21,17 @@
 /**
 	\file
 	\brief General Modbus master functions
+	
+	\note This header file is suitable for C++
 */
 
 #ifndef LIGHTMODBUS_MASTER_H
 #define LIGHTMODBUS_MASTER_H
+
+// For C++
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <inttypes.h>
 #include "parser.h"
@@ -245,6 +252,11 @@ extern ModbusError modbusMasterInit( ModbusMaster *status );
 	\return A \ref ModbusError error code
 */
 extern ModbusError modbusMasterEnd( ModbusMaster *status );
+#endif
+
+// For C++ (closes `extern "C"` )
+#ifdef __cplusplus
+}
 #endif
 
 #endif

@@ -21,10 +21,17 @@
 /**
 	\file 
 	\brief General Modbus slave functions
+
+	\note This header file is suitable for C++
 */
 
 #ifndef LIGHTMODBUS_SLAVE_H
 #define LIGHTMODBUS_SLAVE_H
+
+// For C++
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <inttypes.h>
 #include <stddef.h>
@@ -269,6 +276,11 @@ static inline ModbusError modbusBuildExceptionErr( ModbusSlave *status, uint8_t 
 	ModbusError err = modbusBuildException( status, function, code );
 	if ( err == MODBUS_ERROR_OK ) return MODBUS_ERROR_PARSE;
 	else return err;
+}
+#endif
+
+// For C++ (closes `extern "C"` )
+#ifdef __cplusplus
 }
 #endif
 

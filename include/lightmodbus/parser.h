@@ -21,13 +21,21 @@
 /**
 	\file 
 	\brief Contains the \ref modbusParser union used during frame creation and parsing.
+
+	\note This header file is suitable for C++
 */
 
 #ifndef LIGHTMODBUS_PARSER_H
 #define LIGHTMODBUS_PARSER_H
 
+// For C++
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 #include "libconf.h"
+
 
 /**
 	\brief A big union of structures used for parsing standard Modbus requests and building responses.
@@ -183,5 +191,10 @@ typedef union modbusParser
 		uint16_t crc;
 	} response22; //Mask write single holding register
 } ModbusParser;
+
+// For C++ (closes `extern "C"` )
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -89,7 +89,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 	#endif
 
 	//Respond
-	frameLength = 5 + modbusBits2Bytes( count );
+	frameLength = 5 + modbusBitsToBytes( count );
 
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		status->response.frame = (uint8_t *) calloc( frameLength, sizeof( uint8_t ) ); //Reallocate response frame memory to needed memory
@@ -104,7 +104,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 	//Set up basic response data
 	builder->base.address = status->address;
 	builder->base.function = parser->base.function;
-	builder->response0102.length = modbusBits2Bytes( count );
+	builder->response0102.length = modbusBitsToBytes( count );
 
 	//Copy registers to response frame
 	for ( i = 0; i < count; i++ )
@@ -115,7 +115,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 			coil = status->registerCallback( MODBUS_REGQ_R, datatype, index + i, 0, status->registerCallbackContext );
 		#else
 			if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
-				modbusBits2Bytes( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ), i + index ) ) == 255 )
+				modbusBitsToBytes( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ), i + index ) ) == 255 )
 					return MODBUS_ERROR_OTHER;
 		#endif
 
@@ -202,7 +202,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index, value == 0xFF00, status->registerCallbackContext );
 	#else
-		if ( modbusMaskWrite( status->coils, modbusBits2Bytes( status->coilCount ), index, value == 0xFF00 ) == 255 )
+		if ( modbusMaskWrite( status->coils, modbusBitsToBytes( status->coilCount ), index, value == 0xFF00 ) == 255 )
 			return MODBUS_ERROR_OTHER;
 	#endif
 
@@ -262,7 +262,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	//Data checks
 	if ( parser->request15.length == 0 || \
 		count == 0 || \
-		modbusBits2Bytes( count ) != parser->request15.length || \
+		modbusBitsToBytes( count ) != parser->request15.length || \
 		count > 1968 )
 			return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_ILLEGAL_VALUE, MODBUS_FERROR_COUNT );
 
@@ -316,7 +316,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		#ifdef LIGHTMODBUS_COIL_CALLBACK
 			status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index + i, coil, status->registerCallbackContext );
 		#else
-			if ( modbusMaskWrite( status->coils, modbusBits2Bytes( status->coilCount ), index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
+			if ( modbusMaskWrite( status->coils, modbusBitsToBytes( status->coilCount ), index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
 		#endif
 	}
 

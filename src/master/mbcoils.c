@@ -80,7 +80,7 @@ ModbusError modbusBuildRequest0102( ModbusMaster *status, uint8_t function, uint
 	builder->request0102.crc = modbusCRC( builder->frame, frameLength - 2 );
 
 	status->request.length = frameLength;
-	status->predictedResponseLength = 4 + 1 + modbusBits2Bytes( count );
+	status->predictedResponseLength = 4 + 1 + modbusBitsToBytes( count );
 	status->buildError = MODBUS_OK;
 	return MODBUS_ERROR_OK;
 }
@@ -139,7 +139,7 @@ ModbusError modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_
 	//Write multiple coils
 
 	//Set frame length
-	uint8_t frameLength = 9 + modbusBits2Bytes( count );
+	uint8_t frameLength = 9 + modbusBitsToBytes( count );
 	uint8_t i = 0;
 
 	//Check if given pointer is valid
@@ -172,7 +172,7 @@ ModbusError modbusBuildRequest15( ModbusMaster *status, uint8_t address, uint16_
 	builder->base.function = 15;
 	builder->request15.index = modbusMatchEndian( index );
 	builder->request15.count = modbusMatchEndian( count );
-	builder->request15.length = modbusBits2Bytes( count );
+	builder->request15.length = modbusBitsToBytes( count );
 
 	for ( i = 0; i < builder->request15.length; i++ )
 		builder->request15.values[i] = values[i];

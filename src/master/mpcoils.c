@@ -68,7 +68,7 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 	}
 
 	//Length checks
-	if ( parser->response0102.length == 0 ||  parser->response0102.length > 250 || parser->response0102.length != modbusBits2Bytes( count ) )
+	if ( parser->response0102.length == 0 ||  parser->response0102.length > 250 || parser->response0102.length != modbusBitsToBytes( count ) )
 	{
 		status->parseError = MODBUS_FERROR_LENGTH;
 		return MODBUS_ERROR_PARSE;
@@ -81,12 +81,12 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 		status->data.regs = (uint16_t*) status->data.coils;
 	#else
 		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
-			status->data.coils = (uint8_t*) calloc( modbusBits2Bytes( count ), sizeof( uint8_t ) );
+			status->data.coils = (uint8_t*) calloc( modbusBitsToBytes( count ), sizeof( uint8_t ) );
 			status->data.regs = (uint16_t*) status->data.coils;
 			if ( status->data.coils == NULL ) return MODBUS_ERROR_ALLOC;
 		#else
-			if ( modbusBits2Bytes( count ) * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
-			memset( status->data.coils, 0, modbusBits2Bytes( count ) * sizeof( uint8_t ) );
+			if ( modbusBitsToBytes( count ) * sizeof( uint8_t ) > LIGHTMODBUS_STATIC_MEM_MASTER_DATA ) return MODBUS_ERROR_ALLOC;
+			memset( status->data.coils, 0, modbusBitsToBytes( count ) * sizeof( uint8_t ) );
 		#endif
 
 		//Copy the data

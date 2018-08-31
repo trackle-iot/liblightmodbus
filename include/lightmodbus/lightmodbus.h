@@ -141,7 +141,7 @@ typedef enum modbusDataType
 	\param n Number of bits
 	\returns Number of bytes of required memory
 */
-static inline uint16_t modbusBits2Bytes( uint16_t n )
+static inline uint16_t modbusBitsToBytes( uint16_t n )
 {
 	return ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0;
 )

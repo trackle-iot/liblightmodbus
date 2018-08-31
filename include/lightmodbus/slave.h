@@ -224,7 +224,6 @@ typedef struct modbusSlave
 	\param status The slave structure to work on
 	\param function Function code of function throwing the exception
 	\param code A Modbus exception code
-	\todo Make not alter \ref ModbusSlave::response frame if broadcasted (may cause memory leaks in user code)
 	\returns A \ref ModbusError error code. Unlike other library functions, this one
 	returns \ref MODBUS_ERROR_EXCEPTION on success as a form of information that exception
 	had been thrown. If the request was broadcasted, returns \ref MODBUS_ERROR_OK

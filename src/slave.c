@@ -42,9 +42,6 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 	ModbusParser *requestParser = (ModbusParser*) status->request.frame;
 	if ( requestParser != NULL && requestParser->base.address == 0 )
 	{
-		#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
-			status->response.frame = NULL;
-		#endif 
 		status->response.length = 0;
 		return MODBUS_OK;
 	}

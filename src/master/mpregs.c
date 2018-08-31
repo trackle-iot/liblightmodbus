@@ -120,8 +120,6 @@ ModbusError modbusParseResponse06( ModbusMaster *status, ModbusParser *parser, M
 {
 	//Parse slave response to request 06 (write single holding reg)
 
-	uint8_t dataok = 1;
-
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_NULLPTR;
 

@@ -143,8 +143,8 @@ typedef enum modbusDataType
 */
 static inline uint16_t modbusBitsToBytes( uint16_t n )
 {
-	return ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0;
-)
+	return n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0;
+}
 
 /**
 	\brief Swaps endianness of provided 16-bit data portion

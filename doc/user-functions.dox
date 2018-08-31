@@ -37,7 +37,7 @@ ModbusError foo( ModbusSlave *status, ModbusParser *parser )
 {
 	//Throw exception if slave address is divisible by 2
 	if ( parser->base.address % 2 == 0 ) 
-		return modbusBuilException( status, parser->base.function, MODBUS_EXCEPTION_SLAVE_FAILURE );
+		return modbusBuildException( status, parser->base.function, MODBUS_EXCEPTION_SLAVE_FAILURE );
 	
 	//Return empty frame in response
 	//Assumes static slave response buffer is disabled
@@ -84,7 +84,7 @@ master.userFunctionCount = 2;
 
 \warning User-defined functions override built-in functions
 
-The parsing function, hovewer, needs to look a bit differently:
+The parsing function, however, needs to look a bit differently:
 ~~~{.c}
 ModbusError userf( ModbusMaster *status, ModbusParser *parser, ModbusParser *requestParser )
 ~~~

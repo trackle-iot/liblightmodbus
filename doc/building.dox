@@ -7,7 +7,7 @@ as of version 1.4. For more information see \ref building-old.
 
 The library's build configuration process is pretty complex,
 as the library consists of many modules that can be included
-in the build or omited. If you want to go with default configuration
+in the build or omitted. If you want to go with default configuration
 first, take a look at the section below.
 
 ## Default build configuration
@@ -45,7 +45,7 @@ See below for list of available modules along with short descriptions:
  - `MASTER_USER_FUNCTIONS` - support for user-defined Modbus functions on master side (see \ref user-functions)
  - `REGISTER_CALLBACK` - slave register callback function (see \ref register-callback)
  - `COIL_CALLBACK` - slave coil callback function (see \ref register-callback)
- - `NO_MASTER DATA_BUFFER` - disable exclusive master’s processed data buffer (see \ref advanced-configuration)
+ - `NO_MASTER_DATA_BUFFER` - disable exclusive master’s processed data buffer (see \ref advanced-configuration)
  - `MASTER_INVASIVE_PARSING` - allow master to modify received frame (use with `NO_MASTER_DATA_BUFFER`)
  - `EXPERIMENTAL` - enable experimental features
 
@@ -59,8 +59,8 @@ Liblightmodbus can work without dynamic memory allocation. See \ref static-mem f
 
 ### Setting endianness
 Modbus is strictly big-endian protocol. That means you have to specify target system endianness when building.
-By default, CMake will check your system endainness and apply that setting, but in order to override it, set
-`ENDIANNES` CMake variable to either "big" or "little".
+By default, CMake will check your system endianness and apply that setting, but in order to override it, set
+`ENDIANNESS` CMake variable to either "big" or "little".
 
 ### Building for AVR
 Building the library for AVR microcontrollers is pretty easy thanks to the `AVR` CMake variable. 

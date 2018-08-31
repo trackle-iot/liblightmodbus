@@ -59,7 +59,9 @@ The first function argument determines query type.
 Two types of register queries are distinguished - read/write requests (\ref MODBUS_REGQ_R, \ref MODBUS_REGQ_W)
 and read/write access queries (\ref MODBUS_REGQ_R_CHECK, \ref MODBUS_REGQ_W_CHECK).
 
-Upon reception of access query, the function shall return 1 if certain kind of access is granted to register of type determined by second argument of type \ref ModbusDataType and index determined by third argument. Otherwise 0 shall be returned. 
+Upon reception of access query, the function shall return 1 if certain kind of access is granted
+to register of type determined by second argument of type \ref ModbusDataType and index determined
+by third argument. Otherwise 0 shall be returned. 
 
 If the callback function denies access to certain register, this results in slave device returning 
 \ref MODBUS_EXCEP_SLAVE_FAILURE exception frame. When callback function receives a read request it shall return

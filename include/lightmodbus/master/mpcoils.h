@@ -38,6 +38,7 @@
 /**
 	\brief Processes responses for requests 01 (read multiple coils) and 02 (read multiple discrete inputs)
 	\note Requires `F01M` or `F02M` module (see \ref building)
+	\note `modbusParseResponse01` and `modbusParseResponse02` macros are aliases of this function
 	\param status The master structure to work with
 	\param parser A parser structure containing response data
 	\param requestParser A parser structure containing request data

@@ -36,6 +36,7 @@
 /**
 	\brief Builds request 03 (read multiple holding registers) or 04 (read multiple input registers) frame
 	\note Requires `F03M` or `F04M` module (see \ref building)
+	\note `modbusParseRequest03` and `modbusParseRequest04` macros are aliases of this function
 	\param status The master structure to load with the request frame
 	\param function Function to be used in the request (03 or 04)
 	\param address Address of slave to be requested

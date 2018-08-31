@@ -36,6 +36,7 @@
 /**
 	\brief Builds request 01 (read multiple coils) or 02 (read multiple discrete inputs) frame
 	\note Requires `F01M` or `F02M` module (see \ref building)
+	\note `modbusParseRequest01` and `modbusParseRequest02` macros are aliases of this function
 	\param status The master structure to load with the request frame
 	\param function Function to be used in the request (01 or 02)
 	\param address Address of slave to be requested

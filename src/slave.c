@@ -245,13 +245,14 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 	#endif
 	status->response.length = 0;
 
-	//Slave cannot have boradcast address
+	//Slave cannot have broadcast address
 	if ( status->address == 0 )
 		return MODBUS_ERROR_OTHER;
 
 	//Some safety checks
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		if ( status->registerCallback == NULL ) status->registerCount = status->inputRegisterCount = 0;
+		status->registerCallbackContext = NULL;
 	#else
 		if ( status->registerCount == 0 || status->registers == NULL )
 		{
@@ -268,6 +269,7 @@ ModbusError modbusSlaveInit( ModbusSlave *status )
 
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		if ( status->registerCallback == NULL ) status->coilCount = status->discreteInputCount = 0;
+		status->registerCallbackContext = NULL;
 	#else
 		if ( status->coilCount == 0 || status->coils == NULL )
 		{

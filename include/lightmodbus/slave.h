@@ -76,7 +76,7 @@ extern "C" {
 		\brief Type representing a pointer to the user-defined register callback function
 		\see register-callbacks
 	*/
-	typedef uint16_t ( *ModbusRegisterCallbackFunction )( ModbusRegisterQuery query, ModbusDataType datatype, uint16_t index, uint16_t value );
+	typedef uint16_t ( *ModbusRegisterCallbackFunction )( ModbusRegisterQuery query, ModbusDataType datatype, uint16_t index, uint16_t value, void *ctx );
 #endif
 
 /**
@@ -94,6 +94,13 @@ typedef struct modbusSlave
 			\note Requires `LIGHTMODBUS_COIL_CALLBACK` or `LIGHTMODBUS_REGISTER_CALLBACK` to be defined
 		*/
 		ModbusRegisterCallbackFunction registerCallback;
+
+		/**
+			\brief The user data pointer passed to the callback function each time it's used
+			\warning This pointer is not managed nor controlled by library.
+			It's only set to NULL by \ref modbusSlaveInit().
+		*/
+		void *registerCallbackContext;
 	#endif
 
 	//Slave registers arrays

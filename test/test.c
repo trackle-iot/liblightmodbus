@@ -98,8 +98,12 @@ ModbusError userModbusMasterFunction( ModbusMaster *status, ModbusParser *parser
 
 //Register callback function
 #if defined(LIGHTMODBUS_REGISTER_CALLBACK) || defined(LIGHTMODBUS_COIL_CALLBACK)
-uint16_t reg_callback( ModbusRegisterQuery query, ModbusDataType datatype, uint16_t index, uint16_t value )
+int dummy_ctx_var = 567;
+uint16_t reg_callback( ModbusRegisterQuery query, ModbusDataType datatype, uint16_t index, uint16_t value, void* ctx )
 {
+	//Assure the context doesn't change
+	assert( ctx == (void*) &dummy_ctx_var );
+
 	//All can be written and read
 	if ( query == MODBUS_REGQ_R_CHECK || query == MODBUS_REGQ_W_CHECK ) return 1;
 
@@ -490,9 +494,14 @@ void libinit( )
 
 	
 	sstatus.address = 32;
-
+	
 	printf( "slave init - %d\n", modbusSlaveInit( &sstatus ) );
 	printf( "master init - %d\n\n\n", modbusMasterInit( &mstatus ) );
+
+	//This must be after modbusSlaveInit()
+	#if defined( LIGHTMODBUS_REGISTER_CALLBACK ) || defined( LIGHTMODBUS_COIL_CALLBACK )
+	sstatus.registerCallbackContext = &dummy_ctx_var;
+	#endif
 }
 
 void MainTest( )

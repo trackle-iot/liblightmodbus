@@ -84,7 +84,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 	//Check if coils can be written (if using callback function)
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		for ( i = 0; i < count; i++ )
-			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0 ) == 0 )
+			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0, status->registerCallbackContext ) == 0 )
 				return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOREAD );
 	#endif
 
@@ -112,7 +112,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 		uint8_t coil;
 
 		#ifdef LIGHTMODBUS_COIL_CALLBACK
-			coil = status->registerCallback( MODBUS_REGQ_R, datatype, index + i, 0 );
+			coil = status->registerCallback( MODBUS_REGQ_R, datatype, index + i, 0, status->registerCallbackContext );
 		#else
 			if ( ( coil = modbusMaskRead( parser->base.function == 1 ? status->coils : status->discreteInputs, \
 				BITSTOBYTES( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ), i + index ) ) == 255 )
@@ -178,7 +178,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if reg is allowed to be written
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
-		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_COIL, index, 0 ) == 0 )
+		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_COIL, index, 0, status->registerCallbackContext ) == 0 )
 			return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index ) == 1 )
@@ -200,7 +200,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 
 	//After all possible exceptions, write coils
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
-		status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index, value == 0xFF00 );
+		status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index, value == 0xFF00, status->registerCallbackContext );
 	#else
 		if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index, value == 0xFF00 ) == 255 )
 			return MODBUS_ERROR_OTHER;
@@ -285,7 +285,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	//Check for write protection
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		for ( i = 0; i < count; i++ )
-			if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_COIL, index + i, 0 ) == 0 )
+			if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_COIL, index + i, 0, status->registerCallbackContext ) == 0 )
 				return modbusBuildExceptionErr( status, 15, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 
 	#else
@@ -314,7 +314,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
 		
 		#ifdef LIGHTMODBUS_COIL_CALLBACK
-			status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index + i, coil );
+			status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index + i, coil, status->registerCallbackContext );
 		#else
 			if ( modbusMaskWrite( status->coils, BITSTOBYTES( status->coilCount ), index + i, coil ) == 255 ) return MODBUS_ERROR_OTHER;
 		#endif

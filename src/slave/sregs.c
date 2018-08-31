@@ -92,7 +92,7 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 	//Check if all registers can be read (when using callback function)
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		for ( i = 0; i < count; i++ )
-			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0 ) == 0 )
+			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0, status->registerCallbackContext ) == 0 )
 				return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOREAD );
 	#endif
 
@@ -116,7 +116,7 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 	//Copy registers to response frame
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		for ( i = 0; i < count; i++ )
-			builder->response0304.values[i] = modbusMatchEndian( status->registerCallback( MODBUS_REGQ_R, datatype, index + i, 0 ) );
+			builder->response0304.values[i] = modbusMatchEndian( status->registerCallback( MODBUS_REGQ_R, datatype, index + i, 0, status->registerCallbackContext ) );
 	#else
 		for ( i = 0; i < count; i++ )
 			builder->response0304.values[i] = modbusMatchEndian( ( parser->base.function == 3 ? status->registers : status->inputRegisters )[index + i] );
@@ -164,7 +164,7 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if reg is allowed to be written
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 )
+		if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index, 0, status->registerCallbackContext ) == 0 )
 			return modbusBuildExceptionErr( status, 6, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		if ( modbusMaskRead( status->registerMask, status->registerMaskLength, index ) == 1 )
@@ -185,7 +185,7 @@ ModbusError modbusParseRequest06( ModbusSlave *status, ModbusParser *parser )
 
 	//After all possible exceptions, write reg
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index, value );
+		status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index, value, status->registerCallbackContext );
 	#else
 		status->registers[index] = value;
 	#endif
@@ -264,7 +264,7 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 	//Check for write protection
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		for ( i = 0; i < count; i++ )
-			if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index + i, 0 ) == 0 )
+			if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index + i, 0, status->registerCallbackContext ) == 0 )
 				return modbusBuildExceptionErr( status, 16, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		for ( i = 0; i < count; i++ )
@@ -288,7 +288,7 @@ ModbusError modbusParseRequest16( ModbusSlave *status, ModbusParser *parser )
 	//After all possible exceptions, write values to registers
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		for ( i = 0; i < count; i++ )
-			status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index + i, modbusMatchEndian( parser->request16.values[i] ) );
+			status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index + i, modbusMatchEndian( parser->request16.values[i] ), status->registerCallbackContext );
 	#else
 		for ( i = 0; i < count; i++ )
 			status->registers[index + i] = modbusMatchEndian( parser->request16.values[i] );
@@ -354,9 +354,9 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if reg is allowed to be written and read
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 )
+		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_HOLDING_REGISTER, index, 0, status->registerCallbackContext ) == 0 )
 			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOREAD );
-		if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index, 0 ) == 0 )
+		if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_HOLDING_REGISTER, index, 0, status->registerCallbackContext ) == 0 )
 			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		if ( modbusMaskRead( status->registerMask, status->registerMaskLength, index ) == 1 )
@@ -378,7 +378,7 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	//After all possible exceptions, read reg
 	uint16_t value; //Value as stored in memory
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		value = status->registerCallback( MODBUS_REGQ_R, MODBUS_HOLDING_REGISTER, index, 0 );
+		value = status->registerCallback( MODBUS_REGQ_R, MODBUS_HOLDING_REGISTER, index, 0, status->registerCallbackContext );
 	#else
 		value = status->registers[index];
 	#endif
@@ -387,7 +387,7 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 	value = ( value & andmask ) | ( ormask & ~andmask );
 	
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index, value );
+		status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index, value, status->registerCallbackContext );
 	#else
 		status->registers[index] = value;
 	#endif

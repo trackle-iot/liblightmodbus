@@ -138,12 +138,13 @@ typedef enum modbusDataType
 
 /**
 	\brief Converts number of bits to number of bytes required to store them
-	\todo Replace `BITSTOBYTES` macro with a static inline function
 	\param n Number of bits
 	\returns Number of bytes of required memory
 */
-#define BITSTOBYTES( n ) ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0 )
-
+static inline uint16_t modbusBits2Bytes( uint16_t n )
+{
+	return ( n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0;
+)
 
 /**
 	\brief Swaps endianness of provided 16-bit data portion

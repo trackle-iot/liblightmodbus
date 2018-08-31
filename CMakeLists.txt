@@ -1,7 +1,7 @@
 #Basic stuff
 cmake_minimum_required( VERSION 3.3 )
 project( liblightmodbus 
-	VERSION 1.4
+	VERSION 2.0
 	)
 include( TestBigEndian )
 

@@ -1,6 +1,8 @@
 #Basic stuff
 cmake_minimum_required( VERSION 3.3 )
-project( liblightmodbus VERSION 1.4 DESCRIPTION "liblightmodbus is a lightweight cross-platform Modbus RTU library." )
+project( liblightmodbus 
+	VERSION 1.4
+	)
 include( TestBigEndian )
 
 #Debug/release options
@@ -10,7 +12,7 @@ set( CMAKE_C_FLAGS_RELEASE "-Os -Wall" )
 #For coverage testing
 if ( DEFINED COVERAGE_TEST AND NOT DEFINED AVR )
 	message( STATUS "Build for coverage testing" )
-	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage" )
+	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall --coverage" )
 endif( )
 
 #User defined compiler and linker

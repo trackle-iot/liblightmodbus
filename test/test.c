@@ -26,7 +26,7 @@ uint16_t inputRegisters[4] = { 1, 2, 3, 4 };
 uint16_t defaults[512] = { 0xdead, 0xface, 0x1570, 0x01 };
 uint16_t TestValues[512] = { 0xface, 0xdead, 0xCC, 0xDD, 0xEE, 0xFF, 0xAAFF, 0xBBFF };
 uint16_t TestValues2[512] = {0};
-uint8_t TestValues3[512] = { 0b11001100, 0x00 };
+uint8_t TestValues3[512] = { 0xCC, 0x00 };
 uint8_t ec;
 
 void TermRGB( unsigned char R, unsigned char G, unsigned char B )

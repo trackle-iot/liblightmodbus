@@ -70,7 +70,7 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 		status->parseError = MODBUS_FERROR_MISM_FUN;
 		return MODBUS_ERROR_PARSE;
 	}
-	
+
 	if ( parser->response0304.length == 0 || parser->response0304.length != count << 1 || parser->response0304.length > 250 )
 	{
 		status->parseError = MODBUS_FERROR_LENGTH;
@@ -211,7 +211,7 @@ ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, M
 	if ( status == NULL || parser == NULL || requestParser == NULL ) return MODBUS_ERROR_NULLPTR;
 
 	//Check frame lengths
-	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request16.length || status->response.length != 8 ) 
+	if ( status->request.length < 7u || status->request.length != 9 + requestParser->request16.length || status->response.length != 8 )
 	{
 		status->parseError = MODBUS_FERROR_LENGTH;
 		return MODBUS_ERROR_PARSE;

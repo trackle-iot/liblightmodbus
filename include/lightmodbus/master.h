@@ -21,7 +21,7 @@
 /**
 	\file
 	\brief General Modbus master functions
-	
+
 	\note This header file is suitable for C++
 */
 
@@ -115,7 +115,7 @@ typedef struct modbusMaster
 			const uint8_t *frame;
 		#endif
 
-		//! Length of the response frame in bytes 
+		//! Length of the response frame in bytes
 		uint8_t length;
 	} response;
 
@@ -137,7 +137,7 @@ typedef struct modbusMaster
 		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_DATA
 			union
 			{
-				/** 
+				/**
 					\brief Statically allocated array for received coils data.
 
 					Each bit of this array corresponds to one coil value.
@@ -147,7 +147,7 @@ typedef struct modbusMaster
 				uint8_t coils[LIGHTMODBUS_STATIC_MEM_MASTER_DATA];
 
 
-				/** 
+				/**
 					\brief Statically allocated array for received registers data
 
 					Data in this array always has currently used platform's native endianness.
@@ -156,8 +156,8 @@ typedef struct modbusMaster
 			};
 		#else
 			//Two separate pointers are used in case pointer size differed between types (possible on some weird architectures)
-			
-			/** 
+
+			/**
 				\brief A pointer to dynamically allocated memory for the received coils data
 
 				Each bit of this array corresponds to one coil value.
@@ -165,7 +165,7 @@ typedef struct modbusMaster
 			*/
 			uint8_t *coils;
 
-			/** 
+			/**
 				\brief A pointer to dynamically allocated memory for the received registers data
 
 				Data in this array always has currently used platform's native endianness.
@@ -178,12 +178,12 @@ typedef struct modbusMaster
 		\brief Contains exception data received from the slave
 
 		\note Data in this structure is only valid if the processed
-		response frame was an exception frame. 
+		response frame was an exception frame.
 	*/
 	struct
 	{
 		uint8_t address; //!< Slave device address
-		uint8_t function; //!< Function that has thrown the exception 
+		uint8_t function; //!< Function that has thrown the exception
 		ModbusExceptionCode code; //!< Exception code
 	} exception;
 
@@ -218,11 +218,11 @@ typedef struct modbusMaster
 	The received data will be located in \ref ModbusMaster::data or \ref ModbusMaster::exception
 	if slave has responded with an exception frame.
 
-	Firstly, this function resets and freed data previously stored in 
+	Firstly, this function resets and freed data previously stored in
 	\ref ModbusMaster::exception and \ref ModbusMaster::data.
 
 	Afterwards, the frame is validated using \ref modbusCRC() function.
-	If it's not consistent, it's discarded at this point and 
+	If it's not consistent, it's discarded at this point and
 	\ref MODBUS_ERROR_PARSE is returned.
 
 	Then, array of user-defined functions is searched. It is important

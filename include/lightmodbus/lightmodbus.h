@@ -21,8 +21,8 @@
 /**
 	\file
 	\brief Core Modbus functions
-	
-	This is main header file that is ought to be included as library 
+
+	This is main header file that is ought to be included as library
 	\note This header file is suitable for C++
 */
 
@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /**
-	\brief Represents a library runtime error code. 
+	\brief Represents a library runtime error code.
 */
 typedef enum modbusError
 {
@@ -121,7 +121,7 @@ typedef enum modbusExceptionCode
 	MODBUS_EXCEP_ILLEGAL_ADDRESS = 2, //!< Illegal data address
 	MODBUS_EXCEP_ILLEGAL_VALUE = 3, //!< Illegal data value
 	MODBUS_EXCEP_SLAVE_FAILURE = 4, //!< Slave could not process the request
-	MODBUS_EXCEP_ACK = 5, //!< Acknowledge 
+	MODBUS_EXCEP_ACK = 5, //!< Acknowledge
 	MODBUS_EXCEP_NACK = 7 //!< Negative acknowledge
 } ModbusExceptionCode;
 
@@ -198,7 +198,7 @@ extern uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit
 
 	\param data A pointer to the data to be processed
 	\param length Number of bytes, starting at the `data` pointer, to process
-	\returns 16-bit Modbus CRC value 
+	\returns 16-bit Modbus CRC value
 */
 extern uint16_t modbusCRC( const uint8_t *data, uint16_t length );
 

@@ -44,7 +44,7 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
-	if ( parser->base.address == 0 ) 
+	if ( parser->base.address == 0 )
 	{
 		status->parseError = MODBUS_FERROR_BROADCAST;
 		return MODBUS_ERROR_PARSE;
@@ -74,10 +74,10 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if registers are accessible
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
-		if ( status->registerCallback == NULL ) 
+		if ( status->registerCallback == NULL )
 			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#else
-		if ( ( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL ) 
+		if ( ( parser->base.function == 3 ? status->registers : status->inputRegisters ) == NULL )
 			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 
@@ -347,7 +347,7 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 		if ( status->registers == NULL )
 			return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
-	
+
 	//Check if reg is in valid range
 	if ( index >= status->registerCount )
 		return modbusBuildExceptionErr( status, 22, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
@@ -385,7 +385,7 @@ ModbusError modbusParseRequest22( ModbusSlave *status, ModbusParser *parser )
 
 	//Do the bitwise magic
 	value = ( value & andmask ) | ( ormask & ~andmask );
-	
+
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 		status->registerCallback( MODBUS_REGQ_W, MODBUS_HOLDING_REGISTER, index, value, status->registerCallbackContext );
 	#else

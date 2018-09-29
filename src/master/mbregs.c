@@ -35,7 +35,7 @@ ModbusError modbusBuildRequest0304( ModbusMaster *status, uint8_t function, uint
 
 	//Check if given pointer is valid
 	if ( status == NULL ) return MODBUS_ERROR_NULLPTR;
-	if ( function != 3 && function != 4 ) 
+	if ( function != 3 && function != 4 )
 	{
 		status->buildError = MODBUS_FERROR_BADFUN;
 		return MODBUS_ERROR_BUILD;

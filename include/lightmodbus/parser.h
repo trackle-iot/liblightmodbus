@@ -19,7 +19,7 @@
 */
 
 /**
-	\file 
+	\file
 	\brief Contains the \ref modbusParser union used during frame creation and parsing.
 
 	\note This header file is suitable for C++

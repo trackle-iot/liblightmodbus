@@ -37,7 +37,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if given pointers are valid
 	if ( status == NULL || parser == NULL ) return MODBUS_ERROR_NULLPTR;
-	if ( parser->base.function != 1 && parser->base.function != 2 ) 
+	if ( parser->base.function != 1 && parser->base.function != 2 )
 	{
 		status->parseError = MODBUS_FERROR_BADFUN;
 		return MODBUS_ERROR_PARSE;
@@ -45,7 +45,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Don't do anything when frame is broadcasted
 	//Base of the frame can be always safely checked, because main parser function takes care of that
-	if ( parser->base.address == 0 ) 
+	if ( parser->base.address == 0 )
 	{
 		status->parseError = MODBUS_FERROR_BROADCAST;
 		return MODBUS_ERROR_PARSE;
@@ -70,10 +70,10 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if coils are accessible
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
-		if ( status->registerCallback == NULL ) 
+		if ( status->registerCallback == NULL )
 			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#else
-		if ( ( parser->base.function == 1 ? status->coils : status->discreteInputs ) == NULL ) 
+		if ( ( parser->base.function == 1 ? status->coils : status->discreteInputs ) == NULL )
 			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_NOSRC );
 	#endif
 
@@ -211,7 +211,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	{
 		status->parseError = MODBUS_FERROR_OK;
 		return MODBUS_ERROR_OK;
-	} 
+	}
 
 	//Set up basic response data
 	builder->base.address = status->address;
@@ -312,7 +312,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	{
 		uint8_t coil;
 		if ( ( coil = modbusMaskRead( parser->request15.values, parser->request15.length, i ) ) == 255 ) return MODBUS_ERROR_OTHER;
-		
+
 		#ifdef LIGHTMODBUS_COIL_CALLBACK
 			status->registerCallback( MODBUS_REGQ_W, MODBUS_COIL, index + i, coil, status->registerCallbackContext );
 		#else

@@ -58,7 +58,7 @@ extern ModbusError modbusBuildRequest0304( ModbusMaster *status, uint8_t functio
 	\param count Number of registers to be read
 	\return A \ref ModbusError error code
 */
-static inline ModbusError modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count ) 
+static inline ModbusError modbusBuildRequest03( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count )
 	{ return modbusBuildRequest0304( (status), 3, (address), (index), (count) ); }
 
 /**
@@ -73,7 +73,7 @@ static inline ModbusError modbusBuildRequest03( ModbusMaster *status, uint8_t ad
 	\param count Number of registers to be read
 	\return A \ref ModbusError error code
 */
-static inline ModbusError modbusBuildRequest04( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count ) 
+static inline ModbusError modbusBuildRequest04( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count )
 	{ return modbusBuildRequest0304( (status), 4, (address), (index), (count) ); }
 #endif
 

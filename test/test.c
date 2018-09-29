@@ -155,7 +155,7 @@ uint16_t reg_callback( ModbusRegisterQuery query, ModbusDataType datatype, uint1
 void examinedump( struct modbusFrameInfo info )
 {
 	int i;
-	
+
 	printf( "Frame examine:\n"\
 			"\tdirection: %s (%d)\n"\
  			"\taddress: %d\n"\
@@ -234,7 +234,7 @@ void maxlentest( )
 	sstatus.discreteInputs = bak;
 	sstatus.discreteInputCount = 2000;
 	sstatus.coilMaskLength = 0;
-	
+
 	sstatus.registerCount = 125;
 	sstatus.inputRegisterCount = 125;
 	sstatus.registerMaskLength = 0;
@@ -492,9 +492,9 @@ void libinit( )
 		sstatus.discreteInputs = discreteInputs;
 	#endif
 
-	
+
 	sstatus.address = 32;
-	
+
 	printf( "slave init - %d\n", modbusSlaveInit( &sstatus ) );
 	printf( "master init - %d\n\n\n", modbusMasterInit( &mstatus ) );
 
@@ -876,15 +876,15 @@ void MainTest( )
 	Test( );
 
 	//WRITE PROTECTION TEST
-	
+
 	#if !defined(LIGHTMODBUS_COIL_CALLBACK) || !defined(LIGHTMODBUS_REGISTER_CALLBACK)
 		uint8_t mask[1] = { 0 };
 	#endif
-	
+
 	#ifdef LIGHTMODBUS_REGISTER_CALLBACK
 	#else
 		printf( "\t\t--Register write protection test--\n" );
-		
+
 		sstatus.registerMask = mask;
 		sstatus.registerMaskLength = 1;
 
@@ -960,7 +960,7 @@ void userf_test( )
 		};
 		mstatus.userFunctions = muserf;
 		mstatus.userFunctionCount = 2;
-		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST	
+		#ifndef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
 			free( mstatus.request.frame );
 		#endif
 	#endif
@@ -1035,7 +1035,7 @@ void userf_test( )
 		mstatus.request.length = sizeof userf_frame2;
 		printf( "MASTER PARSE RESULT 2: %d\n", modbusParseResponse( &mstatus ) );
 	#endif
-		
+
 	#if !defined(LIGHTMODBUS_SLAVE_USER_FUNCTIONS)
 		printf( "\n\n-------\n\n slave user functions are disabled!\n" );
 	#endif
@@ -1047,7 +1047,7 @@ void userf_test( )
 			mstatus.request.frame = NULL; //To stop master from freeing it
 		#endif
 	#endif
-	
+
 }
 
 int main( )

@@ -1,6 +1,6 @@
 #Basic stuff
 cmake_minimum_required( VERSION 3.3 )
-project( liblightmodbus 
+project( liblightmodbus
 	VERSION 2.0
 	)
 include( TestBigEndian )
@@ -63,7 +63,7 @@ string( REGEX REPLACE "\n$" "" PROJECT_GIT_VERSION "${PROJECT_GIT_VERSION}" ) #S
 include_directories( "${PROJECT_SOURCE_DIR}/include" )
 
 #List of all slave modules
-set( SLAVE_MODULES 
+set( SLAVE_MODULES
 	"F01S"
 	"F02S"
 	"F03S"
@@ -95,7 +95,7 @@ set( MASTER_MODULES
 )
 
 #List of all modules that can be enabled
-set( AVAILABLE_MODULES 
+set( AVAILABLE_MODULES
 	"SLAVE_BASE"
 	"${SLAVE_MODULES}"
 	"MASTER_BASE"
@@ -106,12 +106,12 @@ set( AVAILABLE_MODULES
 )
 
 #List of modules enabled by default
-set( DEFAULT_MODULES 
+set( DEFAULT_MODULES
 	#Slave
 	"SLAVE_BASE"
 	"F01S" "F02S" "F03S" "F04S" "F05S" "F06S" "F15S" "F16S" "F22S"
 	"SLAVE_USER_FUNCTIONS"
-	
+
 	#Master
 	"MASTER_BASE"
 	"F01M" "F02M" "F03M" "F04M" "F05M" "F06M" "F15M" "F16M" "F22M"
@@ -157,7 +157,7 @@ if ( STATIC_MEM_SLAVE_REQUEST )
 	message( STATUS "Enabling static slave request buffer of size ${STATIC_MEM_SLAVE_REQUEST} bytes" )
 	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST ${STATIC_MEM_SLAVE_REQUEST}\n" )
 endif( )
-if ( STATIC_MEM_SLAVE_RESPONSE ) 
+if ( STATIC_MEM_SLAVE_RESPONSE )
 	message( STATUS "Enabling static slave response buffer of size ${STATIC_MEM_SLAVE_RESPONSE} bytes" )
 	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE ${STATIC_MEM_SLAVE_RESPONSE}\n" )
 endif( )
@@ -165,7 +165,7 @@ if ( STATIC_MEM_MASTER_REQUEST )
 	message( STATUS "Enabling static master request buffer of size ${STATIC_MEM_MASTER_REQUEST} bytes" )
 	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST ${STATIC_MEM_MASTER_REQUEST}\n" )
 endif( )
-if ( STATIC_MEM_MASTER_RESPONSE ) 
+if ( STATIC_MEM_MASTER_RESPONSE )
 	message( STATUS "Enabling static master response buffer of size ${STATIC_MEM_MASTER_RESPONSE} bytes" )
 	set( LIBCONF "${LIBCONF}#define LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE ${STATIC_MEM_MASTER_RESPONSE}\n" )
 endif( )
@@ -200,17 +200,17 @@ else( )
 endif( )
 
 #Emit configuration file
-configure_file( 
+configure_file(
 	"${PROJECT_SOURCE_DIR}/include/lightmodbus/libconf.h.in"
 	"${PROJECT_SOURCE_DIR}/include/lightmodbus/libconf.h"
 	)
 
 #Library sources list
-add_library( 
-	lightmodbus 
-	"${PROJECT_SOURCE_DIR}/src/lightmodbus.c" 
-	"${PROJECT_SOURCE_DIR}/src/slave.c" 
-	"${PROJECT_SOURCE_DIR}/src/master.c" 
+add_library(
+	lightmodbus
+	"${PROJECT_SOURCE_DIR}/src/lightmodbus.c"
+	"${PROJECT_SOURCE_DIR}/src/slave.c"
+	"${PROJECT_SOURCE_DIR}/src/master.c"
 	"${PROJECT_SOURCE_DIR}/src/slave/scoils.c"
 	"${PROJECT_SOURCE_DIR}/src/slave/sregs.c"
 	"${PROJECT_SOURCE_DIR}/src/master/mpcoils.c"
@@ -245,7 +245,7 @@ endif( )
 
 
 #Installation
-install( 
+install(
 	TARGETS lightmodbus
 	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/"
 )

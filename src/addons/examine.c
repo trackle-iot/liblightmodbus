@@ -60,7 +60,7 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 			info->type = MODBUS_EXAMINE_COIL;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
-		
+
 		//Discrete inputs - read
 		case 02:
 			info->type = MODBUS_EXAMINE_DISCRETE_INPUT;
@@ -72,7 +72,7 @@ ModbusError modbusExamine( ModbusFrameInfo *info, uint8_t dir, const uint8_t *fr
 			info->type = MODBUS_EXAMINE_HOLDING_REGISTER;
 			info->access = MODBUS_EXAMINE_READ;
 			break;
-			
+
 		//Input registers - read
 		case 04:
 			info->type = MODBUS_EXAMINE_INPUT_REGISTER;

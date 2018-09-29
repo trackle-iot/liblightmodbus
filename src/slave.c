@@ -45,7 +45,7 @@ ModbusError modbusBuildException( ModbusSlave *status, uint8_t function, ModbusE
 		status->response.length = 0;
 		return MODBUS_OK;
 	}
-	
+
 	#ifndef LIGHTMODBUS_STATIC_MEM_SLAVE_RESPONSE
 		//Reallocate frame memory
 		status->response.frame = (uint8_t *) calloc( 5, sizeof( uint8_t ) );
@@ -93,7 +93,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 
 	//If user tries to parse an empty frame return error
 	//That enables us to omit the check in each parsing function
-	if ( status->request.length < 4u || status->request.frame == NULL ) 
+	if ( status->request.length < 4u || status->request.frame == NULL )
 	{
 		status->parseError = MODBUS_FERROR_LENGTH;
 		return MODBUS_ERROR_PARSE;
@@ -119,7 +119,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	if ( parser->base.address != status->address && parser->base.address != 0 )
 		return MODBUS_ERROR_OK;
 
-	
+
 	uint8_t functionMatch = 0, functionExec = 0;
 
 	//Firstly, check user function array
@@ -206,7 +206,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 	}
 
 	//Function did not execute
-	if ( !functionExec ) 
+	if ( !functionExec )
 	{
 		if ( functionMatch ) //Matched but not executed
 			err = modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_FUNCTION, MODBUS_FERROR_NULLFUN ); //User override

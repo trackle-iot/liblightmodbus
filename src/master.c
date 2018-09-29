@@ -131,7 +131,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 			}
 		}
 	#endif
-	
+
 	if ( !functionMatch )
 	{
 		functionExec = 1;
@@ -203,7 +203,7 @@ ModbusError modbusParseResponse( ModbusMaster *status )
 			status->parseError = MODBUS_FERROR_NULLFUN; //User override
 		else
 			status->parseError = MODBUS_FERROR_NOFUN; //Unsupported function
-	
+
 		return MODBUS_ERROR_PARSE;
 	}
 

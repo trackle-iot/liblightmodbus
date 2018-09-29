@@ -12,6 +12,9 @@ point to where the regsiter/coil data starts in the \ref ModbusMaster::response 
 \note The data in Modbus frames is in big-endian format. Please remember about that
 when you're processing it.
 
+\warning Disabling master's data buffer may be cause of unaligned memory access, which may cause problems on some platforms.
+Please be cautious when accessing data through \ref ModbusMaster::data::regs pointer.
+
 ### Invasive parsing
 \note This feature shall be used with `NO_MASTER_DATA_BUFFER` module included
 

@@ -32,7 +32,7 @@ script:
     - rm -rf build && mkdir build && cd build
 
     #Tiny static regs test
-    - cmake .. -DCOVERAGE_TEST="1" -DSTATIC_MEM_SLAVE_REQUEST=1 -DSTATIC_MEM_SLAVE_RESPONSE=1 -DSTATIC_MEM_MASTER_REQUEST=1 -DSTATIC_MEM_MASTER_RESPONSE=1 -DSTATIC_MEM_MASTER_DATA=1
+    - cmake .. -DCOVERAGE_TEST="1" -DSTATIC_MEM_SLAVE_REQUEST=2 -DSTATIC_MEM_SLAVE_RESPONSE=2 -DSTATIC_MEM_MASTER_REQUEST=2 -DSTATIC_MEM_MASTER_RESPONSE=2 -DSTATIC_MEM_MASTER_DATA=2
     - make && cd ..
     - ./test/run-test.sh ./build/coverage-test static-mem-tiny
     - rm -rf build && mkdir build && cd build

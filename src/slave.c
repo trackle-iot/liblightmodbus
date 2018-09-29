@@ -89,7 +89,7 @@ ModbusError modbusParseRequest( ModbusSlave *status )
 		status->response.frame = NULL;
 	#endif
 
-	status->parseError = MODBUS_OK;
+	status->parseError = MODBUS_FERROR_OK;
 
 	//If user tries to parse an empty frame return error
 	//That enables us to omit the check in each parsing function

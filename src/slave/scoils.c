@@ -209,7 +209,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 	//Do not respond when frame is broadcasted
 	if ( parser->base.address == 0 )
 	{
-		status->parseError = MODBUS_OK;
+		status->parseError = MODBUS_FERROR_OK;
 		return MODBUS_ERROR_OK;
 	} 
 
@@ -224,7 +224,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
-	status->parseError = MODBUS_OK;
+	status->parseError = MODBUS_FERROR_OK;
 	return MODBUS_ERROR_OK;
 }
 #endif
@@ -323,7 +323,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 	//Do not respond when frame is broadcasted
 	if ( parser->base.address == 0 )
 	{
-		status->parseError = MODBUS_OK;
+		status->parseError = MODBUS_FERROR_OK;
 		return MODBUS_ERROR_OK;
 	}
 
@@ -338,7 +338,7 @@ ModbusError modbusParseRequest15( ModbusSlave *status, ModbusParser *parser )
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;
-	status->parseError = MODBUS_OK;
+	status->parseError = MODBUS_FERROR_OK;
 	return MODBUS_OK;
 }
 #endif

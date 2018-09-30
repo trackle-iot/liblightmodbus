@@ -19,7 +19,7 @@ endif( )
 #For coverage testing
 if ( DEFINED COVERAGE_TEST AND NOT DEFINED AVR )
 	message( STATUS "Build for coverage testing" )
-	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall --coverage" )
+	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG} -Wall --coverage" )
 endif( )
 
 #User defined compiler and linker

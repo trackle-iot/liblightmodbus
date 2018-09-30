@@ -6,7 +6,7 @@ project( liblightmodbus
 include( TestBigEndian )
 
 #Debug/release options
-set( CMAKE_C_FLAGS "-Wall -Wpedantic" )
+set( CMAKE_C_FLAGS "-Wall" )
 set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin" )
 set( CMAKE_C_FLAGS_RELEASE "-Os" )
 

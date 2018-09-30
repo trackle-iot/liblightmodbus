@@ -965,6 +965,9 @@ void userf_test( )
 		#endif
 	#endif
 
+	int test_slave = 1;
+	int test_master = 1;
+
 	//Frames setup
 	#if defined(LIGHTMODBUS_SLAVE_USER_FUNCTIONS) || defined(LIGHTMODBUS_MASTER_USER_FUNCTIONS)
 		printf( "\n\n-----------\n\nUser defined functions test\n" );
@@ -978,62 +981,93 @@ void userf_test( )
 		printf( "using frame: " );
 		for ( k = 0; k < sizeof userf_frame2; k++ ) printf( "%x, ", userf_frame2[k] );
 		printf( "\nCRC: 0x%x\n", modbusCRC( userf_frame2, sizeof( userf_frame2 ) - 2 ) );
+
+		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST 
+		if ( sizeof( userf_frame1 ) > LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST 
+			|| sizeof( userf_frame2 ) > LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST )
+		{
+			printf( "not testing slave user functions cause my test frames are longer than specified buffer sizes\n" );
+			test_slave = 0;
+		}
+		#endif
+
+		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE 
+		if ( sizeof( userf_frame1 ) > LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+			|| sizeof( userf_frame2 ) > LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE )
+		{
+			printf( "not testing master user functions cause my test frames are longer than specified buffer sizes\n" );
+			test_master = 0;
+		}
+		#endif
+
 	#endif
 
 	//SLAVE
 	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS
-		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
-			memcpy( sstatus.request.frame, userf_frame1, sizeof( userf_frame1 ) );
-		#else
-			sstatus.request.frame = userf_frame1;
-		#endif
-		sstatus.request.length = sizeof userf_frame1;
-		printf( "PARSE RESULT 1: %d\n", modbusParseRequest( &sstatus ) );
+		if ( test_slave )
+		{
+			#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+				memcpy( sstatus.request.frame, userf_frame1, sizeof( userf_frame1 ) );
+			#else
+				sstatus.request.frame = userf_frame1;
+			#endif
+			sstatus.request.length = sizeof userf_frame1;
+			printf( "PARSE RESULT 1: %d\n", modbusParseRequest( &sstatus ) );
+		}
 	#endif
 
 	//MASTER
 	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
-		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
-			memcpy( mstatus.response.frame, userf_frame1, sizeof( userf_frame1 ) );
-		#else
-			mstatus.response.frame = userf_frame1;
-		#endif
-		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
-			memcpy( mstatus.request.frame, userf_frame1, sizeof( userf_frame1 ) );
-		#else
-			mstatus.request.frame = userf_frame1;
-		#endif
-		mstatus.response.length = sizeof userf_frame1;
-		mstatus.request.length = sizeof userf_frame1;
-		printf( "MASTER PARSE RESULT 1: %d\n", modbusParseResponse( &mstatus ) );
+		if ( test_master )
+		{
+			#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+				memcpy( mstatus.response.frame, userf_frame1, sizeof( userf_frame1 ) );
+			#else
+				mstatus.response.frame = userf_frame1;
+			#endif
+			#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+				memcpy( mstatus.request.frame, userf_frame1, sizeof( userf_frame1 ) );
+			#else
+				mstatus.request.frame = userf_frame1;
+			#endif
+			mstatus.response.length = sizeof userf_frame1;
+			mstatus.request.length = sizeof userf_frame1;
+			printf( "MASTER PARSE RESULT 1: %d\n", modbusParseResponse( &mstatus ) );
+		}
 	#endif
 
 	//SLAVE
 	#ifdef LIGHTMODBUS_SLAVE_USER_FUNCTIONS
-		#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
-			memcpy( sstatus.request.frame, userf_frame2, sizeof( userf_frame2 ) );
-		#else
-			sstatus.request.frame = userf_frame2;
-		#endif
-		sstatus.request.length = sizeof userf_frame2;
-		printf( "PARSE RESULT 2: %d\n", modbusParseRequest( &sstatus ) );
+		if ( test_slave )
+		{
+			#ifdef LIGHTMODBUS_STATIC_MEM_SLAVE_REQUEST
+				memcpy( sstatus.request.frame, userf_frame2, sizeof( userf_frame2 ) );
+			#else
+				sstatus.request.frame = userf_frame2;
+			#endif
+			sstatus.request.length = sizeof userf_frame2;
+			printf( "PARSE RESULT 2: %d\n", modbusParseRequest( &sstatus ) );
+		}
 	#endif
 
 	//MASTER
 	#ifdef LIGHTMODBUS_MASTER_USER_FUNCTIONS
-		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
-			memcpy( mstatus.response.frame, userf_frame2, sizeof( userf_frame2 ) );
-		#else
-			mstatus.response.frame = userf_frame2;
-		#endif
-		#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
-			memcpy( mstatus.request.frame, userf_frame2, sizeof( userf_frame2 ) );
-		#else
-			mstatus.request.frame = userf_frame2;
-		#endif
-		mstatus.response.length = sizeof userf_frame2;
-		mstatus.request.length = sizeof userf_frame2;
-		printf( "MASTER PARSE RESULT 2: %d\n", modbusParseResponse( &mstatus ) );
+		if ( test_master )
+		{
+			#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_RESPONSE
+				memcpy( mstatus.response.frame, userf_frame2, sizeof( userf_frame2 ) );
+			#else
+				mstatus.response.frame = userf_frame2;
+			#endif
+			#ifdef LIGHTMODBUS_STATIC_MEM_MASTER_REQUEST
+				memcpy( mstatus.request.frame, userf_frame2, sizeof( userf_frame2 ) );
+			#else
+				mstatus.request.frame = userf_frame2;
+			#endif
+			mstatus.response.length = sizeof userf_frame2;
+			mstatus.request.length = sizeof userf_frame2;
+			printf( "MASTER PARSE RESULT 2: %d\n", modbusParseResponse( &mstatus ) );
+		}
 	#endif
 
 	#if !defined(LIGHTMODBUS_SLAVE_USER_FUNCTIONS)

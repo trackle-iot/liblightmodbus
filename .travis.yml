@@ -43,6 +43,12 @@ script:
     - ./test/run-test.sh ./build/coverage-test static-mem-small
     - rm -rf build && mkdir build && cd build
 
+    #Reasonably small static regs test
+    - cmake .. -DCOVERAGE_TEST="1" -DSTATIC_MEM_SLAVE_REQUEST=32 -DSTATIC_MEM_SLAVE_RESPONSE=32 -DSTATIC_MEM_MASTER_REQUEST=32 -DSTATIC_MEM_MASTER_RESPONSE=32 -DSTATIC_MEM_MASTER_DATA=32
+    - make && cd ..
+    - ./test/run-test.sh ./build/coverage-test static-mem-reasonably-small
+    - rm -rf build && mkdir build && cd build
+
     #Master no data buffer
     - cmake .. -DCOVERAGE_TEST="1" -DADD_MODULES="NO_MASTER_DATA_BUFFER;MASTER_INVASIVE_PARSING;EXPERIMENTAL" -DSTATIC_MEM_MASTER_REQUEST=256
     - make && cd ..

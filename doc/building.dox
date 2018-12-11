@@ -52,7 +52,7 @@ See below for list of available modules along with short descriptions:
 \note If you don't specify any modules during configuration, these default modules are going
 to be included: 
 `SLAVE_BASE;F01S;F02S;F03S;F04S;F05S;F06S;F15S;F16S;F22S;SLAVE_USER_FUNCTIONS;MASTER_BASE;F01M;F02M;F03M;F04M;F05M;
-F06M;F15M;F16M;F22M;MASTER_USER_FUNCTIONS;ADDON_EXAMINE`.
+F06M;F15M;F16M;F22M;MASTER_USER_FUNCTIONS`.
 
 ### Disabling dynamic memory allocation
 Liblightmodbus can work without dynamic memory allocation. See \ref static-mem for more information.

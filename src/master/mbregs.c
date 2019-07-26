@@ -126,7 +126,7 @@ ModbusError modbusBuildRequest06( ModbusMaster *status, uint8_t address, uint16_
 }
 #endif
 
-#ifdef LIGHTMODBUS_F15M
+#ifdef LIGHTMODBUS_F16M
 ModbusError modbusBuildRequest16( ModbusMaster *status, uint8_t address, uint16_t index, uint16_t count, uint16_t *values )
 {
 	//Build request16 frame, to send it so slave

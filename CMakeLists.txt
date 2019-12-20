@@ -242,11 +242,11 @@ if ( DEFINED AVR )
 	)
 endif( )
 
-
+include(GNUInstallDirs)
 #Installation
 install( 
 	TARGETS lightmodbus
-	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/"
+	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/"
 )
 
 #Install headers

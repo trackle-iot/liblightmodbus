@@ -6,9 +6,11 @@ project( liblightmodbus
 include( TestBigEndian )
 
 #Debug/release options
-set( CMAKE_C_FLAGS "-Wall" )
-set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin" )
-set( CMAKE_C_FLAGS_RELEASE "-Os" )
+if ( NOT DEFINED CMAKE_C_FLAGS)
+	set( CMAKE_C_FLAGS "-Wall" )
+	set( CMAKE_C_FLAGS_DEBUG "-g -O0 -fno-builtin" )
+	set( CMAKE_C_FLAGS_RELEASE "-Os" )
+endif()
 
 # Clang generates some warnings when building with static memory allocation
 # These warnings are obviously correct, but they are also harmless

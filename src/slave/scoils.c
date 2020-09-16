@@ -81,7 +81,7 @@ ModbusError modbusParseRequest0102( ModbusSlave *status, ModbusParser *parser )
 		(uint32_t) index + (uint32_t) count > (uint32_t) ( parser->base.function == 1 ? status->coilCount : status->discreteInputCount ) )
 			return modbusBuildExceptionErr( status, parser->base.function, MODBUS_EXCEP_ILLEGAL_ADDRESS, MODBUS_FERROR_RANGE );
 
-	//Check if coils can be written (if using callback function)
+	//Check if coils can be read (if using callback function)
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
 		for ( i = 0; i < count; i++ )
 			if ( status->registerCallback( MODBUS_REGQ_R_CHECK, datatype, index + i, 0, status->registerCallbackContext ) == 0 )
@@ -178,7 +178,7 @@ ModbusError modbusParseRequest05( ModbusSlave *status, ModbusParser *parser )
 
 	//Check if reg is allowed to be written
 	#ifdef LIGHTMODBUS_COIL_CALLBACK
-		if ( status->registerCallback( MODBUS_REGQ_R_CHECK, MODBUS_COIL, index, 0, status->registerCallbackContext ) == 0 )
+		if ( status->registerCallback( MODBUS_REGQ_W_CHECK, MODBUS_COIL, index, 0, status->registerCallbackContext ) == 0 )
 			return modbusBuildExceptionErr( status, 5, MODBUS_EXCEP_SLAVE_FAILURE, MODBUS_FERROR_NOWRITE );
 	#else
 		if ( modbusMaskRead( status->coilMask, status->coilMaskLength, index ) == 1 )

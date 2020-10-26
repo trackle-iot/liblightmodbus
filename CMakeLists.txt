@@ -50,11 +50,6 @@ string( REGEX REPLACE "\n$" "" PROJECT_GIT_VERSION "${PROJECT_GIT_VERSION}" ) #S
 
 #Esp-idf specific configuration
 if (ESP_PLATFORM) 
-    idf_component_register(
-        SRC_DIRS src src/slave src/master
-        INCLUDE_DIRS include .
-    )
-
     # ESP32 is a little endian chip
     set(LIBCONF "\n#include \"sdkconfig.h\"\n\n")
     set(LIBCONF "${LIBCONF}#define LIGHTMODBUS_LITTLE_ENDIAN\n")
@@ -69,11 +64,21 @@ if (ESP_PLATFORM)
     set(LIBCONF "${LIBCONF}#ifdef CONFIG_LIGHTMODBUS_MEM_MASTER_REQUEST_ENABLED\n#define LIGHTMODBUS_MEM_MASTER_REQUEST CONFIG_LIGHTMODBUS_MEM_MASTER_REQUEST\n#endif\n")
     set(LIBCONF "${LIBCONF}#ifdef CONFIG_LIGHTMODBUS_MEM_MASTER_RESPONSE_ENABLED\n#define LIGHTMODBUS_MEM_MASTER_RESPONSE CONFIG_LIGHTMODBUS_MEM_MASTER_RESPONSE\n#endif\n")
 
+    file(MAKE_DIRECTORY ${BUILD_DIR}/lightmodbus)
+    file(MAKE_DIRECTORY ${BUILD_DIR}/lightmodbus/slave)
+    file(MAKE_DIRECTORY ${BUILD_DIR}/lightmodbus/master)
+
     #Emit configuration file
     configure_file(
         "${COMPONENT_DIR}/include/lightmodbus/libconf.h.in"
-        "${COMPONENT_DIR}/include/lightmodbus/libconf.h"
+        "${BUILD_DIR}/lightmodbus/libconf.h"
     )
+
+    idf_component_register(
+        SRC_DIRS src src/slave src/master
+        INCLUDE_DIRS include . ${BUILD_DIR}/lightmodbus ${BUILD_DIR}/lightmodbus/master ${BUILD_DIR}/lightmodbus/slave
+    )
+
     return()
 endif()
 

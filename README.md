@@ -5,7 +5,7 @@
 
 <br>[Liblightmodbus on launchpad...](https://launchpad.net/liblightmodbus)
 
-`liblightmodbus` is a very lightweight, highly configurable, platform-independent Modbus RTU library.
+Liblightmodbus is a very lightweight, highly configurable, platform-independent Modbus RTU library.
 
 ## Features
 - Minimal resources usage
@@ -15,9 +15,13 @@
 - Supports register/coil access callback functions
 
 *Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.*
-Check out the [online documentation](https://jacajack.github.io/liblightmodbus/) for more technical information and user guide.
+Check the [online documentation](https://jacajack.github.io/liblightmodbus/) for more technical information and user guide.
 
-If you need help - [email me](mailto:mrjjot@gmail.com). If you want to help - contribute here, on Github. **All contributions are welcome!**
+## Support
+If you face any problems, please refer to the [docs](https://jacajack.github.io/liblightmodbus/) first. If you can't find answer to your question there, please [open an issue](https://github.com/Jacajack/liblightmodbus/issues/new). Hopefully this will help to form some kind of FAQ list.
+If you want to help - please contribute here, on Github. **All contributions are welcome!**
+
+_I'm making plans for v3.0 release. Many things will be simplified and cleaned up in hope of making liblightmodbus lighter, more flexible and possibly easier to use. If you would like to suggest something, please let me know [here](https://github.com/Jacajack/liblightmodbus/issues/19)._
 
 ## Platforms on which liblightmodbus is known to run
  - 8-bit AVR (ATmega 8, ATmega 328, etc.)

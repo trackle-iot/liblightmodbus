@@ -19,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <lightmodbus/lightmodbus.h>
 #include <lightmodbus/parser.h>
 #include <lightmodbus/slave.h>
@@ -122,8 +123,9 @@ ModbusError modbusParseRequest0304( ModbusSlave *status, ModbusParser *parser )
 			builder->response0304.values[i] = modbusMatchEndian( ( parser->base.function == 3 ? status->registers : status->inputRegisters )[index + i] );
 	#endif
 
-	//Calculate crc
-	builder->response0304.values[count] = modbusCRC( builder->frame, frameLength - 2 );
+	//Calculate and write crc (it can be unaligned)
+	uint16_t crc = modbusCRC( builder->frame, frameLength - 2 );
+	memcpy(builder->frame + frameLength - 2, &crc, 2);
 
 	//Set frame length - frame is ready
 	status->response.length = frameLength;

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 #include <lightmodbus/lightmodbus.h>
 #include <lightmodbus/master.h>

@@ -26,7 +26,7 @@
 #ifndef LIGHTMODBUS_MBREGS_H
 #define LIGHTMODBUS_MBREGS_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "../libconf.h"
 #include "../lightmodbus.h"
 #include "../master.h"

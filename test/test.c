@@ -7,7 +7,7 @@ AKA. The Worst Test File Ever
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 #include <lightmodbus/lightmodbus.h>
 #include <lightmodbus/master.h>

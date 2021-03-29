@@ -26,7 +26,7 @@
 #ifndef LIGHTMODBUS_MBCOILS_H
 #define LIGHTMODBUS_MBCOILS_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "../libconf.h"
 #include "../lightmodbus.h"
 #include "../master.h"

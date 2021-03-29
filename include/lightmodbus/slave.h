@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stddef.h>
 #include "parser.h"
 #include "libconf.h"

@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 //Include proper header files
-#include <inttypes.h>
+#include <stdint.h>
 #include "libconf.h"
 
 //Some protection

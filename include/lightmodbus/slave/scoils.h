@@ -26,7 +26,7 @@
 #ifndef LIGHTMODBUS_SCOILS_H
 #define LIGHTMODBUS_SCOILS_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "../libconf.h"
 #include "../lightmodbus.h"
 #include "../slave.h"

@@ -21,7 +21,7 @@
 #ifndef LIGHTMODBUS_EXAMINE
 #define LIGHTMODBUS_EXAMINE
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "../lightmodbus.h"
 #include "../libconf.h"
 

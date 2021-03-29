@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "libconf.h"
 
 

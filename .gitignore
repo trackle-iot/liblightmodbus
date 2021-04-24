@@ -26,7 +26,10 @@ doc/latex
 
 #CMake dir
 build
+build-clang
 
-#Local configuration
+#Local configuration and stuff
 include/lightmodbus/libconf.h
 .modules.conf
+include/lightmodbus/old
+demo

@@ -26,16 +26,6 @@
 extern "C" {
 #endif
 
-// Assume we're on little-endian machines by default
-#if !defined(LIGHTMODBUS_LITTLE_ENDIAN) && !defined(LIGHTMODBUS_BIG_ENDIAN)
-	#define LIGHTMODBUS_LITTLE_ENDIAN
-#endif
-
-// Can't be both little and big endian
-#if defined(LIGHTMODBUS_LITTLE_ENDIAN) && defined(LIGHTMODBUS_BIG_ENDIAN)
-	#error LIGHTMODBUS_LITTLE_ENDIAN and LIGHTMODBUS_BIG_ENDIAN cannot be used at once!
-#endif
-
 // Full version comes with all default functions available
 #ifdef LIGHTMODBUS_FULL
 	#define LIGHTMODBUS_SLAVE

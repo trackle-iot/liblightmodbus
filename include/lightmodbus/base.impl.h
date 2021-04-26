@@ -100,13 +100,8 @@ inline uint16_t modbusBitsToBytes(uint16_t n)
 */
 inline uint16_t modbusRLE(const uint8_t *p)
 {
-#ifdef LIGHTMODBUS_BIG_ENDIAN
-	uint8_t lo = *(p + 1);
-	uint8_t hi = *p;
-#else
 	uint8_t lo = *p;
 	uint8_t hi = *(p + 1);
-#endif
 	return (uint16_t) lo | ((uint16_t) hi << 8);
 }
 
@@ -115,13 +110,8 @@ inline uint16_t modbusRLE(const uint8_t *p)
 */
 inline uint16_t modbusWLE(uint8_t *p, uint16_t val)
 {
-#ifdef LIGHTMODBUS_BIG_ENDIAN
-	*p = val >> 8;
-	*(p + 1) = val;
-#else
 	*p = val;
 	*(p + 1) = val >> 8;
-#endif
 	return val;
 }
 
@@ -130,13 +120,8 @@ inline uint16_t modbusWLE(uint8_t *p, uint16_t val)
 */
 inline uint16_t modbusRBE(const uint8_t *p)
 {
-#ifdef LIGHTMODBUS_BIG_ENDIAN
 	uint8_t lo = *(p + 1);
 	uint8_t hi = *p;
-#else
-	uint8_t lo = *p;
-	uint8_t hi = *(p + 1);
-#endif
 	return (uint16_t) lo | ((uint16_t) hi << 8);
 }
 
@@ -145,12 +130,7 @@ inline uint16_t modbusRBE(const uint8_t *p)
 */
 inline uint16_t modbusWBE(uint8_t *p, uint16_t val)
 {
-#ifdef LIGHTMODBUS_BIG_ENDIAN
 	*p = val >> 8;
 	*(p + 1) = val;
-#else
-	*p = val;
-	*(p + 1) = val >> 8;
-#endif
 	return val;
 }

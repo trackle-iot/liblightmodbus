@@ -22,6 +22,26 @@ ModbusFunctionHandler modbusSlaveDefaultFunctions[] =
 #ifdef LIGHTMODBUS_F04S
 	{4, modbusParseRequest0304},
 #endif
+
+// #ifdef LIGHTMODBUS_F05S
+// 	{5, modbusParseRequest05},
+// #endif
+
+#ifdef LIGHTMODBUS_F06S
+	{6, modbusParseRequest06},
+#endif
+
+// #ifdef LIGHTMODBUS_F15S
+// 	{15, modbusParseRequest15},
+// #endif
+
+#ifdef LIGHTMODBUS_F16S
+	{16, modbusParseRequest16},
+#endif
+
+#ifdef LIGHTMODBUS_F22S
+	{22, modbusParseRequest22},
+#endif
 };
 
 /**

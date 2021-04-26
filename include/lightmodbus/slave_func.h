@@ -12,4 +12,25 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0304(
 	const uint8_t *data,
 	uint8_t size);
 
+LIGHTMODBUS_RET_ERROR modbusParseRequest06(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	const uint8_t *data,
+	uint8_t size);
+
+LIGHTMODBUS_RET_ERROR modbusParseRequest16(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	const uint8_t *data,
+	uint8_t size);
+
+LIGHTMODBUS_RET_ERROR modbusParseRequest22(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	const uint8_t *data,
+	uint8_t size);
+
 #endif

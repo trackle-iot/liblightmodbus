@@ -7,13 +7,13 @@
 */
 ModbusFunctionHandler modbusSlaveDefaultFunctions[] =
 {
-// #ifdef LIGHTMODBUS_F01S
-// 	{1, modbusParseRequest0102},
-// #endif
+#ifdef LIGHTMODBUS_F01S
+	{1, modbusParseRequest0102},
+#endif
 
-// #ifdef LIGHTMODBUS_F02S
-// 	{2, modbusParseRequest0102},
-// #endif
+#ifdef LIGHTMODBUS_F02S
+	{2, modbusParseRequest0102},
+#endif
 
 #ifdef LIGHTMODBUS_F03S
 	{3, modbusParseRequest0304},
@@ -23,17 +23,17 @@ ModbusFunctionHandler modbusSlaveDefaultFunctions[] =
 	{4, modbusParseRequest0304},
 #endif
 
-// #ifdef LIGHTMODBUS_F05S
-// 	{5, modbusParseRequest05},
-// #endif
+#ifdef LIGHTMODBUS_F05S
+	{5, modbusParseRequest05},
+#endif
 
 #ifdef LIGHTMODBUS_F06S
 	{6, modbusParseRequest06},
 #endif
 
-// #ifdef LIGHTMODBUS_F15S
-// 	{15, modbusParseRequest15},
-// #endif
+#ifdef LIGHTMODBUS_F15S
+	{15, modbusParseRequest15},
+#endif
 
 #ifdef LIGHTMODBUS_F16S
 	{16, modbusParseRequest16},
@@ -167,7 +167,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 	// Look for matching function
 	for (uint16_t i = 0; i < status->functionCount; i++)
 		if (function == status->functions[i].id)
-			return status->functions[i].ptr(status, address, function, &data[1], length - 1);
+			return status->functions[i].ptr(status, address, function, &data[0], length);
 
 	// No match found
 	return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_FUNCTION);

@@ -8,35 +8,35 @@
 ModbusFunctionHandler modbusSlaveDefaultFunctions[] =
 {
 #ifdef LIGHTMODBUS_F01S
-	{1, modbusParseRequest0102},
+	{1, modbusParseRequest01020304},
 #endif
 
 #ifdef LIGHTMODBUS_F02S
-	{2, modbusParseRequest0102},
+	{2, modbusParseRequest01020304},
 #endif
 
 #ifdef LIGHTMODBUS_F03S
-	{3, modbusParseRequest0304},
+	{3, modbusParseRequest01020304},
 #endif
 
 #ifdef LIGHTMODBUS_F04S
-	{4, modbusParseRequest0304},
+	{4, modbusParseRequest01020304},
 #endif
 
 #ifdef LIGHTMODBUS_F05S
-	{5, modbusParseRequest05},
+	{5, modbusParseRequest0506},
 #endif
 
 #ifdef LIGHTMODBUS_F06S
-	{6, modbusParseRequest06},
+	{6, modbusParseRequest0506},
 #endif
 
 #ifdef LIGHTMODBUS_F15S
-	{15, modbusParseRequest15},
+	{15, modbusParseRequest1516},
 #endif
 
 #ifdef LIGHTMODBUS_F16S
-	{16, modbusParseRequest16},
+	{16, modbusParseRequest1516},
 #endif
 
 #ifdef LIGHTMODBUS_F22S

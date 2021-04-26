@@ -5,21 +5,42 @@
 
 typedef struct modbusSlave ModbusSlave;
 
-LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
+LIGHTMODBUS_RET_ERROR modbusParseRequest0102(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
 	const uint8_t *data,
 	uint8_t size);
 
-LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
+LIGHTMODBUS_RET_ERROR modbusParseRequest0304(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
 	const uint8_t *data,
 	uint8_t size);
 
-LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
+LIGHTMODBUS_RET_ERROR modbusParseRequest05(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	const uint8_t *data,
+	uint8_t size);
+
+LIGHTMODBUS_RET_ERROR modbusParseRequest06(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	const uint8_t *data,
+	uint8_t size);
+
+LIGHTMODBUS_RET_ERROR modbusParseRequest15(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	const uint8_t *data,
+	uint8_t size);
+
+LIGHTMODBUS_RET_ERROR modbusParseRequest16(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,

@@ -201,9 +201,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 		return MODBUS_ERROR_LENGTH;
 
 	// Read MBAP header
-	uint16_t transactionID = modbusRLE(&data[0]);
-	uint16_t protocolID    = modbusRLE(&data[2]);
-	uint16_t messageLength = modbusRLE(&data[4]);
+	uint16_t transactionID = modbusRBE(&data[0]);
+	uint16_t protocolID    = modbusRBE(&data[2]);
+	uint16_t messageLength = modbusRBE(&data[4]);
 	uint8_t address = data[6];
 
 	// Check if the message is meant for us
@@ -224,9 +224,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 	// Write MBAP header
 	if (status->response.length)
 	{
-		modbusWLE(&status->response.data[0], transactionID);
-		modbusWLE(&status->response.data[2], protocolID);
-		modbusWLE(&status->response.data[4], status->response.length - 6);
+		modbusWBE(&status->response.data[0], transactionID);
+		modbusWBE(&status->response.data[2], protocolID);
+		modbusWBE(&status->response.data[4], status->response.length - 6);
 		status->response.data[6] = address;
 	}
 

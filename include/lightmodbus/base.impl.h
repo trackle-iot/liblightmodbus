@@ -1,7 +1,7 @@
 #include "base.h"
 #include <stdlib.h>
 
-ModbusError modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose, void *ctx)
+LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose, void *ctx)
 {
 	(void) purpose;
 	(void) ctx;
@@ -82,4 +82,75 @@ uint16_t modbusCRC(const uint8_t *data, uint16_t length)
 	}
 
 	return crc;
+}
+
+
+/**
+	\brief Returns number of bytes necessary to hold given number of bits
+	\param n Number of bits
+	\returns Number of bytes
+*/
+inline uint16_t modbusBitsToBytes(uint16_t n)
+{
+	return (n + 1) >> 3;
+}
+
+/**
+	\brief Safely reads a little-endian 16-bit word from provided pointer
+*/
+inline uint16_t modbusRLE(const uint8_t *p)
+{
+#ifdef LIGHTMODBUS_BIG_ENDIAN
+	uint8_t lo = *(p + 1);
+	uint8_t hi = *p;
+#else
+	uint8_t lo = *p;
+	uint8_t hi = *(p + 1);
+#endif
+	return (uint16_t) lo | ((uint16_t) hi << 8);
+}
+
+/**
+	\brief Safely writes a little-endian 16-bit word to provided pointer
+*/
+inline uint16_t modbusWLE(uint8_t *p, uint16_t val)
+{
+#ifdef LIGHTMODBUS_BIG_ENDIAN
+	*p = val >> 8;
+	*(p + 1) = val;
+#else
+	*p = val;
+	*(p + 1) = val >> 8;
+#endif
+	return val;
+}
+
+/**
+	\brief Safely reads a big-endian 16-bit word from provided pointer
+*/
+inline uint16_t modbusRBE(const uint8_t *p)
+{
+#ifdef LIGHTMODBUS_BIG_ENDIAN
+	uint8_t lo = *(p + 1);
+	uint8_t hi = *p;
+#else
+	uint8_t lo = *p;
+	uint8_t hi = *(p + 1);
+#endif
+	return (uint16_t) lo | ((uint16_t) hi << 8);
+}
+
+/**
+	\brief Safely writes a big-endian 16-bit word to provided pointer
+*/
+inline uint16_t modbusWBE(uint8_t *p, uint16_t val)
+{
+#ifdef LIGHTMODBUS_BIG_ENDIAN
+	*p = val >> 8;
+	*(p + 1) = val;
+#else
+	*p = val;
+	*(p + 1) = val >> 8;
+#endif
+	return val;
 }

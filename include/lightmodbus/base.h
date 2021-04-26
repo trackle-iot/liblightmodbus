@@ -4,6 +4,16 @@
 #include <stdint.h>
 
 /**
+	This macro can be used to check if all ModbusErrors coming from library
+	functions are handled properly
+*/
+#ifndef LIGHTMOBBUS_WARN_UNUSED
+#define LIGHTMODBUS_WARN_UNUSED __attribute__((warn_unused_result))
+#endif
+
+#define LIGHTMODBUS_RET_ERROR LIGHTMODBUS_WARN_UNUSED ModbusError
+
+/**
 	\brief Represents a library runtime error code.
 */
 typedef enum modbusError
@@ -74,91 +84,30 @@ typedef enum modbusDataType
 */
 typedef enum modbusBufferPurpose
 {
-	MODBUS_RESPONSE_BUFFER,
-	MODBUS_REQUEST_BUFFER,
+	MODBUS_SLAVE_RESPONSE_BUFFER,
+	MODBUS_MASTER_REQUEST_BUFFER,
 } ModbusBufferPurpose;
 
 /**
 	\brief Memory allocator
-
-
 */
 typedef ModbusError (*ModbusAllocator)(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose, void *ctx);
-extern ModbusError modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose, void *ctx);
 
 
-/**
-	\brief Returns number of bytes necessary to hold given number of bits
-	\param n Number of bits
-	\returns Number of bytes
-*/
-static inline uint16_t modbusBitsToBytes(uint16_t n)
-{
-	return (n + 1) >> 3;
-}
+LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(
+	uint8_t **ptr,
+	uint16_t size,
+	ModbusBufferPurpose purpose,
+	void *ctx);
 
-/**
-	\brief Safely reads a little-endian 16-bit word from provided pointer
-*/
-static inline uint16_t modbusRLE(const uint8_t *p)
-{
-#ifdef LIGHTMODBUS_LITTLE_ENDIAN
-	uint8_t lo = *p;
-	uint8_t hi = *(p + 1);
-#else
-	uint8_t lo = *(p + 1);
-	uint8_t hi = *p;
-#endif
-	return (uint16_t) lo | ((uint16_t) hi << 8);
-}
+uint16_t modbusCRC(const uint8_t *data, uint16_t length);
+uint8_t modbusMaskRead(const uint8_t *mask, uint16_t n);
+void modbusMaskWrite(uint8_t *mask, uint16_t n, uint8_t value);
 
-/**
-	\brief Safely writes a little-endian 16-bit word to provided pointer
-*/
-static inline uint16_t modbusWLE(uint8_t *p, uint16_t val)
-{
-#ifdef LIGHTMODBUS_LITTLE_ENDIAN
-	*p = val;
-	*(p + 1) = val >> 8;
-#else
-	*p = val >> 8;
-	*(p + 1) = val;
-#endif
-	return val;
-}
-
-/**
-	\brief Safely reads a big-endian 16-bit word from provided pointer
-*/
-static inline uint16_t modbusRBE(const uint8_t *p)
-{
-#ifdef LIGHTMODBUS_LITTLE_ENDIAN
-	uint8_t hi = *p;
-	uint8_t lo = *(p + 1);
-#else
-	uint8_t hi = *(p + 1);
-	uint8_t lo = *p;
-#endif
-	return (uint16_t) lo | ((uint16_t) hi << 8);
-}
-
-/**
-	\brief Safely writes a big-endian 16-bit word to provided pointer
-*/
-static inline uint16_t modbusWBE(uint8_t *p, uint16_t val)
-{
-#ifdef LIGHTMODBUS_LITTLE_ENDIAN
-	*(p + 1) = val;
-	*p = val >> 8;
-#else
-	*p = val;
-	*(p + 1) = val >> 8;
-#endif
-	return val;
-}
-
-extern uint16_t modbusCRC(const uint8_t *data, uint16_t length);
-extern uint8_t modbusMaskRead(const uint8_t *mask, uint16_t n);
-extern void modbusMaskWrite(uint8_t *mask, uint16_t n, uint8_t value);
+uint16_t modbusBitsToBytes(uint16_t n);
+uint16_t modbusRLE(const uint8_t *p);
+uint16_t modbusWLE(uint8_t *p, uint16_t val);
+uint16_t modbusRBE(const uint8_t *p);
+uint16_t modbusWBE(uint8_t *p, uint16_t val);
 
 #endif

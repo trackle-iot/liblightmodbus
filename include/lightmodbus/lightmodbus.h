@@ -18,7 +18,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef LIGHTMODBUS_H
 #define LIGHTMODBUS_H
 
@@ -27,9 +26,48 @@
 extern "C" {
 #endif
 
+// Assume we're on little-endian machines by default
+#if !defined(LIGHTMODBUS_LITTLE_ENDIAN) && !defined(LIGHTMODBUS_BIG_ENDIAN)
+	#define LIGHTMODBUS_LITTLE_ENDIAN
+#endif
+
+// Can't be both little and big endian
+#if defined(LIGHTMODBUS_LITTLE_ENDIAN) && defined(LIGHTMODBUS_BIG_ENDIAN)
+	#error LIGHTMODBUS_LITTLE_ENDIAN and LIGHTMODBUS_BIG_ENDIAN cannot be used at once!
+#endif
+
+// Full version comes with all default functions available
+#ifdef LIGHTMODBUS_FULL
+	#define LIGHTMODBUS_SLAVE
+	#define LIGHTMODBUS_F01S
+	#define LIGHTMODBUS_F02S
+	#define LIGHTMODBUS_F03S
+	#define LIGHTMODBUS_F04S
+	#define LIGHTMODBUS_F05S
+	#define LIGHTMODBUS_F06S
+	#define LIGHTMODBUS_F15S
+	#define LIGHTMODBUS_F16S
+	#define LIGHTMODBUS_F22S
+
+	#define LIGHTMODBUS_MASTER
+	#define LIGHTMODBUS_F01M
+	#define LIGHTMODBUS_F02M
+	#define LIGHTMODBUS_F03M
+	#define LIGHTMODBUS_F04M
+	#define LIGHTMODBUS_F05M
+	#define LIGHTMODBUS_F06M
+	#define LIGHTMODBUS_F15M
+	#define LIGHTMODBUS_F16M
+	#define LIGHTMODBUS_F22M
+#endif
+
 #ifdef LIGHTMODBUS_SLAVE
 	#include "slave.h"
 #endif
+
+// TODO - no master yet
+#undef LIGHTMODBUS_MASTER
+
 
 #ifdef LIGHTMODBUS_MASTER
 	#include "master.h"
@@ -40,10 +78,12 @@ extern "C" {
 	#include "base.impl.h"
 	#ifdef LIGHTMODBUS_SLAVE
 		#include "slave.impl.h"
+		#include "slave_func.impl.h"
 	#endif
 
 	#ifdef LIGHTMODBUS_MASTER
 		#include "master.impl.h"
+		#include "master_func.impl.h"
 	#endif
 #endif
 

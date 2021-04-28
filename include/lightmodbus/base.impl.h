@@ -92,7 +92,7 @@ uint16_t modbusCRC(const uint8_t *data, uint16_t length)
 */
 inline uint16_t modbusBitsToBytes(uint16_t n)
 {
-	return (n + 1) >> 3;
+	return (n + 7) >> 3;
 }
 
 /**

@@ -46,18 +46,20 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 			break;
 		
 		default:
-			maxCount = 0;
-			bits = 0;
+			return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_FUNCTION);
 			break;
-
 	}
 
 	uint16_t index = modbusRBE(&data[1]);
 	uint16_t count = modbusRBE(&data[3]);
 
 	// Check count
-	if (count == 0 || count > maxCount || UINT16_MAX - count - 1 < index)
+	if (count == 0 || count > maxCount)
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+
+	// Addresss range check
+	if (UINT16_MAX - count - 1 < index)
+		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Check if all registers can be read
 	uint8_t fail = 0;
@@ -83,6 +85,10 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	status->response.pdu[0] = function;
 	status->response.pdu[1] = dataLength;
 	
+	// Clear with zeros, if we're writing bits
+	for (uint8_t i = 0; i < dataLength; i++)
+		status->response.pdu[2 + i] = 0;
+
 	for (uint16_t i = 0; i < count; i++)
 	{
 		uint16_t value;
@@ -137,7 +143,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	if ((err = modbusSlaveAllocateResponse(status, 5)))
 		return err;
 
-	status->response.pdu[0] = address;
+	status->response.pdu[0] = function;
 	modbusWBE(&status->response.pdu[1], index);
 	modbusWBE(&status->response.pdu[3], value);
 	return MODBUS_OK;
@@ -155,11 +161,11 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Get first index and register count
-	ModbusDataType datatype = function == 5 ? MODBUS_COIL : MODBUS_HOLDING_REGISTER;
+	ModbusDataType datatype = function == 15 ? MODBUS_COIL : MODBUS_HOLDING_REGISTER;
 	uint16_t maxCount = datatype == MODBUS_COIL ? 1968 : 123;
-	uint8_t declaredLength = data[1];
-	uint16_t index = modbusRBE(&data[2]);
-	uint16_t count = modbusRBE(&data[4]);
+	uint16_t index = modbusRBE(&data[1]);
+	uint16_t count = modbusRBE(&data[3]);
+	uint8_t declaredLength = data[5];
 
 	// Check if the declared length is correct
 	if (declaredLength == 0 || declaredLength != size - 6)
@@ -168,9 +174,12 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	// Check if index and count are valid
 	if (count == 0
 		|| count > maxCount
-		|| declaredLength != (datatype == MODBUS_COIL ? modbusBitsToBytes(count) : (count << 1))
-		|| UINT16_MAX - count - 1 < index)
+		|| declaredLength != (datatype == MODBUS_COIL ? modbusBitsToBytes(count) : (count << 1)))
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+
+	// Addresss range check
+	if (UINT16_MAX - count - 1 < index)
+		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Check write access
 	uint8_t fail = 0;
@@ -178,7 +187,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	for (uint16_t i = 0; !fail && !ex && i < count; i++)
 	{
 		uint16_t res = MODBUS_OK;
-		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&data[5], i) : modbusRBE(&data[5 + (i << 1)]);
+		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&data[6], i) : modbusRBE(&data[6 + (i << 1)]);
 		fail = status->registerCallback(status, datatype, MODBUS_REGQ_W_CHECK, function, index + i, value, &res);
 		if (res != MODBUS_OK)
 			ex = (ModbusExceptionCode)res;
@@ -192,7 +201,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	for (uint16_t i = 0; i < count; i++)
 	{
 		uint16_t dummy;
-		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&data[5], i) : modbusRBE(&data[5 + (i << 1)]);
+		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&data[6], i) : modbusRBE(&data[6 + (i << 1)]);
 		(void) status->registerCallback(status, datatype, MODBUS_REGQ_W, function, index + i, value, &dummy);
 	}
 

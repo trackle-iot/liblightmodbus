@@ -24,7 +24,6 @@
 LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	(void) purpose;
-	(void) ctx;
 
 	// Make sure to handle the case when *ptr = NULL and size = 0
 	// We don't want to allocate any memory then, but realloc would

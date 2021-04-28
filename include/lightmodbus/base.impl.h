@@ -1,13 +1,34 @@
 #include "base.h"
 #include <stdlib.h>
 
-LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose, void *ctx)
+/**
+	\brief The default memory allocator based on realloc()
+
+	## Allocator requirements
+
+	The allocator function must meet following requirements:
+	 - When `size` is 0, the memory pointed to by `*ptr` must be freed. `*ptr`
+	   shall then be set to NULL.
+	 - When `size` is not 0, `*ptr` should be set to point to a memory block of
+	   `size` bytes. If such block cannot be allocated, the allocator must
+	   return MODBUS_ERROR_ALLOC and free memory block pointed to by current
+	   `*ptr` value.
+
+	Certain guarantees are made by the library:
+	 - All allocation requests originating from a single ModbusMaster or
+	   ModbusSlave instance refer to the same buffer as long as `purpose`
+	   argument has the same value. **This allows for static memory allocation
+	   if the allocator can distinguish between different ModbusMaster and
+	   ModbusSlave instances that can issue the allocation request.**
+*/
+LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	(void) purpose;
 	(void) ctx;
 
 	// Make sure to handle the case when *ptr = NULL and size = 0
-	// We don't want to allocate any memory then
+	// We don't want to allocate any memory then, but realloc would
+	// result in malloc(0)
 	if (!size)
 	{
 		free(*ptr);
@@ -83,7 +104,6 @@ uint16_t modbusCRC(const uint8_t *data, uint16_t length)
 
 	return crc;
 }
-
 
 /**
 	\brief Returns number of bytes necessary to hold given number of bits

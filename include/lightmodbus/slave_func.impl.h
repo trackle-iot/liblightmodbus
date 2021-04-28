@@ -1,6 +1,9 @@
 #include "slave_func.h"
 #include "slave.h"
 
+/**
+	\brief Handles requests 01, 02, 03 and 04 (Read Multiple XX)
+*/
 LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,
 	uint8_t address,
@@ -103,7 +106,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	return MODBUS_OK;
 }
 
-
+/**
+	\brief Handles requests 05 and 06 (Write Single XX)
+*/
 LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	ModbusSlave *status,
 	uint8_t address,
@@ -157,6 +162,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Handles requests 15 and 16 (Write Multiple XX)
+*/
 LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	ModbusSlave *status,
 	uint8_t address,
@@ -229,6 +237,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Handles request 22 (Mask Write Register)
+*/
 LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	ModbusSlave *status,
 	uint8_t address,

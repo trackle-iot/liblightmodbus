@@ -4,6 +4,8 @@
 /**
 	\brief Associates function IDs with pointers to functions responsible
 	for parsing.
+
+	\note Contents depend on defined `LIGHTMODBUS_FxxS` macros!
 */
 ModbusFunctionHandler modbusSlaveDefaultFunctions[] =
 {
@@ -49,12 +51,12 @@ ModbusFunctionHandler modbusSlaveDefaultFunctions[] =
 */
 LIGHTMODBUS_RET_ERROR modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
-	return modbusDefaultAllocator(ptr, size, purpose, status->context);
+	return modbusDefaultAllocator(ptr, size, purpose);
 }
 
 /**
 	\brief Allocates memory for slave's response frame
-	\param pdusize size of the PDU chunk
+	\param pdusize size of the PDU chunk. 0 if the slave doesn't want to respond.
 
 	If called with size == 0, the response buffer is freed. Otherwise a buffer
 	for `(pdusize + status->response.padding)` bytes is allocated. This shall
@@ -129,7 +131,7 @@ void modbusSlaveDestroy(ModbusSlave *status)
 /**
 	\brief Builds an exception response frame
 
-	ModbusSlave::exceptionCallback is called if set.
+	ModbusSlave.exceptionCallback is called if set.
 */
 LIGHTMODBUS_RET_ERROR modbusBuildException(
 	ModbusSlave *status,

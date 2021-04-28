@@ -97,8 +97,7 @@ typedef ModbusError (*ModbusAllocator)(uint8_t **ptr, uint16_t size, ModbusBuffe
 LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(
 	uint8_t **ptr,
 	uint16_t size,
-	ModbusBufferPurpose purpose,
-	void *ctx);
+	ModbusBufferPurpose purpose);
 
 uint16_t modbusCRC(const uint8_t *data, uint16_t length);
 uint8_t modbusMaskRead(const uint8_t *mask, uint16_t n);

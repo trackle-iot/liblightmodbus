@@ -8,17 +8,22 @@
 typedef struct modbusSlave ModbusSlave;
 
 /**
+	\brief A pointer to request parsing function
+*/
+typedef ModbusError (*ModbusSlaveParsingFunction)(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	const uint8_t *data,
+	uint8_t size);
+
+/**
 	\brief Associates Modbus function ID with a pointer to a parsing function
 */
 typedef struct
 {
 	uint8_t id;
-	ModbusError (*ptr)(
-		ModbusSlave *status,
-		uint8_t address,
-		uint8_t function,
-		const uint8_t *data,
-		uint8_t size);
+	ModbusSlaveParsingFunction ptr;
 } ModbusFunctionHandler;
 
 /**
@@ -74,26 +79,25 @@ typedef ModbusError (*ModbusSlaveAllocator)(
 */
 typedef struct modbusSlave
 {
-	uint8_t address;
+	ModbusSlaveAllocator allocator;            //!< A pointer to allocator function (required)
+	ModbusRegisterCallback registerCallback;   //!< A pointer to register callback (required)
+	ModbusExceptionCallback exceptionCallback; //!< A pointer to exception callback (optional)
+	ModbusFunctionHandler *functions;          //!< A pointer to an array of function handlers (required)
+	uint8_t functionCount;                     //!< Number of function handlers in the array (`functions`)
+	
+	void *context; //!< User's context pointer
 
 	struct 
 	{
-		uint8_t *data;
-		uint8_t *pdu;
-		uint16_t length;
+		uint8_t *data;      //!< Pointer to the response frame buffer
+		uint8_t *pdu;       //!< A pointer to the PDU section of the response frame
+		uint16_t length;    //!< Length of the response frame
 
-		uint16_t padding;
-		uint16_t pduOffset;
+		uint16_t padding;   //!< Number of extra bytes surrounding the PDU
+		uint16_t pduOffset; //!< PDU offset relative to the entire frame
 	} response;
 
-	ModbusFunctionHandler *functions;
-	uint8_t functionCount;
-
-	ModbusSlaveAllocator allocator;
-	ModbusRegisterCallback registerCallback;
-	ModbusExceptionCallback exceptionCallback;
-	
-	void *context;
+	uint8_t address; //!< Slave's address/ID
 
 } ModbusSlave;
 

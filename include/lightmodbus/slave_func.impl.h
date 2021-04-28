@@ -78,7 +78,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
 	if (ex) return modbusBuildException(status, address, function, ex);
 
-	uint16_t dataLength = (bits == 1 ? modbusBitsToBytes(count) : (count << 1));
+	uint8_t dataLength = (bits == 1 ? modbusBitsToBytes(count) : (count << 1));
 	ModbusError err = modbusSlaveAllocateResponse(status, 2 + dataLength);
 	if (err) return err;
 
@@ -131,7 +131,15 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	if (res) return modbusBuildException(status, address, function, (ModbusExceptionCode)res);
 
 	// Write coil/register
-	status->registerCallback(status, datatype, MODBUS_REGQ_W, function, index, value, &res);
+	// Keep in mind that 0xff00 is 0 when cast to uint8_t
+	status->registerCallback(
+		status,
+		datatype,
+		MODBUS_REGQ_W,
+		function,
+		index,
+		datatype == MODBUS_COIL ? (value != 0) : value, 
+		&res);
 
 	// ---- RESPONSE ----
 
@@ -171,7 +179,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	if (declaredLength == 0 || declaredLength != size - 6)
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
-	// Check if index and count are valid
+	// Check count
 	if (count == 0
 		|| count > maxCount
 		|| declaredLength != (datatype == MODBUS_COIL ? modbusBitsToBytes(count) : (count << 1)))

@@ -98,7 +98,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 		(void) status->registerCallback(status, datatype, MODBUS_REGQ_R, function, index + i, 0, &value);
 		
 		if (bits == 1)
-			modbusMaskWrite(&status->response.pdu[2], i, value);
+			modbusMaskWrite(&status->response.pdu[2], i, value != 0);
 		else
 			modbusWBE(&status->response.pdu[2 + (i << 1)], value);
 	}

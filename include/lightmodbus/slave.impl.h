@@ -189,6 +189,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	if (address != status->address || address == 0)
 		return MODBUS_OK;
 
+	//! \todo Should we check if address is less than 248?
+
 	// Check CRC
 	if (modbusCRC(data, length - 2) != modbusRLE(data + length - 2))
 		return MODBUS_OK;
@@ -226,12 +228,12 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 	uint16_t transactionID = modbusRBE(&data[0]);
 	uint16_t protocolID    = modbusRBE(&data[2]);
 	uint16_t messageLength = modbusRBE(&data[4]);
-	uint8_t address = data[6];
+	uint8_t address = status->address;
 
-	// Check if the message is meant for us
-	if (address != status->address || address == 0)
+	// Discard non-Modbus messages
+	if (protocolID != 0)
 		return MODBUS_OK;
-	
+
 	// Length mismatch
 	if (messageLength > length - 6)
 		return MODBUS_OK; // TODO?

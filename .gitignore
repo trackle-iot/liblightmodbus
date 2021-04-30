@@ -33,3 +33,11 @@ include/lightmodbus/libconf.h
 .modules.conf
 include/lightmodbus/old
 demo
+test/out
+test/a.out
+test/oldsamples
+test/samples
+test/test
+test/newresp.txt
+test/test-result.txt
+old

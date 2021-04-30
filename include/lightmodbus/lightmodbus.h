@@ -55,9 +55,6 @@ extern "C" {
 	#include "slave.h"
 #endif
 
-// TODO - no master yet
-#undef LIGHTMODBUS_MASTER
-
 
 #ifdef LIGHTMODBUS_MASTER
 	#include "master.h"

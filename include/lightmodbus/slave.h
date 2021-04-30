@@ -55,18 +55,16 @@ typedef ModbusError (*ModbusRegisterCallback)(
 	uint16_t *result);
 
 /**
-	\brief A pointer to callback called when Modbus exception is generated
+	\brief A pointer to a callback called when a Modbus exception is generated (for slave)
 */
-typedef void (*ModbusExceptionCallback)(
+typedef void (*ModbusSlaveExceptionCallback)(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
 	ModbusExceptionCode code);
 
 /**
-	\brief A pointer to allocator function called to allocate frame buffers.
-
-	\todo list requirements
+	\brief A pointer to allocator function called to allocate frame buffers (for slave)
 */
 typedef ModbusError (*ModbusSlaveAllocator)(
 	ModbusSlave *status,
@@ -79,11 +77,11 @@ typedef ModbusError (*ModbusSlaveAllocator)(
 */
 typedef struct modbusSlave
 {
-	ModbusSlaveAllocator allocator;            //!< A pointer to allocator function (required)
-	ModbusRegisterCallback registerCallback;   //!< A pointer to register callback (required)
-	ModbusExceptionCallback exceptionCallback; //!< A pointer to exception callback (optional)
-	ModbusFunctionHandler *functions;          //!< A pointer to an array of function handlers (required)
-	uint8_t functionCount;                     //!< Number of function handlers in the array (`functions`)
+	ModbusSlaveAllocator allocator;                 //!< A pointer to allocator function (required)
+	ModbusRegisterCallback registerCallback;        //!< A pointer to register callback (required)
+	ModbusSlaveExceptionCallback exceptionCallback; //!< A pointer to exception callback (optional)
+	ModbusFunctionHandler *functions;               //!< A pointer to an array of function handlers (required)
+	uint8_t functionCount;                          //!< Number of function handlers in the array (`functions`)
 	
 	void *context; //!< User's context pointer
 

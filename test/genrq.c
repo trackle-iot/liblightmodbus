@@ -8,7 +8,6 @@
 #include <time.h>
 
 #define LIGHTMODBUS_FULL
-#define LIGHTMODBUS_IMPL
 #include <lightmodbus/lightmodbus.h>
 
 #define RANGE_MAX 16

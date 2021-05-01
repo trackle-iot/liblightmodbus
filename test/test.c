@@ -1,8 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #define LIGHTMODBUS_FULL
-#define LIGHTMODBUS_IMPL
 #include <lightmodbus/lightmodbus.h>
 
 #define REG_COUNT 8

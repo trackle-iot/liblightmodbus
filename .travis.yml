@@ -23,7 +23,7 @@ script:
     - ./test < test-requests.txt
 
 after_success:
-    - coveralls --verbose --exclude test.c
+    - coveralls --verbose --exclude test.c genrq.c
     # - find . -name "*.c" | xargs cppcheck > cppcheck.log
     # - TARBALL=$(date +liblightmodbus-travis-%Y-%m-%d--%H-%M-%S.tar)
     # - tar -cvf $TARBALL .

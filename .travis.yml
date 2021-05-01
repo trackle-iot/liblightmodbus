@@ -23,7 +23,7 @@ script:
     - ./test < test-requests.txt
 
 after_success:
-    - coveralls --verbose --exclude test.c --exclude genrq.c
+    - coveralls --verbose ../include/lightmodbus/base.impl.h ../include/lightmodbus/slave.impl.h ../include/lightmodbus/slave_func.impl.h
     # - find . -name "*.c" | xargs cppcheck > cppcheck.log
     # - TARBALL=$(date +liblightmodbus-travis-%Y-%m-%d--%H-%M-%S.tar)
     # - tar -cvf $TARBALL .

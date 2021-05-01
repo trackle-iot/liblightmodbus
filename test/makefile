@@ -1,16 +1,20 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-result -I../include -I../include/lightmodbus
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-result -I../include -I../include/lightmodbus -DLIGHTMODBUS_FULL
 
 ifneq ($(COVERAGE),)
 CFLAGS += --coverage
 endif
 
-all: impl.c
-	$(CC) $(CFLAGS) -o test test.c impl.c
-	$(CC) $(CFLAGS) -o genrq genrq.c impl.c
+IMPL = \
+	-x c ../include/lightmodbus/base.impl.h \
+	-x c ../include/lightmodbus/slave.impl.h \
+	-x c ../include/lightmodbus/slave_func.impl.h \
+	-x c ../include/lightmodbus/master.impl.h \
+	-x c ../include/lightmodbus/master_func.impl.h
 
-impl.c: $(wildcard ../include/lightmodbus/*.*)
-	awk 1 ../include/lightmodbus/*.impl.h > impl.c
+all: 
+	$(CC) $(CFLAGS) -o test test.c $(IMPL)
+	$(CC) $(CFLAGS) -o genrq genrq.c $(IMPL)
 
 run-test:
 	./test < test-requests.txt > test-result.txt

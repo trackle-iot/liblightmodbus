@@ -18,41 +18,101 @@
 */
 typedef enum modbusError
 {
-	MODBUS_OK = 0, //!< No error
+	/**
+		\brief No error
+
+		Returned when everything is fine.
+	*/
+	MODBUS_OK = 0,
+
+	/**
+		\brief Same as MODBUS_OK
+	*/
+	MODBUS_ERROR_OK = 0,
+	
+	/**
+		\brief Invalid frame length
+
+		 - The provided frame is either too long or too short
+		 - The data length declared in frame does not match the actual frame length
+	*/
 	MODBUS_ERROR_LENGTH, //!< Frame too long or too short
+	
+	/**
+		\brief Memory allocation error
+
+		The allocator has failed to allocate requested amount of memory.
+	*/
 	MODBUS_ERROR_ALLOC,
+
+	/**
+		\brief Invalid function
+
+		 - The function codes in the request and response do not match
+		 - There is no function handler for this function code (Master)
+	*/
+	MODBUS_ERROR_FUNCTION,
+
+	/**
+		\brief Invalid register count
+
+		Provided register count is 0 or exceeds maximum allowed value.
+	*/
+	MODBUS_ERROR_COUNT,
+
+	/**
+		\todo Do we need this?
+	*/
+	MODBUS_ERROR_INDEX,
+
+	/**
+		\brief Invalid register range
+
+		Returned when accessing `count` registers starting at `index` would cause
+		16-bit unsigned int overflow.
+	*/
+	MODBUS_ERROR_RANGE,
+
+	/**
+		\brief CRC invalid
+
+		CRC is invalid in either the request or the response.
+
+		\note Only in Modbus RTU
+	*/
+	MODBUS_ERROR_CRC,
+
+	/**
+		\brief Invalid protocol ID
+
+		The protocol ID in either the request or response frame is not 0.
+
+		\note Only in Modbus TCP
+	*/
+	MODBUS_ERROR_BAD_PROTOCOL,
+
+	/**
+		\brief Mismatched transaction ID
+		
+		The transaction identifier in the response does not match the one in the request frame.
+
+		\note Only in Modbus TCP
+	*/
+	MODBUS_ERROR_BAD_TRANSACTION,
+
+	/**
+		\brief Invalid slave address
+
+		 - Received response for a broadcasted request
+		 - Address byte is different in the request and the response
+	*/
+	MODBUS_ERROR_ADDRESS,
+
+	/**
+		\brief Other error
+	*/
 	MODBUS_ERROR_OTHER,
 } ModbusError;
-
-
-/**
-	\brief Provides more information on frame building/parsing error.
-
-	These error code should serve as an additional source of information for the user.
-*/
-/*
-typedef enum modbusFrameError
-{
-	MODBUS_FERROR_OK = 0,     //!< Modbus frame OK. No error.
-	MODBUS_FERROR_CRC,        //!< Invalid CRC
-	MODBUS_FERROR_LENGTH,     //!< Invalid frame length
-	MODBUS_FERROR_COUNT,      //!< Invalid declared data item count
-	MODBUS_FERROR_VALUE,      //!< Illegal data value (eg. when writing a single coil)
-	MODBUS_FERROR_RANGE,      //!< Invalid register range
-	MODBUS_FERROR_NOREAD,     //!< No read access to at least one of requested regsiters
-	MODBUS_FERROR_NOWRITE,    //!< No write access to at least one of requested regsiters
-	MODBUS_FERROR_NOFUN,      //!< Function not supported
-	MODBUS_FERROR_BADFUN,     //!< Requested a parsing function to parse a frame with wrong function code
-	MODBUS_FERROR_NULLFUN,    //!< Function overriden by user with NULL pointer.
-	MODBUS_FERROR_MISM_FUN,   //!< Function request-response mismatch
-	MODBUS_FERROR_MISM_ADDR,  //!< Slave address request-response mismatch
-	MODBUS_FERROR_MISM_INDEX, //!< Index value request-response mismatch
-	MODBUS_FERROR_MISM_COUNT, //!< Count value request-response mismatch
-	MODBUS_FERROR_MISM_VALUE, //!< Data value request-response mismatch
-	MODBUS_FERROR_MISM_MASK,  //!< Mask value request-response mismatch
-	MODBUS_FERROR_BROADCAST   //!< Received response for broadcast message
-} ModbusFrameError;
-*/
 
 /**
 	\brief Represents a Modbus exception code

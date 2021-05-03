@@ -57,6 +57,9 @@ typedef struct modbusMaster
 	ModbusDataCallback dataCallback;
 	ModbusMasterExceptionCallback exceptionCallback;
 
+	ModbusMasterFunctionHandler *functions;
+	uint8_t functionCount;
+
 	void *context;
 
 	struct
@@ -70,6 +73,14 @@ typedef struct modbusMaster
 	} request;
 
 } ModbusMaster;
+
+LIGHTMODBUS_RET_ERROR modbusMasterInit(
+	ModbusMaster *status,
+	ModbusMasterAllocator allocator,
+	ModbusDataCallback dataCallback,
+	ModbusMasterExceptionCallback exceptionCallback);
+
+void modbusMasterDestroy(ModbusMaster *status);
 
 ModbusMaster *modbusBeginRequestRTU(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusError err);
@@ -91,9 +102,9 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	ModbusMaster *status,
 	uint8_t address,
 	const uint8_t *request,
-	uint16_t requestLength,
+	uint8_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength);
+	uint8_t responseLength);
 
 LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	ModbusMaster *status,

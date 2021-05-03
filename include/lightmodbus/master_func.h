@@ -39,29 +39,32 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 
 LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 	ModbusMaster *status,
-	uint8_t address,
 	uint8_t function,
 	uint16_t index,
 	uint16_t count);
 
 LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 	ModbusMaster *status,
-	uint8_t address,
 	uint8_t function,
 	uint16_t index,
 	uint16_t value);
 
-LIGHTMODBUS_RET_ERROR modbusBuildRequest1516(
+LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	ModbusMaster *status,
-	uint8_t address,
 	uint8_t function,
 	uint16_t index,
 	uint16_t count,
-	const uint8_t *data);
+	const uint8_t *values);
+
+LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count,
+	const uint16_t *values);
 
 LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 	ModbusMaster *status,
-	uint8_t address,
 	uint8_t function,
 	uint16_t index,
 	uint16_t andmask,

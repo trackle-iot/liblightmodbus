@@ -57,6 +57,7 @@ extern "C" {
 
 #ifdef LIGHTMODBUS_MASTER
 	#include "master.h"
+	#include "master_func.h"
 #endif
 
 // Include implementation files if IMPL macros are defined

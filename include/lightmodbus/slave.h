@@ -24,7 +24,7 @@ typedef struct
 {
 	uint8_t id;
 	ModbusSlaveParsingFunction ptr;
-} ModbusFunctionHandler;
+} ModbusSlaveFunctionHandler;
 
 /**
 	\brief Determines type of request made to the register callback function
@@ -80,7 +80,7 @@ typedef struct modbusSlave
 	ModbusSlaveAllocator allocator;                 //!< A pointer to allocator function (required)
 	ModbusRegisterCallback registerCallback;        //!< A pointer to register callback (required)
 	ModbusSlaveExceptionCallback exceptionCallback; //!< A pointer to exception callback (optional)
-	ModbusFunctionHandler *functions;               //!< A pointer to an array of function handlers (required)
+	ModbusSlaveFunctionHandler *functions;          //!< A pointer to an array of function handlers (required)
 	uint8_t functionCount;                          //!< Number of function handlers in the array (`functions`)
 	
 	void *context; //!< User's context pointer
@@ -120,7 +120,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *data, uint16_t length);
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *data, uint16_t length);
 
-extern ModbusFunctionHandler modbusSlaveDefaultFunctions[];
+extern ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[];
 #define MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT (sizeof(modbusSlaveDefaultFunctions) / sizeof(modbusSlaveDefaultFunctions[0]))
 
 #endif

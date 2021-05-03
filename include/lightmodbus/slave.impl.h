@@ -7,7 +7,7 @@
 
 	\note Contents depend on defined `LIGHTMODBUS_FxxS` macros!
 */
-ModbusFunctionHandler modbusSlaveDefaultFunctions[] =
+ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[] =
 {
 #ifdef LIGHTMODBUS_F01S
 	{1, modbusParseRequest01020304},

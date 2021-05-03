@@ -2,6 +2,7 @@
 #define LIGHTMODBUS_MASTER_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include "base.h"
 
 typedef struct modbusMaster ModbusMaster;
@@ -89,11 +90,11 @@ ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusError err);
 
 #define modbusBuildRequestPDU(s, function, ...) \
-	modbusEndRequestPDU((s), modbusBuildRequest##function(modbusBeginRequestPDU((s)), __VA_ARGS__))
+	modbusEndRequestPDU((s), modbusBuildRequest##function(modbusBeginRequestPDU((s)), function, __VA_ARGS__))
 #define modbusBuildRequestRTU(s, address, function, ...) \
-	modbusEndRequestRTU((s), (address), modbusBuildRequest##function(modbusBeginRequestRTU((s)), __VA_ARGS__))
+	modbusEndRequestRTU((s), (address), modbusBuildRequest##function(modbusBeginRequestRTU((s)), function, __VA_ARGS__))
 #define modbusBuildRequestTCP(s, transaction, unit, function, ...) \
-	modbusEndRequestTCP((s), (transaction), (unit), modbusBuildRequest##function(modbusBeginRequestTCP((s)), __VA_ARGS__))
+	modbusEndRequestTCP((s), (transaction), (unit), modbusBuildRequest##function(modbusBeginRequestTCP((s)), function, __VA_ARGS__))
 
 LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
 LIGHTMODBUS_RET_ERROR modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);

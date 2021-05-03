@@ -91,7 +91,7 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	return MODBUS_OK;
 }
 
-void modbusMasterDestory(ModbusMaster *status)
+void modbusMasterDestroy(ModbusMaster *status)
 {
 	(void) modbusMasterAllocateRequest(status, 0);
 }

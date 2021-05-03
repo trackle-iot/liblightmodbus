@@ -40,6 +40,14 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 #endif
 };
 
+/**
+	\brief Default allocator for the slave based on modbusDefaultAllocator().
+*/
+LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
+{
+	return modbusDefaultAllocator(ptr, size, purpose);
+}
+
 LIGHTMODBUS_RET_ERROR modbusMasterAllocateRequest(
 	ModbusMaster *status,
 	uint16_t pdusize)

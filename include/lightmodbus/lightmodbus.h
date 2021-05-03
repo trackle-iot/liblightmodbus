@@ -55,7 +55,6 @@ extern "C" {
 	#include "slave.h"
 #endif
 
-
 #ifdef LIGHTMODBUS_MASTER
 	#include "master.h"
 #endif

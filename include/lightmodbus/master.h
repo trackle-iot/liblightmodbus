@@ -6,6 +6,26 @@
 
 typedef struct modbusMaster ModbusMaster;
 
+/**
+	\brief A pointer to response parsing function
+*/
+typedef ModbusError (*ModbusMasterParsingFunction)(
+	ModbusMaster *status,
+	uint8_t function,
+	const uint8_t *requestPDU,
+	uint8_t requestLength,
+	const uint8_t *responsePDU,
+	uint8_t responseLength);
+
+/**
+	\brief Associates Modbus function ID with a pointer to a response parsing function
+*/
+typedef struct
+{
+	uint8_t id;
+	ModbusMasterParsingFunction ptr;
+} ModbusMasterFunctionHandler;
+
 typedef ModbusError (*ModbusDataCallback)(
 	ModbusMaster *status,
 	ModbusDataType type,
@@ -74,7 +94,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	uint16_t requestLength,
 	const uint8_t *response,
 	uint16_t responseLength);
-	
+
 LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	ModbusMaster *status,
 	const uint8_t *request,
@@ -88,5 +108,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	uint16_t requestLength,
 	const uint8_t *response,
 	uint16_t responseLength);
+
+extern ModbusMasterFunctionHandler modbusMasterDefaultFunctions[];
+#define MODBUS_MASTER_DEFAULT_FUNCTION_COUNT (sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]))
 
 #endif

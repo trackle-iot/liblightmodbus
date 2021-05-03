@@ -1,4 +1,44 @@
 #include "master.h"
+#include "master_func.h"
+
+ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
+{
+#ifdef LIGHTMODBUS_F01M
+	{1, modbusParseResponse01020304},
+#endif
+
+#ifdef LIGHTMODBUS_F02M
+	{2, modbusParseResponse01020304},
+#endif
+
+#ifdef LIGHTMODBUS_F03M
+	{3, modbusParseResponse01020304},
+#endif
+
+#ifdef LIGHTMODBUS_F04M
+	{4, modbusParseResponse01020304},
+#endif
+
+#ifdef LIGHTMODBUS_F05M
+	{5, modbusParseResponse0506},
+#endif
+
+#ifdef LIGHTMODBUS_F06M
+	{6, modbusParseResponse0506},
+#endif
+
+#ifdef LIGHTMODBUS_F15M
+	{15, modbusParseResponse1516},
+#endif
+
+#ifdef LIGHTMODBUS_F16M
+	{16, modbusParseResponse1516},
+#endif
+
+#ifdef LIGHTMODBUS_F22M
+	{22, modbusParseResponse22},
+#endif
+};
 
 ModbusMaster *modbusBeginRequestPDU(ModbusMaster *status)
 {

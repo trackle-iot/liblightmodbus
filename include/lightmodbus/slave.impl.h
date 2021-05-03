@@ -235,7 +235,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 		return MODBUS_OK;
 
 	// Length mismatch
-	if (messageLength > length - 6)
+	if (messageLength != length - 6)
 		return MODBUS_OK; // TODO?
 	
 	// Parse the request

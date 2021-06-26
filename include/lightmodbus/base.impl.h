@@ -3,6 +3,9 @@
 
 /**
 	\brief The default memory allocator based on realloc()
+	\param ptr a pointer to the pointer to the memory region to be reallocated/freed
+	\param size new desired buffer size in bytes
+	\param purpose 
 
 	## Allocator requirements
 
@@ -15,11 +18,13 @@
 	   `*ptr` value.
 
 	Certain guarantees are made by the library:
-	 - All allocation requests originating from a single ModbusMaster or
-	   ModbusSlave instance refer to the same buffer as long as `purpose`
-	   argument has the same value. **This allows for static memory allocation
+	 - All allocation requests originating from a **single** ModbusMaster or
+	   ModbusSlave instance with identical `purpose` argument are assumed
+	   to refer to the same buffer. **This allows for static memory allocation
 	   if the allocator can distinguish between different ModbusMaster and
-	   ModbusSlave instances that can issue the allocation request.**
+	   ModbusSlave instances issuing the requests**
+
+	\returns MODBUS_ERROR_ALLOC on allocation failure
 */
 LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {

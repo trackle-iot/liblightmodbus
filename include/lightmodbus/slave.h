@@ -85,6 +85,7 @@ typedef struct modbusSlave
 	
 	void *context; //!< User's context pointer
 
+	//! Stores slave's response to master
 	struct 
 	{
 		uint8_t *data;      //!< Pointer to the response frame buffer
@@ -92,7 +93,7 @@ typedef struct modbusSlave
 		uint16_t length;    //!< Length of the response frame
 
 		uint16_t padding;   //!< Number of extra bytes surrounding the PDU
-		uint16_t pduOffset; //!< PDU offset relative to the entire frame
+		uint16_t pduOffset; //!< PDU offset relative to the beginning of the frame
 	} response;
 
 	uint8_t address; //!< Slave's address/ID

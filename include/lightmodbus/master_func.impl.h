@@ -1,6 +1,21 @@
 #include "master_func.h"
 #include "master.h"
 
+/**
+	\brief Parses response to requests 01, 02, 03 and 04
+	\param function Response function code
+	\param requestPDU pointer to the PDU section of the request frame
+	\param requestLength request PDU section length
+	\param responsePDU pointer to the PDU section of the response frame
+	\param responseLength response PDU section length
+	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
+	\return \ref MODBUS_ERROR_FUNCTION if `function` is not one of: 01, 02, 03, 04
+	\return \ref MODBUS_ERROR_COUNT if the declared register count is invalid
+	\return \ref MODBUS_ERROR_RANGE if the declared register range wraps around address space
+	\return \ref MODBUS_ERROR_LENGTH if the response length is different from expected one
+
+	\todo Should errors be returned because of an invalid frame built by a slave?
+*/
 LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	ModbusMaster *status,
 	uint8_t function,
@@ -82,6 +97,16 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Parses response to requests 05 and 06
+	\param function Response function code
+	\param requestPDU pointer to the PDU section of the request frame
+	\param requestLength request PDU section length
+	\param responsePDU pointer to the PDU section of the response frame
+	\param responseLength response PDU section length
+	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
+	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
+*/
 LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	ModbusMaster *status,
 	uint8_t function,
@@ -103,6 +128,17 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Parses response to requests 15 and 16
+	\param function Response function code
+	\param requestPDU pointer to the PDU section of the request frame
+	\param requestLength request PDU section length
+	\param responsePDU pointer to the PDU section of the response frame
+	\param responseLength response PDU section length
+	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
+	\return \ref MODBUS_ERROR_INDEX if the declared register index differs between the request and the response
+	\return \ref MODBUS_ERROR_COUNT if the declared register count differs between the request and the response
+*/
 LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	ModbusMaster *status,
 	uint8_t function,
@@ -129,6 +165,16 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Parses response to request 22
+	\param function Response function code
+	\param requestPDU pointer to the PDU section of the request frame
+	\param requestLength request PDU section length
+	\param responsePDU pointer to the PDU section of the response frame
+	\param responseLength response PDU section length
+	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
+	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
+*/
 LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	ModbusMaster *status,
 	uint8_t function,
@@ -150,6 +196,17 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Read mutiple coils/discrete inputs/holding registers/input registers
+	\param function 1 to read coils, 2 to read discrete inputs, 3 to read holding registers, 4 to read input registers
+	\param index Index of the register to be read
+	\param count Number of registers to be read
+	\param value New value for the register/coil
+	\returns \ref MODBUS_ERROR_FUNCTION if `function` is not one of: 01, 02, 03, 04
+	\returns \ref MODBUS_ERROR_COUNT if the register count is invalid
+	\returns \ref MODBUS_ERROR_RANGE if `count` + `index` wraps around the address range
+	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+*/
 LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 	ModbusMaster *status,
 	uint8_t function,
@@ -191,6 +248,15 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 	return MODBUS_OK;
 }
 
+
+/**
+	\brief Write single coil/holding register
+	\param function 5 to write a coil, 6 to write a holding register
+	\param index Index of the register/coil to be written
+	\param value New value for the register/coil
+	\returns \ref MODBUS_ERROR_FUNCTION if `function` is not not 5 nor 6
+	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+*/
 LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 	ModbusMaster *status,
 	uint8_t function,
@@ -214,6 +280,17 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 	return MODBUS_OK;
 }
 
+
+/**
+	\brief Write multiple coils
+	\param function Ignored
+	\param index Index of the first coil to be written
+	\param count Number of coils to be written
+	\param values Pointer to array containing `count` coil values (each bit corresponds to one coil value)
+	\returns \ref MODBUS_ERROR_COUNT if the coil count is invalid (zero or greater than 1968)
+	\returns \ref MODBUS_ERROR_RANGE if `count` + `index` wraps around the address range
+	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+*/
 LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	ModbusMaster *status,
 	uint8_t function,
@@ -260,6 +337,16 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Write multiple holding registers
+	\param function Ignored
+	\param index Index of the first register to be written
+	\param count Number of registers to be written
+	\param values Pointer to array containing `count` register values
+	\returns \ref MODBUS_ERROR_COUNT if the register count is invalid (zero or greater than 123)
+	\returns \ref MODBUS_ERROR_RANGE if `count` + `index` wraps around the address range
+	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+*/
 LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 	ModbusMaster *status,
 	uint8_t function,
@@ -291,6 +378,15 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Mask write register request
+	\param function Ignored
+	\param index Register ID
+	\param andmax AND mask
+	\param ormask OR mask
+	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+	\note Must be called between modbusBeginXXXRequest() and modbusEndXXXRequest()
+*/
 LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 	ModbusMaster *status,
 	uint8_t function,

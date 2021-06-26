@@ -41,13 +41,29 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 };
 
 /**
-	\brief Default allocator for the slave based on modbusDefaultAllocator().
+	\brief Default allocator for master device. Based on modbusDefaultAllocator().
+	\param ptr pointer to the pointer to the buffer
+	\param size 
+	\returns MODBUS_ERROR_ALLOC on allocation failure
 */
 LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	return modbusDefaultAllocator(ptr, size, purpose);
 }
 
+/**
+	\brief Allocates memory for the request frame
+	\param pdusize size of the PDU section of the frame. 0 implies no request at all.
+	\returns MODBUS_ERROR_ALLOC on allocation failure
+
+	If called with size == 0, the request buffer is freed. Otherwise a buffer
+	for `(pdusize + status->request.padding)` bytes is allocated. This guarantees
+	that if a response is made, the buffer is big enough to hold the entire ADU.
+
+	This function is responsible for managing `data`, `pdu` and `length` fields
+	in the request struct. The `pdu` pointer is set up to point `pduOffset` bytes
+	after the `data` pointer unless `data` is a null pointer.
+*/
 LIGHTMODBUS_RET_ERROR modbusMasterAllocateRequest(
 	ModbusMaster *status,
 	uint16_t pdusize)
@@ -76,6 +92,16 @@ LIGHTMODBUS_RET_ERROR modbusMasterAllocateRequest(
 	return err;
 }
 
+/**
+	\brief Initializes a ModbusMaster struct
+	\param status ModbusMaster struct to be initialized
+	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator) (required)
+	\param dataCallback Callback function for handling incoming data (required)
+	\param exceptionCallback Callback function for handling slave exceptions (optional)
+
+	\see modbusSlaveDefaultAllocator()
+	\see modbusMasterDefaultFunctions
+*/
 LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,
 	ModbusMasterAllocator allocator,
@@ -99,11 +125,17 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Deinitializes a ModbusMaster struct
+*/
 void modbusMasterDestroy(ModbusMaster *status)
 {
 	(void) modbusMasterAllocateRequest(status, 0);
 }
 
+/**
+	\brief Begins a PDU-only request
+*/
 ModbusMaster *modbusBeginRequestPDU(ModbusMaster *status)
 {
 	status->request.pduOffset = 0;
@@ -111,11 +143,19 @@ ModbusMaster *modbusBeginRequestPDU(ModbusMaster *status)
 	return status;
 }
 
+/**
+	\brief Finalizes a PDU-only request
+	\param err Used for error propagation from modbusBuildRequestxx
+	\returns Propagated error value
+*/
 LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status, ModbusError err)
 {
 	return err;
 }
 
+/**
+	\brief Begins a RTU request
+*/
 ModbusMaster *modbusBeginRequestRTU(ModbusMaster *status)
 {
 	status->request.pduOffset = 1;
@@ -124,7 +164,9 @@ ModbusMaster *modbusBeginRequestRTU(ModbusMaster *status)
 }
 
 /**
+	\brief Finalizes a Modbus RTU request
 	\param err Used for error propagation from modbusBuildRequestxx
+	\returns Propagated error value if non-zero
 	\returns MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusError err)
@@ -142,6 +184,9 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address,
 	return MODBUS_OK;
 }
 
+/**
+	\brief Begins a TCP request
+*/
 ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status)
 {
 	status->request.pduOffset = 0;
@@ -150,7 +195,9 @@ ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status)
 }
 
 /**
+	\brief Finalizes a Modbus TCP request
 	\param err Used for error propagation from modbusBuildRequestxx
+	\returns Propagated error value if non-zero
 	\returns MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusError err)
@@ -167,6 +214,18 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transac
 	return MODBUS_OK;
 }
 
+/**
+	\brief Parses a PDU section of a slave response
+	\param address Address of the slave that sent in the data
+	\param request Pointer to the PDU section of the request frame
+	\param requestLength Length of the request PDU
+	\param response Pointer to the PDU section of the response
+	\param responseLength Length of the response PDU
+	\returns Result from the parsing function on success
+	\returns \ref MODBUS_ERROR_FUNCTION if the function code in request doesn't match the one in response
+	\returns \ref MODBUS_ERROR_FUNCTION if the function is not supported
+	\returns \ref MODBUS_ERROR_LENGTH if either the request or response has zero length
+*/
 LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	ModbusMaster *status,
 	uint8_t address,
@@ -213,6 +272,19 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	return MODBUS_ERROR_FUNCTION;
 }
 
+/**
+	\brief Parses a Modbus RTU slave response
+	\param request Pointer to the request frame
+	\param requestLength Length of the request
+	\param response Pointer to the response frame
+	\param responseLength Length of the response
+	\returns Result of \ref modbusParseResponsePDU() if the PDU extraction was successful
+	\returns \ref MODBUS_ERROR_CRC if the frame CRC is invalid
+	\returns \ref MODBUS_ERROR_ADDRESS if the address is 0 or request/response addresess don't match
+	\returns \ref MODBUS_ERROR_LENGTH if request or response is too short
+
+	\todo Consider omitting CRC for request for better perf?
+*/
 LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	ModbusMaster *status,
 	const uint8_t *request,
@@ -246,6 +318,20 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 		responseLength - 3);
 }
 
+/**
+	\brief Parses a Modbus TCP slave response
+	\param request Pointer to the request frame
+	\param requestLength Length of the request
+	\param response Pointer to the response frame
+	\param responseLength Length of the response
+	\returns Result of \ref modbusParseResponsePDU() if the PDU extraction was successful
+	\returns \ref MODBUS_ERROR_LENGTH if request or response is too short
+	\returns \ref MODBUS_ERROR_BAD_PROTOCOL if the Protocol ID field is non-zero
+	\returns \ref MODBUS_ERROR_BAD_TRANSACTION if the request and response transaction IDs don't match
+	\returns \ref MODBUS_ERROR_LENGTH if the request/response lengths don't match the declared ones
+
+	\todo Consider omitting CRC for request for better perf?
+*/
 LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	ModbusMaster *status,
 	const uint8_t *request,

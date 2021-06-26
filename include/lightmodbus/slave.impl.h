@@ -56,12 +56,12 @@ LIGHTMODBUS_RET_ERROR modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t *
 
 /**
 	\brief Allocates memory for slave's response frame
-	\param pdusize size of the PDU chunk. 0 if the slave doesn't want to respond.
+	\param pdusize size of the PDU section. 0 if the slave doesn't want to respond.
+	\returns MODBUS_ERROR_ALLOC on allocation failure
 
 	If called with size == 0, the response buffer is freed. Otherwise a buffer
-	for `(pdusize + status->response.padding)` bytes is allocated. This shall
-	guarantee that if a response is made, the buffer is big enough to hold
-	the entire ADU.
+	for `(pdusize + status->response.padding)` bytes is allocated. This guarantees
+	that if a response is made, the buffer is big enough to hold the entire ADU.
 
 	This function is responsible for managing `data`, `pdu` and `length` fields
 	in the response struct. The `pdu` pointer is set up to point `pduOffset` bytes
@@ -94,7 +94,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t 
 	\param address ID of the slave
 	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator)
 	\param registerCallback Callback function handling all register operations
-	\warning This function may not be called on a already initialized ModbusSlave struct.
+	\warning This function must not be called on an already initialized ModbusSlave struct.
 	\see modbusSlaveDefaultAllocator()
 	\see modbusSlaveDefaultFunctions
 */

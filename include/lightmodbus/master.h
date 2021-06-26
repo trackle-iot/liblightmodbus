@@ -52,25 +52,29 @@ typedef ModbusError (*ModbusMasterAllocator)(
 	uint16_t size,
 	ModbusBufferPurpose purpose);
 
+/**
+	\brief Master device status
+*/
 typedef struct modbusMaster
 {
-	ModbusMasterAllocator allocator;
-	ModbusDataCallback dataCallback;
-	ModbusMasterExceptionCallback exceptionCallback;
+	ModbusMasterAllocator allocator;                  //!< A pointer to an allocator function (required)
+	ModbusDataCallback dataCallback;                  //!< A pointer to data callback (required)
+	ModbusMasterExceptionCallback exceptionCallback;  //!< A pointer to an exception callback (optional)
 
-	ModbusMasterFunctionHandler *functions;
-	uint8_t functionCount;
+	const ModbusMasterFunctionHandler *functions; //!< A non-owning pointer to array of function handlers
+	uint8_t functionCount; //!< Size of \ref functions array
 
-	void *context;
+	void *context; //!< User's context pointer
 
+	//! Stores master's request for slave
 	struct
 	{
-		uint8_t *data;
-		uint8_t *pdu;
-		uint16_t length;
+		uint8_t *data;      //!< Pointer to the request frame buffer
+		uint8_t *pdu;       //!< Pointer to the PDU section of the request
+		uint16_t length;    //!< Length of the request buffer
 
-		uint16_t padding;
-		uint16_t pduOffset;
+		uint16_t padding;   //!< Number of extra bytes surrounding the PDU
+		uint16_t pduOffset; //!< PDU offset relative to the beginning of the frame
 	} request;
 
 } ModbusMaster;
@@ -90,11 +94,13 @@ ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusError err);
 
 #define modbusBuildRequestPDU(s, function, ...) \
-	modbusEndRequestPDU((s), modbusBuildRequest##function(modbusBeginRequestPDU((s)), function, __VA_ARGS__))
+	modbusEndRequestPDU((s), modbusBuildRequest##function(modbusBeginRequestPDU((s)), (function), __VA_ARGS__))
+
 #define modbusBuildRequestRTU(s, address, function, ...) \
-	modbusEndRequestRTU((s), (address), modbusBuildRequest##function(modbusBeginRequestRTU((s)), function, __VA_ARGS__))
+	modbusEndRequestRTU((s), (address), modbusBuildRequest##function(modbusBeginRequestRTU((s)), (function), __VA_ARGS__))
+
 #define modbusBuildRequestTCP(s, transaction, unit, function, ...) \
-	modbusEndRequestTCP((s), (transaction), (unit), modbusBuildRequest##function(modbusBeginRequestTCP((s)), function, __VA_ARGS__))
+	modbusEndRequestTCP((s), (transaction), (unit), modbusBuildRequest##function(modbusBeginRequestTCP((s)), (function), __VA_ARGS__))
 
 LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
 LIGHTMODBUS_RET_ERROR modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);

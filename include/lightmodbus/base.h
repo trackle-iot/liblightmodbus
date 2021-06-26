@@ -36,7 +36,7 @@ typedef enum modbusError
 		 - The provided frame is either too long or too short
 		 - The data length declared in frame does not match the actual frame length
 	*/
-	MODBUS_ERROR_LENGTH, //!< Frame too long or too short
+	MODBUS_ERROR_LENGTH,
 	
 	/**
 		\brief Memory allocation error

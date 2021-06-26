@@ -54,8 +54,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	if (count == 0 || count > maxCount)
 		return MODBUS_ERROR_COUNT;
 
-	// Addresss range check
-	if (UINT16_MAX - count - 1 < index)
+	// Address range check
+	if (UINT16_MAX - count + 1 <= index)
 		return MODBUS_ERROR_RANGE;
 
 	// Based on the request, calculate expected data size
@@ -177,8 +177,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 	if (count == 0 || count > maxCount)
 		return MODBUS_ERROR_COUNT;
 	
-	// Addresss range check
-	if (UINT16_MAX - count - 1 < index)
+	// Address range check
+	if (UINT16_MAX - count + 1 <= index)
 		return MODBUS_ERROR_RANGE;
 
 	ModbusError err = modbusMasterAllocateRequest(status, 5);
@@ -225,7 +225,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	if (count == 0 || count > 1968)
 		return MODBUS_ERROR_COUNT;
 
-	// Addresss range check
+	// Address range check
 	if (UINT16_MAX - count + 1 <= index)
 		return MODBUS_ERROR_RANGE;
 

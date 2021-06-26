@@ -248,6 +248,61 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Read multiple coils
+	\note A wrapper for \ref modbusBuildRequest01020304()
+	\see modbusBuildRequest01020304()
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildRequest01(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count)
+{
+	return modbusBuildRequest01020304(status, 1, index, count);
+}
+
+/**
+	\brief Read multiple discrete inputs
+	\note A wrapper for \ref modbusBuildRequest01020304()
+	\see modbusBuildRequest01020304()
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildRequest02(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count)
+{
+	return modbusBuildRequest01020304(status, 2, index, count);
+}
+
+/**
+	\brief Read multiple holding registers
+	\note A wrapper for \ref modbusBuildRequest01020304()
+	\see modbusBuildRequest01020304()
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildRequest03(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count)
+{
+	return modbusBuildRequest01020304(status, 3, index, count);
+}
+
+/**
+	\brief Read multiple input registers
+	\note A wrapper for \ref modbusBuildRequest01020304()
+	\see modbusBuildRequest01020304()
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildRequest04(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count)
+{
+	return modbusBuildRequest01020304(status, 4, index, count);
+}
 
 /**
 	\brief Write single coil/holding register
@@ -280,6 +335,33 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 	return MODBUS_OK;
 }
 
+/**
+	\brief Write single coil
+	\note A wrapper for \ref modbusBuildRequest0506()
+	\see modbusBuildRequest0506()
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildRequest05(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count)
+{
+	return modbusBuildRequest0506(status, 5, index, count);
+}
+
+/**
+	\brief Write single holding register
+	\note A wrapper for \ref modbusBuildRequest0506()
+	\see modbusBuildRequest0506()
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildRequest06(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count)
+{
+	return modbusBuildRequest0506(status, 6, index, count);
+}
 
 /**
 	\brief Write multiple coils

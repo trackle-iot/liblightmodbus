@@ -43,11 +43,47 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 	uint16_t index,
 	uint16_t count);
 
+LIGHTMODBUS_RET_ERROR modbusBuildRequest01(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count);
+
+LIGHTMODBUS_RET_ERROR modbusBuildRequest02(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count);
+
+LIGHTMODBUS_RET_ERROR modbusBuildRequest03(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count);
+
+LIGHTMODBUS_RET_ERROR modbusBuildRequest04(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count);
+
 LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 	ModbusMaster *status,
 	uint8_t function,
 	uint16_t index,
 	uint16_t value);
+
+LIGHTMODBUS_RET_ERROR modbusBuildRequest05(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count);
+
+LIGHTMODBUS_RET_ERROR modbusBuildRequest06(
+	ModbusMaster *status,
+	uint8_t function,
+	uint16_t index,
+	uint16_t count);
 
 LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	ModbusMaster *status,

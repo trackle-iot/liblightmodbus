@@ -57,7 +57,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t *
 /**
 	\brief Allocates memory for slave's response frame
 	\param pdusize size of the PDU section. 0 if the slave doesn't want to respond.
-	\returns MODBUS_ERROR_ALLOC on allocation failure
+	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
 
 	If called with size == 0, the response buffer is freed. Otherwise a buffer
 	for `(pdusize + status->response.padding)` bytes is allocated. This guarantees

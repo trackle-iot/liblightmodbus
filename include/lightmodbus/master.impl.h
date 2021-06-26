@@ -44,7 +44,7 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 	\brief Default allocator for master device. Based on modbusDefaultAllocator().
 	\param ptr pointer to the pointer to the buffer
 	\param size 
-	\returns MODBUS_ERROR_ALLOC on allocation failure
+	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
 */
 LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
@@ -54,7 +54,7 @@ LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t
 /**
 	\brief Allocates memory for the request frame
 	\param pdusize size of the PDU section of the frame. 0 implies no request at all.
-	\returns MODBUS_ERROR_ALLOC on allocation failure
+	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
 
 	If called with size == 0, the request buffer is freed. Otherwise a buffer
 	for `(pdusize + status->request.padding)` bytes is allocated. This guarantees
@@ -167,7 +167,7 @@ ModbusMaster *modbusBeginRequestRTU(ModbusMaster *status)
 	\brief Finalizes a Modbus RTU request
 	\param err Used for error propagation from modbusBuildRequestxx
 	\returns Propagated error value if non-zero
-	\returns MODBUS_ERROR_LENGTH if the allocated frame is too short 
+	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusError err)
 {
@@ -198,7 +198,7 @@ ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status)
 	\brief Finalizes a Modbus TCP request
 	\param err Used for error propagation from modbusBuildRequestxx
 	\returns Propagated error value if non-zero
-	\returns MODBUS_ERROR_LENGTH if the allocated frame is too short 
+	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusError err)
 {

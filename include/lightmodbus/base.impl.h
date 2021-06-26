@@ -24,7 +24,7 @@
 	   if the allocator can distinguish between different ModbusMaster and
 	   ModbusSlave instances issuing the requests**
 
-	\returns MODBUS_ERROR_ALLOC on allocation failure
+	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
 */
 LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {

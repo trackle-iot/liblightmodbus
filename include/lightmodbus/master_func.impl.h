@@ -226,7 +226,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 		return MODBUS_ERROR_COUNT;
 
 	// Addresss range check
-	if (UINT16_MAX - count - 1 < index)
+	if (UINT16_MAX - count + 1 <= index)
 		return MODBUS_ERROR_RANGE;
 
 	uint8_t dataLength = modbusBitsToBytes(count);
@@ -272,7 +272,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 		return MODBUS_ERROR_COUNT;
 
 	// Addresss range check
-	if (UINT16_MAX - count - 1 < index)
+	if (UINT16_MAX - count + 1 <= index)
 		return MODBUS_ERROR_RANGE;
 
 	uint8_t dataLength = count << 1;

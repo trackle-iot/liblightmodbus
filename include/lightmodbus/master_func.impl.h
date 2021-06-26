@@ -281,7 +281,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 	if (err) return err;
 
 	// Copy register values
-	for (uint8_t i = 0; i < count; i++)
+	for (uint8_t i = 0; i < (uint8_t)count; i++)
 		modbusWBE(&status->request.pdu[6 + (i << 1)], values[i]);
 
 	status->request.pdu[0] = 16;

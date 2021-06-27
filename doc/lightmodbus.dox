@@ -1,0 +1,25 @@
+/**
+\mainpage liblightmodbus - a lightweight, cross-platform, header-only Modbus RTU/TCP library
+
+This is a reference manual for the liblightmodbus library.
+
+## Getting started
+ - \ref building
+ - \ref basic-usage
+ - \ref porting
+ - \ref callbacks
+ - \ref allocators
+
+\page building Building liblightmodbus
+
+\page basic-usage Basic usage
+
+\page porting Porting exisiting code to liblightmodbus v3.0
+
+\page callbacks User-defined callback functions
+
+\page allocators User-defined allocators
+
+
+
+*/

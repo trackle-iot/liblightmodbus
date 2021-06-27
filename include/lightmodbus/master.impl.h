@@ -329,8 +329,6 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	\returns \ref MODBUS_ERROR_BAD_PROTOCOL if the Protocol ID field is non-zero
 	\returns \ref MODBUS_ERROR_BAD_TRANSACTION if the request and response transaction IDs don't match
 	\returns \ref MODBUS_ERROR_LENGTH if the request/response lengths don't match the declared ones
-
-	\todo Consider omitting CRC for request for better perf?
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	ModbusMaster *status,

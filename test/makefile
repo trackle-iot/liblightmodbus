@@ -1,9 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-result -I../include -I../include/lightmodbus -DLIGHTMODBUS_FULL
+DEFS = -DLIGHTMODBUS_FULL -DLIGHTMODBUS_SLAVE -DLIGHTMODBUS_F01S -DLIGHTMODBUS_F02S -DLIGHTMODBUS_F03S -DLIGHTMODBUS_F04S -DLIGHTMODBUS_F05S -DLIGHTMODBUS_F06S -DLIGHTMODBUS_F15S -DLIGHTMODBUS_F16S -DLIGHTMODBUS_F22S
 
 ifneq ($(COVERAGE),)
-CFLAGS += --coverage
+COVERAGE_FLAGS += --coverage
 endif
+
+CFLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-unused-result -I../include -I../include/lightmodbus $(DEFS)
 
 IMPL = \
 	-x c ../include/lightmodbus/base.impl.h \
@@ -13,7 +15,7 @@ IMPL = \
 	-x c ../include/lightmodbus/master_func.impl.h
 
 all: 
-	$(CC) $(CFLAGS) -o test test.c $(IMPL)
+	$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -o test test.c $(IMPL)
 	$(CC) $(CFLAGS) -o genrq genrq.c $(IMPL)
 
 run-test:

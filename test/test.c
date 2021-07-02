@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#ifndef LIGHTMODBUS_FULL
 #define LIGHTMODBUS_FULL
+#endif
 #include <lightmodbus/lightmodbus.h>
 
 #define REG_COUNT 8

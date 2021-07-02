@@ -3,6 +3,11 @@
 
 This is a reference manual for the liblightmodbus library.
 
+## About this release
+
+Version v3.0 brings the most changes in the history of liblightmodbus.
+
+
 ## Getting started
  - \ref building
  - \ref basic-usage
@@ -10,16 +15,60 @@ This is a reference manual for the liblightmodbus library.
  - \ref callbacks
  - \ref allocators
 
-\page building Building liblightmodbus
+\page building Building and integrating liblightmodbus
+
+Since the version v3.0, liblightmodbus is a header-only library. This decision was
+made based on
+
 
 \page basic-usage Basic usage
 
+## Slave code
+
+## Master
+
 \page porting Porting exisiting code to liblightmodbus v3.0
+
+## Initialization and cleanup
+
+## Slave code
+
+## Master code
+
+## Static memory
+
+## `modbusMaskRead()` and `modbusMaskWrite()`
+
+## `modbusSwapEndian()` and `modbusMatchEndian()`
 
 \page callbacks User-defined callback functions
 
+
+
+
 \page allocators User-defined allocators
 
+Liblightmodbus allows users to define their custom functions for memory management.
+This functionality is provided with mainly embedded systems in mind.
 
+The user defined allocator is a function in form:
+~~~{.c}
+ModbusError allocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
+~~~
+
+User-defined allocators must meet following requirements:
+ - When `size` is 0, the memory pointed to by `*ptr` must be freed. `*ptr`
+	shall then be set to NULL.
+ - When `size` is not 0, `*ptr` should be set to point to a memory block of
+	`size` bytes. If such block cannot be allocated, the allocator must
+	return \ref MODBUS_ERROR_ALLOC and free memory block pointed to by current
+	`*ptr` value.
+
+However, certain guarantees are made by the library:
+ - All allocation requests originating from a **single** ModbusMaster or
+	ModbusSlave instance with identical `purpose` argument are assumed
+	to refer to the same buffer. **This allows for static memory allocation
+	if the allocator can distinguish between different ModbusMaster and
+	ModbusSlave instances issuing the requests**
 
 */

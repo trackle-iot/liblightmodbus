@@ -38,6 +38,18 @@ typedef enum
 } ModbusRegisterQuery;
 
 /**
+	\brief Contains arguments for the register callback function
+*/
+typedef struct
+{
+	ModbusDataType type;
+	ModbusRegisterQuery query;
+	uint16_t id;
+	uint16_t value;
+	uint8_t function;
+} ModbusRegisterCallbackArgs;
+
+/**
 	\brief A pointer to callback for performing all register operations
 
 	Returning any error from this function results in a 'slave failure' exception
@@ -47,11 +59,7 @@ typedef enum
 */
 typedef ModbusError (*ModbusRegisterCallback)(
 	ModbusSlave *status,
-	ModbusDataType type,
-	ModbusRegisterQuery query,
-	uint8_t function,
-	uint16_t id,
-	uint16_t value,
+	const ModbusRegisterCallbackArgs *args,
 	uint16_t *result);
 
 /**

@@ -221,6 +221,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transac
 	\param requestLength Length of the request PDU
 	\param response Pointer to the PDU section of the response
 	\param responseLength Length of the response PDU
+	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\returns Result from the parsing function on success
 	\returns \ref MODBUS_ERROR_FUNCTION if the function code in request doesn't match the one in response
 	\returns \ref MODBUS_ERROR_FUNCTION if the function is not supported
@@ -232,7 +233,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	const uint8_t *request,
 	uint8_t requestLength,
 	const uint8_t *response,
-	uint8_t responseLength)
+	uint8_t responseLength,
+	ModbusError *responseError)
 {
 	// Check if lengths are ok
 	if (!requestLength || !responseLength)
@@ -260,13 +262,20 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	// Find a parsing function
 	for (uint16_t i = 0; i < status->functionCount; i++)
 		if (function == status->functions[i].id)
-			return status->functions[i].ptr(
+		{
+			ModbusError respErr = MODBUS_OK;
+			ModbusError err = status->functions[i].ptr(
 				status,
 				function,
 				request,
 				requestLength,
 				response,
-				responseLength);
+				responseLength,
+				&respErr);
+
+			if (responseError) *responseError = respErr;
+			return err;
+		}
 
 	// No matching function handler
 	return MODBUS_ERROR_FUNCTION;
@@ -290,7 +299,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength)
+	uint16_t responseLength,
+	ModbusError *responseError)
 {
 	// Check lengths
 	if (requestLength < 4 || responseLength < 4)
@@ -315,7 +325,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 		request + 1,
 		requestLength - 3,
 		response + 1,
-		responseLength - 3);
+		responseLength - 3,
+		responseError);
 }
 
 /**
@@ -335,7 +346,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength)
+	uint16_t responseLength,
+	ModbusError *responseError)
 {
 	// Check lengths
 	if (requestLength < 8 || responseLength < 8)
@@ -363,5 +375,6 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 		request + 7,
 		requestLength - 7,
 		response + 7,
-		responseLength - 7);
+		responseLength - 7,
+		responseError);
 }

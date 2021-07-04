@@ -8,6 +8,7 @@
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
+	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_FUNCTION if `function` is not one of: 01, 02, 03, 04
 	\return \ref MODBUS_ERROR_COUNT if the declared register count is invalid
@@ -22,7 +23,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength)
+	uint8_t responseLength,
+	ModbusError *responseError)
 {
 	// Check if lengths are ok
 	if (requestLength != 5 || responseLength < 3)
@@ -104,6 +106,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
+	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
 */
@@ -113,7 +116,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength)
+	uint8_t responseLength,
+	ModbusError *responseError)
 {
 	// Check if lengths are ok
 	if (requestLength != 5 || responseLength != 5)
@@ -135,6 +139,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
+	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_INDEX if the declared register index differs between the request and the response
 	\return \ref MODBUS_ERROR_COUNT if the declared register count differs between the request and the response
@@ -145,7 +150,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength)
+	uint8_t responseLength,
+	ModbusError *responseError)
 {
 	// Check if lengths are ok
 	if (requestLength < 7 || responseLength != 5)
@@ -172,6 +178,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
+	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
 */
@@ -181,7 +188,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength)
+	uint8_t responseLength,
+	ModbusError *responseError)
 {
 	// Check lengths
 	if (requestLength != 7 || responseLength != 7)

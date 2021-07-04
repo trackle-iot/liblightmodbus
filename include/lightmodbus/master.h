@@ -16,7 +16,8 @@ typedef ModbusError (*ModbusMasterParsingFunction)(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength);
+	uint8_t responseLength,
+	ModbusError *responseError);
 
 /**
 	\brief Associates Modbus function ID with a pointer to a response parsing function
@@ -111,21 +112,24 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	const uint8_t *request,
 	uint8_t requestLength,
 	const uint8_t *response,
-	uint8_t responseLength);
+	uint8_t responseLength,
+	ModbusError *responseError);
 
 LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	ModbusMaster *status,
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength);
+	uint16_t responseLength,
+	ModbusError *responseError);
 
 LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	ModbusMaster *status,
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength);
+	uint16_t responseLength,
+	ModbusError *responseError);
 
 extern ModbusMasterFunctionHandler modbusMasterDefaultFunctions[];
 #define MODBUS_MASTER_DEFAULT_FUNCTION_COUNT (sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]))

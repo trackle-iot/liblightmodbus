@@ -28,12 +28,17 @@ typedef struct
 	ModbusMasterParsingFunction ptr;
 } ModbusMasterFunctionHandler;
 
+typedef struct ModbusDataCallbackArgs
+{
+	ModbusDataType type;
+	uint16_t id;
+	uint16_t value;
+	uint8_t function;
+};
+
 typedef ModbusError (*ModbusDataCallback)(
 	ModbusMaster *status,
-	ModbusDataType type,
-	uint8_t function,
-	uint16_t id,
-	uint16_t value);
+	const ModbusDataCallbackArgs *args);
 
 /**
 	\brief A pointer to a callback called when a Modbus exception is generated (for master)

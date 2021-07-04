@@ -83,17 +83,22 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	if (responsePDU[1] != expected || responseLength != expected + 2)
 		return MODBUS_ERROR_LENGTH;
 
+	// Prepare callback args
+	ModbusDataCallbackArgs cargs = {
+		.function = function,
+		.type = datatype
+	};
+
 	// And finally read the data from the response
 	for (uint16_t i = 0; i < count; i++)
 	{
-		uint16_t value;
-
+		cargs.id = index + i;
 		if (bits == 1)
-			value = modbusMaskRead(&responsePDU[2], i);
+			cargs.value = modbusMaskRead(&responsePDU[2], i);
 		else
-			value = modbusRBE(&responsePDU[2 + (i << 1)]);
+			cargs.value = modbusRBE(&responsePDU[2 + (i << 1)]);
 
-		status->dataCallback(status, datatype, function, index + i, value);
+		status->dataCallback(status, &cargs);
 	}
 
 	return MODBUS_OK;

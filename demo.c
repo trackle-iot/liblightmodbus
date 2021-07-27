@@ -37,7 +37,7 @@ int main(void)
 
 	err = modbusParseRequestRTU(&slave, data, sizeof(data));
 	if (!modbusIsOk(err))
-		printf("Parse error: {source: %s, err: %s}\n", modbusErrorSourceStr(err.source), modbusErrorStr(err.code));
+		printf("Parse error: {source: %s, err: %s}\n", modbusErrorSourceStr(err.source), modbusErrorStr(err.error));
 
 	printf("Response: ");
 	for (int i = 0; i < slave.response.length; i++)

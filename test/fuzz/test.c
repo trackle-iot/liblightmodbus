@@ -5,6 +5,11 @@
 #ifndef LIGHTMODBUS_FULL
 #define LIGHTMODBUS_FULL
 #endif
+
+#ifndef LIGHTMODBUS_DEBUG
+#define LIGHTMODBUS_DEBUG
+#endif
+
 #include <lightmodbus/lightmodbus.h>
 
 #define REG_COUNT 8
@@ -15,34 +20,30 @@ static uint8_t coils[REG_COUNT] = {0};
 
 ModbusError regCallback(
 	ModbusSlave *status,
-	ModbusDataType type,
-	ModbusRegisterQuery query,
-	uint8_t function,
-	uint16_t id,
-	uint16_t value,
+	const ModbusRegisterCallbackArgs *args,
 	uint16_t *result)
 {
-	if (query == MODBUS_REGQ_R_CHECK || query == MODBUS_REGQ_W_CHECK)
+	if (args->query == MODBUS_REGQ_R_CHECK || args->query == MODBUS_REGQ_W_CHECK)
 	{
-		*result = id < REG_COUNT ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+		*result = args->id < REG_COUNT ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
 	}
-	else if (query == MODBUS_REGQ_R)
+	else if (args->query == MODBUS_REGQ_R)
 	{
-		switch (type)
+		switch (args->type)
 		{
-			case MODBUS_HOLDING_REGISTER: *result = registers[id]; break;
-			case MODBUS_INPUT_REGISTER:   *result = registers[id]; break;
-			case MODBUS_COIL:             *result = modbusMaskRead(coils, id); break;
-			case MODBUS_DISCRETE_INPUT:   *result = modbusMaskRead(coils, id); break;
+			case MODBUS_HOLDING_REGISTER: *result = registers[args->id]; break;
+			case MODBUS_INPUT_REGISTER:   *result = registers[args->id]; break;
+			case MODBUS_COIL:             *result = modbusMaskRead(coils, args->id); break;
+			case MODBUS_DISCRETE_INPUT:   *result = modbusMaskRead(coils, args->id); break;
 		}
 	}
-	else if (query == MODBUS_REGQ_W)
+	else if (args->query == MODBUS_REGQ_W)
 	{
-		switch (type)
+		switch (args->type)
 		{
-			case MODBUS_HOLDING_REGISTER: registers[id] = value; break;
+			case MODBUS_HOLDING_REGISTER: registers[args->id] = args->value; break;
 			// case MODBUS_INPUT_REGISTER:   inputs[id] = value; break;
-			case MODBUS_COIL:             modbusMaskWrite(coils, id, value); break;
+			case MODBUS_COIL:             modbusMaskWrite(coils, args->id, args->value); break;
 			// case MODBUS_DISCRETE_INPUT:   modbusMaskWrite(discrete, id, value); break;
 			default: break;
 		}
@@ -74,15 +75,15 @@ void dumpregs(void)
 
 void parse(ModbusSlave *s, const uint8_t *data, int n)
 {
-	ModbusError err = modbusParseRequestRTU(s, data, n);
-	if (!err)
+	ModbusErrorInfo err = modbusParseRequestRTU(s, data, n);
+	if (modbusIsOk(err))
 	{
 		for (int i = 0; i < s->response.length; i++)
 			printf("%02x ", s->response.data[i]);
 	}
 	else
 	{
-		printf("ERR %d", err);
+		printf("Error: {source: %s, error: %s}", modbusErrorSourceStr(err.source), modbusErrorStr(err.error));
 	}
 	dumpregs();
 	putchar('\n');
@@ -143,9 +144,9 @@ void hex(ModbusSlave *s)
 int main()
 {
 	ModbusSlave slave;
-	ModbusError err;
+	ModbusErrorInfo err;
 	err = modbusSlaveInit(&slave, 1, modbusSlaveDefaultAllocator, regCallback);
-	assert(err == MODBUS_OK && "Init failed!");
+	assert(modbusIsOk(err) && "Init failed!");
 
 	#ifdef FUZZ
 	raw(&slave);

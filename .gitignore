@@ -19,6 +19,7 @@ test-out
 *.swp
 *.*~
 .vscode
+*.code-workspace
 
 #Doxygen output
 doc/html

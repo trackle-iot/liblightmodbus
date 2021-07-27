@@ -1,5 +1,5 @@
 all:
-	clang -o demo demo.c -Wall -Wextra -fsanitize=address -fsanitize=undefined -fsanitize=alignment -Iinclude -Wno-unused-parameter
+	gcc -o demo demo.c -Wall -Wextra -fsanitize=address -fsanitize=undefined -fsanitize=alignment -Iinclude -Wno-unused-parameter
 
 
 avr-test:

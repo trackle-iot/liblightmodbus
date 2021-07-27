@@ -18,20 +18,23 @@
 #define MODBUS_ERROR_SOURCE_RESPONSE 2u
 #define MODBUS_ERROR_SOURCE_CALLBACK 3u
 
-#define MODBUS_MAKE_ERROR(s, c) ((ModbusErrorInfo){.source = (s), .code = (c)})
+#define MODBUS_MAKE_ERROR(s, e) ((ModbusErrorInfo){.source = (s), .error = (e)})
 #define MODBUS_NO_ERROR() MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, MODBUS_OK)
 #define MODBUS_GENERAL_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, (MODBUS_ERROR_##e))
 #define MODBUS_REQUEST_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_REQUEST, (MODBUS_ERROR_##e))
 #define MODBUS_RESPONSE_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_RESPONSE, (MODBUS_ERROR_##e))
 
+/**
+	\brief Error represenation - source and type of error
+*/
 typedef struct 
 {
-	unsigned int source : 2;
-	unsigned int code   : 6;
+	unsigned int source : 2; //!< General/Request/Response/Callback
+	unsigned int error  : 6; //!< Contains ModbusError
 } ModbusErrorInfo;
 
 /**
-	\brief Represents a library runtime error code.
+	\brief Represtents different kinds of errors.
 */
 typedef enum modbusError
 {

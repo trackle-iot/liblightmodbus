@@ -149,7 +149,7 @@ LIGHTMODBUS_WARN_UNUSED inline uint8_t modbusGetErrorSource(ModbusErrorInfo err)
 
 LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetErrorCode(ModbusErrorInfo err)
 {
-	return (ModbusError) err.code;
+	return (ModbusError) err.error;
 }
 
 LIGHTMODBUS_WARN_UNUSED inline uint8_t modbusIsOk(ModbusErrorInfo err)

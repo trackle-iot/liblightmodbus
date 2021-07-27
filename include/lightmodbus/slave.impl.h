@@ -49,7 +49,7 @@ ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[] =
 /**
 	\brief Default allocator for the slave based on modbusDefaultAllocator().
 */
-LIGHTMODBUS_RET_ERROR modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	return modbusDefaultAllocator(ptr, size, purpose);
 }
@@ -67,7 +67,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t *
 	in the response struct. The `pdu` pointer is set up to point `pduOffset` bytes
 	after the `data` pointer unless `data` is a null pointer.
 */
-LIGHTMODBUS_RET_ERROR modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t pdusize)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t pdusize)
 {
 	uint16_t size = pdusize;
 	if (pdusize) size += status->response.padding;
@@ -117,7 +117,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	status->exceptionCallback = NULL;
 	status->context = NULL;
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -145,16 +145,20 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 
 	// Do not respond if the request was broadcasted
 	if (address == 0)
-		return modbusSlaveAllocateResponse(status, 0);
+	{
+		if (modbusSlaveAllocateResponse(status, 0))
+			return MODBUS_GENERAL_ERROR(ALLOC);
+		else
+			return MODBUS_NO_ERROR();
+	}
 
-	ModbusError err = modbusSlaveAllocateResponse(status, 2);
-	if (err)
-		return err;
+	if (modbusSlaveAllocateResponse(status, 2))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	status->response.pdu[0] = function | 0x80;
 	status->response.pdu[1] = code;
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -182,24 +186,24 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 {
 	// Check length
 	if (length < 4 || length > 256)
-		return MODBUS_ERROR_LENGTH;
+		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	// Check if the message is meant for us
 	uint8_t address = data[0];
 	if (address != status->address || address == 0)
-		return MODBUS_OK;
+		return MODBUS_NO_ERROR();
 
 	//! \todo Should we check if address is less than 248?
 
 	// Check CRC
 	if (modbusCRC(data, length - 2) != modbusRLE(data + length - 2))
-		return MODBUS_OK;
+		return MODBUS_REQUEST_ERROR(CRC);
 
 	// Parse the request
-	ModbusError err;
+	ModbusErrorInfo err;
 	status->response.pduOffset = 1;
 	status->response.padding = 3;
-	if ((err = modbusParseRequestPDU(status, address, data + 1, length - 3)))
+	if (!modbusIsOk(err = modbusParseRequestPDU(status, address, data + 1, length - 3)))
 		return err;
 	
 	// Write address and CRC to the reponse
@@ -212,7 +216,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 		);
 	}
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -222,7 +226,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 {
 	// Check length
 	if (length < 8 || length > 260)
-		return MODBUS_ERROR_LENGTH;
+		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	// Read MBAP header
 	uint16_t transactionID = modbusRBE(&data[0]);
@@ -232,17 +236,17 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 
 	// Discard non-Modbus messages
 	if (protocolID != 0)
-		return MODBUS_OK;
+		return MODBUS_NO_ERROR();
 
 	// Length mismatch
 	if (messageLength != length - 6)
-		return MODBUS_OK; // TODO?
+		return MODBUS_REQUEST_ERROR(OTHER); // TODO?
 	
 	// Parse the request
-	ModbusError err;
+	ModbusErrorInfo err;
 	status->response.pduOffset = 7;
 	status->response.padding = 7;
-	if ((err = modbusParseRequestPDU(status, address, data + 7, messageLength - 1)))
+	if (!modbusIsOk(err = modbusParseRequestPDU(status, address, data + 7, messageLength - 1)))
 		return err;
 
 	// Write MBAP header
@@ -254,5 +258,5 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 		status->response.data[6] = address;
 	}
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }

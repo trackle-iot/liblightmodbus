@@ -46,7 +46,7 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 	\param size 
 	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
 */
-LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	return modbusDefaultAllocator(ptr, size, purpose);
 }
@@ -64,7 +64,7 @@ LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t
 	in the request struct. The `pdu` pointer is set up to point `pduOffset` bytes
 	after the `data` pointer unless `data` is a null pointer.
 */
-LIGHTMODBUS_RET_ERROR modbusMasterAllocateRequest(
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(
 	ModbusMaster *status,
 	uint16_t pdusize)
 {
@@ -122,7 +122,7 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	status->request.padding = 0;
 	status->request.pduOffset = 0;
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -148,7 +148,7 @@ ModbusMaster *modbusBeginRequestPDU(ModbusMaster *status)
 	\param err Used for error propagation from modbusBuildRequestxx
 	\returns Propagated error value
 */
-LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status, ModbusError err)
+LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status, ModbusErrorInfo err)
 {
 	return err;
 }
@@ -169,10 +169,11 @@ ModbusMaster *modbusBeginRequestRTU(ModbusMaster *status)
 	\returns Propagated error value if non-zero
 	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
-LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusError err)
+LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusErrorInfo err)
 {
-	if (err) return err;
-	if (status->request.length < 4) return MODBUS_ERROR_LENGTH;
+	if (!modbusIsOk(err)) return err;
+	if (status->request.length < 4) 
+		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	// Put in slave address
 	status->request.data[0] = address;
@@ -181,7 +182,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address,
 	uint16_t crc = modbusCRC(&status->request.data[0], status->request.length - 2);
 	modbusWLE(&status->request.data[status->request.length - 2], crc);
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -200,10 +201,11 @@ ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status)
 	\returns Propagated error value if non-zero
 	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
-LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusError err)
+LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusErrorInfo err)
 {
-	if (err) return err;
-	if (status->request.length < 7) return MODBUS_ERROR_LENGTH;
+	if (!modbusIsOk(err)) return err;
+	if (status->request.length < 7)
+		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	uint16_t length = status->request.length - 6;
 	modbusWBE(&status->request.data[0], transaction); // Transaction ID
@@ -211,7 +213,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transac
 	modbusWBE(&status->request.data[4], length);      // Data length
 	status->request.data[6] = unit;                   // Unit ID
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -237,9 +239,9 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	ModbusError *responseError)
 {
 	// Check if lengths are ok
-	if (!requestLength || !responseLength)
-		return MODBUS_ERROR_LENGTH;
-
+	if (!requestLength) return MODBUS_REQUEST_ERROR(LENGTH);
+	if (!responseLength) return MODBUS_RESPONSE_ERROR(LENGTH);
+	
 	uint8_t function = response[0];
 
 	// Handle exception frames
@@ -252,33 +254,30 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 				function & 0x7f,
 				(ModbusExceptionCode) response[1]);
 
-		return MODBUS_OK;
+		return MODBUS_NO_ERROR();
 	}
 
 	// Check if function code matches the one in request frame
 	if (function != request[0])
-		return MODBUS_ERROR_FUNCTION;
+		return MODBUS_RESPONSE_ERROR(FUNCTION);
 
 	// Find a parsing function
 	for (uint16_t i = 0; i < status->functionCount; i++)
 		if (function == status->functions[i].id)
 		{
-			ModbusError respErr = MODBUS_OK;
-			ModbusError err = status->functions[i].ptr(
+			ModbusErrorInfo err = status->functions[i].ptr(
 				status,
 				function,
 				request,
 				requestLength,
 				response,
-				responseLength,
-				&respErr);
+				responseLength);
 
-			if (responseError) *responseError = respErr;
-			return err;
+			if (!modbusIsOk(err)) return err;
 		}
 
 	// No matching function handler
-	return MODBUS_ERROR_FUNCTION;
+	return MODBUS_GENERAL_ERROR(FUNCTION);
 }
 
 /**
@@ -303,21 +302,21 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	ModbusError *responseError)
 {
 	// Check lengths
-	if (requestLength < 4 || responseLength < 4)
-		return MODBUS_ERROR_LENGTH;
-
+	if (requestLength < 4) return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength < 4) return MODBUS_RESPONSE_ERROR(LENGTH);
+	
 	// Check CRC
 	uint16_t requestCRC = modbusCRC(request, requestLength - 2);
 	if (requestCRC != modbusRLE(&request[requestLength - 2]))
-		return MODBUS_ERROR_CRC;
+		return MODBUS_REQUEST_ERROR(CRC);
 	uint16_t responseCRC = modbusCRC(response, responseLength - 2);
 	if (responseCRC != modbusRLE(&response[responseLength - 2]))
-		return MODBUS_ERROR_CRC;
+		return MODBUS_RESPONSE_ERROR(CRC);
 
 	// Check addresses
 	uint8_t address = request[0];
 	if (address == 0 || request[0] != response[0])
-		return MODBUS_ERROR_ADDRESS;
+		return MODBUS_RESPONSE_ERROR(ADDRESS);
 
 	return modbusParseResponsePDU(
 		status,
@@ -350,21 +349,20 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	ModbusError *responseError)
 {
 	// Check lengths
-	if (requestLength < 8 || responseLength < 8)
-		return MODBUS_ERROR_LENGTH;
+	if (requestLength < 8) return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength < 8) return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	// Check if protocol IDs are correct
-	if (modbusRBE(&request[2]) != 0 || modbusRBE(&response[0]) != 0)
-		return MODBUS_ERROR_BAD_PROTOCOL;
+	if (modbusRBE(&request[2]) != 0) return MODBUS_REQUEST_ERROR(BAD_PROTOCOL);
+	if (modbusRBE(&response[0]) != 0) return MODBUS_RESPONSE_ERROR(BAD_PROTOCOL);
 
 	// Check if transaction IDs match
 	if (modbusRBE(&request[0]) != modbusRBE(&response[0]))
-		return MODBUS_ERROR_BAD_TRANSACTION;
+		return MODBUS_RESPONSE_ERROR(BAD_TRANSACTION);
 
 	// Check if lengths are ok
-	if (modbusRBE(&request[4]) != requestLength - 6
-		|| modbusRBE(&response[4]) != responseLength - 6)
-		return MODBUS_ERROR_LENGTH;
+	if (modbusRBE(&request[4]) != requestLength - 6) return MODBUS_REQUEST_ERROR(LENGTH);
+	if (modbusRBE(&response[4]) != responseLength - 6) return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	//! \todo Check addresses (but how?)
 	uint8_t address = response[6];

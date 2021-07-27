@@ -10,14 +10,13 @@ typedef struct modbusMaster ModbusMaster;
 /**
 	\brief A pointer to response parsing function
 */
-typedef ModbusError (*ModbusMasterParsingFunction)(
+typedef ModbusErrorInfo (*ModbusMasterParsingFunction)(
 	ModbusMaster *status,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength,
-	ModbusError *responseError);
+	uint8_t responseLength);
 
 /**
 	\brief Associates Modbus function ID with a pointer to a response parsing function
@@ -100,10 +99,10 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 void modbusMasterDestroy(ModbusMaster *status);
 
 ModbusMaster *modbusBeginRequestRTU(ModbusMaster *status);
-LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusError err);
+LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusErrorInfo err);
 
 ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status);
-LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusError err);
+LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusErrorInfo err);
 
 #define modbusBuildRequestPDU(s, function, ...) \
 	modbusEndRequestPDU((s), modbusBuildRequest##function(modbusBeginRequestPDU((s)), (function), __VA_ARGS__))
@@ -114,8 +113,8 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transac
 #define modbusBuildRequestTCP(s, transaction, unit, function, ...) \
 	modbusEndRequestTCP((s), (transaction), (unit), modbusBuildRequest##function(modbusBeginRequestTCP((s)), (function), __VA_ARGS__))
 
-LIGHTMODBUS_RET_ERROR modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
-LIGHTMODBUS_RET_ERROR modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);
 
 LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	ModbusMaster *status,

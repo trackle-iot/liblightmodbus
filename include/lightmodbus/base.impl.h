@@ -9,7 +9,7 @@
 	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
 	\see allocators
 */
-LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusDefaultAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	(void) purpose;
 
@@ -43,7 +43,7 @@ LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(uint8_t **ptr, uint16_t size, Modbu
 	\param n Number of the bit to be read
 	\returns The bit value
 */
-uint8_t modbusMaskRead(const uint8_t *mask, uint16_t n)
+LIGHTMODBUS_WARN_UNUSED uint8_t modbusMaskRead(const uint8_t *mask, uint16_t n)
 {
 	return (mask[n >> 3] & (1 << (n & 7))) != 0;
 }
@@ -70,7 +70,7 @@ void modbusMaskWrite(uint8_t *mask, uint16_t n, uint8_t value)
 	\param length Number of bytes, starting at the `data` pointer, to process
 	\returns 16-bit Modbus CRC value
 */
-uint16_t modbusCRC(const uint8_t *data, uint16_t length)
+LIGHTMODBUS_WARN_UNUSED uint16_t modbusCRC(const uint8_t *data, uint16_t length)
 {
 	uint16_t crc = 0xFFFF;
 
@@ -97,7 +97,7 @@ uint16_t modbusCRC(const uint8_t *data, uint16_t length)
 	\param n Number of bits
 	\returns Number of bytes
 */
-inline uint16_t modbusBitsToBytes(uint16_t n)
+LIGHTMODBUS_WARN_UNUSED inline uint16_t modbusBitsToBytes(uint16_t n)
 {
 	return (n + 7) >> 3;
 }
@@ -105,7 +105,7 @@ inline uint16_t modbusBitsToBytes(uint16_t n)
 /**
 	\brief Safely reads a little-endian 16-bit word from provided pointer
 */
-inline uint16_t modbusRLE(const uint8_t *p)
+LIGHTMODBUS_WARN_UNUSED inline uint16_t modbusRLE(const uint8_t *p)
 {
 	uint8_t lo = *p;
 	uint8_t hi = *(p + 1);
@@ -125,7 +125,7 @@ inline uint16_t modbusWLE(uint8_t *p, uint16_t val)
 /**
 	\brief Safely reads a big-endian 16-bit word from provided pointer
 */
-inline uint16_t modbusRBE(const uint8_t *p)
+LIGHTMODBUS_WARN_UNUSED inline uint16_t modbusRBE(const uint8_t *p)
 {
 	uint8_t lo = *(p + 1);
 	uint8_t hi = *p;
@@ -140,4 +140,39 @@ inline uint16_t modbusWBE(uint8_t *p, uint16_t val)
 	*p = val >> 8;
 	*(p + 1) = val;
 	return val;
+}
+
+LIGHTMODBUS_WARN_UNUSED inline uint8_t modbusGetErrorSource(ModbusErrorInfo err)
+{
+	return err.source;
+}
+
+LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetErrorCode(ModbusErrorInfo err)
+{
+	return (ModbusError) err.code;
+}
+
+LIGHTMODBUS_WARN_UNUSED inline uint8_t modbusIsOk(ModbusErrorInfo err)
+{
+	return modbusGetErrorSource(err) == MODBUS_ERROR_SOURCE_GENERAL && modbusGetErrorCode(err) == MODBUS_OK;
+}
+
+LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetGeneralError(ModbusErrorInfo err)
+{
+	return err.source == MODBUS_ERROR_SOURCE_GENERAL ? modbusGetErrorCode(err) : MODBUS_OK;
+}
+
+LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetRequestError(ModbusErrorInfo err)
+{
+	return err.source == MODBUS_ERROR_SOURCE_REQUEST ? modbusGetErrorCode(err) : MODBUS_OK;
+}
+
+LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetResponseError(ModbusErrorInfo err)
+{
+	return err.source == MODBUS_ERROR_SOURCE_RESPONSE ? modbusGetErrorCode(err) : MODBUS_OK;
+}
+
+LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetCallbackError(ModbusErrorInfo err)
+{
+	return err.source == MODBUS_ERROR_SOURCE_CALLBACK ? modbusGetErrorCode(err) : MODBUS_OK;
 }

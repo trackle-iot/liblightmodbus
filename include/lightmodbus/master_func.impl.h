@@ -8,14 +8,11 @@
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_FUNCTION if `function` is not one of: 01, 02, 03, 04
 	\return \ref MODBUS_ERROR_COUNT if the declared register count is invalid
 	\return \ref MODBUS_ERROR_RANGE if the declared register range wraps around address space
 	\return \ref MODBUS_ERROR_LENGTH if the response length is different from expected one
-
-	\todo Should errors be returned because of an invalid frame built by a slave?
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	ModbusMaster *status,
@@ -23,12 +20,11 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength,
-	ModbusError *responseError)
+	uint8_t responseLength)
 {
 	// Check if lengths are ok
-	if (requestLength != 5 || responseLength < 3)
-		return MODBUS_ERROR_LENGTH;
+	if (requestLength != 5) return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength < 3) return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	// Determine data type
 	uint8_t bits;
@@ -61,7 +57,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 			break;
 		
 		default:
-			return MODBUS_ERROR_FUNCTION;
+			return MODBUS_GENERAL_ERROR(FUNCTION);
 	}
 
 	uint16_t index = modbusRBE(&requestPDU[1]);
@@ -69,11 +65,11 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 
 	// Check count
 	if (count == 0 || count > maxCount)
-		return MODBUS_ERROR_COUNT;
+		return MODBUS_REQUEST_ERROR(COUNT);
 
 	// Address range check
 	if (UINT16_MAX - count + 1 <= index)
-		return MODBUS_ERROR_RANGE;
+		return MODBUS_REQUEST_ERROR(RANGE);
 
 	// Based on the request, calculate expected data size
 	uint8_t expected = (bits == 16) ? (count << 1) : modbusBitsToBytes(count);
@@ -81,12 +77,12 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	// Check if declared data size matches
 	// and if response length is valid
 	if (responsePDU[1] != expected || responseLength != expected + 2)
-		return MODBUS_ERROR_LENGTH;
+		return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	// Prepare callback args
 	ModbusDataCallbackArgs cargs = {
+		.type = datatype,
 		.function = function,
-		.type = datatype
 	};
 
 	// And finally read the data from the response
@@ -101,7 +97,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 		status->dataCallback(status, &cargs);
 	}
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -111,7 +107,6 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
 */
@@ -121,20 +116,20 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength,
-	ModbusError *responseError)
+	uint8_t responseLength)
 {
 	// Check if lengths are ok
-	if (requestLength != 5 || responseLength != 5)
-		return MODBUS_ERROR_LENGTH;
+	if (requestLength != 5)	return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength != 5) return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	// The response should be identical to the request
 	uint8_t ok = 1;
 	for (uint8_t i = 0; ok && i < 5; i++)
 		ok = ok && (responsePDU[i] == requestPDU[i]);
 
-	if (!ok) return MODBUS_ERROR_OTHER; //!< \todo is this ok?
-	return MODBUS_OK;
+	if (!ok) return MODBUS_RESPONSE_ERROR(OTHER);
+
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -144,7 +139,6 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_INDEX if the declared register index differs between the request and the response
 	\return \ref MODBUS_ERROR_COUNT if the declared register count differs between the request and the response
@@ -155,25 +149,24 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength,
-	ModbusError *responseError)
+	uint8_t responseLength)
 {
 	// Check if lengths are ok
-	if (requestLength < 7 || responseLength != 5)
-		return MODBUS_ERROR_LENGTH;
+	if (requestLength < 7) return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength != 5) return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	//! \todo should we handle invalid count/index here?
 	
 	// Check if index is the same
 	if (modbusRBE(&requestPDU[1]) != modbusRBE(&responsePDU[1]))
-		return MODBUS_ERROR_INDEX;
+		return MODBUS_RESPONSE_ERROR(INDEX);
 		
 	// Check if count is the same
 	if (modbusRBE(&requestPDU[3]) != modbusRBE(&responsePDU[3]))
-		return MODBUS_ERROR_COUNT;
+		return MODBUS_RESPONSE_ERROR(COUNT);
 
 	
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -183,7 +176,6 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\param responseError Pointer to a variable where error regarding response should be returned (optional)
 	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
 	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
 */
@@ -193,20 +185,20 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
 	const uint8_t *responsePDU,
-	uint8_t responseLength,
-	ModbusError *responseError)
+	uint8_t responseLength)
 {
 	// Check lengths
-	if (requestLength != 7 || responseLength != 7)
-		return MODBUS_ERROR_LENGTH;
+	if (requestLength != 7) return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength != 7) return MODBUS_RESPONSE_ERROR(LENGTH);;
 	
 	// The response should be identical to the request
 	uint8_t ok = 1;
 	for (uint8_t i = 0; ok && i < 7; i++)
 		ok = ok && (responsePDU[i] == requestPDU[i]);
 	
-	if (!ok) return MODBUS_ERROR_OTHER; //!< \todo is this ok?
-	return MODBUS_OK;
+	if (!ok) return MODBUS_RESPONSE_ERROR(OTHER);
+
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -240,25 +232,25 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 			break;
 		
 		default:
-			return MODBUS_ERROR_FUNCTION;
+			return MODBUS_GENERAL_ERROR(FUNCTION);
 	}
 
 	// Check count
 	if (count == 0 || count > maxCount)
-		return MODBUS_ERROR_COUNT;
+		return MODBUS_GENERAL_ERROR(COUNT);
 	
 	// Address range check
 	if (UINT16_MAX - count + 1 <= index)
-		return MODBUS_ERROR_RANGE;
+		return MODBUS_GENERAL_ERROR(RANGE);
 
-	ModbusError err = modbusMasterAllocateRequest(status, 5);
-	if (err) return err;
+	if (modbusMasterAllocateRequest(status, 5))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 	
 	status->request.pdu[0] = function;
 	modbusWBE(&status->request.pdu[1], index);
 	modbusWBE(&status->request.pdu[3], count);
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -332,20 +324,20 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 	uint16_t value)
 {
 	if (function != 5 && function != 6)
-		return MODBUS_ERROR_FUNCTION;
+		return MODBUS_GENERAL_ERROR(FUNCTION);
 
 	// Write coils using proper value
 	if (function == 5)
 		value = value ? 0xff00 : 0;
 
-	ModbusError err = modbusMasterAllocateRequest(status, 5);
-	if (err) return err;
+	if (modbusMasterAllocateRequest(status, 5))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 	
 	status->request.pdu[0] = function;
 	modbusWBE(&status->request.pdu[1], index);
 	modbusWBE(&status->request.pdu[3], value);
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -395,16 +387,16 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 {
 	// Check count
 	if (count == 0 || count > 1968)
-		return MODBUS_ERROR_COUNT;
+		return MODBUS_GENERAL_ERROR(COUNT);
 
 	// Address range check
 	if (UINT16_MAX - count + 1 <= index)
-		return MODBUS_ERROR_RANGE;
+		return MODBUS_GENERAL_ERROR(RANGE);
 
 	uint8_t dataLength = modbusBitsToBytes(count);
 
-	ModbusError err = modbusMasterAllocateRequest(status, 6 + dataLength);
-	if (err) return err;
+	if (modbusMasterAllocateRequest(status, 6 + dataLength))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	// Number of full bytes and remaining bits
 	uint8_t n = count >> 3;
@@ -429,7 +421,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	modbusWBE(&status->request.pdu[1], index);
 	modbusWBE(&status->request.pdu[3], count);
 	status->request.pdu[5] = dataLength;
-	return MODBUS_OK;
+	
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -451,16 +444,16 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 {
 	// Check count
 	if (count == 0 || count > 123)
-		return MODBUS_ERROR_COUNT;
+		return MODBUS_GENERAL_ERROR(COUNT);
 
 	// Addresss range check
 	if (UINT16_MAX - count + 1 <= index)
-		return MODBUS_ERROR_RANGE;
+		return MODBUS_GENERAL_ERROR(RANGE);
 
 	uint8_t dataLength = count << 1;
 
-	ModbusError err = modbusMasterAllocateRequest(status, 6 + dataLength);
-	if (err) return err;
+	if (modbusMasterAllocateRequest(status, 6 + dataLength))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	// Copy register values
 	for (uint8_t i = 0; i < (uint8_t)count; i++)
@@ -470,7 +463,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 	modbusWBE(&status->request.pdu[1], index);
 	modbusWBE(&status->request.pdu[3], count);
 	status->request.pdu[5] = dataLength;
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -489,13 +482,13 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 	uint16_t andmask,
 	uint16_t ormask)
 {
-	ModbusError err = modbusMasterAllocateRequest(status, 7);
-	if (err) return err;
+	if (modbusMasterAllocateRequest(status, 7))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 	
 	status->request.pdu[0] = 22;
 	modbusWBE(&status->request.pdu[1], index);
 	modbusWBE(&status->request.pdu[3], andmask);
 	modbusWBE(&status->request.pdu[5], ormask);
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }

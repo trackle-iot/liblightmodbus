@@ -10,7 +10,7 @@ typedef struct modbusSlave ModbusSlave;
 /**
 	\brief A pointer to request parsing function
 */
-typedef ModbusError (*ModbusSlaveParsingFunction)(
+typedef ModbusErrorInfo (*ModbusSlaveParsingFunction)(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
@@ -123,8 +123,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 	uint8_t function,
 	ModbusExceptionCode code);
 
-LIGHTMODBUS_RET_ERROR modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
-LIGHTMODBUS_RET_ERROR modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t size);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t size);
 LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *data, uint8_t length);
 LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *data, uint16_t length);
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *data, uint16_t length);

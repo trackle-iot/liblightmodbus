@@ -13,7 +13,10 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 {
 	// Do not respond if the request was broadcasted
 	if (address == 0)
-		return modbusSlaveAllocateResponse(status, 0);
+	{
+		if (modbusSlaveAllocateResponse(status, 0))
+			return MODBUS_GENERAL_ERROR(ALLOC);
+	}
 
 	// Check frame length
 	if (size != 5)
@@ -66,14 +69,14 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 
 	// Prepare callback args
 	ModbusRegisterCallbackArgs cargs = {
-		.function = function,
 		.type = datatype,
 		.query = MODBUS_REGQ_R_CHECK,
-		.value = 0
+		.value = 0,
+		.function = function,
 	};
 
 	// Check if all registers can be read
-	uint8_t fail = 0;
+	ModbusError fail = MODBUS_OK;
 	ModbusExceptionCode ex = MODBUS_EXCEP_NONE;
 	for (uint16_t i = 0; !fail && !ex && i < count; i++)
 	{
@@ -91,8 +94,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	if (ex) return modbusBuildException(status, address, function, ex);
 
 	uint8_t dataLength = (bits == 1 ? modbusBitsToBytes(count) : (count << 1));
-	ModbusError err = modbusSlaveAllocateResponse(status, 2 + dataLength);
-	if (err) return err;
+	if (modbusSlaveAllocateResponse(status, 2 + dataLength))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	status->response.pdu[0] = function;
 	status->response.pdu[1] = dataLength;
@@ -114,7 +117,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 			modbusWBE(&status->response.pdu[2 + (i << 1)], value);
 	}
 
-	return MODBUS_OK;
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -142,11 +145,11 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 
 	// Prepare callback args
 	ModbusRegisterCallbackArgs cargs = {
-		.function = function,
 		.type = datatype,
 		.query = MODBUS_REGQ_W_CHECK,
 		.id = index,
-		.value = datatype == MODBUS_COIL ? (value != 0) : value
+		.value = (uint16_t)((datatype == MODBUS_COIL) ? (value != 0) : value),
+		.function = function,
 	};
 
 	// Check if the register/coil can be written
@@ -164,16 +167,19 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 
 	// Do not respond if the request was broadcasted
 	if (address == 0)
-		return modbusSlaveAllocateResponse(status, 0);
+	{
+		if (modbusSlaveAllocateResponse(status, 0))
+			return MODBUS_GENERAL_ERROR(ALLOC);
+	}
 
-	ModbusError err;
-	if ((err = modbusSlaveAllocateResponse(status, 5)))
-		return err;
+	if ( modbusSlaveAllocateResponse(status, 5))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	status->response.pdu[0] = function;
 	modbusWBE(&status->response.pdu[1], index);
 	modbusWBE(&status->response.pdu[3], value);
-	return MODBUS_OK;
+
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -213,13 +219,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 
 	// Prepare callback args
 	ModbusRegisterCallbackArgs cargs = {
-		.function = function,
 		.type = datatype,
 		.query = MODBUS_REGQ_W_CHECK,
+		.function = function,
 	};
 
 	// Check write access
-	uint8_t fail = 0;
+	ModbusError fail = MODBUS_OK;
 	ModbusExceptionCode ex = MODBUS_EXCEP_NONE;
 	for (uint16_t i = 0; !fail && !ex && i < count; i++)
 	{
@@ -251,16 +257,19 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 
 	// Do not respond if the request was broadcasted
 	if (address == 0)
-		return modbusSlaveAllocateResponse(status, 0);
+	{
+		if (modbusSlaveAllocateResponse(status, 0))
+			return MODBUS_GENERAL_ERROR(ALLOC);
+	}
 
-	ModbusError err;
-	if ((err = modbusSlaveAllocateResponse(status, 5)))
-		return err;
+	if (modbusSlaveAllocateResponse(status, 5))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	status->response.pdu[0] = function;
 	modbusWBE(&status->response.pdu[1], index);
 	modbusWBE(&status->response.pdu[3], count);
-	return MODBUS_OK;
+	
+	return MODBUS_NO_ERROR();
 }
 
 /**
@@ -284,11 +293,11 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 
 	// Prepare callback args
 	ModbusRegisterCallbackArgs cargs = {
-		.function = function,
 		.type = MODBUS_HOLDING_REGISTER,
 		.query = MODBUS_REGQ_R_CHECK,
 		.id = index,
 		.value = 0,
+		.function = function,
 	};
 
 	// Check read access
@@ -322,15 +331,18 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 
 	// Do not respond if the request was broadcasted
 	if (address == 0)
-		return modbusSlaveAllocateResponse(status, 0);
+	{
+		if (modbusSlaveAllocateResponse(status, 0))
+			return MODBUS_GENERAL_ERROR(ALLOC);
+	}
 
-	ModbusError err;
-	if ((err = modbusSlaveAllocateResponse(status, 7)))
-		return err;
+	if (modbusSlaveAllocateResponse(status, 7))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	status->response.pdu[0] = function;
 	modbusWBE(&status->response.pdu[1], index);
 	modbusWBE(&status->response.pdu[3], andmask);
 	modbusWBE(&status->response.pdu[5], ormask);
-	return MODBUS_OK;
+	
+	return MODBUS_NO_ERROR();
 }

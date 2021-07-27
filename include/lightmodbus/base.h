@@ -11,7 +11,24 @@
 #define LIGHTMODBUS_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
-#define LIGHTMODBUS_RET_ERROR LIGHTMODBUS_WARN_UNUSED ModbusError
+#define LIGHTMODBUS_RET_ERROR LIGHTMODBUS_WARN_UNUSED ModbusErrorInfo
+
+#define MODBUS_ERROR_SOURCE_GENERAL  0u
+#define MODBUS_ERROR_SOURCE_REQUEST  1u
+#define MODBUS_ERROR_SOURCE_RESPONSE 2u
+#define MODBUS_ERROR_SOURCE_CALLBACK 3u
+
+#define MODBUS_MAKE_ERROR(s, c) ((ModbusErrorInfo){.source = (s), .code = (c)})
+#define MODBUS_NO_ERROR() MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, MODBUS_OK)
+#define MODBUS_GENERAL_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, (MODBUS_ERROR_##e))
+#define MODBUS_REQUEST_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_REQUEST, (MODBUS_ERROR_##e))
+#define MODBUS_RESPONSE_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_RESPONSE, (MODBUS_ERROR_##e))
+
+typedef struct 
+{
+	unsigned int source : 2;
+	unsigned int code   : 6;
+} ModbusErrorInfo;
 
 /**
 	\brief Represents a library runtime error code.
@@ -154,7 +171,7 @@ typedef enum modbusBufferPurpose
 typedef ModbusError (*ModbusAllocator)(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose, void *ctx);
 
 
-LIGHTMODBUS_RET_ERROR modbusDefaultAllocator(
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusDefaultAllocator(
 	uint8_t **ptr,
 	uint16_t size,
 	ModbusBufferPurpose purpose);
@@ -168,5 +185,13 @@ uint16_t modbusRLE(const uint8_t *p);
 uint16_t modbusWLE(uint8_t *p, uint16_t val);
 uint16_t modbusRBE(const uint8_t *p);
 uint16_t modbusWBE(uint8_t *p, uint16_t val);
+
+LIGHTMODBUS_WARN_UNUSED uint8_t modbusGetErrorSource(ModbusErrorInfo err);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetErrorCode(ModbusErrorInfo err);
+LIGHTMODBUS_WARN_UNUSED uint8_t modbusIsOk(ModbusErrorInfo err);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetGeneralError(ModbusErrorInfo err);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetRequestError(ModbusErrorInfo err);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetResponseError(ModbusErrorInfo err);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetCallbackError(ModbusErrorInfo err);
 
 #endif

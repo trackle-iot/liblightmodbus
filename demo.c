@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #define LIGHTMODBUS_FULL
+#define LIGHTMODBUS_DEBUG
 #define LIGHTMODBUS_IMPL
 #include <lightmodbus/lightmodbus.h>
 
@@ -28,14 +29,15 @@ ModbusError regCallback(
 int main(void)
 {
 	ModbusSlave slave;
-	ModbusError err;
+	ModbusErrorInfo err;
 	err = modbusSlaveInit(&slave, 1, modbusSlaveDefaultAllocator, regCallback);
 
 	uint8_t data[] = {0x01, 0x03, 0x05, 0x00, 0x02, 0x00, 0xff, 0xff};
 	modbusWLE(data + sizeof(data) - 2, modbusCRC(data, sizeof(data) - 2));
 
 	err = modbusParseRequestRTU(&slave, data, sizeof(data));
-	printf("Parse error: %d\n", err);
+	if (!modbusIsOk(err))
+		printf("Parse error: {source: %s, err: %s}\n", modbusErrorSourceStr(err.source), modbusErrorStr(err.code));
 
 	printf("Response: ");
 	for (int i = 0; i < slave.response.length; i++)

@@ -492,3 +492,66 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 
 	return MODBUS_NO_ERROR();
 }
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(1, 01, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(1, 01, index, count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(1, 01, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(1, 01, index, count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(1, 01, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(1, 01, index, count)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(2, 02, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(2, 02, index, count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(2, 02, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(2, 02, index, count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(2, 02, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(2, 02, index, count)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(3, 03, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(3, 03, index, count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(3, 03, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(3, 03, index, count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(3, 03, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(3, 03, index, count)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(4, 04, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(4, 04, index, count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(4, 04, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(4, 04, index, count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(4, 04, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(4, 04, index, count)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(5, 05, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(5, 05, index, count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(5, 05, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(5, 05, index, count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(5, 05, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(5, 05, index, count)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(6, 06, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(6, 06, index, count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(6, 06, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(6, 06, index, count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(6, 06, uint16_t index, uint16_t count)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(6, 06, index, count)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(15, 15, uint16_t index, uint16_t count, const uint8_t *values)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(15, 15, index, count, values)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(15, 15, uint16_t index, uint16_t count, const uint8_t *values)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(15, 15, index, count, values)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(15, 15, uint16_t index, uint16_t count, const uint8_t *values)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(15, 15, index, count, values)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(16, 16, uint16_t index, uint16_t count, const uint16_t *values)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(16, 16, index, count, values)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(16, 16, uint16_t index, uint16_t count, const uint16_t *values)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(16, 16, index, count, values)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(16, 16, uint16_t index, uint16_t count, const uint16_t *values)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(16, 16, index, count, values)
+
+LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(22, 22, uint16_t index, uint16_t andmask, uint16_t ormask)
+LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(22, 22, index, andmask, ormask)
+LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(22, 22, uint16_t index, uint16_t andmask, uint16_t ormask)
+LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(22, 22, index, andmask, ormask)
+LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(22, 22, uint16_t index, uint16_t andmask, uint16_t ormask)
+LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(22, 22, index, andmask, ormask)

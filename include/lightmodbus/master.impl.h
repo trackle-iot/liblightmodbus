@@ -136,42 +136,37 @@ void modbusMasterDestroy(ModbusMaster *status)
 /**
 	\brief Begins a PDU-only request
 */
-ModbusMaster *modbusBeginRequestPDU(ModbusMaster *status)
+LIGHTMODBUS_RET_ERROR modbusBeginRequestPDU(ModbusMaster *status)
 {
 	status->request.pduOffset = 0;
 	status->request.padding = 0;
-	return status;
+	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Finalizes a PDU-only request
-	\param err Used for error propagation from modbusBuildRequestxx
-	\returns Propagated error value
 */
-LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status, ModbusErrorInfo err)
+LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status)
 {
-	return err;
+	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Begins a RTU request
 */
-ModbusMaster *modbusBeginRequestRTU(ModbusMaster *status)
+LIGHTMODBUS_RET_ERROR modbusBeginRequestRTU(ModbusMaster *status)
 {
 	status->request.pduOffset = 1;
 	status->request.padding = 3;
-	return status;
+	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Finalizes a Modbus RTU request
-	\param err Used for error propagation from modbusBuildRequestxx
-	\returns Propagated error value if non-zero
 	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
-LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address, ModbusErrorInfo err)
+LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address)
 {
-	if (!modbusIsOk(err)) return err;
 	if (status->request.length < 4) 
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
@@ -188,22 +183,19 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address,
 /**
 	\brief Begins a TCP request
 */
-ModbusMaster *modbusBeginRequestTCP(ModbusMaster *status)
+LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status)
 {
 	status->request.pduOffset = 0;
 	status->request.padding = 7;
-	return status;
+	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Finalizes a Modbus TCP request
-	\param err Used for error propagation from modbusBuildRequestxx
-	\returns Propagated error value if non-zero
 	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
 */
-LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, ModbusErrorInfo err)
+LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit)
 {
-	if (!modbusIsOk(err)) return err;
 	if (status->request.length < 7)
 		return MODBUS_REQUEST_ERROR(LENGTH);
 

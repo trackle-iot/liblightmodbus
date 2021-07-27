@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include "base.h"
 
-typedef struct modbusSlave ModbusSlave;
+typedef struct ModbusSlave ModbusSlave;
 
 /**
 	\brief A pointer to request parsing function
@@ -20,7 +20,7 @@ typedef ModbusErrorInfo (*ModbusSlaveParsingFunction)(
 /**
 	\brief Associates Modbus function ID with a pointer to a parsing function
 */
-typedef struct
+typedef struct ModbusSlaveFunctionHandler
 {
 	uint8_t id;
 	ModbusSlaveParsingFunction ptr;
@@ -29,7 +29,7 @@ typedef struct
 /**
 	\brief Determines type of request made to the register callback function
 */
-typedef enum
+typedef enum ModbusRegisterQuery
 {
 	MODBUS_REGQ_R_CHECK, //!< Request for read access
 	MODBUS_REGQ_W_CHECK, //!< Request for write access
@@ -40,7 +40,7 @@ typedef enum
 /**
 	\brief Contains arguments for the register callback function
 */
-typedef struct
+typedef struct ModbusRegisterCallbackArgs
 {
 	ModbusDataType type;
 	ModbusRegisterQuery query;
@@ -83,7 +83,7 @@ typedef ModbusError (*ModbusSlaveAllocator)(
 /**
 	\brief Slave device status
 */
-typedef struct modbusSlave
+typedef struct ModbusSlave
 {
 	ModbusSlaveAllocator allocator;                 //!< A pointer to allocator function (required)
 	ModbusRegisterCallback registerCallback;        //!< A pointer to register callback (required)

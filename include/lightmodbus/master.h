@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include "base.h"
 
-typedef struct modbusMaster ModbusMaster;
+typedef struct ModbusMaster ModbusMaster;
 
 /**
 	\brief A pointer to response parsing function
@@ -21,7 +21,7 @@ typedef ModbusErrorInfo (*ModbusMasterParsingFunction)(
 /**
 	\brief Associates Modbus function ID with a pointer to a response parsing function
 */
-typedef struct
+typedef struct ModbusMasterFunctionHandler
 {
 	uint8_t id;
 	ModbusMasterParsingFunction ptr;
@@ -30,7 +30,7 @@ typedef struct
 /**
 	\brief Arguments for the data callback
 */
-typedef struct
+typedef struct ModbusDataCallbackArgs
 {
 	ModbusDataType type;
 	uint16_t id;
@@ -66,7 +66,7 @@ typedef ModbusError (*ModbusMasterAllocator)(
 /**
 	\brief Master device status
 */
-typedef struct modbusMaster
+typedef struct ModbusMaster
 {
 	ModbusMasterAllocator allocator;                  //!< A pointer to an allocator function (required)
 	ModbusDataCallback dataCallback;                  //!< A pointer to data callback (required)

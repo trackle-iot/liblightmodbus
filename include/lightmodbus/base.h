@@ -27,7 +27,7 @@
 /**
 	\brief Error represenation - source and type of error
 */
-typedef struct 
+typedef struct ModbusErrorInfo
 {
 	unsigned int source : 2; //!< General/Request/Response/Callback
 	unsigned int error  : 6; //!< Contains ModbusError
@@ -36,7 +36,7 @@ typedef struct
 /**
 	\brief Represtents different kinds of errors.
 */
-typedef enum modbusError
+typedef enum ModbusError
 {
 	/**
 		\brief No error
@@ -137,7 +137,7 @@ typedef enum modbusError
 /**
 	\brief Represents a Modbus exception code
 */
-typedef enum modbusExceptionCode
+typedef enum ModbusExceptionCode
 {
 	MODBUS_EXCEP_NONE = 0,
 	MODBUS_EXCEP_ILLEGAL_FUNCTION = 1, //!< Illegal function code
@@ -151,7 +151,7 @@ typedef enum modbusExceptionCode
 /**
 	\brief Represents different Modbus data types
 */
-typedef enum modbusDataType
+typedef enum ModbusDataType
 {
 	MODBUS_HOLDING_REGISTER = 1, //!< Holding register
 	MODBUS_INPUT_REGISTER = 2,   //!< Input register
@@ -162,7 +162,7 @@ typedef enum modbusDataType
 /**
 	\brief Describes what content will be held in the buffer
 */
-typedef enum modbusBufferPurpose
+typedef enum ModbusBufferPurpose
 {
 	MODBUS_SLAVE_RESPONSE_BUFFER,
 	MODBUS_MASTER_REQUEST_BUFFER,

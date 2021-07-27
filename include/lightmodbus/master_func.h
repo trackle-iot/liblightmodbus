@@ -40,8 +40,6 @@
 		return MODBUS_NO_ERROR(); \
 	}
 
-typedef struct modbusMaster ModbusMaster;
-
 LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	ModbusMaster *status,
 	uint8_t function,

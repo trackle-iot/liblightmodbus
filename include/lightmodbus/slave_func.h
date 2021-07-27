@@ -3,7 +3,7 @@
 
 #include "base.h"
 
-typedef struct modbusSlave ModbusSlave;
+typedef struct ModbusSlave ModbusSlave;
 
 LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,

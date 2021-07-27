@@ -22,8 +22,8 @@ typedef ModbusError (*ModbusSlaveParsingFunction)(
 */
 typedef struct
 {
-	ModbusSlaveParsingFunction ptr;
 	uint8_t id;
+	ModbusSlaveParsingFunction ptr;
 } ModbusSlaveFunctionHandler;
 
 /**

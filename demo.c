@@ -6,11 +6,7 @@
 
 ModbusError regCallback(
 	ModbusSlave *status,
-	ModbusDataType type,
-	ModbusRegisterQuery query,
-	uint8_t function,
-	uint16_t id,
-	uint16_t value,
+	const ModbusRegisterCallbackArgs *args,
 	uint16_t *result)
 {
 	static const char *querynames[4] = {
@@ -20,9 +16,9 @@ ModbusError regCallback(
 		[MODBUS_REGQ_W_CHECK] = "MODBUS_REGQ_W_CHECK",
 	};
 
-	printf("%s:\n\tfun: %d\n\tid:  %d\n\tval: %d\n", querynames[query], function, id, value);
+	printf("%s:\n\tfun: %d\n\tid:  %d\n\tval: %d\n", querynames[args->query], args->function, args->id, args->value);
 	
-	if (query == MODBUS_REGQ_R)
+	if (args->query == MODBUS_REGQ_R)
 		*result = 1;
 	else
 		*result = 0;

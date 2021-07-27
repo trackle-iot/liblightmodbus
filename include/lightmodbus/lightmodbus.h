@@ -53,11 +53,16 @@ extern "C" {
 
 #ifdef LIGHTMODBUS_SLAVE
 	#include "slave.h"
+	#include "slave_func.h"
 #endif
 
 #ifdef LIGHTMODBUS_MASTER
 	#include "master.h"
 	#include "master_func.h"
+#endif
+
+#ifdef LIGHTMODBUS_DEBUG
+	#include "debug.h"
 #endif
 
 // Include implementation files if IMPL macros are defined
@@ -71,6 +76,10 @@ extern "C" {
 	#ifdef LIGHTMODBUS_MASTER
 		#include "master.impl.h"
 		#include "master_func.impl.h"
+	#endif
+
+	#ifdef LIGHTMODBUS_DEBUG
+		#include "debug.impl.h"
 	#endif
 #endif
 

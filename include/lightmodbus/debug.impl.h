@@ -1,0 +1,79 @@
+#include "debug.h"
+
+#define ESTR(x) [(int)(x)] = #x
+#define ECASE(x) case (int)(x): return #x; break;
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
+const char *modbusErrorStr(ModbusError err)
+{
+	switch (err)
+	{
+		ECASE(MODBUS_OK);
+		ECASE(MODBUS_ERROR_LENGTH);
+		ECASE(MODBUS_ERROR_ALLOC);
+		ECASE(MODBUS_ERROR_FUNCTION);
+		ECASE(MODBUS_ERROR_COUNT);
+		ECASE(MODBUS_ERROR_INDEX);
+		ECASE(MODBUS_ERROR_RANGE);
+		ECASE(MODBUS_ERROR_CRC);
+		ECASE(MODBUS_ERROR_BAD_PROTOCOL);
+		ECASE(MODBUS_ERROR_BAD_TRANSACTION);
+		ECASE(MODBUS_ERROR_ADDRESS);
+		ECASE(MODBUS_ERROR_OTHER);
+
+		default: return "[invalid ModbusError]";
+	};
+}
+
+const char *modbusErrorSourceStr(uint8_t src)
+{
+	switch (src)
+	{
+		ECASE(MODBUS_ERROR_SOURCE_GENERAL);
+		ECASE(MODBUS_ERROR_SOURCE_REQUEST);
+		ECASE(MODBUS_ERROR_SOURCE_RESPONSE);
+		ECASE(MODBUS_ERROR_SOURCE_CALLBACK);
+
+		default: return "[invalid ModbusErrorInfo source]";
+	};
+}
+
+const char *modbusBufferPurposeStr(ModbusBufferPurpose purpose)
+{
+	switch (purpose)
+	{
+		ECASE(MODBUS_SLAVE_RESPONSE_BUFFER);
+		ECASE(MODBUS_MASTER_REQUEST_BUFFER);
+
+		default: return "[invalid ModbusBufferPurpose]";
+	}
+}
+
+const char *modbusExceptionCodeStr(ModbusExceptionCode code)
+{
+	switch (code)
+	{
+		ECASE(MODBUS_EXCEP_NONE);
+		ECASE(MODBUS_EXCEP_ILLEGAL_FUNCTION);
+		ECASE(MODBUS_EXCEP_ILLEGAL_ADDRESS);
+		ECASE(MODBUS_EXCEP_ILLEGAL_VALUE);
+		ECASE(MODBUS_EXCEP_SLAVE_FAILURE);
+		ECASE(MODBUS_EXCEP_ACK);
+		ECASE(MODBUS_EXCEP_NACK);
+
+		default: return "[invalid ModbusExceptionCode]";
+	};
+}
+
+const char *modbusDataTypeStr(ModbusDataType type)
+{
+	switch (type)
+	{
+		ECASE(MODBUS_HOLDING_REGISTER);
+		ECASE(MODBUS_INPUT_REGISTER);
+		ECASE(MODBUS_COIL);
+		ECASE(MODBUS_DISCRETE_INPUT);
+		
+		default: return "[invalid ModbusDataType]";
+	}
+}

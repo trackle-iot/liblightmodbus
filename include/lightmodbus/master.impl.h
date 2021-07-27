@@ -130,7 +130,8 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 */
 void modbusMasterDestroy(ModbusMaster *status)
 {
-	(void) modbusMasterAllocateRequest(status, 0);
+	ModbusError err = modbusMasterAllocateRequest(status, 0);
+	(void) err;
 }
 
 /**

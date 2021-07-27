@@ -125,7 +125,8 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 */
 void modbusSlaveDestroy(ModbusSlave *status)
 {
-	(void) modbusSlaveAllocateResponse(status, 0);
+	ModbusError err = modbusSlaveAllocateResponse(status, 0);
+	(void) err;
 }
 
 /**

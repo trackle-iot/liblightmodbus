@@ -28,14 +28,20 @@ typedef struct
 	ModbusMasterParsingFunction ptr;
 } ModbusMasterFunctionHandler;
 
-typedef struct ModbusDataCallbackArgs
+/**
+	\brief Arguments for the data callback
+*/
+typedef struct
 {
 	ModbusDataType type;
 	uint16_t id;
 	uint16_t value;
 	uint8_t function;
-};
+} ModbusDataCallbackArgs;
 
+/**
+	\brief A pointer to a callback used for handling data incoming to master
+*/
 typedef ModbusError (*ModbusDataCallback)(
 	ModbusMaster *status,
 	const ModbusDataCallbackArgs *args);

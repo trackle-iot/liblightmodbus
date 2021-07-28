@@ -46,7 +46,7 @@ const char *modbusErrorSourceStr(uint8_t src)
 		ECASE(MODBUS_ERROR_SOURCE_GENERAL);
 		ECASE(MODBUS_ERROR_SOURCE_REQUEST);
 		ECASE(MODBUS_ERROR_SOURCE_RESPONSE);
-		ECASE(MODBUS_ERROR_SOURCE_CALLBACK);
+		ECASE(MODBUS_ERROR_SOURCE_RESERVED);
 
 		default: return "[invalid ModbusErrorInfo source]";
 	};

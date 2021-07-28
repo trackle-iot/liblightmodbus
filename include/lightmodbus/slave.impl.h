@@ -125,7 +125,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlaveAllocator allocator,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
-	ModbusSlaveFunctionHandler *functions,
+	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount)
 {
 	status->address = address;

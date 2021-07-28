@@ -88,7 +88,7 @@ typedef struct ModbusSlave
 	ModbusSlaveAllocator allocator;                 //!< A pointer to allocator function (required)
 	ModbusRegisterCallback registerCallback;        //!< A pointer to register callback (required)
 	ModbusSlaveExceptionCallback exceptionCallback; //!< A pointer to exception callback (optional)
-	ModbusSlaveFunctionHandler *functions;          //!< A pointer to an array of function handlers (required)
+	const ModbusSlaveFunctionHandler *functions;    //!< A pointer to an array of function handlers (required)
 	uint8_t functionCount;                          //!< Number of function handlers in the array (`functions`)
 	
 	void *context; //!< User's context pointer
@@ -115,7 +115,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlaveAllocator allocator,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
-	ModbusSlaveFunctionHandler *functions,
+	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount);
 
 void modbusSlaveDestroy(ModbusSlave *status);

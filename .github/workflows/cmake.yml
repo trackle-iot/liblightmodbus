@@ -36,7 +36,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} 
       
     - name: Coverage test
-      run: ${{github.workspace}}/test/run-test.sh ${{github.workspace}}/build/coverage-test main-test
+      run: ${{github.workspace}}/build/coverage-test
       
     - name: List directory
       run: ls -la

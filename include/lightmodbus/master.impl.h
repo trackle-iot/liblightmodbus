@@ -2,9 +2,10 @@
 #include "master_func.h"
 
 /**
-	\brief Default array of supported functions
+	\brief Default array of supported functions. Length is defined as
+	MODBUS_MASTER_DEFAULT_FUNCTION_COUNT
 
-	Contenst are controlled by defining `LIGHTMODBUS_FxxM` macros.
+	Contents are controlled by defining `LIGHTMODBUS_FxxM` macros.
 */
 ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 {
@@ -116,6 +117,8 @@ void modbusMasterFreeRequest(ModbusMaster *status)
 	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator()) (required)
 	\param dataCallback Callback function for handling incoming data (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
+	\param functions Pointer to an array of supported function handlers (required)
+	\param functionCount Number of elements in the `functions` array (required)
 	\returns MODBUS_NO_ERROR() on success
 
 	\see modbusSlaveDefaultAllocator()
@@ -125,14 +128,16 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,
 	ModbusMasterAllocator allocator,
 	ModbusDataCallback dataCallback,
-	ModbusMasterExceptionCallback exceptionCallback)
+	ModbusMasterExceptionCallback exceptionCallback,
+	const ModbusMasterFunctionHandler *functions,
+	uint8_t functionCount)
 {
 	status->allocator = allocator;
 	status->dataCallback = dataCallback;
 	status->exceptionCallback = exceptionCallback;
 
-	status->functions = modbusMasterDefaultFunctions;
-	status->functionCount = MODBUS_MASTER_DEFAULT_FUNCTION_COUNT;
+	status->functions = functions;
+	status->functionCount = functionCount;
 
 	status->context = NULL;
 	status->request.data = NULL;

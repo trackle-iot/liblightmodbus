@@ -94,7 +94,9 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,
 	ModbusMasterAllocator allocator,
 	ModbusDataCallback dataCallback,
-	ModbusMasterExceptionCallback exceptionCallback);
+	ModbusMasterExceptionCallback exceptionCallback,
+	const ModbusMasterFunctionHandler *functions,
+	uint8_t functionCount);
 
 void modbusMasterDestroy(ModbusMaster *status);
 
@@ -132,6 +134,11 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	uint16_t responseLength);
 
 extern ModbusMasterFunctionHandler modbusMasterDefaultFunctions[];
+
+/**
+	\def MODBUS_MASTER_DEFAULT_FUNCTION_COUNT
+	\brief Length of the modbusMasterDefaultFunctions array
+*/
 #define MODBUS_MASTER_DEFAULT_FUNCTION_COUNT (sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]))
 
 #endif

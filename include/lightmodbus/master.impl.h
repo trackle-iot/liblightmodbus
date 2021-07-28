@@ -228,8 +228,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	const uint8_t *request,
 	uint8_t requestLength,
 	const uint8_t *response,
-	uint8_t responseLength,
-	ModbusError *responseError)
+	uint8_t responseLength)
 {
 	// Check if lengths are ok
 	if (!requestLength) return MODBUS_REQUEST_ERROR(LENGTH);
@@ -291,8 +290,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength,
-	ModbusError *responseError)
+	uint16_t responseLength)
 {
 	// Check lengths
 	if (requestLength < 4) return MODBUS_REQUEST_ERROR(LENGTH);
@@ -317,8 +315,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 		request + 1,
 		requestLength - 3,
 		response + 1,
-		responseLength - 3,
-		responseError);
+		responseLength - 3);
 }
 
 /**
@@ -338,8 +335,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength,
-	ModbusError *responseError)
+	uint16_t responseLength)
 {
 	// Check lengths
 	if (requestLength < 8) return MODBUS_REQUEST_ERROR(LENGTH);
@@ -366,6 +362,5 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 		request + 7,
 		requestLength - 7,
 		response + 7,
-		responseLength - 7,
-		responseError);
+		responseLength - 7);
 }

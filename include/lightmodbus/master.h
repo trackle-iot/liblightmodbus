@@ -114,24 +114,21 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	const uint8_t *request,
 	uint8_t requestLength,
 	const uint8_t *response,
-	uint8_t responseLength,
-	ModbusError *responseError);
+	uint8_t responseLength);
 
 LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	ModbusMaster *status,
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength,
-	ModbusError *responseError);
+	uint16_t responseLength);
 
 LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	ModbusMaster *status,
 	const uint8_t *request,
 	uint16_t requestLength,
 	const uint8_t *response,
-	uint16_t responseLength,
-	ModbusError *responseError);
+	uint16_t responseLength);
 
 extern ModbusMasterFunctionHandler modbusMasterDefaultFunctions[];
 #define MODBUS_MASTER_DEFAULT_FUNCTION_COUNT (sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]))

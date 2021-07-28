@@ -1,14 +1,13 @@
-name: CMake
+name: CMake build with coverage testing
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -29,5 +28,20 @@ jobs:
     - name: Build
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-
+    
+    - name: Coverage build configuration
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCOVERAGE_TEST="1"
       
+    - name: Coverage build 
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} 
+      
+    - name: Coverage test
+      run: ${{github.workspace}}/test/run-test.sh ${{github.workspace}}/build/coverage-test main-test
+      
+    - name: List directory
+      run: ls -la
+  
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@1.1.3
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}

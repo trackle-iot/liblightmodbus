@@ -98,15 +98,16 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 
 void modbusMasterDestroy(ModbusMaster *status);
 
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);
+void modbusMasterFreeRequest(ModbusMaster *status);
+
 LIGHTMODBUS_RET_ERROR modbusBeginRequestPDU(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusBeginRequestRTU(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address);
 LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit);
-
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);
 
 LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	ModbusMaster *status,

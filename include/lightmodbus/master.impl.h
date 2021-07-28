@@ -100,6 +100,17 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(
 }
 
 /**
+	\brief Frees memory allocated for master's request frame
+	
+	Calls modbusMasterAllocateRequest() with size == 0.
+*/
+void modbusMasterFreeRequest(ModbusMaster *status)
+{
+	ModbusError err = modbusMasterAllocateRequest(status, 0);
+	(void) err;
+}
+
+/**
 	\brief Initializes a ModbusMaster struct
 	\param status ModbusMaster struct to be initialized
 	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator()) (required)

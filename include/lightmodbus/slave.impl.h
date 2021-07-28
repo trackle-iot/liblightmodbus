@@ -90,6 +90,17 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *sta
 }
 
 /**
+	\brief Frees memory allocated for slave's response frame
+	
+	Calls modbusSlaveAllocateResponse() with size == 0.
+*/
+void modbusSlaveFreeResponse(ModbusSlave *status)
+{
+	ModbusError err = modbusSlaveAllocateResponse(status, 0);
+	(void) err;
+}
+
+/**
 	\brief Initializes slave device
 	\param address ID of the slave
 	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator)

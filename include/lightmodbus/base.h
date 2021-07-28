@@ -4,17 +4,39 @@
 #include <stdint.h>
 
 /**
+	\def LIGHTMOBBUS_WARN_UNUSED
+	\brief Wrapper for a compiler attribute to warn if the result of a function is not used.
+	
 	This macro can be used to check if all ModbusErrors coming from library
-	functions are handled properly
+	functions are handled properly.
 */
 #ifndef LIGHTMOBBUS_WARN_UNUSED
 #define LIGHTMODBUS_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+/**
+	\def LIGHTMODBUS_RET_ERROR
+	\brief Return type for library functions returning ModbusErrorInfo that should be handled properly.
+*/
 #define LIGHTMODBUS_RET_ERROR LIGHTMODBUS_WARN_UNUSED ModbusErrorInfo
 
+/**
+	\def MODBUS_ERROR_SOURCE_GENERAL
+	\brief General library error - can be caused by providing an incorrect argument
+	or a internal library error.
+*/
 #define MODBUS_ERROR_SOURCE_GENERAL  0u
+
+/**
+	\def MODBUS_ERROR_SOURCE_REQUEST
+	\brief The request frame contains errors.
+*/
 #define MODBUS_ERROR_SOURCE_REQUEST  1u
+
+/**
+	\def MODBUS_ERROR_SOURCE_RESPONSE
+	\brief The response frame contains errors.
+*/
 #define MODBUS_ERROR_SOURCE_RESPONSE 2u
 
 /**
@@ -23,10 +45,37 @@
 */
 #define MODBUS_ERROR_SOURCE_RESERVED 3u
 
+/**
+	\def MODBUS_MAKE_ERROR(source, error)
+	\brief Constructs a ModbusErrorInfo object from a ModbusErrorCode and a `MODBUS_ERROR_SOURCE_*` macro
+*/
 #define MODBUS_MAKE_ERROR(s, e) ((ModbusErrorInfo){.source = (s), .error = (e)})
+
+/**
+	\def MODBUS_NO_ERROR()
+	\brief Construcs a ModbusErrorInfo object for which `modbusIsOK()` is guaranteed to return true.
+*/
 #define MODBUS_NO_ERROR() MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, MODBUS_OK)
+
+/**
+	\def MODBUS_GENERAL_ERROR(e)
+	\brief Constructs a ModbusErrorInfo where source is set to `MODBUS_ERROR_SOURCE_GENERAL` and 
+	the error code is set to `MODBUS_ERROR_##e`.
+*/
 #define MODBUS_GENERAL_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, (MODBUS_ERROR_##e))
+
+/**
+	\def MODBUS_REQUEST_ERROR(e)
+	\brief Constructs a ModbusErrorInfo where source is set to `MODBUS_ERROR_SOURCE_REQUESTL` and 
+	the error code is set to `MODBUS_ERROR_##e`.
+*/
 #define MODBUS_REQUEST_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_REQUEST, (MODBUS_ERROR_##e))
+
+/**
+	\def MODBUS_RESPONSE_ERROR(e)
+	\brief Constructs a ModbusErrorInfo where source is set to `MODBUS_ERROR_SOURCE_RESPONSE` and 
+	the error code is set to `MODBUS_ERROR_##e`.
+*/
 #define MODBUS_RESPONSE_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_RESPONSE, (MODBUS_ERROR_##e))
 
 /**

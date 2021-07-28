@@ -26,7 +26,10 @@
 extern "C" {
 #endif
 
-// Full version comes with all default functions available
+/**
+	\def LIGHTMODBUS_FULL
+	\brief Configures the library to include all avaiable Modbus functions for both master and slave
+*/
 #ifdef LIGHTMODBUS_FULL
 	#define LIGHTMODBUS_SLAVE
 	#define LIGHTMODBUS_F01S
@@ -51,21 +54,37 @@ extern "C" {
 	#define LIGHTMODBUS_F22M
 #endif
 
+/**
+	\def LIGHTMODBUS_SLAVE
+	\brief Configures the library to include slave functions.
+*/
 #ifdef LIGHTMODBUS_SLAVE
 	#include "slave.h"
 	#include "slave_func.h"
 #endif
 
+/**
+	\def LIGHTMODBUS_MASTER
+	\brief Configures the library to include master functions.
+*/
 #ifdef LIGHTMODBUS_MASTER
 	#include "master.h"
 	#include "master_func.h"
 #endif
 
+/**
+	\def LIGHTMODBUS_DEBUG
+	\brief Configures the library to include debug utilties.
+*/
 #ifdef LIGHTMODBUS_DEBUG
 	#include "debug.h"
 #endif
 
-// Include implementation files if IMPL macros are defined
+/**
+	\def LIGHTMODBUS_IMPL
+	\brief Includes implementation
+	\warning This macro must only be used **exactly once** when including the library.
+*/
 #ifdef LIGHTMODBUS_IMPL
 	#include "base.impl.h"
 	#ifdef LIGHTMODBUS_SLAVE

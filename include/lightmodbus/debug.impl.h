@@ -1,9 +1,20 @@
 #include "debug.h"
 
+/**
+	\def ESTR(x)
+	\brief Defines a field in array holding name of the enum value
+*/
 #define ESTR(x) [(int)(x)] = #x
-#define ECASE(x) case (int)(x): return #x; break;
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+/**
+	\def ECASE(x)
+	\brief Defines a case halding enum value, returning the name of the enum value
+*/
+#define ECASE(x) case (int)(x): return #x; break;
+
+/**
+	\brief Returns a string containing the name of the ModbusError value
+*/
 const char *modbusErrorStr(ModbusError err)
 {
 	switch (err)
@@ -25,6 +36,9 @@ const char *modbusErrorStr(ModbusError err)
 	};
 }
 
+/**
+	\brief Returns a string containing the name error source
+*/
 const char *modbusErrorSourceStr(uint8_t src)
 {
 	switch (src)
@@ -38,6 +52,9 @@ const char *modbusErrorSourceStr(uint8_t src)
 	};
 }
 
+/**
+	\brief Returns a string containing the name of the ModbusBufferPurpose enum value
+*/
 const char *modbusBufferPurposeStr(ModbusBufferPurpose purpose)
 {
 	switch (purpose)
@@ -49,6 +66,9 @@ const char *modbusBufferPurposeStr(ModbusBufferPurpose purpose)
 	}
 }
 
+/**
+	\brief Returns a string containing the name of the ModbusExceptionCode enum value
+*/
 const char *modbusExceptionCodeStr(ModbusExceptionCode code)
 {
 	switch (code)
@@ -65,6 +85,9 @@ const char *modbusExceptionCodeStr(ModbusExceptionCode code)
 	};
 }
 
+/**
+	\brief Returns a string containing the name of the ModbusDataType enum value
+*/
 const char *modbusDataTypeStr(ModbusDataType type)
 {
 	switch (type)
@@ -77,3 +100,6 @@ const char *modbusDataTypeStr(ModbusDataType type)
 		default: return "[invalid ModbusDataType]";
 	}
 }
+
+#undef ESTR
+#undef ECASE

@@ -4,9 +4,17 @@
 #include "base.h"
 #include "master.h"
 
+/**
+	\def LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER
+	\brief Defines a header for a `modbusBuildRequest*PDU()` function
+*/
 #define LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(f, f_suffix, ...) \
 	LIGHTMODBUS_RET_ERROR modbusBuildRequest##f_suffix##PDU(ModbusMaster *status, __VA_ARGS__)
 
+/**
+	\def LIGHTMODBUS_DEFINE_BUILD_PDU_BODY
+	\brief Defines a body for a `modbusBuildRequest*PDU()` function
+*/
 #define LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(f, f_suffix, ...) \
 	{ \
 		ModbusErrorInfo err; \
@@ -16,9 +24,17 @@
 		return MODBUS_NO_ERROR(); \
 	}
 
+/**
+	\def LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER
+	\brief Defines a header for a `modbusBuildRequest*TCP()` function
+*/
 #define LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(f, f_suffix, ...) \
 	LIGHTMODBUS_RET_ERROR modbusBuildRequest##f_suffix##RTU(ModbusMaster *status, uint8_t address, __VA_ARGS__)
 
+/**
+	\def LIGHTMODBUS_DEFINE_BUILD_RTU_BODY
+	\brief Defines a body for a `modbusBuildRequest*RTU()` function
+*/
 #define LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(f, f_suffix, ...) \
 	{ \
 		ModbusErrorInfo err; \
@@ -28,9 +44,17 @@
 		return MODBUS_NO_ERROR(); \
 	}
 
+/**
+	\def LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER
+	\brief Defines a header for a `modbusBuildRequest*TCP()` function
+*/
 #define LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(f, f_suffix, ...) \
 	LIGHTMODBUS_RET_ERROR modbusBuildRequest##f_suffix##TCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, __VA_ARGS__)
 
+/**
+	\def LIGHTMODBUS_DEFINE_BUILD_TCP_BODY
+	\brief Defines a body for a `modbusBuildRequest*TCP()` function
+*/
 #define LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(f, f_suffix, ...) \
 	{ \
 		ModbusErrorInfo err; \

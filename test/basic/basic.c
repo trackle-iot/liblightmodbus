@@ -30,7 +30,14 @@ int main(void)
 {
 	ModbusSlave slave;
 	ModbusErrorInfo err;
-	err = modbusSlaveInit(&slave, 1, modbusSlaveDefaultAllocator, regCallback);
+	err = modbusSlaveInit(
+		&slave,
+		1,
+		modbusSlaveDefaultAllocator,
+		regCallback,
+		NULL,
+		modbusSlaveDefaultFunctions,
+		modbusSlaveDefaultFunctionCount);
 
 	uint8_t data[] = {0x01, 0x03, 0x05, 0x00, 0x02, 0x00, 0xff, 0xff};
 	modbusWLE(data + sizeof(data) - 2, modbusCRC(data, sizeof(data) - 2));

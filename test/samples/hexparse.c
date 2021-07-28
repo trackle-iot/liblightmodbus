@@ -2,21 +2,14 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifndef LIGHTMODBUS_FULL
 #define LIGHTMODBUS_FULL
-#endif
-
-#ifndef LIGHTMODBUS_DEBUG
 #define LIGHTMODBUS_DEBUG
-#endif
-
+#define LIGHTMODBUS_IMPL
 #include <lightmodbus/lightmodbus.h>
 
 #define REG_COUNT 8
 static uint16_t registers[REG_COUNT] = {0};
-// static uint16_t inputs[REG_COUNT] = {0};
 static uint8_t coils[REG_COUNT] = {0};
-// static uint8_t discrete[REG_COUNT] = {0};
 
 ModbusError regCallback(
 	ModbusSlave *status,
@@ -42,9 +35,7 @@ ModbusError regCallback(
 		switch (args->type)
 		{
 			case MODBUS_HOLDING_REGISTER: registers[args->id] = args->value; break;
-			// case MODBUS_INPUT_REGISTER:   inputs[id] = value; break;
 			case MODBUS_COIL:             modbusMaskWrite(coils, args->id, args->value); break;
-			// case MODBUS_DISCRETE_INPUT:   modbusMaskWrite(discrete, id, value); break;
 			default: break;
 		}
 	}
@@ -60,22 +51,17 @@ void dumpregs(void)
 	for (int i = 0; i < REG_COUNT; i++)
 		printf("%04x ", registers[i]);
 
-	// printf("|I ");
-	// for (int i = 0; i < REG_COUNT; i++)
-		// printf("%04x ", inputs[i]);
-
 	printf("|C ");
 	for (int i = 0; i < REG_COUNT / 8; i++)
 		printf("%02x ", coils[i]);
-
-	// printf("|D ");
-	// for (int i = 0; i < REG_COUNT; i++)
-		// printf("%04x ", discrete[i]);
 }
 
 void parse(ModbusSlave *s, const uint8_t *data, int n)
 {
 	ModbusErrorInfo err = modbusParseRequestRTU(s, data, n);
+	dumpregs();
+	printf("\t|F ");
+
 	if (modbusIsOk(err))
 	{
 		for (int i = 0; i < s->response.length; i++)
@@ -85,7 +71,7 @@ void parse(ModbusSlave *s, const uint8_t *data, int n)
 	{
 		printf("Error: {source: %s, error: %s}", modbusErrorSourceStr(err.source), modbusErrorStr(err.error));
 	}
-	dumpregs();
+
 	putchar('\n');
 }
 
@@ -147,12 +133,6 @@ int main()
 	ModbusErrorInfo err;
 	err = modbusSlaveInit(&slave, 1, modbusSlaveDefaultAllocator, regCallback);
 	assert(modbusIsOk(err) && "Init failed!");
-
-	#ifdef FUZZ
-	raw(&slave);
-	#else
 	hex(&slave);
-	#endif
-
 	modbusSlaveDestroy(&slave);
 }

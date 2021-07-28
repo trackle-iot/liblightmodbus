@@ -7,9 +7,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#ifndef LIGHTMODBUS_FULL
 #define LIGHTMODBUS_FULL
-#endif
+#define LIGHTMODBUS_IMPL
 #include <lightmodbus/lightmodbus.h>
 
 #define RANGE_MAX 16
@@ -92,21 +91,25 @@ void gen22(void)
 	dump(buf, 7);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	srand(time(NULL));
+	
+	int N = 1000;
+	if (argc > 1)
+		sscanf(argv[1], "%d", &N);
 
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < N; i++)
 		gen0506();
 
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < N; i++)
 		for (int c = 1; c < 100; c++)
 			gen1516(rand() % (20 * c));
 
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < N; i++)
 		gen22();
 
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < N; i++)
 		for (int c = 1; c < 100; c++)
 			gen01020304(rand() % (20 * c));
 

@@ -97,7 +97,7 @@ int main()
 {
 	ModbusSlave slave;
 	ModbusErrorInfo err;
-	err = modbusSlaveInit(&slave, 1, modbusSlaveDefaultAllocator, regCallback);
+	err = modbusSlaveInit(&slave, 1, modbusSlaveDefaultAllocator, regCallback, NULL, modbusSlaveDefaultFunctions, modbusSlaveDefaultFunctionCount);
 	assert(modbusIsOk(err) && "Init failed!");
 
 	#ifdef FUZZ

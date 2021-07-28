@@ -343,7 +343,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 
 	// Check if protocol IDs are correct
 	if (modbusRBE(&request[2]) != 0) return MODBUS_REQUEST_ERROR(BAD_PROTOCOL);
-	if (modbusRBE(&response[0]) != 0) return MODBUS_RESPONSE_ERROR(BAD_PROTOCOL);
+	if (modbusRBE(&response[2]) != 0) return MODBUS_RESPONSE_ERROR(BAD_PROTOCOL);
 
 	// Check if transaction IDs match
 	if (modbusRBE(&request[0]) != modbusRBE(&response[0]))

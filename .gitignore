@@ -37,10 +37,8 @@ demo
 test/out
 test/a.out
 test/oldsamples
-test/samples
 test/test
 test/newresp.txt
 test/test-result.txt
 test/impl.c
 old
-genrq

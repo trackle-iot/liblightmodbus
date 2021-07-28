@@ -19,6 +19,19 @@ jobs:
     - name: Run basic test
       run: test/basic/basic
 
+  cmake-build:
+    name: "CMake build test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure
+        run: cmake -S test/cmake -B test/cmake/build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build test/cmake/build
+      - name: Run basic test
+        run: test/cmake/build/main
+
   avr-build:
     name: "AVR build test"
     runs-on: ubuntu-latest
@@ -40,7 +53,7 @@ jobs:
 
   docs-build:
     name: "Build & deploy docs"
-    needs: [build]
+    needs: [build, avr-build, cmake-build]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout (with submodules)

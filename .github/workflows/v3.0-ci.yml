@@ -1,0 +1,65 @@
+name: Test for v3.0
+
+on:
+  push:
+    branches: [ dev-v3.0 ]
+  pull_request:
+    branches: [ dev-v3.0 ]
+
+jobs:
+  build:
+    name: "Basic build test"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build basic test
+      run: make -C test/basic
+    - name: Run basic test
+      run: test/basic/basic
+
+  avr-build:
+    name: "AVR build test"
+    runs-on: ubuntu-latest
+    container:
+      image: 'docker://lpodkalicki/avr-toolchain'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: "Check toolchain version"
+        run: |
+          avr-gcc --version
+          avr-size -v
+      - name: "Slave build"
+        run: make -C test/avr slave
+      - name: "Master build"
+        run: make -C test/avr master
+      - name: "Full build"
+        run: make -C test/avr full
+
+  docs-build:
+    name: "Build & deploy docs"
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout (with submodules)
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Run Doxygen
+      uses: mattnotmitt/doxygen-action@v1
+      with:
+        working-directory: '.'
+        doxyfile-path: 'doc/doxygen.conf'
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        destination_dir: newdocs
+        publish_dir: doc/html
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+
+
+  

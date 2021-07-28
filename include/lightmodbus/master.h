@@ -8,7 +8,7 @@
 typedef struct ModbusMaster ModbusMaster;
 
 /**
-	\brief A pointer to response parsing function
+	\brief A pointer to a response parsing function
 */
 typedef ModbusErrorInfo (*ModbusMasterParsingFunction)(
 	ModbusMaster *status,
@@ -32,10 +32,10 @@ typedef struct ModbusMasterFunctionHandler
 */
 typedef struct ModbusDataCallbackArgs
 {
-	ModbusDataType type;
-	uint16_t id;
-	uint16_t value;
-	uint8_t function;
+	ModbusDataType type; //!< Type of Modbus register
+	uint16_t id;         //!< ID of the register
+	uint16_t value;      //!< Value of the register
+	uint8_t function;    //!< Function that reported this value
 } ModbusDataCallbackArgs;
 
 /**
@@ -55,7 +55,7 @@ typedef void (*ModbusMasterExceptionCallback)(
 	ModbusExceptionCode code);
 
 /**
-	\brief A pointer to allocator function called to allocate frame buffers (for master)
+	\brief A pointer to master frame buffer allocator
 */
 typedef ModbusError (*ModbusMasterAllocator)(
 	ModbusMaster *status,

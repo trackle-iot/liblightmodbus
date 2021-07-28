@@ -8,11 +8,13 @@
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
-	\return \ref MODBUS_ERROR_FUNCTION if `function` is not one of: 01, 02, 03, 04
-	\return \ref MODBUS_ERROR_COUNT if the declared register count is invalid
-	\return \ref MODBUS_ERROR_RANGE if the declared register range wraps around address space
-	\return \ref MODBUS_ERROR_LENGTH if the response length is different from expected one
+	\return MODBUS_REQUEST_ERROR(LENGTH) if request frame has invalid length
+	\return MODBUS_RESPONSE_ERROR(LENGTH) if response frame has invalid length
+	\return MODBUS_GENERAL_ERROR(FUNCTION) if `function` is not one of: 01, 02, 03, 04
+	\return MODBUS_REQUEST_ERROR(COUNT) if the declared register count is invalid
+	\return MODBUS_REQUEST_ERROR(RANGE) if the declared register range wraps around address space
+	\return MODBUS_RESPONSE_ERROR(LENGTH) if the response length is not as expected
+	\return MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	ModbusMaster *status,
@@ -107,8 +109,10 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
-	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
+	\return MODBUS_REQUEST_ERROR(LENGTH) if request frame has invalid length
+	\return MODBUS_RESPONSE_ERROR(LENGTH) if response frame has invalid length
+	\return MODBUS_RESPONSE_ERROR(OTHER) if the response is different from the request
+	\return MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	ModbusMaster *status,
@@ -139,9 +143,11 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
-	\return \ref MODBUS_ERROR_INDEX if the declared register index differs between the request and the response
-	\return \ref MODBUS_ERROR_COUNT if the declared register count differs between the request and the response
+	\return MODBUS_REQUEST_ERROR(LENGTH) if request frame has invalid length
+	\return MODBUS_RESPONSE_ERROR(LENGTH) if response frame has invalid length
+	\return MODBUS_RESPONSE_ERROR(INDEX) if the index differs between the request and response
+	\return return MODBUS_RESPONSE_ERROR(COUNT) if the count differs between the request and response
+	\return MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	ModbusMaster *status,
@@ -176,8 +182,10 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	\param requestLength request PDU section length
 	\param responsePDU pointer to the PDU section of the response frame
 	\param responseLength response PDU section length
-	\return \ref MODBUS_ERROR_LENGTH if either of the frames has invalid length
-	\return \ref MODBUS_ERROR_OTHER if the request is different from the response
+	\return MODBUS_REQUEST_ERROR(LENGTH) if request frame has invalid length
+	\return MODBUS_RESPONSE_ERROR(LENGTH) if response frame has invalid length
+	\return MODBUS_RESPONSE_ERROR(OTHER) if the response is different from the request
+	\return MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	ModbusMaster *status,
@@ -207,10 +215,11 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	\param index Index of the register to be read
 	\param count Number of registers to be read
 	\param value New value for the register/coil
-	\returns \ref MODBUS_ERROR_FUNCTION if `function` is not one of: 01, 02, 03, 04
-	\returns \ref MODBUS_ERROR_COUNT if the register count is invalid
-	\returns \ref MODBUS_ERROR_RANGE if `count` + `index` wraps around the address range
-	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+	\returns MODBUS_GENERAL_ERROR(FUNCTION) if function is not 1, 2, 3 or 4
+	\returns MODBUS_GENERAL_ERROR(COUNT) if count is zero or too large
+	\returns MODBUS_GENERAL_ERROR(RANGE) if the register range wraps aroudthe register space
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 	ModbusMaster *status,
@@ -254,9 +263,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 }
 
 /**
-	\brief Read multiple coils
-	\note A wrapper for \ref modbusBuildRequest01020304()
-	\see modbusBuildRequest01020304()
+	\brief Read multiple coils - a wrapper for modbusBuildRequest01020304()
+	\copydetails modbusBuildRequest01020304()
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest01(
 	ModbusMaster *status,
@@ -268,9 +276,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01(
 }
 
 /**
-	\brief Read multiple discrete inputs
-	\note A wrapper for \ref modbusBuildRequest01020304()
-	\see modbusBuildRequest01020304()
+	\brief Read multiple discrete inputs - a wrapper for modbusBuildRequest01020304()
+	\copydetails modbusBuildRequest01020304()
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest02(
 	ModbusMaster *status,
@@ -282,9 +289,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest02(
 }
 
 /**
-	\brief Read multiple holding registers
-	\note A wrapper for \ref modbusBuildRequest01020304()
-	\see modbusBuildRequest01020304()
+	\brief Read multiple holding registers - a wrapper for modbusBuildRequest01020304()
+	\copydetails modbusBuildRequest01020304()
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest03(
 	ModbusMaster *status,
@@ -296,9 +302,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest03(
 }
 
 /**
-	\brief Read multiple input registers
-	\note A wrapper for \ref modbusBuildRequest01020304()
-	\see modbusBuildRequest01020304()
+	\brief Read multiple input registers - a wrapper for modbusBuildRequest01020304()
+	\copydetails modbusBuildRequest01020304()
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest04(
 	ModbusMaster *status,
@@ -314,8 +319,9 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest04(
 	\param function 5 to write a coil, 6 to write a holding register
 	\param index Index of the register/coil to be written
 	\param value New value for the register/coil
-	\returns \ref MODBUS_ERROR_FUNCTION if `function` is not not 5 nor 6
-	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+	\returns MODBUS_GENERAL_ERROR(FUNCTION) if `function` is not 5 or 6
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 	ModbusMaster *status,
@@ -341,9 +347,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 }
 
 /**
-	\brief Write single coil
-	\note A wrapper for \ref modbusBuildRequest0506()
-	\see modbusBuildRequest0506()
+	\brief Write single coil - a wrapper for modbusBuildRequest0506()
+	\copydetails modbusBuildRequest0506()
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest05(
 	ModbusMaster *status,
@@ -355,9 +360,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest05(
 }
 
 /**
-	\brief Write single holding register
-	\note A wrapper for \ref modbusBuildRequest0506()
-	\see modbusBuildRequest0506()
+	\brief Write single holding register - a wrapper for modbusBuildRequest0506()
+	\copydetails modbusBuildRequest0506()
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest06(
 	ModbusMaster *status,
@@ -374,9 +378,10 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest06(
 	\param index Index of the first coil to be written
 	\param count Number of coils to be written
 	\param values Pointer to array containing `count` coil values (each bit corresponds to one coil value)
-	\returns \ref MODBUS_ERROR_COUNT if the coil count is invalid (zero or greater than 1968)
-	\returns \ref MODBUS_ERROR_RANGE if `count` + `index` wraps around the address range
-	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+	\returns MODBUS_GENERAL_ERROR(COUNT) if `count` is zero or too large
+	\returns MODBUS_GENERAL_ERROR(RANGE) if the register range wraps around the register space
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	ModbusMaster *status,
@@ -430,10 +435,11 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	\param function Ignored
 	\param index Index of the first register to be written
 	\param count Number of registers to be written
-	\param values Pointer to array containing `count` register values
-	\returns \ref MODBUS_ERROR_COUNT if the register count is invalid (zero or greater than 123)
-	\returns \ref MODBUS_ERROR_RANGE if `count` + `index` wraps around the address range
-	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
+	\param values Pointer to array containing `count` register values. Each 16-bit word corresponds to one register value
+	\returns MODBUS_GENERAL_ERROR(COUNT) if `count` is zero or too large
+	\returns MODBUS_GENERAL_ERROR(RANGE) if the register range wraps around the register space
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 	ModbusMaster *status,
@@ -472,8 +478,8 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 	\param index Register ID
 	\param andmax AND mask
 	\param ormask OR mask
-	\returns \ref MODBUS_ERROR_ALLOC on memory allocation error
-	\note Must be called between modbusBeginXXXRequest() and modbusEndXXXRequest()
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 	ModbusMaster *status,
@@ -493,65 +499,119 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 	return MODBUS_NO_ERROR();
 }
 
+//! \copydoc modbusBuildRequest01
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(1, 01, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(1, 01, index, count)
+//! \copydoc modbusBuildRequest01
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(1, 01, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(1, 01, index, count)
+//! \copydoc modbusBuildRequest01
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(1, 01, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(1, 01, index, count)
 
+//! \copydoc modbusBuildRequest02
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(2, 02, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(2, 02, index, count)
+//! \copydoc modbusBuildRequest02
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(2, 02, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(2, 02, index, count)
+//! \copydoc modbusBuildRequest02
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(2, 02, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(2, 02, index, count)
 
+//! \copydoc modbusBuildRequest03
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(3, 03, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(3, 03, index, count)
+//! \copydoc modbusBuildRequest03
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(3, 03, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(3, 03, index, count)
+//! \copydoc modbusBuildRequest03
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(3, 03, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(3, 03, index, count)
 
+//! \copydoc modbusBuildRequest04
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(4, 04, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(4, 04, index, count)
+//! \copydoc modbusBuildRequest04
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(4, 04, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(4, 04, index, count)
+//! \copydoc modbusBuildRequest04
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(4, 04, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(4, 04, index, count)
 
+//! \copydoc modbusBuildRequest05
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(5, 05, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(5, 05, index, count)
+//! \copydoc modbusBuildRequest05
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(5, 05, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(5, 05, index, count)
+//! \copydoc modbusBuildRequest05
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(5, 05, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(5, 05, index, count)
 
+//! \copydoc modbusBuildRequest06
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(6, 06, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(6, 06, index, count)
+//! \copydoc modbusBuildRequest06
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(6, 06, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(6, 06, index, count)
+//! \copydoc modbusBuildRequest06
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(6, 06, uint16_t index, uint16_t count)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(6, 06, index, count)
 
+//! \copydoc modbusBuildRequest15
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(15, 15, uint16_t index, uint16_t count, const uint8_t *values)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(15, 15, index, count, values)
+//! \copydoc modbusBuildRequest15
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(15, 15, uint16_t index, uint16_t count, const uint8_t *values)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(15, 15, index, count, values)
+//! \copydoc modbusBuildRequest15
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(15, 15, uint16_t index, uint16_t count, const uint8_t *values)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(15, 15, index, count, values)
 
+//! \copydoc modbusBuildRequest16
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(16, 16, uint16_t index, uint16_t count, const uint16_t *values)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(16, 16, index, count, values)
+//! \copydoc modbusBuildRequest16
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(16, 16, uint16_t index, uint16_t count, const uint16_t *values)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(16, 16, index, count, values)
+//! \copydoc modbusBuildRequest16
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(16, 16, uint16_t index, uint16_t count, const uint16_t *values)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(16, 16, index, count, values)
 
+//! \copydoc modbusBuildRequest22
+//! \returns Any errors from modbusBeginRequestPDU() or modbusEndRequestPDU()
 LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(22, 22, uint16_t index, uint16_t andmask, uint16_t ormask)
 LIGHTMODBUS_DEFINE_BUILD_PDU_BODY(22, 22, index, andmask, ormask)
+//! \copydoc modbusBuildRequest22
+//! \returns Any errors from modbusBeginRequestRTU() or modbusEndRequestRTU()
 LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(22, 22, uint16_t index, uint16_t andmask, uint16_t ormask)
 LIGHTMODBUS_DEFINE_BUILD_RTU_BODY(22, 22, index, andmask, ormask)
+//! \copydoc modbusBuildRequest22
+//! \returns Any errors from modbusBeginRequestTCP() or modbusEndRequestTCP()
 LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(22, 22, uint16_t index, uint16_t andmask, uint16_t ormask)
 LIGHTMODBUS_DEFINE_BUILD_TCP_BODY(22, 22, index, andmask, ormask)

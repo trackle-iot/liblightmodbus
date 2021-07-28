@@ -1,6 +1,11 @@
 #include "master.h"
 #include "master_func.h"
 
+/**
+	\brief Default array of supported functions
+
+	Contenst are controlled by defining `LIGHTMODBUS_FxxM` macros.
+*/
 ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 {
 #ifdef LIGHTMODBUS_F01M
@@ -43,8 +48,10 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 /**
 	\brief Default allocator for master device. Based on modbusDefaultAllocator().
 	\param ptr pointer to the pointer to the buffer
-	\param size 
-	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
+	\param size requested size of the buffer
+	\param purpose purpose of the buffer
+	\returns MODBUS_ERROR_ALLOC on allocation failure
+	\returns MODBUS_OK on success
 */
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
@@ -54,7 +61,7 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *s
 /**
 	\brief Allocates memory for the request frame
 	\param pdusize size of the PDU section of the frame. 0 implies no request at all.
-	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
+	\returns MODBUS_ERROR_ALLOC on allocation failure
 
 	If called with size == 0, the request buffer is freed. Otherwise a buffer
 	for `(pdusize + status->request.padding)` bytes is allocated. This guarantees
@@ -95,9 +102,10 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(
 /**
 	\brief Initializes a ModbusMaster struct
 	\param status ModbusMaster struct to be initialized
-	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator) (required)
+	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator()) (required)
 	\param dataCallback Callback function for handling incoming data (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
+	\returns MODBUS_NO_ERROR() on success
 
 	\see modbusSlaveDefaultAllocator()
 	\see modbusMasterDefaultFunctions
@@ -127,6 +135,9 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 
 /**
 	\brief Deinitializes a ModbusMaster struct
+	\param status ModbusMaster struct to be destroyed
+	\note This does not free the memory pointed to by the `status` pointer and
+	only cleans up the interals ofthe ModbusMaster struct.
 */
 void modbusMasterDestroy(ModbusMaster *status)
 {
@@ -136,6 +147,7 @@ void modbusMasterDestroy(ModbusMaster *status)
 
 /**
 	\brief Begins a PDU-only request
+	\returns MODBUS_NO_ERROR()
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestPDU(ModbusMaster *status)
 {
@@ -146,6 +158,7 @@ LIGHTMODBUS_RET_ERROR modbusBeginRequestPDU(ModbusMaster *status)
 
 /**
 	\brief Finalizes a PDU-only request
+	\returns MODBUS_NO_ERROR()
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status)
 {
@@ -154,6 +167,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status)
 
 /**
 	\brief Begins a RTU request
+	\returns MODBUS_NO_ERROR()
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestRTU(ModbusMaster *status)
 {
@@ -164,7 +178,8 @@ LIGHTMODBUS_RET_ERROR modbusBeginRequestRTU(ModbusMaster *status)
 
 /**
 	\brief Finalizes a Modbus RTU request
-	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the allocated frame is too short 
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address)
 {
@@ -183,6 +198,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address)
 
 /**
 	\brief Begins a TCP request
+	\returns MODBUS_NO_ERROR()
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status)
 {
@@ -193,7 +209,8 @@ LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status)
 
 /**
 	\brief Finalizes a Modbus TCP request
-	\returns \ref MODBUS_ERROR_LENGTH if the allocated frame is too short 
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the allocated frame is too short 
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit)
 {
@@ -216,11 +233,11 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transac
 	\param requestLength Length of the request PDU
 	\param response Pointer to the PDU section of the response
 	\param responseLength Length of the response PDU
-	\param responseError Pointer to a variable where error regarding response should be returned (optional)
-	\returns Result from the parsing function on success
-	\returns \ref MODBUS_ERROR_FUNCTION if the function code in request doesn't match the one in response
-	\returns \ref MODBUS_ERROR_FUNCTION if the function is not supported
-	\returns \ref MODBUS_ERROR_LENGTH if either the request or response has zero length
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request has zero length
+	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response has zero length
+	\returns MODBUS_RESPONSE_ERROR(FUNCTION) if the function code in request doesn't match the one in response
+	\returns MODBUS_GENERAL_ERROR(FUNCTION) if the function code is not supported
+	\returns Result from the parsing function on success (modbusParseRequest*() functions)
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	ModbusMaster *status,
@@ -278,12 +295,12 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	\param requestLength Length of the request
 	\param response Pointer to the response frame
 	\param responseLength Length of the response
-	\returns Result of \ref modbusParseResponsePDU() if the PDU extraction was successful
-	\returns \ref MODBUS_ERROR_CRC if the frame CRC is invalid
-	\returns \ref MODBUS_ERROR_ADDRESS if the address is 0 or request/response addresess don't match
-	\returns \ref MODBUS_ERROR_LENGTH if request or response is too short
-
-	\todo Consider omitting CRC for request for better perf?
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request is less than 4 bytes long
+	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response is less than 4 bytes long
+	\returns MODBUS_REQUEST_ERROR(CRC) if the request CRC is invalid
+	\returns MODBUS_RESPONSE_ERROR(CRC) if the response CRC is invalid
+	\returns MODBUS_RESPONSE_ERROR(ADDRESS) if the address is 0 or if request/response addressess don't match
+	\returns Result of modbusParseResponsePDU() otherwise
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	ModbusMaster *status,
@@ -296,10 +313,14 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	if (requestLength < 4) return MODBUS_REQUEST_ERROR(LENGTH);
 	if (responseLength < 4) return MODBUS_RESPONSE_ERROR(LENGTH);
 	
-	// Check CRC
+	// Request CRC check can be omitted for better performance
+	#ifndef LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC
 	uint16_t requestCRC = modbusCRC(request, requestLength - 2);
 	if (requestCRC != modbusRLE(&request[requestLength - 2]))
 		return MODBUS_REQUEST_ERROR(CRC);
+	#endif
+
+	// Check response CRC
 	uint16_t responseCRC = modbusCRC(response, responseLength - 2);
 	if (responseCRC != modbusRLE(&response[responseLength - 2]))
 		return MODBUS_RESPONSE_ERROR(CRC);
@@ -324,11 +345,12 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	\param requestLength Length of the request
 	\param response Pointer to the response frame
 	\param responseLength Length of the response
-	\returns Result of \ref modbusParseResponsePDU() if the PDU extraction was successful
-	\returns \ref MODBUS_ERROR_LENGTH if request or response is too short
-	\returns \ref MODBUS_ERROR_BAD_PROTOCOL if the Protocol ID field is non-zero
-	\returns \ref MODBUS_ERROR_BAD_TRANSACTION if the request and response transaction IDs don't match
-	\returns \ref MODBUS_ERROR_LENGTH if the request/response lengths don't match the declared ones
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request is less than 8 bytes long or if the request frame has different from declared one
+	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response is less than 8 bytes long or if the response frame has different from declared one
+	\returns MODBUS_REQUEST_ERROR(BAD_PROTOCOL) if the protocol ID in request is not 0
+	\returns MODBUS_RESPONSE_ERROR(BAD_PROTOCOL) if the protocol ID in response is not 0
+	\returns MODBUS_RESPONSE_ERROR(BAD_TRANSACTION) if the transaction ID in request is not the same as in response
+	\returns Result of modbusParseResponsePDU() otherwise
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	ModbusMaster *status,

@@ -171,8 +171,3 @@ LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetResponseError(ModbusErrorInf
 {
 	return err.source == MODBUS_ERROR_SOURCE_RESPONSE ? modbusGetErrorCode(err) : MODBUS_OK;
 }
-
-LIGHTMODBUS_WARN_UNUSED inline ModbusError modbusGetCallbackError(ModbusErrorInfo err)
-{
-	return err.source == MODBUS_ERROR_SOURCE_CALLBACK ? modbusGetErrorCode(err) : MODBUS_OK;
-}

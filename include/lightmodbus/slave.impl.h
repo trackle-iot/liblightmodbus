@@ -116,7 +116,8 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator) (required)
 	\param registerCallback Callback function for handling all register operations (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
-	\param functions Pointer to array of supported function handlers (required)
+	\param functions Pointer to array of supported function handlers (required).
+		The lifetime of this array must not be shorter than the lifetime of the slave.
 	\param functionCount Number of function handlers in the array (required)
 	\returns MODBUS_NO_ERROR() on success
 

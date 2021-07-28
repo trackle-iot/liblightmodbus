@@ -63,9 +63,12 @@ ModbusSlave slave;
 ModbusErrorInfo err;
 err = modbusSlaveInit(
 	&slave,          
-	1,                           // Address of the slave
-	modbusSlaveDefaultAllocator, // Memory allocator for ModbusSlave
-	myRegisterCallback           // Callback for register operations
+	1,                               // Address of the slave
+	modbusSlaveDefaultAllocator,     // Memory allocator for ModbusSlave
+	myRegisterCallback,              // Callback for register operations
+	myExceptionCallback,             // Callback for handling slave exceptions (optional)
+	modbusSlaveDefaultFunctions,     // Set of supported functions
+	modbusSlaveDefaultFunctionCount  // Number of supported functions
 	);
 
 // Check for errors
@@ -79,6 +82,14 @@ You may write your own, more sophisticated allocators if you wish - please see \
 In this code `myRegisterCallback` is a name of a callback function that will be called for every register operation.
 In previous this versions of the library this functionality was optionally available as `LIGHTMODBUS_REGISTER_CALLBACK`.
 Now, all register operations are performed using callbacks.
+
+`myExceptionCallback` is a name of a callback function that will be called every time slave
+reports an exception to the master. To disable this functionality, pass NULL as the callback.
+
+The set of functions supported by the slave is determined by the 6th function argument - in this case
+`modbusSlaveDefaultFunctions`. This argument is a pointer to an array of ModbusSlaveFunctionHandler
+structures which associate function codes with callbacks. Lifetime of this array must not be shorter
+than thelifetime of the slave. The length of this array should be provided as the last argument.
 
 \subsection slave-callback Register callback
 An exapmple implementation of a register callback operating on registers stored in an array:
@@ -178,9 +189,11 @@ ModbusMaster master;
 ModbusErrorInfo err;
 err = modbusMasterInit(
 	&master,          
-	modbusMasterDefaultAllocator, // Memory allocator for ModbusMaster
-	myDataCallback,               // Callback for handling incoming data
-	myExceptionCallback           // Optional slave exception callback
+	modbusMasterDefaultAllocator,    // Memory allocator for ModbusMaster
+	myDataCallback,                  // Callback for handling incoming data
+	myExceptionCallback,             // Optional slave exception callback
+	modbusMasterDefaultFunctions,    // Set of supported functions
+	modbusMasterDefaultFunctionCount // Number of supported functions
 	);
 
 // Check for errors
@@ -193,6 +206,11 @@ Additionally, master has two callbacks - data callback and exception callback. T
 used for processing all register data incoming to master, the latter for handling exceptions
 reported by the slave. Both callback are described in more detail in following sections
 and \ref callbacks.
+
+The 5th argument determines the set of functions supported by the master device. It should be
+a pointer to an array of ModbusMasterFunctionHandler structures which associate function codes
+with callbacks. The lifetime of this array must not be shorter than the lifetime of the master.
+The last argument should contain length of this array.
 
 \subsection master-data-callback Data callback
 

@@ -3,6 +3,10 @@
 
 /**
 	\brief Handles requests 01, 02, 03 and 04 (Read Multiple XX)
+	\param address address of the slave
+	\param function function code
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,

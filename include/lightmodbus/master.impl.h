@@ -122,7 +122,8 @@ void modbusMasterFreeRequest(ModbusMaster *status)
 	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator()) (required)
 	\param dataCallback Callback function for handling incoming data (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
-	\param functions Pointer to an array of supported function handlers (required)
+	\param functions Pointer to an array of supported function handlers (required). 
+		The lifetime of this array must not be shorter than the lifetime of the master.
 	\param functionCount Number of elements in the `functions` array (required)
 	\returns MODBUS_NO_ERROR() on success
 

@@ -1,6 +1,6 @@
 /*
-	liblightmodbus - a lightweight, multiplatform Modbus library
-	Copyright (C) 2017 Jacek Wieczorek <mrjjot@gmail.com>
+	liblightmodbus - a lightweight, header-only, cross-platform Modbus RTU/TCP library
+	Copyright (C) 2021 Jacek Wieczorek <mrjjot@gmail.com>
 
 	This file is part of liblightmodbus.
 

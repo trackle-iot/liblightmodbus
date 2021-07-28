@@ -3,7 +3,7 @@
 
 /**
 	\brief Associates function IDs with pointers to functions responsible
-	for parsing.
+	for parsing. Length of this array is defined as MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT.
 
 	\note Contents depend on defined `LIGHTMODBUS_FxxS` macros!
 */
@@ -48,6 +48,11 @@ ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[] =
 
 /**
 	\brief Default allocator for the slave based on modbusDefaultAllocator().
+	\param ptr Pointer to the pointer to point to the allocated memory.
+	\param size Requested size of the memory block
+	\param purpose Purpose of the buffer
+	\returns MODBUS_ERROR_ALLOC on memory allocation failure
+	\returns MODBUS_OK on success
 */
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
@@ -104,7 +109,12 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 	\brief Initializes slave device
 	\param address ID of the slave
 	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator) (required)
-	\param registerCallback Callback function handling all register operations (required)
+	\param registerCallback Callback function for handling all register operations (required)
+	\param exceptionCallback Callback function for handling slave exceptions (optional)
+	\param functions Pointer to array of supported function handlers (required)
+	\param functionCount Number of function handlers in the array (required)
+	\returns MODBUS_NO_ERROR() on success
+
 	\warning This function must not be called on an already initialized ModbusSlave struct.
 	\see modbusSlaveDefaultAllocator()
 	\see modbusSlaveDefaultFunctions
@@ -113,7 +123,10 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
 	uint8_t address,
 	ModbusSlaveAllocator allocator,
-	ModbusRegisterCallback registerCallback)
+	ModbusRegisterCallback registerCallback,
+	ModbusSlaveExceptionCallback exceptionCallback,
+	ModbusSlaveFunctionHandler *functions,
+	uint8_t functionCount)
 {
 	status->address = address;
 	status->response.data = NULL;
@@ -121,11 +134,11 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	status->response.length = 0;
 	status->response.padding = 0;
 	status->response.pduOffset = 0;
-	status->functions = modbusSlaveDefaultFunctions;
-	status->functionCount = MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT;
+	status->functions = functions;
+	status->functionCount = functionCount;
 	status->allocator = allocator;
 	status->registerCallback = registerCallback;
-	status->exceptionCallback = NULL;
+	status->exceptionCallback = exceptionCallback;
 	status->context = NULL;
 
 	return MODBUS_NO_ERROR();
@@ -142,8 +155,12 @@ void modbusSlaveDestroy(ModbusSlave *status)
 
 /**
 	\brief Builds an exception response frame
-
-	ModbusSlave.exceptionCallback is called if set.
+	\param address address of the slave
+	\param function function that reported the exception
+	\param code Modbus exception code
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation failure
+	\returns MODBUS_NO_ERROR() on success
+	\note If set, `exceptionCallback` from ModbusSlave is called.
 */
 LIGHTMODBUS_RET_ERROR modbusBuildException(
 	ModbusSlave *status,
@@ -174,11 +191,17 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 }
 
 /**
-	\brief Parses provided PDU (Protocol Data Unit)
+	\brief Parses provided PDU and generates response honorinng `pduOffset` and `padding` set in ModbusSlave
+	\param address address of the slave
+	\param data pointer to the PDU data
+	\param length length of the PDU
+	\returns Any errors from parsing functions
+
 	\warning This function expects ModbusSlave::response::pduOffset and
-	ModbusSlave::response::padding to be set properly!
+	ModbusSlave::response::padding to be set properly! If you're looking for a 
+	function that operates strictly on the PDU, please use modbusParseRequestPDU() instead.
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *data, uint8_t length)
+LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, const uint8_t *data, uint8_t length)
 {
 	uint8_t function = data[0];
 
@@ -192,7 +215,26 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 }
 
 /**
-	\brief Parses provided Modbus RTU request frame
+	\brief Parses provided PDU and generates PDU for the response frame
+	\param address address of the slave
+	\param data pointer to the PDU data
+	\param length length of the PDU
+	\returns Any errors from parsing functions
+*/
+LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *data, uint8_t length)
+{
+	status->response.pduOffset = 0;
+	status->response.padding = 0;
+	return modbusParseRequest(status, address, data, length);
+}
+
+/**
+	\brief Parses provided Modbus RTU request frame and generates a Modbus RTU response
+	\param data pointer to a Modbus RTU frame
+	\param length length of the frame
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
+	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
+	\returns Any errors from parsing functions
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *data, uint16_t length)
 {
@@ -215,7 +257,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	ModbusErrorInfo err;
 	status->response.pduOffset = 1;
 	status->response.padding = 3;
-	if (!modbusIsOk(err = modbusParseRequestPDU(status, address, data + 1, length - 3)))
+	if (!modbusIsOk(err = modbusParseRequest(status, address, data + 1, length - 3)))
 		return err;
 	
 	// Write address and CRC to the reponse
@@ -232,7 +274,12 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 }
 
 /**
-	\brief Parses provided Modbus TCP request frame
+	\brief Parses provided Modbus TCP request frame and generates a Modbus TCP response
+	\param data pointer to a Modbus TCP frame
+	\param length length of the frame
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid or different from the declared one
+	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
+	\returns Any errors from parsing functions
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *data, uint16_t length)
 {
@@ -252,13 +299,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 
 	// Length mismatch
 	if (messageLength != length - 6)
-		return MODBUS_REQUEST_ERROR(OTHER); // TODO?
+		return MODBUS_REQUEST_ERROR(LENGTH);
 	
 	// Parse the request
 	ModbusErrorInfo err;
 	status->response.pduOffset = 7;
 	status->response.padding = 7;
-	if (!modbusIsOk(err = modbusParseRequestPDU(status, address, data + 7, messageLength - 1)))
+	if (!modbusIsOk(err = modbusParseRequest(status, address, data + 7, messageLength - 1)))
 		return err;
 
 	// Write MBAP header

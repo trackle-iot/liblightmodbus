@@ -113,7 +113,10 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
 	uint8_t address,
 	ModbusSlaveAllocator allocator,
-	ModbusRegisterCallback registerCallback);
+	ModbusRegisterCallback registerCallback,
+	ModbusSlaveExceptionCallback exceptionCallback,
+	ModbusSlaveFunctionHandler *functions,
+	uint8_t functionCount);
 
 void modbusSlaveDestroy(ModbusSlave *status);
 
@@ -127,11 +130,17 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(ModbusSlave *sta
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t size);
 void modbusSlaveFreeResponse(ModbusSlave *status);
 
+LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, const uint8_t *data, uint8_t length);
 LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *data, uint8_t length);
 LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *data, uint16_t length);
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *data, uint16_t length);
 
 extern ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[];
+
+/**
+	\def MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT
+	\brief Length of the modbusSlaveDefaultFunctions array
+*/
 #define MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT (sizeof(modbusSlaveDefaultFunctions) / sizeof(modbusSlaveDefaultFunctions[0]))
 
 #endif

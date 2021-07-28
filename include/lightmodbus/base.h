@@ -79,7 +79,7 @@
 #define MODBUS_RESPONSE_ERROR(e) MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_RESPONSE, (MODBUS_ERROR_##e))
 
 /**
-	\brief Error represenation - source and type of error
+	\brief Richer error represenation - source and type of error
 */
 typedef struct ModbusErrorInfo
 {
@@ -135,6 +135,8 @@ typedef enum ModbusError
 	MODBUS_ERROR_COUNT,
 
 	/**
+		\brief Invalid index value
+		\deprecated
 		\todo Do we need this?
 	*/
 	MODBUS_ERROR_INDEX,
@@ -143,34 +145,29 @@ typedef enum ModbusError
 		\brief Invalid register range
 
 		Returned when accessing `count` registers starting at `index` would cause
-		16-bit unsigned int overflow.
+		a 16-bit unsigned int overflow.
 	*/
 	MODBUS_ERROR_RANGE,
 
 	/**
 		\brief CRC invalid
+		\note Only in Modbus RTU
 
 		CRC is invalid in either the request or the response.
-
-		\note Only in Modbus RTU
 	*/
 	MODBUS_ERROR_CRC,
 
 	/**
-		\brief Invalid protocol ID
-
-		The protocol ID in either the request or response frame is not 0.
-
+		\brief Invalid protocol ID (nonzero)
 		\note Only in Modbus TCP
 	*/
 	MODBUS_ERROR_BAD_PROTOCOL,
 
 	/**
 		\brief Mismatched transaction ID
+		\note Only in Modbus TCP
 		
 		The transaction identifier in the response does not match the one in the request frame.
-
-		\note Only in Modbus TCP
 	*/
 	MODBUS_ERROR_BAD_TRANSACTION,
 
@@ -218,15 +215,9 @@ typedef enum ModbusDataType
 */
 typedef enum ModbusBufferPurpose
 {
-	MODBUS_SLAVE_RESPONSE_BUFFER,
-	MODBUS_MASTER_REQUEST_BUFFER,
+	MODBUS_SLAVE_RESPONSE_BUFFER, //!< Slave's buffer holding response frame
+	MODBUS_MASTER_REQUEST_BUFFER, //!< Master's buffer holding request frame
 } ModbusBufferPurpose;
-
-/**
-	\brief Memory allocator
-*/
-typedef ModbusError (*ModbusAllocator)(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose, void *ctx);
-
 
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusDefaultAllocator(
 	uint8_t **ptr,

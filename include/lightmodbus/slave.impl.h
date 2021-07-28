@@ -103,8 +103,8 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 /**
 	\brief Initializes slave device
 	\param address ID of the slave
-	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator)
-	\param registerCallback Callback function handling all register operations
+	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator) (required)
+	\param registerCallback Callback function handling all register operations (required)
 	\warning This function must not be called on an already initialized ModbusSlave struct.
 	\see modbusSlaveDefaultAllocator()
 	\see modbusSlaveDefaultFunctions

@@ -1,16 +1,15 @@
 /**
 \mainpage liblightmodbus - a lightweight, header-only, cross-platform Modbus RTU/TCP library
 
-
-
 This is a reference manual for the liblightmodbus library.
 
-## About this release
+\section about About this release
 
 Version v3.0 brings the most changes in the history of liblightmodbus.
 
+If you're looking for docs for older versions, please visit: https://jacajack.github.io/liblightmodbus/olddocs/
 
-## Getting started
+\section getting-started Getting started
  - \ref building
  - \ref basic-usage
  - \ref porting
@@ -34,13 +33,14 @@ The library can be configured by defining certain macros before including that f
  - `LIGHTMODBUS_MASTER` - include master part of the library
  - `LIGHTMODBUS_FULL` - include both slave and master modules and all of their functions
  - `LIGHTMODBUS_DEBUG` - include some debugging utilites
+ - `LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC` - omit request CRC calculation for request on master side
+ - `LIGHTMODBUS_BIG_ENDIAN` - use when your platform uses big endian byte order
  - Specific master/slave functions can be included by defining macros like `LIGHTMODBUS_F01M` or `LIGHTMODBUS_F22S`.
 
 Each time `lightmodbus.h` is included, the set of defined configuration macros must be the same
 (except from `LIGHTMODBUS_IMPL` which should only be used **once**).
 
-Moreover, it's very important that you include implementation of the library functions (`LIGHTMODBUS_IMPL`) in
-**exactly one** place in your codebase. It may be a good idea to create a source file dedicated specifically for
+Moreover, it's very important that you include implementation of the library functions (`LIGHTMODBUS_IMPL`) in **exactly one** place in your codebase. It may be a good idea to create a source file dedicated specifically for
 including implementation of liblightmodbus. For instance, you may want to create `lightmodbus-impl.c` containing:
 ~~~c
 #include "my-consistent-liblightmodbus-config-macros.h"
@@ -50,18 +50,227 @@ including implementation of liblightmodbus. For instance, you may want to create
 
 \page basic-usage Basic usage
 
-## Slave code
+\section slave Slave
 
-## Master
+In order to use slave side functions, make sure to define `LIGHTMODBUS_SLAVE` macro before
+including the library. Please also see \ref building for more information.
 
-## Error handling
+\subsection slave-init Slave initialization
+Slave device state is represented by ModbusSlave structure. It must be initialized with modbusSlaveInit()
+before it is used:
+~~~c
+ModbusSlave slave;
+ModbusErrorInfo err;
+err = modbusSlaveInit(
+	&slave,          
+	1,                           // Address of the slave
+	modbusSlaveDefaultAllocator, // Memory allocator for ModbusSlave
+	myRegisterCallback           // Callback for register operations
+	);
+
+// Check for errors
+assert(modbusIsOk(err) && "modbusSlaveInit() failed"); 
+~~~
+
+ModbusSlave contains an internal buffer the response data. This buffer is allocated by the allocator passed to modbusSlaveInit().
+modbusSlaveDefaultAllocator is a default allocator that uses malloc() and free() functions.
+You may write your own, more sophisticated allocators if you wish - please see \ref allocators for more details.
+
+In this code `myRegisterCallback` is a name of a callback function that will be called for every register operation.
+In previous this versions of the library this functionality was optionally available as `LIGHTMODBUS_REGISTER_CALLBACK`.
+Now, all register operations are performed using callbacks.
+
+\subsection slave-callback Register callback
+An exapmple implementation of a register callback operating on registers stored in an array:
+~~~c
+#define REG_COUNT 16
+static uint16_t registers[REG_COUNT];
+static uint16_t inputRegisters[REG_COUNT];
+static uint8_t coils[REG_COUNT / 8]; // Each coil corresponds to one bit
+static uint8_t discreteInputs[REG_COUNT / 8]; // Each input corresponds to one bit
+
+ModbusError myRegisterCallback(
+	ModbusSlave *status,
+	const ModbusRegisterCallbackArgs *args,
+	uint16_t *result)
+{
+	// Respond to read/write access queries
+	if (args->query == MODBUS_REGQ_R_CHECK || args->query == MODBUS_REGQ_W_CHECK)
+	{
+		// If result of a read/write access query is not 0,
+		// an exception is reported by the slave
+		*result = args->id < REG_COUNT ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+	}
+	else if (args->query == MODBUS_REGQ_R) // Read registers
+	{
+		switch (args->type)
+		{
+			case MODBUS_HOLDING_REGISTER: *result = registers[args->id]; break;
+			case MODBUS_INPUT_REGISTER:   *result = inputRegsiters[args->id]; break;
+			case MODBUS_COIL:             *result = modbusMaskRead(coils, args->id); break;
+			case MODBUS_DISCRETE_INPUT:   *result = modbusMaskRead(discreteInputs, args->id); break;
+			default: return MODBUS_ERROR_OTHER;
+		}
+	}
+	else if (args->query == MODBUS_REGQ_W) // Write registers
+	{
+		switch (args->type)
+		{
+			case MODBUS_HOLDING_REGISTER: registers[args->id] = args->value; break;
+			case MODBUS_COIL:             modbusMaskWrite(coils, args->id, args->value); break;
+			default: return MODBUS_ERROR_OTHER;
+		}
+	}
+	else
+		return MODBUS_ERROR_OTHER;
+
+	// Return MODBUS_OK on success
+	return MODBUS_OK;
+}
+~~~
+
+For more information on register callback functions, please refer to \ref callbacks.
+
+\subsection slave-requests Request processing
+
+After successful initialization of the slave device, it's ready to accept requests from the master:
+~~~c
+// For Modbus RTU
+ModbusErrorInfo err;
+err = modbusParseRequestRTU(&slave, buffer, length);
+
+// Handle 'serious' errors such as memory allocation problems
+if (modbusGetGeneralError(&slave))
+	handleSlaveError(err);
+
+// Handle errors related to the structure of the request frame
+// for example invalid CRC
+if (modbusGetRequestError(&slave))
+	handleRequesterrors(err);
+
+// If the function did not return an error, the response is ready to be sent
+// to master. The response frame is located inside ModbusSlave at ModbusSlave::response::data
+// and is ModbusSlave::response::length bytes long. Beware that response frame can be empty
+// in some cases!
+if (modbusIsOk(err))
+	sendToMaster(slave.response.data, slave.response.length);
+
+// Optionally, the response buffer can be freed now
+modbusSlaveFreeResponse(&slave);
+~~~
+
+\subsection slave-cleanup Slave cleanup
+In order to destroy the ModbusSlave structure, call modbusSlaveDestroy():
+~~~c
+modbusSlaveDestroy(&slave);
+~~~
+
+\section master Master
+
+In order to use master side functions, make sure to define `LIGHTMODBUS_MASTER` macro before
+including the library. Please also see \ref building for more information.
+
+\subsection master-init Master initialization
+Master device state is represented by ModbusMaster structure. It must be initialized with modbusMasterInit()
+before it is used:
+~~~c
+ModbusMaster master;
+ModbusErrorInfo err;
+err = modbusMasterInit(
+	&master,          
+	modbusMasterDefaultAllocator, // Memory allocator for ModbusMaster
+	myDataCallback,               // Callback for handling incoming data
+	myExceptionCallback           // Optional slave exception callback
+	);
+
+// Check for errors
+assert(modbusIsOk(err) && "modbusMasterInit() failed"); 
+~~~
+
+Similarly to slave, master has its own memory allocator - please refer to \ref allocators for more information.
+
+Additionally, master has two callbacks - data callback and exception callback. The first is
+used for processing all register data incoming to master, the latter for handling exceptions
+reported by the slave. Both callback are described in more detail in following sections
+and \ref callbacks.
+
+\subsection master-data-callback Data callback
+
+\subsection master-exception-callback Exception callback
+
+\subsection master-requests Building requests
+
+Master side of the library provides a set of functions for building requests. They are named
+according to the pattern `modbusMasterBuildRequest*()`. Where `*` is code of the function followed
+by the Modbus request format to be generated (PDU, RTU or TCP).
+
+The functions without PDU, RTU or TCP at the end of their name are generic functions 
+responsible for building the request frame and must only be used in between calls to
+`modbusBeginRequest*()` and `modbusEndRequest*()`.
+
+|Function code|Description|Functions|
+|-------------|-----------|---------|
+|01|Read multiple coils|modbusBuildRequest01()<br>modbusBuildRequest01PDU()<br>modbusBuildRequest01RTU()<br>modbusBuildRequest01TCP()|
+|02|Read multiple discrete inputs|modbusBuildRequest02()<br>modbusBuildRequest02PDU()<br>modbusBuildRequest02RTU()<br>modbusBuildRequest02TCP()|
+|03|Read multiple holding registers|modbusBuildRequest03()<br>modbusBuildRequest03PDU()<br>modbusBuildRequest03RTU()<br>modbusBuildRequest03TCP()|
+|04|Read multiple input registers|modbusBuildRequest04()<br>modbusBuildRequest04PDU()<br>modbusBuildRequest04RTU()<br>modbusBuildRequest04TCP()|
+|05|Write a single coil|modbusBuildRequest05()<br>modbusBuildRequest05PDU()<br>modbusBuildRequest05RTU()<br>modbusBuildRequest05TCP()|
+|06|Write a single holding register|modbusBuildRequest06()<br>modbusBuildRequest06PDU()<br>modbusBuildRequest06RTU()<br>modbusBuildRequest06TCP()|
+|15|Write multiple coils|modbusBuildRequest15()<br>modbusBuildRequest15PDU()<br>modbusBuildRequest15RTU()<br>modbusBuildRequest15TCP()|
+|16|Write multiple holding registers|modbusBuildRequest16()<br>modbusBuildRequest16PDU()<br>modbusBuildRequest16RTU()<br>modbusBuildRequest16TCP()|
+|22|Mask write register|modbusBuildRequest22()<br>modbusBuildRequest22PDU()<br>modbusBuildRequest22RTU()<br>modbusBuildRequest22TCP()|
+
+Please see \ref master_func.impl.h for more details.
+
+For instace, a request to read holding register 17 from slave with id 1 can be built using:
+~~~c
+// For Modbus RTU
+ModbusErrorInfo err;
+err = modbusMasterBuildRequest03RTU(&master, 1, 17, 1);
+assert(modbusIsOk(err) && "modbusMasterBuildRequest03RTU() failed");
+~~~
+
+If the request has been built successfully, it's avaiable at `master.request.data` 
+and has length of `master.request.length` bytes and can be sent to the slave.
+
+\subsection master-response Processing responses
+
+After obtaining the response from the slave, it's time to process it. In order to do that
+one of the `modbusParseResponse*()` functions can be used:
+~~~c
+// For Modbus RTU
+ModbusErrorInfo err;
+err = modbusParseResponseRTU(
+	&master,
+	master.request.data,
+	master.request.length,
+	slaveResponseData,
+	slaveResponseLength);
+
+// Handle serious errors
+if (modbusGetGeneralError(err))
+	handleMasterError(err);
+
+// Handle errors relate to the structure of the request frame
+if (modbusGetRequestError(err))
+	handleRequestError(err);
+
+// Handle errors related to the structure of the response frame
+if (modbusGetResponseError(err))
+	handleResponseError(err);
+
+// Optionally free the request frame
+modbusMasterFreeRequest(&master);
+~~~
+
+\subsection master-cleanup Master cleanup
 
 \page porting Porting exisiting code to liblightmodbus v3.0
 
-## Initialization and cleanup
+\section init-and-cleanup Initialization and cleanup
 
 
-## Error handling
+\section error-handling Error handling
 Liblightmodbus v3.0 introduces a new type for error handling - \ref ModbusErrorInfo - returned by majority
 of the library functions. This new type allows to store both error type and its source (whether it was caused
 by an invalid request/response frame or by an actual library error).
@@ -99,21 +308,19 @@ if (modbusGetResponseError(err) != MODBUS_OK)
 `modbusGetGeneralError()`, `modbusGetRequestError()` and `modbusGetResponseError()` return
 a `ModbusError` enum value which can be easily handled with a switch statement.
 
-## Slave code
+\section slave-code Slave code
 
-## Master code
 
-## Static memory
+\section master-code Master code
 
+\section static-memory Static memory allocation
 Static memory allocation in v3.0 can be easily achieved by writing a custom memory allocator. Please refer to \ref allocators for more information.
 
-## modbusMaskRead() and modbusMaskWrite()
-
+\section mask-rw Mask reads and writes
 The `modbusMaskRead()` and `modbusMaskWrite()` work exactly like in the previous versions, but no
 longer provide bounds checking.
 
-## modbusSwapEndian() and modbusMatchEndian()
-
+\section endiannnes Endianness operations
 `modbusSwapEndian()` and `modbusMatchEndian()` were dropped in favor of less ambiguous and safe
 functions for reading 16-bit integer words:
  - `modbusRLE()` - read a 16-bit little-endian word
@@ -123,6 +330,8 @@ functions for reading 16-bit integer words:
 
 Conveniently, pointers provided to those functions don't need to be aligned, because
 reading is done byte-after-byte manner for safety and portability (`__attribute__((packed))` is not so great. It's completely useless on XC16 compilers).
+
+
 
 \page callbacks User-defined callback functions
 
@@ -134,25 +343,22 @@ reading is done byte-after-byte manner for safety and portability (`__attribute_
 Liblightmodbus allows users to define their custom functions for memory management.
 This functionality is provided with mainly embedded systems in mind.
 
-The user defined allocator is a function in form:
-~~~{.c}
-ModbusError allocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
-~~~
+The user defined allocator is a function compatible with ModbusSlaveAllocator or ModbusMasterAllocator pointer types.
 
 User-defined allocators must meet following requirements:
  - When `size` is 0, the memory pointed to by `*ptr` must be freed. `*ptr`
-	shall then be set to NULL.
+	shall then be set to `NULL`.
  - When `size` is not 0, `*ptr` should be set to point to a memory block of
-	`size` bytes. If such block cannot be allocated, the allocator must
+	at least `size` bytes. If such block cannot be allocated, the allocator must
 	return \ref MODBUS_ERROR_ALLOC and free memory block pointed to by current
-	`*ptr` value.
+	`*ptr` value. In such case `*ptr` shall be set to `NULL`.
 
 However, certain guarantees are made by the library:
  - All allocation requests originating from a **single** ModbusMaster or
 	ModbusSlave instance with identical `purpose` argument are assumed
 	to refer to the same buffer. **This allows for static memory allocation
 	if the allocator can distinguish between different ModbusMaster and
-	ModbusSlave instances issuing the requests**
+	ModbusSlave instances issuing the allocation requests.**
 
 ## Static memory allocation
 

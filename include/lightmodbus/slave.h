@@ -136,11 +136,6 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *data, uint16_t length);
 
 extern ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[];
-
-/**
-	\def MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT
-	\brief Length of the modbusSlaveDefaultFunctions array
-*/
-#define MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT (sizeof(modbusSlaveDefaultFunctions) / sizeof(modbusSlaveDefaultFunctions[0]))
+extern const uint8_t modbusSlaveDefaultFunctionCount;
 
 #endif

@@ -3,7 +3,7 @@
 
 /**
 	\brief Associates function IDs with pointers to functions responsible
-	for parsing. Length of this array is defined as MODBUS_SLAVE_DEFAULT_FUNCTION_COUNT.
+	for parsing. Length of this array is stored in modbusSlaveDefaultFunctionCount
 
 	\note Contents depend on defined `LIGHTMODBUS_FxxS` macros!
 */
@@ -45,6 +45,11 @@ ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[] =
 	{22, modbusParseRequest22},
 #endif
 };
+
+/**
+	\brief Stores length of modbusSlaveDefaultFunctions
+*/
+const uint8_t modbusSlaveDefaultFunctionCount = sizeof(modbusSlaveDefaultFunctions) / sizeof(modbusSlaveDefaultFunctions[0]);
 
 /**
 	\brief Default allocator for the slave based on modbusDefaultAllocator().

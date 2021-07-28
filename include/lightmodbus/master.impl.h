@@ -2,8 +2,8 @@
 #include "master_func.h"
 
 /**
-	\brief Default array of supported functions. Length is defined as
-	MODBUS_MASTER_DEFAULT_FUNCTION_COUNT
+	\brief Default array of supported functions. Length is stored in
+	modbusMasterDefaultFunctionCount.
 
 	Contents are controlled by defining `LIGHTMODBUS_FxxM` macros.
 */
@@ -45,6 +45,11 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 	{22, modbusParseResponse22},
 #endif
 };
+
+/**
+	\brief Stores length of modbusMasterDefaultFunctions array
+*/
+const uint8_t modbusMasterDefaultFunctionCount = sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]);
 
 /**
 	\brief Default allocator for master device. Based on modbusDefaultAllocator().

@@ -134,11 +134,6 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	uint16_t responseLength);
 
 extern ModbusMasterFunctionHandler modbusMasterDefaultFunctions[];
-
-/**
-	\def MODBUS_MASTER_DEFAULT_FUNCTION_COUNT
-	\brief Length of the modbusMasterDefaultFunctions array
-*/
-#define MODBUS_MASTER_DEFAULT_FUNCTION_COUNT (sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]))
+extern const uint8_t modbusMasterDefaultFunctionCount;
 
 #endif

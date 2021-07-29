@@ -324,7 +324,11 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 
 	// Discard non-Modbus messages
 	if (protocolID != 0)
+	{
+		if (modbusSlaveAllocateResponse(status, 0))
+			return MODBUS_GENERAL_ERROR(ALLOC);
 		return MODBUS_NO_ERROR();
+	}
 
 	// Length mismatch
 	if (messageLength != requestLength - 6)

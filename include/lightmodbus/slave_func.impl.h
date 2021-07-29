@@ -12,8 +12,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size)
+	const uint8_t *requestPDU,
+	uint8_t requestLength)
 {
 	// Do not respond if the request was broadcasted
 	if (address == 0)
@@ -23,7 +23,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	}
 
 	// Check frame length
-	if (size != 5)
+	if (requestLength != 5)
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	ModbusDataType datatype;
@@ -60,8 +60,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 			break;
 	}
 
-	uint16_t index = modbusRBE(&data[1]);
-	uint16_t count = modbusRBE(&data[3]);
+	uint16_t index = modbusRBE(&requestPDU[1]);
+	uint16_t count = modbusRBE(&requestPDU[3]);
 
 	// Check count
 	if (count == 0 || count > maxCount)
@@ -85,7 +85,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	for (uint16_t i = 0; !fail && !ex && i < count; i++)
 	{
 		uint16_t res = MODBUS_OK;
-		cargs.id = index + i;
+		cargs.index = index + i;
 		fail = status->registerCallback(status, &cargs, &res);
 		if (res != MODBUS_OK)
 			ex = (ModbusExceptionCode)res;
@@ -112,7 +112,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	for (uint16_t i = 0; i < count; i++)
 	{
 		uint16_t value;
-		cargs.id = index + i;
+		cargs.index = index + i;
 		(void) status->registerCallback(status, &cargs, &value);
 		
 		if (bits == 1)
@@ -131,17 +131,17 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size)
+	const uint8_t *requestPDU,
+	uint8_t requestLength)
 {
 	// Check frame length
-	if (size != 5)
+	if (requestLength != 5)
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
-	// Get register ID and value
+	// Get register index and value
 	ModbusDataType datatype = function == 5 ? MODBUS_COIL : MODBUS_HOLDING_REGISTER;
-	uint16_t index = modbusRBE(&data[1]);
-	uint16_t value = modbusRBE(&data[3]);
+	uint16_t index = modbusRBE(&requestPDU[1]);
+	uint16_t value = modbusRBE(&requestPDU[3]);
 
 	// For coils - check if coil value is valid
 	if (datatype == MODBUS_COIL && value != 0x0000 && value != 0xFF00)
@@ -151,7 +151,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	ModbusRegisterCallbackArgs cargs = {
 		.type = datatype,
 		.query = MODBUS_REGQ_W_CHECK,
-		.id = index,
+		.index = index,
 		.value = (uint16_t)((datatype == MODBUS_COIL) ? (value != 0) : value),
 		.function = function,
 	};
@@ -193,22 +193,22 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size)
+	const uint8_t *requestPDU,
+	uint8_t requestLength)
 {
 	// Check length
-	if (size < 6)
+	if (requestLength < 6)
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Get first index and register count
 	ModbusDataType datatype = function == 15 ? MODBUS_COIL : MODBUS_HOLDING_REGISTER;
 	uint16_t maxCount = datatype == MODBUS_COIL ? 1968 : 123;
-	uint16_t index = modbusRBE(&data[1]);
-	uint16_t count = modbusRBE(&data[3]);
-	uint8_t declaredLength = data[5];
+	uint16_t index = modbusRBE(&requestPDU[1]);
+	uint16_t count = modbusRBE(&requestPDU[3]);
+	uint8_t declaredLength = requestPDU[5];
 
 	// Check if the declared length is correct
-	if (declaredLength == 0 || declaredLength != size - 6)
+	if (declaredLength == 0 || declaredLength != requestLength - 6)
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Check count
@@ -234,8 +234,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	for (uint16_t i = 0; !fail && !ex && i < count; i++)
 	{
 		uint16_t res = MODBUS_OK;
-		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&data[6], i) : modbusRBE(&data[6 + (i << 1)]);
-		cargs.id = index + i;
+		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
+		cargs.index = index + i;
 		cargs.value = value;
 		fail = status->registerCallback(status, &cargs, &res);
 		if (res != MODBUS_OK)
@@ -251,8 +251,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	for (uint16_t i = 0; i < count; i++)
 	{
 		uint16_t dummy;
-		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&data[6], i) : modbusRBE(&data[6 + (i << 1)]);
-		cargs.id = index + i;
+		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
+		cargs.index = index + i;
 		cargs.value = value;
 		(void) status->registerCallback(status, &cargs, &dummy);
 	}
@@ -283,23 +283,23 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size)
+	const uint8_t *requestPDU,
+	uint8_t requestLength)
 {
 	// Check length	
-	if (size != 7)
+	if (requestLength != 7)
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Get index and masks
-	uint16_t index   = modbusRBE(&data[1]);
-	uint16_t andmask = modbusRBE(&data[3]);
-	uint16_t ormask  = modbusRBE(&data[5]);
+	uint16_t index   = modbusRBE(&requestPDU[1]);
+	uint16_t andmask = modbusRBE(&requestPDU[3]);
+	uint16_t ormask  = modbusRBE(&requestPDU[5]);
 
 	// Prepare callback args
 	ModbusRegisterCallbackArgs cargs = {
 		.type = MODBUS_HOLDING_REGISTER,
 		.query = MODBUS_REGQ_R_CHECK,
-		.id = index,
+		.index = index,
 		.value = 0,
 		.function = function,
 	};

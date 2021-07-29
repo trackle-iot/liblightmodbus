@@ -9,28 +9,28 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size);
+	const uint8_t *requestPDU,
+	uint8_t requestLength);
 
 LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size);
+	const uint8_t *requestPDU,
+	uint8_t requestLength);
 
 LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size);
+	const uint8_t *requestPDU,
+	uint8_t requestLength);
 
 LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size);
+	const uint8_t *requestPDU,
+	uint8_t requestLength);
 
 #endif

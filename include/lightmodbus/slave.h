@@ -14,8 +14,8 @@ typedef ModbusErrorInfo (*ModbusSlaveParsingFunction)(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
-	const uint8_t *data,
-	uint8_t size);
+	const uint8_t *requestPDU,
+	uint8_t requestLength);
 
 /**
 	\brief Associates Modbus function ID with a pointer to a parsing function
@@ -42,11 +42,11 @@ typedef enum ModbusRegisterQuery
 */
 typedef struct ModbusRegisterCallbackArgs
 {
-	ModbusDataType type;
-	ModbusRegisterQuery query;
-	uint16_t id;
-	uint16_t value;
-	uint8_t function;
+	ModbusDataType type;        //!< Type of accessed data
+	ModbusRegisterQuery query;  //!< Type of request made to the register
+	uint16_t index;             //!< Index of the register
+	uint16_t value;             //!< Value of the register
+	uint8_t function;           //!< Function accessing the register
 } ModbusRegisterCallbackArgs;
 
 /**

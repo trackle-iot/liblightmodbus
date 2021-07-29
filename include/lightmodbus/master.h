@@ -33,7 +33,7 @@ typedef struct ModbusMasterFunctionHandler
 typedef struct ModbusDataCallbackArgs
 {
 	ModbusDataType type; //!< Type of Modbus register
-	uint16_t id;         //!< ID of the register
+	uint16_t index;      //!< Index of the register
 	uint16_t value;      //!< Value of the register
 	uint8_t function;    //!< Function that reported this value
 } ModbusDataCallbackArgs;

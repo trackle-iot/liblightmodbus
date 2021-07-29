@@ -25,25 +25,25 @@ ModbusError regCallback(
 {
 	if (args->query == MODBUS_REGQ_R_CHECK || args->query == MODBUS_REGQ_W_CHECK)
 	{
-		*result = args->id < REG_COUNT ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+		*result = args->index < REG_COUNT ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
 	}
 	else if (args->query == MODBUS_REGQ_R)
 	{
 		switch (args->type)
 		{
-			case MODBUS_HOLDING_REGISTER: *result = registers[args->id]; break;
-			case MODBUS_INPUT_REGISTER:   *result = registers[args->id]; break;
-			case MODBUS_COIL:             *result = modbusMaskRead(coils, args->id); break;
-			case MODBUS_DISCRETE_INPUT:   *result = modbusMaskRead(coils, args->id); break;
+			case MODBUS_HOLDING_REGISTER: *result = registers[args->index]; break;
+			case MODBUS_INPUT_REGISTER:   *result = registers[args->index]; break;
+			case MODBUS_COIL:             *result = modbusMaskRead(coils, args->index); break;
+			case MODBUS_DISCRETE_INPUT:   *result = modbusMaskRead(coils, args->index); break;
 		}
 	}
 	else if (args->query == MODBUS_REGQ_W)
 	{
 		switch (args->type)
 		{
-			case MODBUS_HOLDING_REGISTER: registers[args->id] = args->value; break;
+			case MODBUS_HOLDING_REGISTER: registers[args->index] = args->value; break;
 			// case MODBUS_INPUT_REGISTER:   inputs[id] = value; break;
-			case MODBUS_COIL:             modbusMaskWrite(coils, args->id, args->value); break;
+			case MODBUS_COIL:             modbusMaskWrite(coils, args->index, args->value); break;
 			// case MODBUS_DISCRETE_INPUT:   modbusMaskWrite(discrete, id, value); break;
 			default: break;
 		}

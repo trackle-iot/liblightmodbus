@@ -17,7 +17,7 @@ ModbusError regCallback(
 		[MODBUS_REGQ_W_CHECK] = "MODBUS_REGQ_W_CHECK",
 	};
 
-	printf("%s:\n\tfun: %d\n\tid:  %d\n\tval: %d\n", querynames[args->query], args->function, args->id, args->value);
+	printf("%s:\n\tfun: %d\n\tid:  %d\n\tval: %d\n", querynames[args->query], args->function, args->index, args->value);
 	
 	if (args->query == MODBUS_REGQ_R)
 		*result = 1;

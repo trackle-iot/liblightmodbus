@@ -90,7 +90,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	// And finally read the data from the response
 	for (uint16_t i = 0; i < count; i++)
 	{
-		cargs.id = index + i;
+		cargs.index = index + i;
 		if (bits == 1)
 			cargs.value = modbusMaskRead(&responsePDU[2], i);
 		else

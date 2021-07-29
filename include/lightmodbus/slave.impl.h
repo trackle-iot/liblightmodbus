@@ -66,21 +66,21 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(ModbusSlave *sta
 
 /**
 	\brief Allocates memory for slave's response frame
-	\param pdusize size of the PDU section. 0 if the slave doesn't want to respond.
+	\param pduSize size of the PDU section. 0 if the slave doesn't want to respond.
 	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
 
 	If called with size == 0, the response buffer is freed. Otherwise a buffer
-	for `(pdusize + status->response.padding)` bytes is allocated. This guarantees
+	for `(pduSize + status->response.padding)` bytes is allocated. This guarantees
 	that if a response is made, the buffer is big enough to hold the entire ADU.
 
 	This function is responsible for managing `data`, `pdu` and `length` fields
 	in the response struct. The `pdu` pointer is set up to point `pduOffset` bytes
 	after the `data` pointer unless `data` is a null pointer.
 */
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t pdusize)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t pduSize)
 {
-	uint16_t size = pdusize;
-	if (pdusize) size += status->response.padding;
+	uint16_t size = pduSize;
+	if (pduSize) size += status->response.padding;
 
 	ModbusError err = status->allocator(status, &status->response.data, size, MODBUS_SLAVE_RESPONSE_BUFFER);
 

@@ -80,6 +80,11 @@
 
 /**
 	\brief Richer error represenation - source and type of error
+
+	\warning You should not be accessing `source` and `error` directly.
+	The internal implementation of this struct may change in future releases.
+	For this reason, please use modbusGetGeneralError(), modbusGetRequestError(),
+	modbusGetResponseError(), modbusGetErrorSource() and modbusIsOk() instead.
 */
 typedef struct ModbusErrorInfo
 {

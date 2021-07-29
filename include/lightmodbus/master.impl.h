@@ -66,11 +66,11 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *s
 
 /**
 	\brief Allocates memory for the request frame
-	\param pdusize size of the PDU section of the frame. 0 implies no request at all.
+	\param pduSize size of the PDU section of the frame. 0 implies no request at all.
 	\returns MODBUS_ERROR_ALLOC on allocation failure
 
 	If called with size == 0, the request buffer is freed. Otherwise a buffer
-	for `(pdusize + status->request.padding)` bytes is allocated. This guarantees
+	for `(pduSize + status->request.padding)` bytes is allocated. This guarantees
 	that if a response is made, the buffer is big enough to hold the entire ADU.
 
 	This function is responsible for managing `data`, `pdu` and `length` fields
@@ -79,10 +79,10 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *s
 */
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(
 	ModbusMaster *status,
-	uint16_t pdusize)
+	uint16_t pduSize)
 {
-	uint16_t size = pdusize;
-	if (pdusize) size += status->request.padding;
+	uint16_t size = pduSize;
+	if (pduSize) size += status->request.padding;
 
 	ModbusError err = status->allocator(
 		status,

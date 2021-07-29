@@ -273,6 +273,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transac
 	\param responseLength Length of the response PDU
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request has zero length
 	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response has zero length
+	\returns MODBUS_RESPONSE_ERROR(ADDRESS) on attempt to parse a response to a broadcast request
 	\returns MODBUS_RESPONSE_ERROR(FUNCTION) if the function code in request doesn't match the one in response
 	\returns MODBUS_GENERAL_ERROR(FUNCTION) if the function code is not supported
 	\returns Result from the parsing function on success (modbusParseRequest*() functions)
@@ -289,6 +290,9 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	if (!requestLength) return MODBUS_REQUEST_ERROR(LENGTH);
 	if (!responseLength) return MODBUS_RESPONSE_ERROR(LENGTH);
 	
+	// Discard responses if the address is broadcast
+	if (!address) return MODBUS_RESPONSE_ERROR(ADDRESS);
+
 	uint8_t function = response[0];
 
 	// Handle exception frames

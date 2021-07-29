@@ -269,8 +269,6 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	if (address != status->address || address == 0)
 		return MODBUS_NO_ERROR();
 
-	//! \todo Should we check if address is less than 248?
-
 	// Check CRC
 	if (modbusCRC(data, length - 2) != modbusRLE(data + length - 2))
 		return MODBUS_REQUEST_ERROR(CRC);

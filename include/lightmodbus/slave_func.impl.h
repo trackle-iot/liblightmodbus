@@ -2,9 +2,11 @@
 #include "slave.h"
 
 /**
-	\brief Handles requests 01, 02, 03 and 04 (Read Multiple XX)
+	\brief Handles requests 01, 02, 03 and 04 (Read Multiple XX) and generates response.
 	\param address address of the slave
 	\param function function code
+	\param requestPDU pointer to the PDU section of the request
+	\param requestLength length of the PDU section in bytes
 	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
 	\returns MODBUS_NO_ERROR() on success
 */
@@ -125,7 +127,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 }
 
 /**
-	\brief Handles requests 05 and 06 (Write Single XX)
+	\brief Handles requests 05 and 06 (Write Single XX) and generates response.
+	\param address address of the slave
+	\param function function code
+	\param requestPDU pointer to the PDU section of the request
+	\param requestLength length of the PDU section in bytes
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	ModbusSlave *status,
@@ -187,7 +195,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 }
 
 /**
-	\brief Handles requests 15 and 16 (Write Multiple XX)
+	\brief Handles requests 15 and 16 (Write Multiple XX) and generates response.
+	\param address address of the slave
+	\param function function code
+	\param requestPDU pointer to the PDU section of the request
+	\param requestLength length of the PDU section in bytes
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	ModbusSlave *status,
@@ -277,7 +291,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 }
 
 /**
-	\brief Handles request 22 (Mask Write Register)
+	\brief Handles request 22 (Mask Write Register) and generates response.
+	\param address address of the slave
+	\param function function code
+	\param requestPDU pointer to the PDU section of the request
+	\param requestLength length of the PDU section in bytes
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	ModbusSlave *status,

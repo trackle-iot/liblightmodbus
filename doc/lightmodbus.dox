@@ -18,8 +18,10 @@ more maintainable and flexible code.
  - \ref building
  - \ref slave
  - \ref master
- - \ref porting
+ - \ref error-handling
  - \ref allocators
+ - \ref examples
+ - \ref porting
 
 \page building Building and integrating liblightmodbus
 
@@ -163,10 +165,14 @@ ModbusError myRegisterCallback(
 \note Returning error values different than MODBUS_OK from the callback will result in
 	MODBUS_EXCEP_SLAVE_FAILURE exception being reported to the master. 
 
+\todo Complete this section
+
 \section slave-requests Request processing
 
 \note Return values from this callback are ignored. This functionality,
 	however, should not be relied upon and may be subject to change in future releases.
+
+\todo Complete this section
 
 After successful initialization of the slave device, it's ready to accept requests from the master:
 ~~~c
@@ -195,7 +201,7 @@ modbusSlaveFreeResponse(&slave);
 ~~~
 
 \section slave-cleanup Slave cleanup
-In order to destroy the ModbusSlave structure, call modbusSlaveDestroy():
+In order to destroy the ModbusSlave structure, simply call modbusSlaveDestroy():
 ~~~c
 modbusSlaveDestroy(&slave);
 ~~~
@@ -241,10 +247,14 @@ The last argument should contain length of this array.
 \note Return values from this callback are ignored. This functionality,
 	however, should not be relied upon and may be subject to change in future releases.
 
+\todo Complete this section
+
 \section master-exception-callback Exception callback
 
 \note Return values from this callback are ignored. This functionality,
 	however, should not be relied upon and may be subject to change in future releases.
+
+\todo Complete this section
 
 \section master-requests Building requests
 
@@ -270,7 +280,7 @@ responsible for building the request frame and must only be used in between call
 
 Please see \ref master_func.impl.h for more details.
 
-For instace, a request to read holding register 17 from slave with id 1 can be built using:
+For instance, a request to read holding register 17 from slave with id 1 can be built using:
 ~~~c
 // For Modbus RTU
 ModbusErrorInfo err;
@@ -312,6 +322,8 @@ modbusMasterFreeRequest(&master);
 ~~~
 
 \section master-cleanup Master cleanup
+
+\todo Complete this section
 
 \page error-handling Error handling
 Liblightmodbus v3.0 introduces a new type for error handling - \ref ModbusErrorInfo - returned by majority
@@ -427,6 +439,10 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterStaticAllocator(ModbusMaster *st
 One could also implement the buffers in `modbusSlaveStaticAllocator()` and `modbusMasterStaticAllocator()` and
 distiguish between `ModbusSlave` and `ModbusMaster` instances based on the `status` argument.
 
+\page examples Examples
+
+Examples can be found in the [examples](https://github.com/Jacajack/liblightmodbus/tree/master/examples) directory.
+
 \page porting Porting code from v2.0 to v3.0
 
 The table below presents a brief overview of changes that need to be applied to existing code 
@@ -463,6 +479,5 @@ functions for reading 16-bit integer words:
 Conveniently, pointers provided to those functions don't need to be aligned, because
 reading is done byte-after-byte manner for safety and portability (`__attribute__((packed))` is not so great. It's completely useless on XC16 compilers).
 \endcond
-
 
 */

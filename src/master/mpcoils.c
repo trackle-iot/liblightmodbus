@@ -48,6 +48,13 @@ ModbusError modbusParseResponse0102( ModbusMaster *status, ModbusParser *parser,
 
 	uint16_t count = modbusMatchEndian( requestParser->request0102.count );
 
+	// Verify count
+	if ( count == 0 || count > 2000)
+	{
+		status->parseError = MODBUS_FERROR_COUNT;
+		return MODBUS_ERROR_PARSE;
+	}
+
 	//Check between data sent to slave and received from slave
 	if ( parser->base.address == 0 )
 	{
@@ -232,7 +239,7 @@ ModbusError modbusParseResponse15( ModbusMaster *status, ModbusParser *parser, M
 	}
 
 	uint16_t count = modbusMatchEndian( parser->response15.count );
-	if ( count > 1968 )
+	if ( count == 0 || count > 1968 )
 	{
 		status->parseError = MODBUS_FERROR_COUNT;
 		return MODBUS_ERROR_PARSE;

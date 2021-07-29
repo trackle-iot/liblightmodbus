@@ -50,6 +50,13 @@ ModbusError modbusParseResponse0304( ModbusMaster *status, ModbusParser *parser,
 
 	uint16_t count = modbusMatchEndian( requestParser->request0304.count );
 
+	// Verify count (risk of CWE-835)
+	if ( count == 0 || count > 125 )
+	{
+		status->parseError = MODBUS_FERROR_COUNT;
+		return MODBUS_ERROR_PARSE;
+	}
+
 	//Check if frame was broadcast
 	if ( parser->base.address == 0 )
 	{
@@ -249,7 +256,7 @@ ModbusError modbusParseResponse16( ModbusMaster *status, ModbusParser *parser, M
 	}
 
 	uint16_t count = modbusMatchEndian( parser->response16.count );
-	if ( count > 123 )
+	if ( count == 0 || count > 123 )
 	{
 		status->parseError = MODBUS_FERROR_COUNT;
 		return MODBUS_ERROR_PARSE;

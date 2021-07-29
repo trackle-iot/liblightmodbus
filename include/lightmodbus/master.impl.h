@@ -388,6 +388,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	\returns MODBUS_REQUEST_ERROR(BAD_PROTOCOL) if the protocol ID in request is not 0
 	\returns MODBUS_RESPONSE_ERROR(BAD_PROTOCOL) if the protocol ID in response is not 0
 	\returns MODBUS_RESPONSE_ERROR(BAD_TRANSACTION) if the transaction ID in request is not the same as in response
+	\returns MODBUS_RESPONSE_ERROR(ADDRESS) if the address in response is not the same as in request
 	\returns Result of modbusParseResponsePDU() otherwise
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
@@ -410,11 +411,14 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 		return MODBUS_RESPONSE_ERROR(BAD_TRANSACTION);
 
 	// Check if lengths are ok
+	// The declared length includes the Unit ID byte (hence 6 and not 7 bytes are subtracted)
 	if (modbusRBE(&request[4]) != requestLength - 6) return MODBUS_REQUEST_ERROR(LENGTH);
 	if (modbusRBE(&response[4]) != responseLength - 6) return MODBUS_RESPONSE_ERROR(LENGTH);
 
-	//! \todo Check addresses (but how?)
+	// Check if returned address is the same as in request
 	uint8_t address = response[6];
+	if (address != request[6])
+		return MODBUS_RESPONSE_ERROR(ADDRESS);
 
 	return modbusParseResponsePDU(
 		status,

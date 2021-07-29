@@ -40,6 +40,9 @@ typedef struct ModbusDataCallbackArgs
 
 /**
 	\brief A pointer to a callback used for handling data incoming to master
+
+	Please refer to \ref callbacks for more information regarding
+	the callback functions.
 */
 typedef ModbusError (*ModbusDataCallback)(
 	ModbusMaster *status,
@@ -47,6 +50,9 @@ typedef ModbusError (*ModbusDataCallback)(
 
 /**
 	\brief A pointer to a callback called when a Modbus exception is generated (for master)
+	
+	Please refer to \ref callbacks for more information regarding
+	the callback functions.
 */
 typedef ModbusError (*ModbusMasterExceptionCallback)(
 	ModbusMaster *status,
@@ -56,6 +62,8 @@ typedef ModbusError (*ModbusMasterExceptionCallback)(
 
 /**
 	\brief A pointer to master frame buffer allocator
+
+	Please refer to \ref allocators for more information regarding custom allocator functions.
 */
 typedef ModbusError (*ModbusMasterAllocator)(
 	ModbusMaster *status,

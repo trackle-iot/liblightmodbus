@@ -52,10 +52,8 @@ typedef struct ModbusRegisterCallbackArgs
 /**
 	\brief A pointer to callback for performing all register operations
 
-	Returning any error from this function results in a 'slave failure' exception
-	being returned to the master device.
-
-	\todo requirements description
+	Please refer to \ref callbacks for more information regarding
+	the callback functions.
 */
 typedef ModbusError (*ModbusRegisterCallback)(
 	ModbusSlave *status,
@@ -64,6 +62,9 @@ typedef ModbusError (*ModbusRegisterCallback)(
 
 /**
 	\brief A pointer to a callback called when a Modbus exception is generated (for slave)
+
+	Please refer to \ref callbacks for more information regarding
+	the callback functions.
 */
 typedef ModbusError (*ModbusSlaveExceptionCallback)(
 	ModbusSlave *status,
@@ -73,6 +74,8 @@ typedef ModbusError (*ModbusSlaveExceptionCallback)(
 
 /**
 	\brief A pointer to allocator function called to allocate frame buffers (for slave)
+
+	Please refer to \ref allocators for more information regarding custom allocator functions.
 */
 typedef ModbusError (*ModbusSlaveAllocator)(
 	ModbusSlave *status,

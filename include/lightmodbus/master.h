@@ -90,6 +90,8 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	uint8_t functionCount);
 
 void modbusMasterDestroy(ModbusMaster *status);
+void modbusMasterSetUserPointer(ModbusMaster *status, void *ptr);
+void *modbusMasterGetUserPointer(ModbusMaster *status);
 
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);

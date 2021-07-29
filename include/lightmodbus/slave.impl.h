@@ -160,6 +160,22 @@ void modbusSlaveDestroy(ModbusSlave *status)
 }
 
 /**
+	\brief Allows user to set the custom context pointer
+*/
+void modbusSlaveSetUserPointer(ModbusSlave *status, void *ptr)
+{
+	status->context = ptr;
+}
+
+/**
+	\brief Retreieves the custom context pointer
+*/
+void *modbusSlaveGetUserPointer(ModbusSlave *status)
+{
+	return status->context;
+}
+
+/**
 	\brief Builds an exception response frame
 	\param address address of the slave
 	\param function function that reported the exception

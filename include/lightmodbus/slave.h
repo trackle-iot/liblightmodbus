@@ -110,6 +110,8 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	uint8_t functionCount);
 
 void modbusSlaveDestroy(ModbusSlave *status);
+void modbusSlaveSetUserPointer(ModbusSlave *status, void *ptr);
+void *modbusSlaveGetUserPointer(ModbusSlave *status);
 
 LIGHTMODBUS_RET_ERROR modbusBuildException(
 	ModbusSlave *status,

@@ -1,15 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -O2 -g -I../include
 
-all: slave master demo
+all: slave demo
 
 clean:
-	rm -f slave master demo
+	rm -f slave demo
 
 slave: slave.c
-	$(CC) $(CFLAGS) $^ -o $@
-
-master: master.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 demo: demo.c

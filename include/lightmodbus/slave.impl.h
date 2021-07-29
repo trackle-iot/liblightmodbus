@@ -272,8 +272,12 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 
 	// Check if the message is meant for us
 	uint8_t address = request[0];
-	if (address != status->address || address == 0)
+	if (address && address != status->address)
+	{
+		if (modbusSlaveAllocateResponse(status, 0))
+			return MODBUS_GENERAL_ERROR(ALLOC);
 		return MODBUS_NO_ERROR();
+	}
 
 	// Check CRC
 	if (modbusCRC(request, requestLength - 2) != modbusRLE(request + requestLength - 2))

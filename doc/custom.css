@@ -1,0 +1,5 @@
+@media (prefers-color-scheme: dark) {
+	html :not(.light-mode) {
+		--note-color-darker: #7A5900;
+	}
+}

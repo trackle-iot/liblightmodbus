@@ -315,8 +315,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	// Find a parsing function
 	for (uint16_t i = 0; i < status->functionCount; i++)
 		if (function == status->functions[i].id)
-		{
-			ModbusErrorInfo err = status->functions[i].ptr(
+			return status->functions[i].ptr(
 				status,
 				address,
 				function,
@@ -324,9 +323,6 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 				requestLength,
 				response,
 				responseLength);
-
-			if (!modbusIsOk(err)) return err;
-		}
 
 	// No matching function handler
 	return MODBUS_GENERAL_ERROR(FUNCTION);

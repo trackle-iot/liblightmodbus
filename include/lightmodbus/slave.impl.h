@@ -223,6 +223,9 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 	\warning This function expects ModbusSlave::response::pduOffset and
 	ModbusSlave::response::padding to be set properly! If you're looking for a 
 	function that operates strictly on the PDU, please use modbusParseRequestPDU() instead.
+
+	\warning The response frame can only be accessed if modbusIsOk() called 
+		on the return value of this function evaluates to true.
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, const uint8_t *request, uint8_t requestLength)
 {
@@ -244,6 +247,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, c
 	\param requestLength length of the PDU
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns Any errors from parsing functions
+
+	\warning The response frame can only be accessed if modbusIsOk() called 
+		on the return value of this function evaluates to true.
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint16_t requestLength)
 {
@@ -263,6 +269,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
 	\returns Any errors from parsing functions
+
+	\warning The response frame can only be accessed if modbusIsOk() called 
+		on the return value of this function evaluates to true.
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *request, uint16_t requestLength)
 {
@@ -310,6 +319,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid or different from the declared one
 	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
 	\returns Any errors from parsing functions
+
+	\warning The response frame can only be accessed if modbusIsOk() called 
+		on the return value of this function evaluates to true.
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *request, uint16_t requestLength)
 {

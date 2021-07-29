@@ -51,9 +51,7 @@ typedef struct ModbusRegisterCallbackArgs
 
 /**
 	\brief A pointer to callback for performing all register operations
-
-	Please refer to \ref callbacks for more information regarding
-	the callback functions.
+	\see slave-register-callback
 */
 typedef ModbusError (*ModbusRegisterCallback)(
 	ModbusSlave *status,
@@ -62,9 +60,7 @@ typedef ModbusError (*ModbusRegisterCallback)(
 
 /**
 	\brief A pointer to a callback called when a Modbus exception is generated (for slave)
-
-	Please refer to \ref callbacks for more information regarding
-	the callback functions.
+	\see slave-exception-callback
 */
 typedef ModbusError (*ModbusSlaveExceptionCallback)(
 	ModbusSlave *status,

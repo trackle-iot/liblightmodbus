@@ -1,19 +1,24 @@
 /**
 \mainpage liblightmodbus - a lightweight, header-only, cross-platform Modbus RTU/TCP library
 
-This is a reference manual for the liblightmodbus library.
+This is the reference manual for the version v3.0 liblightmodbus library.
+
+If you're looking for the docs for older versions, please visit: https://jacajack.github.io/liblightmodbus/olddocs/
 
 \section about About this release
+Version v3.0 brings the most changes in the history of liblightmodbus. Majority 
+of the source code has been rewritten from scratch. The library is now header-only,
+which makes it much easier to compile on different platforms and introduces support
+for Modbus TCP. 
 
-Version v3.0 brings the most changes in the history of liblightmodbus.
-
-If you're looking for docs for older versions, please visit: https://jacajack.github.io/liblightmodbus/olddocs/
+All this changes resulted in a significant binary size reduction (around 2x) and
+more maintainable and flexible code.
 
 \section getting-started Getting started
  - \ref building
- - \ref basic-usage
+ - \ref slave
+ - \ref master
  - \ref porting
- - \ref callbacks
  - \ref allocators
 
 \page building Building and integrating liblightmodbus
@@ -28,14 +33,17 @@ do that automatically by including `lightmodbus` package.
 
 In your source code you should be using `#include <lightmodbus/lightmodbus.h>` to include the library.
 The library can be configured by defining certain macros before including that file:
- - `LIGHTMODBUS_IMPL` - include implementation
- - `LIGHTMODBUS_SLAVE` - include slave part of the library
- - `LIGHTMODBUS_MASTER` - include master part of the library
- - `LIGHTMODBUS_FULL` - include both slave and master modules and all of their functions
- - `LIGHTMODBUS_DEBUG` - include some debugging utilites
- - `LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC` - omit request CRC calculation for request on master side
- - `LIGHTMODBUS_BIG_ENDIAN` - use when your platform uses big endian byte order
- - Specific master/slave functions can be included by defining macros like `LIGHTMODBUS_F01M` or `LIGHTMODBUS_F22S`.
+| Macro | Description |
+|-------|-------------|
+|`LIGHTMODBUS_IMPL`|Include implementation|
+|`LIGHTMODBUS_BIG_ENDIAN`|Use when your platform uses big endian byte order|
+|`LIGHTMODBUS_SLAVE`|Includes slave part of the library|
+|`LIGHTMODBUS_MASTER`|Includes master part of the library|
+|`LIGHTMODBUS_FULL`|Includes both slave and master modules and all of their functions|
+|`LIGHTMODBUS_DEBUG`|Includes some debugging utilites|
+|`LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC`|Omits request CRC calculation for request on master side|
+
+Specific master/slave functions can be included by defining macros like `LIGHTMODBUS_F01M` or `LIGHTMODBUS_F22S`.
 
 Each time `lightmodbus.h` is included, the set of defined configuration macros must be the same
 (except from `LIGHTMODBUS_IMPL` which should only be used **once**).
@@ -48,14 +56,24 @@ including implementation of liblightmodbus. For instance, you may want to create
 #include <lightmodbus/lightmodbus.h>
 ~~~
 
-\page basic-usage Basic usage
+\section embedded Embedded platforms
 
-\section slave Slave
+Since v3.0 building liblightmodbus on embedded platforms is no different 
+from building it on your PC. You're only required to add the header files to your project.
+
+\note Tip: Be sure to enable linking time optimizations (`-flto`) when building your project
+	to further reduce the size of your binary.
+
+\subsection ESP-IDF
+
+\todo Complete this section
+
+\page slave Slave device
 
 In order to use slave side functions, make sure to define `LIGHTMODBUS_SLAVE` macro before
 including the library. Please also see \ref building for more information.
 
-\subsection slave-init Slave initialization
+\section slave-init Slave initialization
 Slave device state is represented by ModbusSlave structure. It must be initialized with modbusSlaveInit()
 before it is used:
 ~~~c
@@ -91,7 +109,7 @@ The set of functions supported by the slave is determined by the 6th function ar
 structures which associate function codes with callbacks. Lifetime of this array must not be shorter
 than thelifetime of the slave. The length of this array should be provided as the last argument.
 
-\subsection slave-callback Register callback
+\section slave-register-callback Register callback
 An exapmple implementation of a register callback operating on registers stored in an array:
 ~~~c
 #define REG_COUNT 16
@@ -140,9 +158,15 @@ ModbusError myRegisterCallback(
 }
 ~~~
 
-For more information on register callback functions, please refer to \ref callbacks.
+\section slave-exception-callback Slave exception callback
 
-\subsection slave-requests Request processing
+\note Returning error values different than MODBUS_OK from the callback will result in
+	MODBUS_EXCEP_SLAVE_FAILURE exception being reported to the master. 
+
+\section slave-requests Request processing
+
+\note Return values from this callback are ignored. This functionality,
+	however, should not be relied upon and may be subject to change in future releases.
 
 After successful initialization of the slave device, it's ready to accept requests from the master:
 ~~~c
@@ -170,18 +194,18 @@ if (modbusIsOk(err))
 modbusSlaveFreeResponse(&slave);
 ~~~
 
-\subsection slave-cleanup Slave cleanup
+\section slave-cleanup Slave cleanup
 In order to destroy the ModbusSlave structure, call modbusSlaveDestroy():
 ~~~c
 modbusSlaveDestroy(&slave);
 ~~~
 
-\section master Master
+\page master Master
 
 In order to use master side functions, make sure to define `LIGHTMODBUS_MASTER` macro before
 including the library. Please also see \ref building for more information.
 
-\subsection master-init Master initialization
+\section master-init Master initialization
 Master device state is represented by ModbusMaster structure. It must be initialized with modbusMasterInit()
 before it is used:
 ~~~c
@@ -204,19 +228,25 @@ Similarly to slave, master has its own memory allocator - please refer to \ref a
 
 Additionally, master has two callbacks - data callback and exception callback. The first is
 used for processing all register data incoming to master, the latter for handling exceptions
-reported by the slave. Both callback are described in more detail in following sections
-and \ref callbacks.
+reported by the slave. These callback are described in more detail in \ref master-data-callback and
+\ref master-exception-callback.
 
 The 5th argument determines the set of functions supported by the master device. It should be
 a pointer to an array of ModbusMasterFunctionHandler structures which associate function codes
 with callbacks. The lifetime of this array must not be shorter than the lifetime of the master.
 The last argument should contain length of this array.
 
-\subsection master-data-callback Data callback
+\section master-data-callback Data callback
 
-\subsection master-exception-callback Exception callback
+\note Return values from this callback are ignored. This functionality,
+	however, should not be relied upon and may be subject to change in future releases.
 
-\subsection master-requests Building requests
+\section master-exception-callback Exception callback
+
+\note Return values from this callback are ignored. This functionality,
+	however, should not be relied upon and may be subject to change in future releases.
+
+\section master-requests Building requests
 
 Master side of the library provides a set of functions for building requests. They are named
 according to the pattern `modbusMasterBuildRequest*()`. Where `*` is code of the function followed
@@ -251,7 +281,7 @@ assert(modbusIsOk(err) && "modbusMasterBuildRequest03RTU() failed");
 If the request has been built successfully, it's avaiable at `master.request.data` 
 and has length of `master.request.length` bytes and can be sent to the slave.
 
-\subsection master-response Processing responses
+\section master-response Processing responses
 
 After obtaining the response from the slave, it's time to process it. In order to do that
 one of the `modbusParseResponse*()` functions can be used:
@@ -281,14 +311,9 @@ if (modbusGetResponseError(err))
 modbusMasterFreeRequest(&master);
 ~~~
 
-\subsection master-cleanup Master cleanup
+\section master-cleanup Master cleanup
 
-\page porting Porting exisiting code to liblightmodbus v3.0
-
-\section init-and-cleanup Initialization and cleanup
-
-
-\section error-handling Error handling
+\page error-handling Error handling
 Liblightmodbus v3.0 introduces a new type for error handling - \ref ModbusErrorInfo - returned by majority
 of the library functions. This new type allows to store both error type and its source (whether it was caused
 by an invalid request/response frame or by an actual library error).
@@ -326,37 +351,11 @@ if (modbusGetResponseError(err) != MODBUS_OK)
 `modbusGetGeneralError()`, `modbusGetRequestError()` and `modbusGetResponseError()` return
 a `ModbusError` enum value which can be easily handled with a switch statement.
 
-\section slave-code Slave code
+\warning You should **not** be accessing the fields of `ModbusErrorInfo` directly.
+	The internals of this struct are subject to change in future versions, and
+	for this exact reason the modbusIsOk() etc. functions exist.
 
-
-\section master-code Master code
-
-\section static-memory Static memory allocation
-Static memory allocation in v3.0 can be easily achieved by writing a custom memory allocator. Please refer to \ref allocators for more information.
-
-\section mask-rw Mask reads and writes
-The `modbusMaskRead()` and `modbusMaskWrite()` work exactly like in the previous versions, but no
-longer provide bounds checking.
-
-\section endiannnes Endianness operations
-`modbusSwapEndian()` and `modbusMatchEndian()` were dropped in favor of less ambiguous and safe
-functions for reading 16-bit integer words:
- - `modbusRLE()` - read a 16-bit little-endian word
- - `modbusRBE()` - read a 16-bit big-endian word
- - `modbusWLE()` - write a 16-bit little-endian word
- - `modbusWBE()` - write a 16-bit big-endian word
-
-Conveniently, pointers provided to those functions don't need to be aligned, because
-reading is done byte-after-byte manner for safety and portability (`__attribute__((packed))` is not so great. It's completely useless on XC16 compilers).
-
-
-
-\page callbacks User-defined callback functions
-
-
-
-
-\page allocators User-defined allocators
+\page allocators Custom allocators
 
 Liblightmodbus allows users to define their custom functions for memory management.
 This functionality is provided with mainly embedded systems in mind.
@@ -378,7 +377,7 @@ However, certain guarantees are made by the library:
 	if the allocator can distinguish between different ModbusMaster and
 	ModbusSlave instances issuing the allocation requests.**
 
-## Static memory allocation
+\section static-mem Static memory allocation
 
 An example of a custom "allocator" relying only on statically allocated memory:
 ~~~c
@@ -426,6 +425,44 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterStaticAllocator(ModbusMaster *st
 ~~~
 
 One could also implement the buffers in `modbusSlaveStaticAllocator()` and `modbusMasterStaticAllocator()` and
-distriguish between `ModbusSlave` and `ModbusMaster` instances based on the `status` argument.
+distiguish between `ModbusSlave` and `ModbusMaster` instances based on the `status` argument.
+
+\page porting Porting code from v2.0 to v3.0
+
+The table below presents a brief overview of changes that need to be applied to existing code 
+before upgrading to v3.0.
+
+|Task|Changes|
+|----|--------|
+|Slave init|Update call to `modbusSlaveInit()` according to \ref slave-init|
+|Master init|Update call to `modbusMasterInit()` according to \ref master-init|
+|Slave cleanup|Rename `modbusSlaveEnd()` to `modbusSlaveDestroy()`|
+|Master cleanup|Rename `modbusMasterEnd()` to `modbusMasterDestroy()`|
+|Error handling|Use `modbusIsOk()` and `modbusGetGeneralError()`. See \ref error-handling|
+|Parsing requests|Use `modbusParseRequestRTU()` instead of `modbusParseRequest()`. Provide the frame as an argument.|
+|Register callback|Slave register callback now takes arguments in a struct. See \ref slave-register-callback|
+|Register/coil arrays|Write a register callback accesing your own array instead. See \ref slave-register-callback|
+|Accessing slave's response|Use modbusSlaveGetResponse() and modbusSlaveGetResponseLength() instead of accessing directly accessing the fields in ModbusSlave|
+|Building requests|Use `modbusBuildRequest*RTU()` instead of `modbusBuildRequest*()`|
+|Accessing master's request|Use modbusMasterGetRequest() and modbusMasterGetRequestLength() instead of accessing directly accessing the fields in ModbusSlave|
+|Parsing responses|Use `modbusParseResponseRTU()` instead of `modbusParseResponse()`. Provide both request and response frames as arguments|
+|Receiving data|Implement a data callback to receive the data on the master end - see \ref master-data-callback|
+|Endiannes operations|Use modbusRLE(), modbusRBE(), modbusWLE() and modbusWBE() instead|
+|Mask read/write|modbusMaskRead() and modbusMaskWrite() no longer provide bound checking|
+|Static memory allocation|Implement a custom static memory allocator - see \ref static-mem|
+
+\cond DOXYGEN_EXCLUDE
+\section endiannnes Endianness operations
+`modbusSwapEndian()` and `modbusMatchEndian()` were dropped in favor of less ambiguous and safe
+functions for reading 16-bit integer words:
+ - `modbusRLE()` - read a 16-bit little-endian word
+ - `modbusRBE()` - read a 16-bit big-endian word
+ - `modbusWLE()` - write a 16-bit little-endian word
+ - `modbusWBE()` - write a 16-bit big-endian word
+
+Conveniently, pointers provided to those functions don't need to be aligned, because
+reading is done byte-after-byte manner for safety and portability (`__attribute__((packed))` is not so great. It's completely useless on XC16 compilers).
+\endcond
+
 
 */

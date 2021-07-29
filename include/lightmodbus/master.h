@@ -12,6 +12,7 @@ typedef struct ModbusMaster ModbusMaster;
 */
 typedef ModbusErrorInfo (*ModbusMasterParsingFunction)(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
@@ -36,6 +37,7 @@ typedef struct ModbusDataCallbackArgs
 	uint16_t index;      //!< Index of the register
 	uint16_t value;      //!< Value of the register
 	uint8_t function;    //!< Function that reported this value
+	uint8_t address;	 //!< Address of the slave
 } ModbusDataCallbackArgs;
 
 /**

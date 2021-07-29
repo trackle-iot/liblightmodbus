@@ -314,6 +314,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 		{
 			ModbusErrorInfo err = status->functions[i].ptr(
 				status,
+				address,
 				function,
 				request,
 				requestLength,

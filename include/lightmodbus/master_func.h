@@ -66,6 +66,7 @@
 
 LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
@@ -74,6 +75,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 
 LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
@@ -82,6 +84,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 
 LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
@@ -90,6 +93,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 
 LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,

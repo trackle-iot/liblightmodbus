@@ -3,6 +3,7 @@
 
 /**
 	\brief Parses response to requests 01, 02, 03 and 04
+	\param address Address of the slave
 	\param function Response function code
 	\param requestPDU pointer to the PDU section of the request frame
 	\param requestLength request PDU section length
@@ -18,6 +19,7 @@
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
@@ -85,6 +87,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	ModbusDataCallbackArgs cargs = {
 		.type = datatype,
 		.function = function,
+		.address = address,
 	};
 
 	// And finally read the data from the response
@@ -104,6 +107,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 
 /**
 	\brief Parses response to requests 05 and 06
+	\param address Address of the slave
 	\param function Response function code
 	\param requestPDU pointer to the PDU section of the request frame
 	\param requestLength request PDU section length
@@ -116,6 +120,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
@@ -138,6 +143,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 
 /**
 	\brief Parses response to requests 15 and 16 (write mutliple regsiters/coils)
+	\param address Address of the slave
 	\param function Response function code
 	\param requestPDU pointer to the PDU section of the request frame
 	\param requestLength request PDU section length
@@ -153,6 +159,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,
@@ -188,6 +195,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 
 /**
 	\brief Parses response to request 22
+	\param address Address of the slave
 	\param function Response function code
 	\param requestPDU pointer to the PDU section of the request frame
 	\param requestLength request PDU section length
@@ -200,6 +208,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse22(
 	ModbusMaster *status,
+	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength,

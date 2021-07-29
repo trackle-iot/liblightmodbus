@@ -243,21 +243,143 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusDefaultAllocator(
 	ModbusBufferPurpose purpose);
 
 uint16_t modbusCRC(const uint8_t *data, uint16_t length);
-uint8_t modbusMaskRead(const uint8_t *mask, uint16_t n);
-void modbusMaskWrite(uint8_t *mask, uint16_t n, uint8_t value);
 
-uint16_t modbusBitsToBytes(uint16_t n);
-uint16_t modbusRLE(const uint8_t *p);
-uint16_t modbusWLE(uint8_t *p, uint16_t val);
-uint16_t modbusRBE(const uint8_t *p);
-uint16_t modbusWBE(uint8_t *p, uint16_t val);
+/**
+	\brief Reads n-th bit from an array
+	\param mask A pointer to the array
+	\param n Number of the bit to be read
+	\returns The bit value
+*/
+LIGHTMODBUS_WARN_UNUSED static inline uint8_t modbusMaskRead(const uint8_t *mask, uint16_t n)
+{
+	return (mask[n >> 3] & (1 << (n & 7))) != 0;
+}
 
-LIGHTMODBUS_WARN_UNUSED uint8_t modbusGetErrorSource(ModbusErrorInfo err);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetErrorCode(ModbusErrorInfo err);
-LIGHTMODBUS_WARN_UNUSED uint8_t modbusIsOk(ModbusErrorInfo err);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetGeneralError(ModbusErrorInfo err);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetRequestError(ModbusErrorInfo err);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetResponseError(ModbusErrorInfo err);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusGetCallbackError(ModbusErrorInfo err);
+/**
+	\brief Writes n-th bit in an array
+	\param mask A pointer to the array
+	\param n Number of the bit to write
+	\param value Bit value to be written
+*/
+static inline void modbusMaskWrite(uint8_t *mask, uint16_t n, uint8_t value)
+{
+	if (value)
+		mask[n >> 3] |= (1 << (n & 7));
+	else
+		mask[n >> 3] &= ~(1 << (n & 7));
+}
+
+/**
+	\brief Returns number of bytes necessary to hold given number of bits
+	\param n Number of bits
+	\returns Number of bytes requred to hold n bits
+*/
+LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusBitsToBytes(uint16_t n)
+{
+	return (n + 7) >> 3;
+}
+
+/**
+	\brief Safely reads a little-endian 16-bit word from provided pointer
+*/
+LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusRLE(const uint8_t *p)
+{
+	uint8_t lo = *p;
+	uint8_t hi = *(p + 1);
+	return (uint16_t) lo | ((uint16_t) hi << 8);
+}
+
+/**
+	\brief Safely writes a little-endian 16-bit word to provided pointer
+*/
+static inline uint16_t modbusWLE(uint8_t *p, uint16_t val)
+{
+	*p = val;
+	*(p + 1) = val >> 8;
+	return val;
+}
+
+/**
+	\brief Safely reads a big-endian 16-bit word from provided pointer
+*/
+LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusRBE(const uint8_t *p)
+{
+	uint8_t lo = *(p + 1);
+	uint8_t hi = *p;
+	return (uint16_t) lo | ((uint16_t) hi << 8);
+}
+
+/**
+	\brief Safely writes a big-endian 16-bit word to provided pointer
+*/
+static inline uint16_t modbusWBE(uint8_t *p, uint16_t val)
+{
+	*p = val >> 8;
+	*(p + 1) = val;
+	return val;
+}
+
+/**
+	\brief Returns uint8_t describing error source of ModbusErrorInfo
+	\returns error source
+
+	\see MODBUS_ERROR_SOURCE_GENERAL
+	\see MODBUS_ERROR_SOURCE_REQUEST
+	\see MODBUS_ERROR_SOURCE_REQUEST
+*/
+LIGHTMODBUS_WARN_UNUSED static inline uint8_t modbusGetErrorSource(ModbusErrorInfo err)
+{
+	return err.source;
+}
+
+/**
+	\brief Returns ModbusError contained in ModbusErrorInfo
+	\returns MdobusError contained in ModbusErrorInfo
+*/
+LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusGetErrorCode(ModbusErrorInfo err)
+{
+	return (ModbusError) err.error;
+}
+
+/**
+	\brief Checks if ModbusErrorInfo contains an error
+	\returns true if ModbusErrorInfo contains an error
+
+	\see MODBUS_NO_ERROR()
+*/
+LIGHTMODBUS_WARN_UNUSED static inline uint8_t modbusIsOk(ModbusErrorInfo err)
+{
+	return modbusGetErrorSource(err) == MODBUS_ERROR_SOURCE_GENERAL && modbusGetErrorCode(err) == MODBUS_OK;
+}
+
+/**
+	\brief Returns general error from ModbusErrorInfo
+	\returns ModbusError if ModbusErrorInfo contains an error from MODBUS_ERROR_SOURCE_GENERAL
+	\returns MODBUS_OK otherwise
+*/
+LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusGetGeneralError(ModbusErrorInfo err)
+{
+	return err.source == MODBUS_ERROR_SOURCE_GENERAL ? modbusGetErrorCode(err) : MODBUS_OK;
+}
+
+/**
+	\brief Returns request error from ModbusErrorInfo
+	\returns ModbusError if ModbusErrorInfo contains an error from MODBUS_ERROR_SOURCE_REQUEST
+	\returns MODBUS_OK otherwise
+*/
+LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusGetRequestError(ModbusErrorInfo err)
+{
+	return err.source == MODBUS_ERROR_SOURCE_REQUEST ? modbusGetErrorCode(err) : MODBUS_OK;
+}
+
+/**
+	\brief Returns response error from ModbusErrorInfo
+	\returns ModbusError if ModbusErrorInfo contains an error from MODBUS_ERROR_SOURCE_RESPONSE
+	\returns MODBUS_OK otherwise
+*/
+LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusGetResponseError(ModbusErrorInfo err)
+{
+	return err.source == MODBUS_ERROR_SOURCE_RESPONSE ? modbusGetErrorCode(err) : MODBUS_OK;
+}
 
 #endif

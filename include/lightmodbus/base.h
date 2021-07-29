@@ -141,8 +141,7 @@ typedef enum ModbusError
 
 	/**
 		\brief Invalid index value
-		\deprecated Not used anywhere
-		\todo Do we need this?
+		\note Not used anywhere, left for future use.
 	*/
 	MODBUS_ERROR_INDEX,
 

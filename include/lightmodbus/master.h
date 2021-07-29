@@ -48,7 +48,7 @@ typedef ModbusError (*ModbusDataCallback)(
 /**
 	\brief A pointer to a callback called when a Modbus exception is generated (for master)
 */
-typedef void (*ModbusMasterExceptionCallback)(
+typedef ModbusError (*ModbusMasterExceptionCallback)(
 	ModbusMaster *status,
 	uint8_t address,
 	uint8_t function,

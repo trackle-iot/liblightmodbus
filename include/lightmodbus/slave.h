@@ -65,7 +65,7 @@ typedef ModbusError (*ModbusRegisterCallback)(
 /**
 	\brief A pointer to a callback called when a Modbus exception is generated (for slave)
 */
-typedef void (*ModbusSlaveExceptionCallback)(
+typedef ModbusError (*ModbusSlaveExceptionCallback)(
 	ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,

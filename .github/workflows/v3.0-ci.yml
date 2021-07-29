@@ -69,7 +69,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
-        destination_dir: newdocs
+        destination_dir: v3.0
         publish_dir: doc/html
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'

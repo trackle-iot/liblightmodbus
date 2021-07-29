@@ -242,10 +242,15 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, c
 	\param address address of the slave
 	\param request pointer to the PDU data
 	\param requestLength length of the PDU
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns Any errors from parsing functions
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint8_t requestLength)
+LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint16_t requestLength)
 {
+	// Check length
+	if (!requestLength || requestLength > 255)
+		return MODBUS_REQUEST_ERROR(LENGTH);
+
 	status->response.pduOffset = 0;
 	status->response.padding = 0;
 	return modbusParseRequest(status, address, request, requestLength);

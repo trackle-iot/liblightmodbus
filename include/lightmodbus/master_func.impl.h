@@ -137,7 +137,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 }
 
 /**
-	\brief Parses response to requests 15 and 16
+	\brief Parses response to requests 15 and 16 (write mutliple regsiters/coils)
 	\param function Response function code
 	\param requestPDU pointer to the PDU section of the request frame
 	\param requestLength request PDU section length
@@ -145,8 +145,10 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	\param responseLength response PDU section length
 	\return MODBUS_REQUEST_ERROR(LENGTH) if request frame has invalid length
 	\return MODBUS_RESPONSE_ERROR(LENGTH) if response frame has invalid length
+	\return MODBUS_REQUEST_ERROR(COUNT) if the declared register count is invalid
+	\return MODBUS_REQUEST_ERROR(RANGE) if the declared register range wraps around address space
 	\return MODBUS_RESPONSE_ERROR(INDEX) if the index differs between the request and response
-	\return return MODBUS_RESPONSE_ERROR(COUNT) if the count differs between the request and response
+	\return MODBUS_RESPONSE_ERROR(COUNT) if the count differs between the request and response
 	\return MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
@@ -161,16 +163,25 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	if (requestLength < 7) return MODBUS_REQUEST_ERROR(LENGTH);
 	if (responseLength != 5) return MODBUS_RESPONSE_ERROR(LENGTH);
 
-	//! \todo should we handle invalid count/index here?
-	
-	// Check if index is the same
-	if (modbusRBE(&requestPDU[1]) != modbusRBE(&responsePDU[1]))
+	uint16_t index = modbusRBE(&requestPDU[1]);
+	uint16_t count = modbusRBE(&requestPDU[3]);
+
+	// Check if index is the same in the response
+	if (index != modbusRBE(&responsePDU[1]))
 		return MODBUS_RESPONSE_ERROR(INDEX);
 		
 	// Check if count is the same
-	if (modbusRBE(&requestPDU[3]) != modbusRBE(&responsePDU[3]))
+	if (count != modbusRBE(&responsePDU[3]))
 		return MODBUS_RESPONSE_ERROR(COUNT);
 
+	// Verify count in the request
+	uint16_t maxCount = (function == 15) ? 1968 : 123;
+	if (count == 0 || count > maxCount)
+		return MODBUS_REQUEST_ERROR(COUNT);
+	
+	// Verify register range
+	if (UINT16_MAX - count + 1 <= index)
+		return MODBUS_REQUEST_ERROR(RANGE);
 	
 	return MODBUS_NO_ERROR();
 }

@@ -101,5 +101,21 @@ const char *modbusDataTypeStr(ModbusDataType type)
 	}
 }
 
+/**
+	\brief Returns a string containing the name of the ModbusRegisterQuery enum value
+*/
+const char *modbusRegisterQueryStr(ModbusRegisterQuery query)
+{
+	switch (query)
+	{
+		ECASE(MODBUS_REGQ_R_CHECK);
+		ECASE(MODBUS_REGQ_W_CHECK);
+		ECASE(MODBUS_REGQ_R);
+		ECASE(MODBUS_REGQ_W);
+		
+		default: return "[invalid ModbusRegisterQuery]";
+	}
+}
+
 #undef ESTR
 #undef ECASE

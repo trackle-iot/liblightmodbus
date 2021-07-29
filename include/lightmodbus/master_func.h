@@ -26,7 +26,7 @@
 
 /**
 	\def LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER
-	\brief Defines a header for a `modbusBuildRequest*TCP()` function
+	\brief Defines a header for a `modbusBuildRequest*RTU()` function
 */
 #define LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(f, f_suffix, ...) \
 	LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest##f_suffix##RTU(ModbusMaster *status, uint8_t address, __VA_ARGS__)

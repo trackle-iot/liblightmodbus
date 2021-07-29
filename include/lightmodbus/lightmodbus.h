@@ -31,6 +31,15 @@ extern "C" {
 	\brief Configures the library to include all avaiable Modbus functions for both master and slave
 */
 #ifdef LIGHTMODBUS_FULL
+	#define LIGHTMODBUS_SLAVE_FULL
+	#define LIGHTMODBUS_MASTER_FULL
+#endif
+
+/**
+	\def LIGHTMODBUS_SLAVE_FULL
+	\brief Include all functions available for slave
+*/
+#ifdef LIGHTMODBUS_SLAVE_FULL
 	#define LIGHTMODBUS_SLAVE
 	#define LIGHTMODBUS_F01S
 	#define LIGHTMODBUS_F02S
@@ -41,7 +50,13 @@ extern "C" {
 	#define LIGHTMODBUS_F15S
 	#define LIGHTMODBUS_F16S
 	#define LIGHTMODBUS_F22S
+#endif
 
+/**
+	\def LIGHTMODBUS_MASTER_FULL
+	\brief Include all functions available for master
+*/
+#ifdef LIGHTMODBUS_MASTER_FULL
 	#define LIGHTMODBUS_MASTER
 	#define LIGHTMODBUS_F01M
 	#define LIGHTMODBUS_F02M

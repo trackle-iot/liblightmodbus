@@ -78,16 +78,7 @@ typedef struct ModbusMaster
 	void *context; //!< User's context pointer
 
 	//! Stores master's request for slave
-	struct
-	{
-		uint8_t *data;      //!< Pointer to the request frame buffer
-		uint8_t *pdu;       //!< Pointer to the PDU section of the request
-		uint16_t length;    //!< Length of the request buffer
-
-		uint16_t padding;   //!< Number of extra bytes surrounding the PDU
-		uint16_t pduOffset; //!< PDU offset relative to the beginning of the frame
-	} request;
-
+	ModbusFrameBuffer request;
 } ModbusMaster;
 
 LIGHTMODBUS_RET_ERROR modbusMasterInit(

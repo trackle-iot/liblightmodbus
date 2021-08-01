@@ -89,9 +89,9 @@ typedef struct ModbusMaster
 
 LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,
-	ModbusMasterAllocator allocator,
 	ModbusDataCallback dataCallback,
 	ModbusMasterExceptionCallback exceptionCallback,
+	ModbusMasterAllocator allocator,
 	const ModbusMasterFunctionHandler *functions,
 	uint8_t functionCount);
 

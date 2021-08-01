@@ -33,9 +33,9 @@ int main(void)
 	err = modbusSlaveInit(
 		&slave,
 		1,
-		modbusSlaveDefaultAllocator,
 		regCallback,
 		NULL,
+		modbusSlaveDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount);
 

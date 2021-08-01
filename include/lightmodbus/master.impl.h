@@ -119,9 +119,9 @@ void modbusMasterFreeRequest(ModbusMaster *status)
 /**
 	\brief Initializes a ModbusMaster struct
 	\param status ModbusMaster struct to be initialized
-	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator()) (required)
 	\param dataCallback Callback function for handling incoming data (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
+	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator()) (required)
 	\param functions Pointer to an array of supported function handlers (required). 
 		The lifetime of this array must not be shorter than the lifetime of the master.
 	\param functionCount Number of elements in the `functions` array (required)
@@ -132,9 +132,9 @@ void modbusMasterFreeRequest(ModbusMaster *status)
 */
 LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,
-	ModbusMasterAllocator allocator,
 	ModbusDataCallback dataCallback,
 	ModbusMasterExceptionCallback exceptionCallback,
+	ModbusMasterAllocator allocator,
 	const ModbusMasterFunctionHandler *functions,
 	uint8_t functionCount)
 {

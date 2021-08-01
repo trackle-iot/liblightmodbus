@@ -113,9 +113,9 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 /**
 	\brief Initializes slave device
 	\param address ID of the slave
-	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator) (required)
 	\param registerCallback Callback function for handling all register operations (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
+	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator) (required)
 	\param functions Pointer to array of supported function handlers (required).
 		The lifetime of this array must not be shorter than the lifetime of the slave.
 	\param functionCount Number of function handlers in the array (required)
@@ -128,9 +128,9 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
 	uint8_t address,
-	ModbusSlaveAllocator allocator,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
+	ModbusSlaveAllocator allocator,
 	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount)
 {

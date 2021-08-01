@@ -102,9 +102,9 @@ typedef struct ModbusSlave
 LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
 	uint8_t address,
-	ModbusSlaveAllocator allocator,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
+	ModbusSlaveAllocator allocator,
 	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount);
 

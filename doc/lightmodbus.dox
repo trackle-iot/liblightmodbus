@@ -84,9 +84,9 @@ ModbusErrorInfo err;
 err = modbusSlaveInit(
 	&slave,          
 	1,                               // Address of the slave
-	modbusSlaveDefaultAllocator,     // Memory allocator for ModbusSlave
 	myRegisterCallback,              // Callback for register operations
 	myExceptionCallback,             // Callback for handling slave exceptions (optional)
+	modbusSlaveDefaultAllocator,     // Memory allocator for ModbusSlave
 	modbusSlaveDefaultFunctions,     // Set of supported functions
 	modbusSlaveDefaultFunctionCount  // Number of supported functions
 	);
@@ -219,9 +219,9 @@ ModbusMaster master;
 ModbusErrorInfo err;
 err = modbusMasterInit(
 	&master,          
-	modbusMasterDefaultAllocator,    // Memory allocator for ModbusMaster
 	myDataCallback,                  // Callback for handling incoming data
 	myExceptionCallback,             // Optional slave exception callback
+	modbusMasterDefaultAllocator,    // Memory allocator for ModbusMaster
 	modbusMasterDefaultFunctions,    // Set of supported functions
 	modbusMasterDefaultFunctionCount // Number of supported functions
 	);
@@ -230,12 +230,13 @@ err = modbusMasterInit(
 assert(modbusIsOk(err) && "modbusMasterInit() failed"); 
 ~~~
 
-Similarly to slave, master has its own memory allocator - please refer to \ref allocators for more information.
 
-Additionally, master has two callbacks - data callback and exception callback. The first is
+Similarly to slave, master has two callbacks - data callback and exception callback. The first is
 used for processing all register data incoming to master, the latter for handling exceptions
 reported by the slave. These callback are described in more detail in \ref master-data-callback and
 \ref master-exception-callback.
+
+Master also has its own memory allocator - please refer to \ref allocators for more information.
 
 The 5th argument determines the set of functions supported by the master device. It should be
 a pointer to an array of ModbusMasterFunctionHandler structures which associate function codes

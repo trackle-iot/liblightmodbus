@@ -319,6 +319,18 @@ static inline uint16_t modbusWBE(uint8_t *p, uint16_t val)
 }
 
 /**
+	\brief Checks whether provided address range causes an `uint16_t` overflow
+	\param index index of the first register in the range
+	\param count number of registers in the range
+	\returns true if the range causes an overflow
+*/
+static inline uint8_t modbusCheckRangeU16(uint16_t index, uint16_t count)
+{
+	// return (uint16_t)(index + count - 1) < index;
+	return index > UINT16_MAX - count + 1;
+}
+
+/**
 	\brief Returns uint8_t describing error source of ModbusErrorInfo
 	\returns error source
 

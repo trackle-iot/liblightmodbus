@@ -72,7 +72,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 		return MODBUS_REQUEST_ERROR(COUNT);
 
 	// Address range check
-	if (UINT16_MAX - count + 1 <= index)
+	if (modbusCheckRangeU16(index, count))
 		return MODBUS_REQUEST_ERROR(RANGE);
 
 	// Based on the request, calculate expected data size
@@ -187,7 +187,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 		return MODBUS_REQUEST_ERROR(COUNT);
 	
 	// Verify register range
-	if (UINT16_MAX - count + 1 <= index)
+	if (modbusCheckRangeU16(index, count))
 		return MODBUS_REQUEST_ERROR(RANGE);
 	
 	return MODBUS_NO_ERROR();
@@ -269,7 +269,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest01020304(
 		return MODBUS_GENERAL_ERROR(COUNT);
 	
 	// Address range check
-	if (UINT16_MAX - count + 1 <= index)
+	if (modbusCheckRangeU16(index, count))
 		return MODBUS_GENERAL_ERROR(RANGE);
 
 	if (modbusMasterAllocateRequest(status, 5))
@@ -335,7 +335,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 		return MODBUS_GENERAL_ERROR(COUNT);
 
 	// Address range check
-	if (UINT16_MAX - count + 1 <= index)
+	if (modbusCheckRangeU16(index, count))
 		return MODBUS_GENERAL_ERROR(RANGE);
 
 	uint8_t dataLength = modbusBitsToBytes(count);
@@ -391,7 +391,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 		return MODBUS_GENERAL_ERROR(COUNT);
 
 	// Addresss range check
-	if (UINT16_MAX - count + 1 <= index)
+	if (modbusCheckRangeU16(index, count))
 		return MODBUS_GENERAL_ERROR(RANGE);
 
 	uint8_t dataLength = count << 1;

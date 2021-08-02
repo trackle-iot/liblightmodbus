@@ -70,7 +70,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Addresss range check
-	if (UINT16_MAX - count - 1 < index)
+	if (modbusCheckRangeU16(index, count))
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Prepare callback args
@@ -225,7 +225,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Addresss range check
-	if (UINT16_MAX - count - 1 < index)
+	if (modbusCheckRangeU16(index, count))
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Prepare callback args

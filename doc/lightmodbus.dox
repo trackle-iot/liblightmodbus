@@ -95,7 +95,7 @@ err = modbusSlaveInit(
 assert(modbusIsOk(err) && "modbusSlaveInit() failed"); 
 ~~~
 
-ModbusSlave contains an internal buffer the response data. This buffer is allocated by the allocator passed to modbusSlaveInit().
+ModbusSlave contains an internal buffer the response data. This buffer is allocated by the allocator passed to `modbusSlaveInit()`.
 modbusSlaveDefaultAllocator is a default allocator that uses malloc() and free() functions.
 You may write your own, more sophisticated allocators if you wish - please see \ref allocators for more details.
 
@@ -112,6 +112,35 @@ structures which associate function codes with callbacks. Lifetime of this array
 than thelifetime of the slave. The length of this array should be provided as the last argument.
 
 \section slave-register-callback Register callback
+The register callback is a function matching `ModbusRegisterCallback` used to read and write registers.
+
+provide register values for the Master.
+
+
+\subsection slave-register-callback-access R/W access check queries
+When `ModbusRegisterCallbackArgs::query` is either \ref MODBUS_REGQ_R_CHECK or \ref MODBUS_REGQ_W_CHECK an access query is being made to the callback function.
+
+The \ref MODBUS_REGQ_R_CHECK value of `ModbusRegisterCallbackArgs::query` means that read access is requested and \ref MODBUS_REGQ_W_CHECK means that write access is requested.
+
+The type of accessed register is provided to the function in `ModbusRegisterCallbackArgs::type`. The index of the register is stored in `ModbusRegisterCallbackArgs::index` and the ID of the function requesting access is available in `ModbusRegisterCallbackArgs::function`.
+
+The value stored in `ModbusRegisterCallbackArgs::value` during a write access check contains the value of the register that will be written in a subsequent write request. In case of read requests the value stored in this variable may not be used.
+
+In order to respond to an access query, the function must return a value via the `result` pointer argument. This value is treated as the exception code that the slave will report to the master. In order to allow access to a certain register \ref MODBUS_EXCEP_NONE should be returned. Otherwise, an exception code such as \ref MODBUS_EXCEP_SLAVE_FAILURE should be returned.
+
+The return value of the register callback is checked by the library during the access check phase. Returning a value other than \ref MODBUS_OK results in the slave reporting a \ref MODBUS_EXCEP_SLAVE_FAILURE exception to the master.
+
+\note This functionality should not be relied upon and may be subject to change in future versions. For your own safety, please always return `MODBUS_OK` from the callback and use the `result` output argument to report any exceptions.
+
+
+\subsection slave-register-callback-rw R/W queries
+When `ModbusRegisterCallbackArgs::query` is either \ref MODBUS_REGQ_W or \ref MODBUS_REGQ_R the callback function is requested either to set or provide a register value accordingly.
+
+The library guarantees that before each register is accessed a suitable access query will be made for it beforehand. However, all access queries are performed before the first R/W query, so creating cross-dependencies between registers (i.e. access rights to one register depend on the value of other register) is very likely to cause problems. It's best to disable "write multiple X" functions on such registers.
+
+\note Return values from this callback are ignored. This functionality,
+	however, should not be relied upon and may be subject to change in future releases.
+
 An exapmple implementation of a register callback operating on registers stored in an array:
 ~~~c
 #define REG_COUNT 16
@@ -167,14 +196,17 @@ ModbusError myRegisterCallback(
 
 \todo Complete this section
 
+
 \section slave-requests Request processing
 
-\note Return values from this callback are ignored. This functionality,
-	however, should not be relied upon and may be subject to change in future releases.
+After successful initialization of the slave device, it's ready to accept requests from the master. The requests
+can be processed using one of the three functions: `modbusParseRequestPDU()`, `modbusParseRequestRTU()` and `modbusParseRequestTCP()`.
+Calling each one of these results in an attempt to parse the request frame, a series of calls to the \ref slave-register-callback 
+and optionally a response frame for the master. If the slave generates a exception frame, the \ref slave-exception-callback is called.
 
-\todo Complete this section
+The response frame can be accessed using `modbusSlaveGetResponse()` and its length can be acquired using `modbusSlaveGetResponseLength()`.
+These functions may not be called if `modbusIsOk()` of the returned `ModbusErrorInfo` is `false`. 
 
-After successful initialization of the slave device, it's ready to accept requests from the master:
 ~~~c
 // For Modbus RTU
 ModbusErrorInfo err;
@@ -189,19 +221,19 @@ if (modbusGetGeneralError(&slave))
 if (modbusGetRequestError(&slave))
 	handleRequesterrors(err);
 
-// If the function did not return an error, the response is ready to be sent
-// to master. The response frame is located inside ModbusSlave at ModbusSlave::response::data
-// and is ModbusSlave::response::length bytes long. Beware that response frame can be empty
+// If the function did not return an error, the response can be accessed and is ready to be sent
+// to the master. The response frame can be acquired using modbusSlaveGetResponse()
+// and is modbusSlaveGetResponseLength() bytes long. Beware that response frame can be empty
 // in some cases!
 if (modbusIsOk(err))
-	sendToMaster(slave.response.data, slave.response.length);
+	sendToMaster(modbusSlaveGetResponse(&slave), modbusSlaveGetResponseLength(&slave));
 
 // Optionally, the response buffer can be freed now
 modbusSlaveFreeResponse(&slave);
 ~~~
 
 \section slave-cleanup Slave cleanup
-In order to destroy the ModbusSlave structure, simply call modbusSlaveDestroy():
+In order to destroy the ModbusSlave structure, simply call `modbusSlaveDestroy()`:
 ~~~c
 modbusSlaveDestroy(&slave);
 ~~~
@@ -239,23 +271,78 @@ reported by the slave. These callback are described in more detail in \ref maste
 Master also has its own memory allocator - please refer to \ref allocators for more information.
 
 The 5th argument determines the set of functions supported by the master device. It should be
-a pointer to an array of ModbusMasterFunctionHandler structures which associate function codes
+a pointer to an array of `ModbusMasterFunctionHandler` structures which associate function codes
 with callbacks. The lifetime of this array must not be shorter than the lifetime of the master.
 The last argument should contain length of this array.
 
 \section master-data-callback Data callback
 
-\note Return values from this callback are ignored. This functionality,
+The data callback is a function matching `ModbusDataCallback`, used to receive data read from the slaves.
+
+This function is called from `modbusParseResponse*()` for every received register/coil/input value. The address of the slave, index of the register, its value and function used to acquire it are provided inside `ModbusDataCallbackArgs` provided as an argument.
+
+The data callback must return a `ModbusError`. It should always return `MODBUS_OK`.
+
+\note Return values from this callback are ignored. This,
 	however, should not be relied upon and may be subject to change in future releases.
 
-\todo Complete this section
+An example of a simple data callback printing out all received data:
+~~~c
+/*
+	Data callback for printing all incoming data
+*/
+ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *args)
+{
+	printf(
+		"Received data:\n"
+		"\t from: %d\n"
+		"\t  fun: %d\n"
+		"\t type: %s\n"
+		"\t   id: %d\n"
+		"\tvalue: %d\n",
+		args->address,
+		args->function,
+		modbusDataTypeStr(args->type), // Requires LIGHTMODBUS_DEBUG
+		args->index,
+		args->value
+	);
+
+	// Always return MODBUS_OK
+	return MODBUS_OK;
+}
+~~~
 
 \section master-exception-callback Exception callback
 
-\note Return values from this callback are ignored. This functionality,
+Master exception callback is a function matching `ModbusMasterExceptionCallback` called when an exception response frame is parsed by one of the `modbusParseResponse*()` functions.
+
+The function is provided with address of the slave that reported this exception, function code of the function that caused it and a Modbus exception code (`ModbusExceptionCode`). It must return a `ModbusError` value, which should be `MODBUS_OK`.
+
+\note Return values from this callback are ignored. This,
 	however, should not be relied upon and may be subject to change in future releases.
 
-\todo Complete this section
+
+An example of a simple exception callback printing out all received exceptions:
+~~~c
+/*
+	Exception callback for printing out exceptions on master side
+*/
+ModbusError masterExceptionCallback(
+	ModbusMaster *master,
+	uint8_t address,
+	uint8_t function,
+	ModbusExceptionCode code)
+{
+	printf(
+		"Received exception %s (function %d) from slave %d\n",
+		modbusExceptionCodeStr(code),
+		function,
+		address);
+
+	// Always return MODBUS_OK
+	return MODBUS_OK;
+}
+~~~
 
 \section master-requests Building requests
 
@@ -269,15 +356,15 @@ responsible for building the request frame and must only be used in between call
 
 |Function code|Description|Functions|
 |-------------|-----------|---------|
-|01|Read multiple coils|modbusBuildRequest01()<br>modbusBuildRequest01PDU()<br>modbusBuildRequest01RTU()<br>modbusBuildRequest01TCP()|
-|02|Read multiple discrete inputs|modbusBuildRequest02()<br>modbusBuildRequest02PDU()<br>modbusBuildRequest02RTU()<br>modbusBuildRequest02TCP()|
-|03|Read multiple holding registers|modbusBuildRequest03()<br>modbusBuildRequest03PDU()<br>modbusBuildRequest03RTU()<br>modbusBuildRequest03TCP()|
-|04|Read multiple input registers|modbusBuildRequest04()<br>modbusBuildRequest04PDU()<br>modbusBuildRequest04RTU()<br>modbusBuildRequest04TCP()|
-|05|Write a single coil|modbusBuildRequest05()<br>modbusBuildRequest05PDU()<br>modbusBuildRequest05RTU()<br>modbusBuildRequest05TCP()|
-|06|Write a single holding register|modbusBuildRequest06()<br>modbusBuildRequest06PDU()<br>modbusBuildRequest06RTU()<br>modbusBuildRequest06TCP()|
-|15|Write multiple coils|modbusBuildRequest15()<br>modbusBuildRequest15PDU()<br>modbusBuildRequest15RTU()<br>modbusBuildRequest15TCP()|
-|16|Write multiple holding registers|modbusBuildRequest16()<br>modbusBuildRequest16PDU()<br>modbusBuildRequest16RTU()<br>modbusBuildRequest16TCP()|
-|22|Mask write register|modbusBuildRequest22()<br>modbusBuildRequest22PDU()<br>modbusBuildRequest22RTU()<br>modbusBuildRequest22TCP()|
+|01|Read multiple coils|`modbusBuildRequest01()`<br>`modbusBuildRequest01PDU()`<br>`modbusBuildRequest01RTU()`<br>`modbusBuildRequest01TCP()`|
+|02|Read multiple discrete inputs|`modbusBuildRequest02()`<br>`modbusBuildRequest02PDU()`<br>`modbusBuildRequest02RTU()`<br>`modbusBuildRequest02TCP()`|
+|03|Read multiple holding registers|`modbusBuildRequest03()`<br>`modbusBuildRequest03PDU()`<br>`modbusBuildRequest03RTU()`<br>`modbusBuildRequest03TCP()`|
+|04|Read multiple input registers|`modbusBuildRequest04()`<br>`modbusBuildRequest04PDU()`<br>`modbusBuildRequest04RTU()`<br>`modbusBuildRequest04TCP()`|
+|05|Write a single coil|`modbusBuildRequest05()`<br>`modbusBuildRequest05PDU()`<br>`modbusBuildRequest05RTU()`<br>`modbusBuildRequest05TCP()`|
+|06|Write a single holding register|`modbusBuildRequest06()`<br>`modbusBuildRequest06PDU()`<br>`modbusBuildRequest06RTU()`<br>`modbusBuildRequest06TCP()`|
+|15|Write multiple coils|`modbusBuildRequest15()`<br>`modbusBuildRequest15PDU()`<br>`modbusBuildRequest15RTU()`<br>`modbusBuildRequest15TCP()`|
+|16|Write multiple holding registers|`modbusBuildRequest16()`<br>`modbusBuildRequest16PDU()`<br>`modbusBuildRequest16RTU()`<br>`modbusBuildRequest16TCP()`|
+|22|Mask write register|`modbusBuildRequest22()`<br>`modbusBuildRequest22PDU()`<br>`modbusBuildRequest22RTU()`<br>`modbusBuildRequest22TCP()`|
 
 Please see \ref master_func.impl.h for more details.
 
@@ -289,8 +376,8 @@ err = modbusMasterBuildRequest03RTU(&master, 1, 17, 1);
 assert(modbusIsOk(err) && "modbusMasterBuildRequest03RTU() failed");
 ~~~
 
-If the request has been built successfully, it's avaiable at `master.request.data` 
-and has length of `master.request.length` bytes and can be sent to the slave.
+If the request has been built successfully, it can be acquired using
+`modbusMasterGetRequest()`, has length of `modbusMasterGetRequestLength()` bytes and can be sent to the slave.
 
 \section master-response Processing responses
 
@@ -301,8 +388,8 @@ one of the `modbusParseResponse*()` functions can be used:
 ModbusErrorInfo err;
 err = modbusParseResponseRTU(
 	&master,
-	master.request.data,
-	master.request.length,
+	modbusMasterGetRequest(&master),
+	modbusMasterGetRequestLength(&master),
 	slaveResponseData,
 	slaveResponseLength);
 
@@ -324,7 +411,12 @@ modbusMasterFreeRequest(&master);
 
 \section master-cleanup Master cleanup
 
-\todo Complete this section
+When you're done using an instance of `ModbusMaster`, you can destroy it
+using `modbusMasterDestroy()`.
+
+~~~c
+modbusMasterDestroy(&master);
+~~~
 
 \page error-handling Error handling
 Liblightmodbus v3.0 introduces a new type for error handling - \ref ModbusErrorInfo - returned by majority
@@ -366,7 +458,7 @@ a `ModbusError` enum value which can be easily handled with a switch statement.
 
 \warning You should **not** be accessing the fields of `ModbusErrorInfo` directly.
 	The internals of this struct are subject to change in future versions, and
-	for this exact reason the modbusIsOk() etc. functions exist.
+	for this exact reason the `modbusIsOk()` etc. functions exist.
 
 \page allocators Custom allocators
 
@@ -461,11 +553,11 @@ before upgrading to v3.0.
 |Register/coil arrays|Write a register callback accesing your own array instead. See \ref slave-register-callback|
 |Accessing slave's response|Use modbusSlaveGetResponse() and modbusSlaveGetResponseLength() instead of accessing directly accessing the fields in ModbusSlave|
 |Building requests|Use `modbusBuildRequest*RTU()` instead of `modbusBuildRequest*()`|
-|Accessing master's request|Use modbusMasterGetRequest() and modbusMasterGetRequestLength() instead of accessing directly accessing the fields in ModbusSlave|
+|Accessing master's request|Use modbusMasterGetRequest() and modbusMasterGetRequestLength() instead of accessing directly accessing the fields in ModbusMaster|
 |Parsing responses|Use `modbusParseResponseRTU()` instead of `modbusParseResponse()`. Provide both request and response frames as arguments|
 |Receiving data|Implement a data callback to receive the data on the master end - see \ref master-data-callback|
 |Endiannes operations|Use modbusRLE(), modbusRBE(), modbusWLE() and modbusWBE() instead|
-|Mask read/write|modbusMaskRead() and modbusMaskWrite() no longer provide bound checking|
+|Mask read/write|modbusMaskRead() and modbusMaskWrite() no longer provide bounds checking|
 |Static memory allocation|Implement a custom static memory allocator - see \ref static-mem|
 
 \cond DOXYGEN_EXCLUDE

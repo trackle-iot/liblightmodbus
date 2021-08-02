@@ -88,7 +88,7 @@
 */
 typedef struct ModbusErrorInfo
 {
-	unsigned int source : 2; //!< General/Request/Response/Callback
+	unsigned int source : 2; //!< Source of the error (e.g. MODBUS_ERROR_SOURCE_REQUEST)
 	unsigned int error  : 6; //!< Contains ModbusError
 } ModbusErrorInfo;
 

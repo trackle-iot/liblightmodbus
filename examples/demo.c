@@ -8,7 +8,10 @@
 /*
 	A register callback that prints out everything what's happening
 */
-ModbusError registerCallback(ModbusSlave *slave, const ModbusRegisterCallbackArgs *args, uint16_t *result)
+ModbusError registerCallback(
+	ModbusSlave *slave,
+	const ModbusRegisterCallbackArgs *args,
+	ModbusRegisterCallbackResult *result)
 {
 	// Use functions from debug utilities to nicely
 	// convert enum values to strings
@@ -33,12 +36,12 @@ ModbusError registerCallback(ModbusSlave *slave, const ModbusRegisterCallbackArg
 		// 		and see what happens
 		case MODBUS_REGQ_R_CHECK:
 		case MODBUS_REGQ_W_CHECK:
-			*result = MODBUS_EXCEP_NONE;
+			result->exceptionCode = MODBUS_EXCEP_NONE;
 			break;
 
 		// Return 7 when reading
 		case MODBUS_REGQ_R:
-			*result = 7;
+			result->value = 7;
 			break;
 		
 		// Ignore write requests
@@ -127,9 +130,9 @@ int main(int argc, char *argv[])
 	// Init master
 	err = modbusMasterInit(
 		&master,
-		modbusMasterDefaultAllocator,
 		dataCallback,
 		masterExceptionCallback,
+		modbusMasterDefaultAllocator,
 		modbusMasterDefaultFunctions,
 		modbusMasterDefaultFunctionCount);
 	printf("Slave init: "); printErrorInfo(err); printf("\n");
@@ -139,9 +142,9 @@ int main(int argc, char *argv[])
 	err = modbusSlaveInit(
 		&slave,
 		1,
-		modbusSlaveDefaultAllocator,
 		registerCallback,
 		slaveExceptionCallback,
+		modbusSlaveDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount);
 	printf("Master init: "); printErrorInfo(err); printf("\n");

@@ -6,7 +6,10 @@
 #include <stdint.h>
 #include <assert.h>
 
-ModbusError registerCallback(ModbusSlave *slave, const ModbusRegisterCallbackArgs *args, uint16_t *result)
+ModbusError registerCallback(
+	ModbusSlave *slave,
+	const ModbusRegisterCallbackArgs *args,
+	ModbusRegisterCallbackResult *result)
 {
 	printf(
 		"Register query:\n"
@@ -27,12 +30,12 @@ ModbusError registerCallback(ModbusSlave *slave, const ModbusRegisterCallbackArg
 		// Pretend to allow all access
 		case MODBUS_REGQ_R_CHECK:
 		case MODBUS_REGQ_W_CHECK:
-			*result = MODBUS_EXCEP_NONE;
+			result->exceptionCode = MODBUS_EXCEP_NONE;
 			break;
 
 		// Return 7 when reading
 		case MODBUS_REGQ_R:
-			*result = 7;
+			result->value = 7;
 			break;
 		
 		default: break;
@@ -79,9 +82,9 @@ int main(int argc, char *argv[])
 	err = modbusSlaveInit(
 		&slave,
 		1,
-		modbusSlaveDefaultAllocator,
 		registerCallback,
 		exceptionCallback,
+		modbusSlaveDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount);
 	

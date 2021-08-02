@@ -16,7 +16,7 @@ more maintainable and flexible code.
 
 If you suspect you found a bug in liblightmodbus, please [open an issue on GitHub](https://github.com/Jacajack/liblightmodbus/issues/new). If you have any questions about the usage please ask them in GitHub issues as well. Hopefully this will help to form some kind of a FAQ list after some time.
 
-If you find liblightmodbus useful in your work and would like to support it somehow, please cosider [making a donation](https://www.paypal.com/donate?hosted_button_id=KZ7DV93D98GAL).
+If you find liblightmodbus useful in your work and would like to support it somehow, please consider [making a donation](https://www.paypal.com/donate?hosted_button_id=KZ7DV93D98GAL).
 
 \section getting-started Getting started
  - \ref building
@@ -46,7 +46,7 @@ The library can be configured by defining certain macros before including that f
 |`LIGHTMODBUS_SLAVE`|Includes slave part of the library|
 |`LIGHTMODBUS_MASTER`|Includes master part of the library|
 |`LIGHTMODBUS_FULL`|Includes both slave and master modules and all of their functions|
-|`LIGHTMODBUS_DEBUG`|Includes some debugging utilites|
+|`LIGHTMODBUS_DEBUG`|Includes some debugging utilities|
 |`LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC`|Omits request CRC calculation for request on master side|
 
 Specific master/slave functions can be included by defining macros like `LIGHTMODBUS_F01M` or `LIGHTMODBUS_F22S`.
@@ -114,7 +114,7 @@ reports an exception to the master. To disable this functionality, pass NULL as 
 The set of functions supported by the slave is determined by the 6th function argument - in this case
 \ref modbusSlaveDefaultFunctions. This argument is a pointer to an array of ModbusSlaveFunctionHandler
 structures which associate function codes with callbacks. Lifetime of this array must not be shorter
-than thelifetime of the slave. The length of this array should be provided as the last argument.
+than the lifetime of the slave. The length of this array should be provided as the last argument.
 
 \section slave-register-callback Register callback
 The register callback is a function matching `ModbusRegisterCallback` used by the library to operate on registers.
@@ -172,7 +172,7 @@ The table below is a short summary of different queries should be handled.
 |\ref MODBUS_REGQ_W|New value for the register|Ignored|Ignored|Ignored|
 
 \subsection slave-register-callback-example Example
-An exapmple implementation of a register callback operating on registers stored in an array:
+An example implementation of a register callback operating on registers stored in an array:
 ~~~c
 #define REG_COUNT 16
 static uint16_t registers[REG_COUNT];
@@ -588,7 +588,7 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterStaticAllocator(ModbusMaster *st
 ~~~
 
 One could also implement the buffers in `modbusSlaveStaticAllocator()` and `modbusMasterStaticAllocator()` and
-distiguish between `ModbusSlave` and `ModbusMaster` instances based on the `status` argument.
+distinguish between `ModbusSlave` and `ModbusMaster` instances based on the `status` argument.
 
 \page examples Examples
 
@@ -608,18 +608,18 @@ before upgrading to v3.0.
 |Error handling|Use `modbusIsOk()` and `modbusGetGeneralError()`. See \ref error-handling|
 |Parsing requests|Use `modbusParseRequestRTU()` instead of `modbusParseRequest()`. Provide the frame as an argument.|
 |Register callback|Slave register callback now takes arguments in a struct. See \ref slave-register-callback|
-|Register/coil arrays|Write a register callback accesing your own array instead. See \ref slave-register-callback|
+|Register/coil arrays|Write a register callback accessing your own array instead. See \ref slave-register-callback|
 |Accessing slave's response|Use modbusSlaveGetResponse() and modbusSlaveGetResponseLength() instead of accessing directly accessing the fields in ModbusSlave|
 |Building requests|Use `modbusBuildRequest*RTU()` instead of `modbusBuildRequest*()`|
 |Accessing master's request|Use modbusMasterGetRequest() and modbusMasterGetRequestLength() instead of accessing directly accessing the fields in ModbusMaster|
 |Parsing responses|Use `modbusParseResponseRTU()` instead of `modbusParseResponse()`. Provide both request and response frames as arguments|
 |Receiving data|Implement a data callback to receive the data on the master end - see \ref master-data-callback|
-|Endiannes operations|Use modbusRLE(), modbusRBE(), modbusWLE() and modbusWBE() instead|
+|Endianness operations|Use modbusRLE(), modbusRBE(), modbusWLE() and modbusWBE() instead|
 |Mask read/write|modbusMaskRead() and modbusMaskWrite() no longer provide bounds checking|
 |Static memory allocation|Implement a custom static memory allocator - see \ref static-mem|
 
 \cond DOXYGEN_EXCLUDE
-\section endiannnes Endianness operations
+\section endiannnes Endiannes operations
 `modbusSwapEndian()` and `modbusMatchEndian()` were dropped in favor of less ambiguous and safe
 functions for reading 16-bit integer words:
  - `modbusRLE()` - read a 16-bit little-endian word

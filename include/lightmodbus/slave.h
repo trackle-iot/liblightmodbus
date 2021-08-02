@@ -153,7 +153,7 @@ LIGHTMODBUS_WARN_UNUSED static inline const uint8_t *modbusSlaveGetResponse(cons
 	\note This function can only be used if the last call to `modbusParseRequest*()`
 		was successful (i.e. `modbusIsOk()` was true for the return value)
 */
-LIGHTMODBUS_WARN_UNUSED static inline const uint16_t modbusSlaveGetResponseLength(const ModbusSlave *status)
+LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusSlaveGetResponseLength(const ModbusSlave *status)
 {
 	return status->response.length;
 }

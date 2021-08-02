@@ -316,7 +316,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 
 /**
 	\brief Write multiple coils
-	\param function Ignored
 	\param index Index of the first coil to be written
 	\param count Number of coils to be written
 	\param values Pointer to array containing `count` coil values (each bit corresponds to one coil value)
@@ -327,7 +326,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest0506(
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 	ModbusMaster *status,
-	uint8_t function,
 	uint16_t index,
 	uint16_t count,
 	const uint8_t *values)
@@ -374,7 +372,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 
 /**
 	\brief Write multiple holding registers
-	\param function Ignored
 	\param index Index of the first register to be written
 	\param count Number of registers to be written
 	\param values Pointer to array containing `count` register values. Each 16-bit word corresponds to one register value
@@ -385,7 +382,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest15(
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 	ModbusMaster *status,
-	uint8_t function,
 	uint16_t index,
 	uint16_t count,
 	const uint16_t *values)
@@ -416,7 +412,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 
 /**
 	\brief Mask write register request
-	\param function Ignored
 	\param index Register ID
 	\param andmax AND mask
 	\param ormask OR mask
@@ -425,7 +420,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest16(
 */
 LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 	ModbusMaster *status,
-	uint8_t function,
 	uint16_t index,
 	uint16_t andmask,
 	uint16_t ormask)

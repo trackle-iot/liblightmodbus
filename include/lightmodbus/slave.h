@@ -119,7 +119,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 
 void modbusSlaveDestroy(ModbusSlave *status);
 void modbusSlaveSetUserPointer(ModbusSlave *status, void *ptr);
-void *modbusSlaveGetUserPointer(ModbusSlave *status);
+void *modbusSlaveGetUserPointer(const ModbusSlave *status);
 
 LIGHTMODBUS_RET_ERROR modbusBuildException(
 	ModbusSlave *status,

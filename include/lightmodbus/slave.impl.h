@@ -170,7 +170,7 @@ void modbusSlaveSetUserPointer(ModbusSlave *status, void *ptr)
 /**
 	\brief Retreieves the custom context pointer
 */
-void *modbusSlaveGetUserPointer(ModbusSlave *status)
+void *modbusSlaveGetUserPointer(const ModbusSlave *status)
 {
 	return status->context;
 }

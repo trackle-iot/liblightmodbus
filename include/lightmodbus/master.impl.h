@@ -178,7 +178,7 @@ void modbusMasterSetUserPointer(ModbusMaster *status, void *ptr)
 /**
 	\brief Retreieves the custom context pointer
 */
-void *modbusMasterGetUserPointer(ModbusMaster *status)
+void *modbusMasterGetUserPointer(const ModbusMaster *status)
 {
 	return status->context;
 }

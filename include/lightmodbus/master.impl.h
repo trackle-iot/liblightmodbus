@@ -240,7 +240,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address)
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status)
 {
-	status->request.pduOffset = 0;
+	status->request.pduOffset = 7;
 	status->request.padding = 7;
 	return MODBUS_NO_ERROR();
 }

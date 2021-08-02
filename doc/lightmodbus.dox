@@ -120,6 +120,8 @@ The library guarantees that before each register is accessed a suitable access q
 This mechanism allows the user to implement read/write protection for registers and allows to guarantee that registers outside of valid range will never be accessed.
 However, all access queries are performed before the first R/W query, so creating cross-dependencies between registers (i.e. access rights to one register depend on the value of other register) is very likely to cause problems. It's best to disable "write multiple X" functions on such registers.
 
+\note Tip: You can use the user pointer to access your register values from the callback without making them global. See `modbusSlaveGetUserPointer()` and `modbusSlaveSetUserPointer()`
+
 \subsection slave-register-callback-access R/W access check queries
 `ModbusRegisterCallbackArgs::query` value of either \ref MODBUS_REGQ_R_CHECK or \ref MODBUS_REGQ_W_CHECK indicates that an access query is being made to the callback function.
 When `ModbusRegisterCallbackArgs::query` is \ref MODBUS_REGQ_R_CHECK, read access is requested. \ref MODBUS_REGQ_W_CHECK means that write access is requested.

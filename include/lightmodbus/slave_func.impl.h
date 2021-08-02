@@ -74,6 +74,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Prepare callback args
+	ModbusRegisterCallbackResult cres;
 	ModbusRegisterCallbackArgs cargs = {
 		.type = datatype,
 		.query = MODBUS_REGQ_R_CHECK,
@@ -82,22 +83,15 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	};
 
 	// Check if all registers can be read
-	ModbusError fail = MODBUS_OK;
-	ModbusExceptionCode ex = MODBUS_EXCEP_NONE;
-	for (uint16_t i = 0; !fail && !ex && i < count; i++)
+	for (uint16_t i = 0; i < count; i++)
 	{
-		uint16_t res = MODBUS_OK;
 		cargs.index = index + i;
-		fail = status->registerCallback(status, &cargs, &res);
-		if (res != MODBUS_OK)
-			ex = (ModbusExceptionCode)res;
+		ModbusError fail = status->registerCallback(status, &cargs, &cres);
+		if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
+		if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
 	}
 
 	// ---- RESPONSE ----
-
-	// Return exceptions (if any)
-	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (ex) return modbusBuildException(status, address, function, ex);
 
 	uint8_t dataLength = (bits == 1 ? modbusBitsToBytes(count) : (count << 1));
 	if (modbusSlaveAllocateResponse(status, 2 + dataLength))
@@ -113,14 +107,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	cargs.query = MODBUS_REGQ_R;
 	for (uint16_t i = 0; i < count; i++)
 	{
-		uint16_t value;
 		cargs.index = index + i;
-		(void) status->registerCallback(status, &cargs, &value);
+		(void) status->registerCallback(status, &cargs, &cres);
 		
 		if (bits == 1)
-			modbusMaskWrite(&status->response.pdu[2], i, value != 0);
+			modbusMaskWrite(&status->response.pdu[2], i, cres.value != 0);
 		else
-			modbusWBE(&status->response.pdu[2 + (i << 1)], value);
+			modbusWBE(&status->response.pdu[2 + (i << 1)], cres.value);
 	}
 
 	return MODBUS_NO_ERROR();
@@ -156,6 +149,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Prepare callback args
+	ModbusRegisterCallbackResult cres;
 	ModbusRegisterCallbackArgs cargs = {
 		.type = datatype,
 		.query = MODBUS_REGQ_W_CHECK,
@@ -165,15 +159,14 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	};
 
 	// Check if the register/coil can be written
-	uint16_t res = 0;
-	ModbusError fail = status->registerCallback(status, &cargs, &res);
+	ModbusError fail = status->registerCallback(status, &cargs, &cres);
 	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (res) return modbusBuildException(status, address, function, (ModbusExceptionCode)res);
+	if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
 
 	// Write coil/register
 	// Keep in mind that 0xff00 is 0 when cast to uint8_t
 	cargs.query = MODBUS_REGQ_W;
-	status->registerCallback(status, &cargs, &res);
+	(void) status->registerCallback(status, &cargs, &cres);
 
 	// ---- RESPONSE ----
 
@@ -236,6 +229,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Prepare callback args
+	ModbusRegisterCallbackResult cres;
 	ModbusRegisterCallbackArgs cargs = {
 		.type = datatype,
 		.query = MODBUS_REGQ_W_CHECK,
@@ -243,32 +237,22 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	};
 
 	// Check write access
-	ModbusError fail = MODBUS_OK;
-	ModbusExceptionCode ex = MODBUS_EXCEP_NONE;
-	for (uint16_t i = 0; !fail && !ex && i < count; i++)
+	for (uint16_t i = 0; i < count; i++)
 	{
-		uint16_t res = MODBUS_OK;
-		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
 		cargs.index = index + i;
-		cargs.value = value;
-		fail = status->registerCallback(status, &cargs, &res);
-		if (res != MODBUS_OK)
-			ex = (ModbusExceptionCode)res;
+		cargs.value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
+		ModbusError fail = status->registerCallback(status, &cargs, &cres);
+		if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
+		if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
 	}
-	
-	// Return exceptions (if any)
-	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (ex) return modbusBuildException(status, address, function, ex);
 
 	// Write coils
 	cargs.query = MODBUS_REGQ_W;
 	for (uint16_t i = 0; i < count; i++)
 	{
-		uint16_t dummy;
-		uint16_t value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
 		cargs.index = index + i;
-		cargs.value = value;
-		(void) status->registerCallback(status, &cargs, &dummy);
+		cargs.value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
+		(void) status->registerCallback(status, &cargs, &cres);
 	}
 
 	// ---- RESPONSE ----
@@ -316,6 +300,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	uint16_t ormask  = modbusRBE(&requestPDU[5]);
 
 	// Prepare callback args
+	ModbusRegisterCallbackResult cres;
 	ModbusRegisterCallbackArgs cargs = {
 		.type = MODBUS_HOLDING_REGISTER,
 		.query = MODBUS_REGQ_R_CHECK,
@@ -325,17 +310,15 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	};
 
 	// Check read access
-	uint16_t res = 0;
-	ModbusError fail = MODBUS_OK;
 	cargs.query = MODBUS_REGQ_R_CHECK;
-	fail = status->registerCallback(status, &cargs, &res);
+	ModbusError fail = status->registerCallback(status, &cargs, &cres);
 	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (res) return modbusBuildException(status, address, function, (ModbusExceptionCode)res);
+	if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
 
 	// Read the register
-	uint16_t value;
 	cargs.query = MODBUS_REGQ_R;
-	(void) status->registerCallback(status, &cargs, &value);
+	(void) status->registerCallback(status, &cargs, &cres);
+	uint16_t value = cres.value;
 
 	// Compute new value for the register
 	value = (value & andmask) | (ormask & ~andmask);
@@ -343,13 +326,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	// Check write access
 	cargs.query = MODBUS_REGQ_W_CHECK;
 	cargs.value = value;
-	fail = status->registerCallback(status, &cargs, &res);
+	fail = status->registerCallback(status, &cargs, &cres);
 	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (res) return modbusBuildException(status, address, function, (ModbusExceptionCode)res);
+	if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
 
 	// Write the register
 	cargs.query = MODBUS_REGQ_W;
-	(void) status->registerCallback(status, &cargs, &res);
+	(void) status->registerCallback(status, &cargs, &cres);
 	
 	// ---- RESPONSE ----
 

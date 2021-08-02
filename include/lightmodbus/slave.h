@@ -50,13 +50,22 @@ typedef struct ModbusRegisterCallbackArgs
 } ModbusRegisterCallbackArgs;
 
 /**
+	\brief Contains values returned by the slave register callback
+*/
+typedef struct ModbusRegisterCallbackResult
+{
+	ModbusExceptionCode exceptionCode; //!< Exception to be reported
+	uint16_t value;                    //!< Register/coil value
+} ModbusRegisterCallbackResult;
+
+/**
 	\brief A pointer to callback for performing all register operations
 	\see slave-register-callback
 */
 typedef ModbusError (*ModbusRegisterCallback)(
 	ModbusSlave *status,
 	const ModbusRegisterCallbackArgs *args,
-	uint16_t *result);
+	ModbusRegisterCallbackResult *out);
 
 /**
 	\brief A pointer to a callback called when a Modbus exception is generated (for slave)

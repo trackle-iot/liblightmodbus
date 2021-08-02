@@ -87,10 +87,9 @@ ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *arg
 /*
 	Exception callback for printing out exceptions on master side
 */
-ModbusError masterExceptionCallback(ModbusMaster *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError masterExceptionCallback(ModbusMaster *master, uint8_t address, uint8_t function, ModbusExceptionCode code)
 {
 	printf("Received slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
-	return MODBUS_OK;
 
 	// Always return MODBUS_OK
 	return MODBUS_OK;

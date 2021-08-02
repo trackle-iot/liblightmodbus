@@ -14,6 +14,10 @@ for Modbus TCP.
 All this changes resulted in a significant binary size reduction (around 2x) and
 more maintainable and flexible code.
 
+If you suspect you found a bug in liblightmodbus, please [open an issue on GitHub](https://github.com/Jacajack/liblightmodbus/issues/new). If you have any questions about the usage please ask them in GitHub issues as well. Hopefully this will help to form some kind of a FAQ list after some time.
+
+If you find liblightmodbus useful in your work and would like to support it somehow, please cosider [making a donation](https://www.paypal.com/donate?hosted_button_id=KZ7DV93D98GAL).
+
 \section getting-started Getting started
  - \ref building
  - \ref slave

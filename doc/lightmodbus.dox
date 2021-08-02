@@ -117,23 +117,22 @@ The register callback is a function matching `ModbusRegisterCallback` used by th
 The register callback must respond to four types of register queries (\ref ModbusRegisterQuery).
 
 The library guarantees that before each register is accessed a suitable access query will be made for it beforehand.
-This mechanism allows the user to implement read/write protection for registers.
+This mechanism allows the user to implement read/write protection for registers and allows to guarantee that registers outside of valid range will never be accessed.
 However, all access queries are performed before the first R/W query, so creating cross-dependencies between registers (i.e. access rights to one register depend on the value of other register) is very likely to cause problems. It's best to disable "write multiple X" functions on such registers.
 
 \subsection slave-register-callback-access R/W access check queries
-When `ModbusRegisterCallbackArgs::query` is either \ref MODBUS_REGQ_R_CHECK or \ref MODBUS_REGQ_W_CHECK an access query is being made to the callback function.
-
-The \ref MODBUS_REGQ_R_CHECK value of `ModbusRegisterCallbackArgs::query` means that read access is requested and \ref MODBUS_REGQ_W_CHECK means that write access is requested.
+`ModbusRegisterCallbackArgs::query` value of either \ref MODBUS_REGQ_R_CHECK or \ref MODBUS_REGQ_W_CHECK indicates that an access query is being made to the callback function.
+When `ModbusRegisterCallbackArgs::query` is \ref MODBUS_REGQ_R_CHECK, read access is requested. \ref MODBUS_REGQ_W_CHECK means that write access is requested.
 
 The type of the accessed register is provided to the function in `ModbusRegisterCallbackArgs::type`. The index of the register is stored in `ModbusRegisterCallbackArgs::index` and the ID of the function requesting access is available in `ModbusRegisterCallbackArgs::function`.
 
 The value stored in `ModbusRegisterCallbackArgs::value` during a write access check contains the value of the register that will be written in a subsequent write request. In case of read requests the value stored in this variable may not be used.
 
-In order to respond to an access query, the function must return a value via the `result` pointer argument. This value is treated as the exception code that the slave will report to the master. In order to allow access to a certain register \ref MODBUS_EXCEP_NONE should be returned. Otherwise, an exception code such as \ref MODBUS_EXCEP_ILLEGAL_VALUE should be returned via the `result` argument.
+In order to respond to an access query, the function must return a value via `ModbusRegisterCallbackResult::exceptionCode` in the `result` output argument. This value is treated as the exception code that the slave will report to the master. In order to allow access to a certain register, \ref MODBUS_EXCEP_NONE must be returned. Otherwise, an exception code such as \ref MODBUS_EXCEP_ILLEGAL_VALUE should be returned via the `result->exceptionCode`.
 
 The return value of the register callback is checked by the library during the access check phase. Returning a value other than \ref MODBUS_OK results in the slave reporting a \ref MODBUS_EXCEP_SLAVE_FAILURE exception to the master.
 
-\note This functionality should not be relied upon and may be subject to change in future versions. For your own safety, please always return `MODBUS_OK` from the callback and use the `result` output argument to report any exceptions.
+\note This functionality should not be relied upon and may be subject to change in future versions. For your own safety, please always return `MODBUS_OK` from the callback and use the `result->exceptionCode` to report any exceptions.
 
 \subsection slave-register-callback-r Read queries
 Read query is a request to read contents of some register.
@@ -142,7 +141,7 @@ During such query `ModbusRegisterCallbackArgs::query` is set to \ref MODBUS_REGQ
 The type of the accessed register is provided to the function in `ModbusRegisterCallbackArgs::type`. The index of the register is stored in `ModbusRegisterCallbackArgs::index` and the ID of the function reading the register is available in `ModbusRegisterCallbackArgs::function`.
 `ModbusRegisterCallbackArgs::value` is unused.
 
-The callback function must return the contents of the requested register via the `result` output argument.
+The callback function must return the contents of the requested register via `ModbusRegisterCallbackResult::value` in the `result` output argument.
 
 The return value from the callback is ignored.
 \note This functionality should not be relied upon and may be subject to change in future versions. For your own safety, please always return `MODBUS_OK` from the callback.
@@ -157,39 +156,48 @@ The new value for the register is stored in `ModbusRegisterCallbackArgs::value`.
 Both value returned through the `result` argument and the return value from the function are ignored.
 \note This functionality should not be relied upon and may be subject to change in future versions. For your own safety, please always return `MODBUS_OK` from the callback and do not modify the `result` output argument during write queries.
 
+\subsection slave-register-callback-summary Summary
+The table below is a short summary of different queries should be handled.
+|Query type|`args->value`|`result->exceptionCode`|`result->value`|Return value|
+|---|---|---|---|---|
+|\ref MODBUS_REGQ_R_CHECK|Undefined|Must be set to exception code to be reported. \ref MODBUS_EXCEP_NONE otherwise.|Ignored|Returning value different than \ref MODBUS_OK results in \ref MODBUS_EXCEP_SLAVE_FAILURE being reported by the slave. **Do not rely on this.**|
+|\ref MODBUS_REGQ_W_CHECK|Value that will be written in the subsequent write request|Must be set to exception code to be reported. \ref MODBUS_EXCEP_NONE otherwise.|Ignored|Returning value different than \ref MODBUS_OK results in \ref MODBUS_EXCEP_SLAVE_FAILURE being reported by the slave. **Do not rely on this.**|
+|\ref MODBUS_REGQ_R|Undefined|Ignored|Must be set to the value of the register|Ignored|
+|\ref MODBUS_REGQ_W|New value for the register|Ignored|Ignored|Ignored|
+
 \subsection slave-register-callback-example Example
 An exapmple implementation of a register callback operating on registers stored in an array:
 ~~~c
 #define REG_COUNT 16
 static uint16_t registers[REG_COUNT];
 static uint16_t inputRegisters[REG_COUNT];
-static uint8_t coils[REG_COUNT / 8]; // Each coil corresponds to one bit
+static uint8_t coils[REG_COUNT / 8];          // Each coil corresponds to one bit
 static uint8_t discreteInputs[REG_COUNT / 8]; // Each input corresponds to one bit
 
 ModbusError myRegisterCallback(
 	ModbusSlave *status,
 	const ModbusRegisterCallbackArgs *args,
-	uint16_t *result)
+	ModbusRegisterCallbackResult *result)
 {
 	switch (args->query)
 	{
 		// R/W access check
 		case MODBUS_REGQ_R_CHECK:
 		case MODBUS_REGQ_W_CHECK:
-			// If result of a read/write access query is not MODBUS_EXCEP_NONE,
-			// an exception is reported by the slave
-			*result = args->id < REG_COUNT ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+			// If result->exceptionCode of a read/write access query is not MODBUS_EXCEP_NONE,
+			// an exception is reported by the slave. If result->exceptionCode is not set,
+			// the behavior is undefined.
+			result->exceptionCode = args->id < REG_COUNT ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
 			break;
 
 		// Read register		
 		case MODBUS_REGQ_R:
 			switch (args->type)
 			{
-				case MODBUS_HOLDING_REGISTER: *result = registers[args->id]; break;
-				case MODBUS_INPUT_REGISTER:   *result = inputRegsiters[args->id]; break;
-				case MODBUS_COIL:             *result = modbusMaskRead(coils, args->id); break;
-				case MODBUS_DISCRETE_INPUT:   *result = modbusMaskRead(discreteInputs, args->id); break;
-				default: return MODBUS_ERROR_OTHER;
+				case MODBUS_HOLDING_REGISTER: result->value = registers[args->id]; break;
+				case MODBUS_INPUT_REGISTER:   result->value = inputRegsiters[args->id]; break;
+				case MODBUS_COIL:             result->value = modbusMaskRead(coils, args->id); break;
+				case MODBUS_DISCRETE_INPUT:   result->value = modbusMaskRead(discreteInputs, args->id); break;
 			}
 			break;
 
@@ -199,7 +207,7 @@ ModbusError myRegisterCallback(
 			{
 				case MODBUS_HOLDING_REGISTER: registers[args->id] = args->value; break;
 				case MODBUS_COIL:             modbusMaskWrite(coils, args->id, args->value); break;
-				default: return MODBUS_ERROR_OTHER;
+				default:                      break;
 			}
 			break;
 	}

@@ -89,7 +89,7 @@ jobs:
     - name: Install lcov
       run: sudo apt-get install lcov
     - name: Run lcov
-      run: lcov --directory . --exclude '*test*' --no-external --capture --output-file app.info
+      run: lcov --directory . --exclude '*test*' --exclude '*debug*' --no-external --capture --output-file app.info
     - name: Coveralls upload
       uses: coverallsapp/github-action@master
       with:

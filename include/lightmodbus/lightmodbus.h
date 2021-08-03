@@ -70,6 +70,9 @@ extern "C" {
 #endif
 #endif
 
+// Always include base
+#include "base.h"
+
 /**
 	\def LIGHTMODBUS_SLAVE
 	\brief Configures the library to include slave functions.

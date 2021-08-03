@@ -434,6 +434,8 @@ void dump_data()
 	std::cout << "}," << std::endl;
 }
 
+// TODO dump queries
+
 void dump_master()
 {
 	std::cout << "{\"master_error\": \"" << error_info_str(master_error) << "\", ";
@@ -467,6 +469,41 @@ void assert_slave(bool ok)
 {
 	if (modbusIsOk(slave_error) != ok)
 		throw std::runtime_error{"slave status assertion failed!"};
+}
+
+void assert_reg(std::istream &ss)
+{
+	int n, val;
+	if (!(ss >> n >> val) || n >= 65536 || n < 0)
+		throw std::runtime_error{"assert_reg invalid reg"};
+
+	if (regs[n] != val)
+		throw std::runtime_error{"assert_reg failed"};
+}
+
+void assert_coil(std::istream &ss)
+{
+	int n, val;
+	if (!(ss >> n >> val) || n >= 65536 || n < 0)
+		throw std::runtime_error{"assert_coil invalid reg"};
+
+	if (coils[n] != val)
+		throw std::runtime_error{"assert_coil failed"};
+}
+
+void assert_slave_ex(std::istream &ss)
+{
+	int ex;
+	if (!(ss >> ex))
+		throw std::runtime_error{"assert_slave_ex bad arg"};
+
+	if (!ex && slave_exception.has_value())
+		throw std::runtime_error{"assert_slave_ex failed"};
+	else if (ex && slave_exception.has_value())
+	{
+		if (ex != slave_exception->code)
+			throw std::runtime_error{"assert_slave_ex failed"}
+	}
 }
 
 void set_mode(std::istream &ss)

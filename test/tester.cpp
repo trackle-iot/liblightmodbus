@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cctype>
 #include <algorithm>
+#include <optional>
 using namespace std::string_literals;
 
 #define LIGHTMODBUS_FULL
@@ -27,9 +28,14 @@ struct modbus_exception_info
 	ModbusExceptionCode code;
 };
 
+int reg_count;
+int coil_count;
 uint16_t regs[65536];
 uint8_t coils[65536];
+uint8_t read_locks[65536] = {0};
+uint8_t write_locks[65536] = {0};
 std::vector<ModbusDataCallbackArgs> received_data;
+std::vector<ModbusRegisterCallbackArgs> reg_queries;
 std::vector<uint8_t> request_data;
 std::vector<uint8_t> response_data;
 modbus_flavor modbus_mode = MODBUS_PDU;
@@ -37,11 +43,88 @@ ModbusMaster master;
 ModbusErrorInfo master_error;
 ModbusSlave slave;
 ModbusErrorInfo slave_error;
+std::optional<modbus_exception_info> slave_exception;
+std::optional<modbus_exception_info> master_exception;
 int transaction_id = 0;
 
-/*
-	Data callback for printing all incoming data
-*/
+ModbusError registerCallback(
+	ModbusSlave *slave,
+	const ModbusRegisterCallbackArgs *args,
+	ModbusRegisterCallbackResult *result)
+{
+	// printf(
+	// 	"Register query:\n"
+	// 	"\tquery: %s\n"
+	// 	"\t type: %s\n"
+	// 	"\t   id: %d\n"
+	// 	"\tvalue: %d\n"
+	// 	"\t  fun: %d\n",
+	// 	modbusRegisterQueryStr(args->query),
+	// 	modbusDataTypeStr(args->type),
+	// 	args->index,
+	// 	args->value,
+	// 	args->function
+	// );
+
+	reg_queries.push_back(*args);
+
+	switch (args->query)
+	{
+		case MODBUS_REGQ_R_CHECK:
+			result->exceptionCode = read_locks[args->index] ? MODBUS_EXCEP_SLAVE_FAILURE : MODBUS_EXCEP_NONE;
+			break;
+
+		case MODBUS_REGQ_W_CHECK:
+			result->exceptionCode = write_locks[args->index] ? MODBUS_EXCEP_SLAVE_FAILURE : MODBUS_EXCEP_NONE;
+			break;
+
+		case MODBUS_REGQ_R:
+			switch (args->type)
+			{
+				case MODBUS_INPUT_REGISTER:
+				case MODBUS_HOLDING_REGISTER:
+					result->value = regs[args->index];
+					break;
+
+				case MODBUS_COIL:
+				case MODBUS_DISCRETE_INPUT:
+					result->value = coils[args->index];
+					break;
+			};
+			break;
+		
+		case MODBUS_REGQ_W:
+			switch (args->type)
+			{
+				case MODBUS_HOLDING_REGISTER:
+					regs[args->index] = args->value;
+					break;
+
+				case MODBUS_COIL:
+					coils[args->index] = args->value;
+					break;
+
+				default:
+					throw std::runtime_error{"invalid write query!!!"};
+					break;
+			};
+			break;
+	}
+
+	// Always return MODBUS_OK
+	return MODBUS_OK;
+}
+
+ModbusError slaveExceptionCallback(ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+{
+	// printf("Slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
+	
+	slave_exception = modbus_exception_info{address, function, code};
+
+	// Always return MODBUS_OK
+	return MODBUS_OK;
+}
+
 ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *args)
 {
 	received_data.push_back(*args);
@@ -50,12 +133,11 @@ ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *arg
 	return MODBUS_OK;
 }
 
-/*
-	Exception callback for printing out exceptions on master side
-*/
 ModbusError masterExceptionCallback(ModbusMaster *master, uint8_t address, uint8_t function, ModbusExceptionCode code)
 {
-	printf("Received slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
+	// printf("Received slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
+
+	master_exception = modbus_exception_info{address, function, code};
 
 	// Always return MODBUS_OK
 	return MODBUS_OK;
@@ -77,8 +159,6 @@ ModbusError masterExceptionCallback(ModbusMaster *master, uint8_t address, uint8
 		- parsereq <hex data>
 		- parseresp <hex data>
 */
-
-
 
 template <typename T>
 std::string serialize_data(const T *data, int length)
@@ -102,6 +182,16 @@ std::string serialize_data(const std::vector<T> &vec)
 	return serialize_data(vec.data(), static_cast<int>(vec.size()));
 }
 
+std::string modbus_exception_str(std::optional<modbus_exception_info> ex)
+{
+	if (!ex.has_value()) return "{}";
+	std::stringstream ss;
+	ss << "{\"address\": " << static_cast<int>(ex->address) << ", ";
+	ss << "\"function\": " << static_cast<int>(ex->function) << ", ";
+	ss << "\"code:\": \"" << modbusExceptionCodeStr(ex->code) << "\"}";
+	return ss.str();
+}
+
 std::string error_info_str(ModbusErrorInfo info)
 {
 	if (modbusIsOk(info))
@@ -115,10 +205,11 @@ std::string error_info_str(ModbusErrorInfo info)
 	}
 }
 
-void build_request(std::istringstream &ss)
+void build_request(std::istream &ss)
 {
 	int fun, address, index, count, value;
-	ss >> fun >> address;
+	ss >> address >> fun;
+	if (!ss) throw std::runtime_error{"build - invalid address & function"};
 
 	request_data.clear();
 
@@ -136,37 +227,44 @@ void build_request(std::istringstream &ss)
 	{
 		case 1:
 			ss >> index >> count;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			master_error = modbusBuildRequest01(&master, index, count);
 			break;
 
 		case 2:
 			ss >> index >> count;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			master_error = modbusBuildRequest02(&master, index, count);
 			break;
 
 		case 3:
 			ss >> index >> count;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			master_error = modbusBuildRequest03(&master, index, count);
 			break;
 
 		case 4:
 			ss >> index >> count;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			master_error = modbusBuildRequest04(&master, index, count);
 			break;
 
 		case 5:
 			ss >> index >> value;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			master_error = modbusBuildRequest05(&master, index, value);
 			break;
 
 		case 6:
 			ss >> index >> value;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			master_error = modbusBuildRequest06(&master, index, value);
 			break;
 
 		case 15:
 		{
 			ss >> index >> count;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			std::vector<uint8_t> data((count + 7) / 8);
 			for (int i = 0; i < count; i++)
 			{
@@ -181,6 +279,7 @@ void build_request(std::istringstream &ss)
 		case 16:
 		{
 			ss >> index >> count;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			std::vector<uint16_t> data(count);
 			for (int i = 0; i < count; i++)
 				ss >> data[i];
@@ -192,6 +291,7 @@ void build_request(std::istringstream &ss)
 		{
 			int andmask, ormask;
 			ss >> index >> andmask >> ormask;
+			if (!ss) throw std::runtime_error{"invalid build args"};
 			master_error = modbusBuildRequest22(&master, index, andmask, ormask);
 			break;
 		}
@@ -221,17 +321,155 @@ void build_request(std::istringstream &ss)
 	modbusMasterFreeRequest(&master);
 }
 
+void parse_request()
+{
+	response_data.clear();
+	reg_queries.clear();
+	slave_exception.reset();
+
+	switch (modbus_mode)
+	{
+		case MODBUS_PDU:
+			slave_error = modbusParseRequestPDU(
+				&slave,
+				slave.address,
+				request_data.data(),
+				request_data.size());
+			break;
+
+		case MODBUS_RTU:
+			slave_error = modbusParseRequestRTU(
+				&slave,
+				request_data.data(),
+				request_data.size());
+			break;
+
+		case MODBUS_TCP:
+			slave_error = modbusParseRequestTCP(
+				&slave,
+				request_data.data(),
+				request_data.size());
+			break;
+	}
+
+	if (!modbusIsOk(slave_error))
+		return;
+
+	const uint8_t *ptr = modbusSlaveGetResponse(&slave);
+	int size = modbusSlaveGetResponseLength(&slave);
+	response_data = std::vector<uint8_t>(ptr, ptr + size);
+	modbusSlaveFreeResponse(&slave);
+}
+
+void parse_response()
+{
+	received_data.clear();
+	master_exception.reset();
+
+	switch (modbus_mode)
+	{
+		case MODBUS_PDU:
+			master_error = modbusParseResponsePDU(
+				&master,
+				slave.address,
+				request_data.data(),
+				request_data.size(),
+				response_data.data(),
+				response_data.size());
+			break;
+
+		case MODBUS_RTU:
+			master_error = modbusParseResponseRTU(
+				&master,
+				request_data.data(),
+				request_data.size(),
+				response_data.data(),
+				response_data.size());
+			break;
+
+		case MODBUS_TCP:
+			master_error = modbusParseResponseTCP(
+				&master,
+				request_data.data(),
+				request_data.size(),
+				response_data.data(),
+				response_data.size());
+			break;
+	}
+
+	// TODO verify if the data is coherent
+
+}
+
 void dump_request()
 {
 	std::cout << serialize_data(request_data) << "," << std::endl;
 }
 
-void dump_master()
+void dump_response()
 {
-	std::cout << "{\"error\": \"" << error_info_str(master_error) << "\"}," << std::endl;
+	std::cout << serialize_data(response_data) << "," << std::endl;
 }
 
-void set_mode(std::istringstream &ss)
+void dump_data()
+{
+	std::cout << "{";
+	if (!received_data.empty())
+	{
+		std::cout << "\"type\": \"" << modbusDataTypeStr(received_data[0].type) << "\", ";
+		std::cout << "\"function\": " << static_cast<int>(received_data[0].function) << ", ";
+		std::cout << "\"index\": " << received_data[0].index << ", ";
+		std::cout << "\"data\": [";
+
+		for (auto i = 0u; i < received_data.size(); i++)
+		{
+			std::cout << received_data[i].value;
+			if (i != received_data.size() - 1)
+				std::cout << ", ";
+		}
+
+		std::cout << "]";
+
+	}
+	std::cout << "}," << std::endl;
+}
+
+void dump_master()
+{
+	std::cout << "{\"master_error\": \"" << error_info_str(master_error) << "\", ";
+	std::cout << "\"ex\": " << modbus_exception_str(slave_exception) << "}," << std::endl;
+
+}
+
+void dump_slave()
+{
+	std::cout << "{\"slave_error\": \"" << error_info_str(slave_error) << "\", ";
+	std::cout << "\"ex\": " << modbus_exception_str(slave_exception) << "}," << std::endl;
+}
+
+void dump_regs()
+{
+	std::cout << "{\"regs\": \"" << serialize_data(regs, reg_count) << "\"}," << std::endl;
+}
+
+void dump_coils()
+{
+	std::cout << "{\"regs\": \"" << serialize_data(regs, reg_count) << "\"}," << std::endl;
+}
+
+void assert_master(bool ok)
+{
+	if (modbusIsOk(master_error) != ok)
+		throw std::runtime_error{"master status assertion failed!"};
+}
+
+void assert_slave(bool ok)
+{
+	if (modbusIsOk(slave_error) != ok)
+		throw std::runtime_error{"slave status assertion failed!"};
+}
+
+void set_mode(std::istream &ss)
 {
 	std::string m;
 	ss >> m;
@@ -245,37 +483,216 @@ void set_mode(std::istringstream &ss)
 		throw std::runtime_error{"invalid Modbus mode "s + m};
 }
 
+void set_request(std::istream &ss)
+{
+	std::string line;
+	std::getline(ss, line);
+	std::istringstream liness(line);
+
+	request_data.clear();
+	int b;
+	while (liness >> std::hex >> b)
+		request_data.push_back(b); 
+}
+
+void set_response(std::istream &ss)
+{
+	std::string line;
+	std::getline(ss, line);
+	std::istringstream liness(line);
+
+	response_data.clear();
+	int b;
+	while (liness >> std::hex >> b)
+		response_data.push_back(b); 
+}
+
+void set_regs(std::istream &ss)
+{
+	int n;
+	if (!(ss >> n) || (n > 65536))
+		throw std::runtime_error{"invalid setregs arg"};
+	reg_count = n;
+}
+
+void set_coils(std::istream &ss)
+{
+	int n;
+	if (!(ss >> n) || (n > 65536))
+		throw std::runtime_error{"invalid setcoils arg"};
+	coil_count = n;
+}
+
+void clear_regs(std::istream &ss)
+{
+	int n;
+	if (!(ss >> n))
+		throw std::runtime_error{"invalid clearregs arg"};
+
+	for (auto &v : regs)
+		v = n;
+}
+
+void clear_coils(std::istream &ss)
+{
+	int n;
+	if (!(ss >> n))
+		throw std::runtime_error{"invalid clearcoils arg"};
+
+	for (auto &v : coils)
+		v = n;
+}
+
+void set_rlock(std::istream &ss)
+{
+	int index, lock;
+	if (!(ss >> index >> lock) || index < 0 || index > 65535)
+		throw std::runtime_error{"invalid rlock call"};
+
+	read_locks[index] = lock != 0;
+}
+
+void set_wlock(std::istream &ss)
+{
+	int index, lock;
+	if (!(ss >> index >> lock) || index < 0 || index > 65535)
+		throw std::runtime_error{"invalid wlock call"};
+
+	read_locks[index] = lock != 0;
+}
+
+void reset()
+{
+	for (auto &v : read_locks)
+		v = 0;
+
+	for (auto &v : write_locks)
+		v = 0;
+
+	for (auto &v : coils)
+		v = 0;
+
+	for (auto &v : regs)
+		v = 0;
+
+	slave_exception.reset();
+	master_exception.reset();
+	slave_error = MODBUS_NO_ERROR();
+	master_error = MODBUS_NO_ERROR();
+	received_data.clear();
+	reg_queries.clear();
+	request_data.clear();
+	response_data.clear();
+	reg_count = 16;
+	coil_count = 16;
+}
+
+std::string trim_leading_whitespace(std::string s)
+{
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](char c) {
+		return !std::isspace(c);
+	}));
+	return s;
+}
+
+std::string to_lowercase(std::string s)
+{
+	std::transform(s.begin(), s.end(), s.begin(), [](char c) {
+		return std::tolower(c);
+	});
+	return s;
+}
+
+void test_info(std::istream &ss)
+{
+	std::string name;
+	std::getline(ss, name);
+	name = trim_leading_whitespace(name);
+	std::cout << "{\"test\": \"" << name << "\"}," << std::endl;
+}
 
 void parse_line(std::string line)
 {
-	// Remove leading whitespace
-	line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) {
-		return !std::isspace(c);
-	}));
+	line = trim_leading_whitespace(line);
 
 	// Ignore empty lines and comments
 	if (line.empty() || line[0] == '#') return;
 
 	std::istringstream ss(line);
 	std::string cmd;
-	ss >> cmd;
+	
+	while (ss >> cmd)
+	{
+		cmd = to_lowercase(cmd);
 
-	if (cmd == "build")
-		build_request(ss);
-	else if (cmd == "master")
-		dump_master();
-	else if (cmd == "request")
-		dump_request();
-	else if (cmd == "setmode")
-		set_mode(ss);
-	else
-		throw std::runtime_error{"invalid command"};
-
+		if (cmd == "build")
+			build_request(ss);
+		else if (cmd == "test")
+			test_info(ss);
+		else if (cmd == "setregs")
+			set_regs(ss);
+		else if (cmd == "setcoils")
+			set_coils(ss);
+		else if (cmd == "rlock")
+			set_rlock(ss);
+		else if (cmd == "wlock")
+			set_wlock(ss);
+		else if (cmd == "clearregs")
+			clear_regs(ss);
+		else if (cmd == "clearcoils")
+			clear_coils(ss);
+		else if (cmd == "reset")
+			reset();
+		else if (cmd == "regs")
+			dump_regs();
+		else if (cmd == "coils")
+			dump_coils();
+		else if (cmd == "parsereq")
+			parse_request();
+		else if (cmd == "parseresp")
+			parse_response();
+		else if (cmd == "master")
+			dump_master();
+		else if (cmd == "slave")
+			dump_slave();
+		else if (cmd == "request")
+			dump_request();
+		else if (cmd == "setreq")
+			set_request(ss);
+		else if (cmd == "response")
+			dump_response();
+		else if (cmd == "setresp")
+			set_response(ss);
+		else if (cmd == "data")
+			dump_data();
+		else if (cmd == "setmode")
+			set_mode(ss);
+		else if (cmd == "assert_slave_ok")
+			assert_slave(1);
+		else if (cmd == "assert_slave_err")
+			assert_slave(0);
+		else if (cmd == "assert_master_ok")
+			assert_master(1);
+		else if (cmd == "assert_master_err")
+			assert_master(0);
+		else
+			throw std::runtime_error{"invalid command"};
+	}
 }
-
 
 int main(int argc, char *argv[])
 {
+	slave_error = modbusSlaveInit(
+		&slave,
+		1,
+		registerCallback,
+		slaveExceptionCallback,
+		modbusSlaveDefaultAllocator,
+		modbusSlaveDefaultFunctions,
+		modbusSlaveDefaultFunctionCount
+	);
+	assert(modbusIsOk(slave_error) && "slave init failed");
+
 	master_error = modbusMasterInit(
 		&master,
 		dataCallback,
@@ -286,10 +703,13 @@ int main(int argc, char *argv[])
 	);
 	assert(modbusIsOk(master_error) && "master init failed");
 
+	reset();
 
 	std::string line;
 	while (std::getline(std::cin, line))
 		parse_line(line);
 
 	modbusMasterDestroy(&master);
+	modbusSlaveDestroy(&slave);
+	return 0;
 }

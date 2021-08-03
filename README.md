@@ -1,5 +1,5 @@
 # A lightweight, platform-independent Modbus RTU/TCP library
-[![The GPL license](https://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fjacajack%2Fliblightmodbus%2Fbadge%3Fref%3Dmaster&style=flat-square)](https://actions-badge.atrox.dev/jacajack/liblightmodbus/goto?ref=master)
+[![The GPL license](https://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fjacajack%2Fliblightmodbus%2Fbadge%3Fref%3Dmaster&style=flat-square)](https://actions-badge.atrox.dev/jacajack/liblightmodbus/goto?ref=master) [![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
 
 Liblightmodbus is a lightweight, highly configurable, platform-independent Modbus RTU/TCP library written in C99.
 

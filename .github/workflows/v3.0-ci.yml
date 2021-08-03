@@ -51,6 +51,49 @@ jobs:
       - name: "Full build"
         run: make -C test/avr full
 
+  main-test:
+    name: "Tests"
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build test suite
+      run: make -C test main-test
+    - name: Run test suite
+      run: test/main-test
+
+  sanitizer-test:
+    name: "Sanitization"
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build test suite (with sanitizer)
+      run: make -C test sanitizer-test
+    - name: Run & sanitize test suite
+      run: test/sanitizer-test
+
+  coverage-test:
+    name: "Coverage testing"
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build test suite (with coverage testing)
+      run: make -C test coverage-test
+    - name: Run coverage test
+      run: test/coverage-test
+    - name: Run lcov
+      run: lcov --directory .  --no-external --capture --output-file app.info
+    - name: Coveralls upload
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: "app.info"
+
   docs-build:
     name: "Build & deploy docs"
     needs: [codeql, build, avr-build, cmake-build]

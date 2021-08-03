@@ -86,6 +86,8 @@ jobs:
       run: make -C test coverage-test
     - name: Run coverage test
       run: test/coverage-test
+    - name: Install lcov
+      run: sudo apt-get install lcov
     - name: Run lcov
       run: lcov --directory .  --no-external --capture --output-file app.info
     - name: Coveralls upload

@@ -89,6 +89,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	// Prepare callback args
 	ModbusDataCallbackArgs cargs = {
 		.type = datatype,
+		.index = 0,
+		.value = 0,
 		.function = function,
 		.address = address,
 	};

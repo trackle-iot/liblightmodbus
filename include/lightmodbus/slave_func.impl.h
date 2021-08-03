@@ -81,6 +81,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusRegisterCallbackArgs cargs = {
 		.type = datatype,
 		.query = MODBUS_REGQ_R_CHECK,
+		.index = 0,
 		.value = 0,
 		.function = function,
 	};
@@ -236,6 +237,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	ModbusRegisterCallbackArgs cargs = {
 		.type = datatype,
 		.query = MODBUS_REGQ_W_CHECK,
+		.index = 0,
+		.value = 0,
 		.function = function,
 	};
 

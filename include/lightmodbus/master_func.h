@@ -9,7 +9,7 @@
 	\brief Defines a header for a `modbusBuildRequest*PDU()` function
 */
 #define LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER(f_suffix, ...) \
-	LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest##f_suffix##PDU(ModbusMaster *status, __VA_ARGS__)
+	LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest##f_suffix##PDU(ModbusMaster *status, __VA_ARGS__)
 
 /**
 	\def LIGHTMODBUS_DEFINE_BUILD_PDU_BODY
@@ -28,7 +28,7 @@
 	\brief Defines a header for a `modbusBuildRequest*RTU()` function
 */
 #define LIGHTMODBUS_DEFINE_BUILD_RTU_HEADER(f_suffix, ...) \
-	LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest##f_suffix##RTU(ModbusMaster *status, uint8_t address, __VA_ARGS__)
+	LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest##f_suffix##RTU(ModbusMaster *status, uint8_t address, __VA_ARGS__)
 
 /**
 	\def LIGHTMODBUS_DEFINE_BUILD_RTU_BODY
@@ -47,7 +47,7 @@
 	\brief Defines a header for a `modbusBuildRequest*TCP()` function
 */
 #define LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(f_suffix, ...) \
-	LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest##f_suffix##TCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, __VA_ARGS__)
+	LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest##f_suffix##TCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, __VA_ARGS__)
 
 /**
 	\def LIGHTMODBUS_DEFINE_BUILD_TCP_BODY
@@ -131,7 +131,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 	\brief Read multiple coils - a wrapper for modbusBuildRequest01020304()
 	\copydetails modbusBuildRequest01020304()
 */
-LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest01(
+LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest01(
 	ModbusMaster *status,
 	uint16_t index,
 	uint16_t count)
@@ -143,7 +143,7 @@ LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest01(
 	\brief Read multiple discrete inputs - a wrapper for modbusBuildRequest01020304()
 	\copydetails modbusBuildRequest01020304()
 */
-LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest02(
+LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest02(
 	ModbusMaster *status,
 	uint16_t index,
 	uint16_t count)
@@ -155,7 +155,7 @@ LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest02(
 	\brief Read multiple holding registers - a wrapper for modbusBuildRequest01020304()
 	\copydetails modbusBuildRequest01020304()
 */
-LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest03(
+LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest03(
 	ModbusMaster *status,
 	uint16_t index,
 	uint16_t count)
@@ -167,7 +167,7 @@ LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest03(
 	\brief Read multiple input registers - a wrapper for modbusBuildRequest01020304()
 	\copydetails modbusBuildRequest01020304()
 */
-LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest04(
+LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest04(
 	ModbusMaster *status,
 	uint16_t index,
 	uint16_t count)
@@ -179,7 +179,7 @@ LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest04(
 	\brief Write single coil - a wrapper for modbusBuildRequest0506()
 	\copydetails modbusBuildRequest0506()
 */
-LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest05(
+LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest05(
 	ModbusMaster *status,
 	uint16_t index,
 	uint16_t count)
@@ -191,7 +191,7 @@ LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest05(
 	\brief Write single holding register - a wrapper for modbusBuildRequest0506()
 	\copydetails modbusBuildRequest0506()
 */
-LIGHTMODBUS_RET_ERROR static inline modbusBuildRequest06(
+LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest06(
 	ModbusMaster *status,
 	uint16_t index,
 	uint16_t count)

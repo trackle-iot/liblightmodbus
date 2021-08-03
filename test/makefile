@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Wno-unused-parameter -g -I../include/
+CXXFLAGS = -Wall -Wextra -Wno-unused-parameter -g -I../include/ --std=c++17
 TESTERSRC = tester.cpp
 SANITIZERS = -fsanitize=address -fsanitize=undefined -fsanitize=alignment
 

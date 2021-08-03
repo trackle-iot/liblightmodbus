@@ -1,3 +1,6 @@
+#ifndef LIGHTMODBUS_MASTER_FUNC_IMPL_H
+#define LIGHTMODBUS_MASTER_FUNC_IMPL_H
+
 #include "master_func.h"
 #include "master.h"
 
@@ -434,3 +437,5 @@ LIGHTMODBUS_RET_ERROR modbusBuildRequest22(
 
 	return MODBUS_NO_ERROR();
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef LIGHTMODBUS_DEBUG_IMPL_H
+#define LIGHTMODBUS_DEBUG_IMPL_H
+
 #include "debug.h"
 
 /**
@@ -119,3 +122,5 @@ const char *modbusRegisterQueryStr(ModbusRegisterQuery query)
 
 #undef ESTR
 #undef ECASE
+
+#endif

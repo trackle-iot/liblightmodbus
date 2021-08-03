@@ -1,3 +1,6 @@
+#ifndef LIGHTMODBUS_SLAVE_IMPL_H
+#define LIGHTMODBUS_SLAVE_IMPL_H
+
 #include "slave.h"
 #include "slave_func.h"
 
@@ -364,3 +367,5 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 
 	return MODBUS_NO_ERROR();
 }
+
+#endif

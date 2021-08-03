@@ -1,3 +1,6 @@
+#ifndef LIGHTMODBUS_MASTER_IMPL_H
+#define LIGHTMODBUS_MASTER_IMPL_H
+
 #include "master.h"
 #include "master_func.h"
 
@@ -429,3 +432,5 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 		response + 7,
 		responseLength - 7);
 }
+
+#endif

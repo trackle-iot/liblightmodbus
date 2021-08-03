@@ -1,3 +1,6 @@
+#ifndef LIGHTMODBUS_SLAVE_FUNC_IMPL_H
+#define LIGHTMODBUS_SLAVE_FUNC_IMPL_H
+
 #include "slave_func.h"
 #include "slave.h"
 
@@ -353,3 +356,5 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	
 	return MODBUS_NO_ERROR();
 }
+
+#endif

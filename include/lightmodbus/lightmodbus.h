@@ -18,13 +18,13 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIGHTMODBUS_H
-#define LIGHTMODBUS_H
-
 // For C++
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef LIGHTMODBUS_H
+#define LIGHTMODBUS_H
 
 /**
 	\def LIGHTMODBUS_FULL
@@ -67,6 +67,7 @@ extern "C" {
 	#define LIGHTMODBUS_F15M
 	#define LIGHTMODBUS_F16M
 	#define LIGHTMODBUS_F22M
+#endif
 #endif
 
 /**
@@ -121,5 +122,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-#endif // End of header file

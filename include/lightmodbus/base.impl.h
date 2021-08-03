@@ -1,3 +1,6 @@
+#ifndef LIGHTMODBUS_BASE_IMPL_H
+#define LIGHTMODBUS_BASE_IMPL_H
+
 #include "base.h"
 #include <stdlib.h>
 
@@ -64,3 +67,5 @@ LIGHTMODBUS_WARN_UNUSED uint16_t modbusCRC(const uint8_t *data, uint16_t length)
 
 	return crc;
 }
+
+#endif

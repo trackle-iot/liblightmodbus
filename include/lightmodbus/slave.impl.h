@@ -122,6 +122,7 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 	\param functions Pointer to array of supported function handlers (required).
 		The lifetime of this array must not be shorter than the lifetime of the slave.
 	\param functionCount Number of function handlers in the array (required)
+	\returns return MODBUS_GENERAL_ERROR(ADDRESS) if address is 0
 	\returns MODBUS_NO_ERROR() on success
 
 	\warning This function must not be called on an already initialized ModbusSlave struct.
@@ -137,6 +138,9 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount)
 {
+	if (address == 0)
+		return MODBUS_GENERAL_ERROR(ADDRESS);
+
 	status->address = address;
 	status->response.data = NULL;
 	status->response.pdu = NULL;

@@ -42,7 +42,6 @@ The library can be configured by defining certain macros before including that f
 | Macro | Description |
 |-------|-------------|
 |`LIGHTMODBUS_IMPL`|Include implementation|
-|`LIGHTMODBUS_BIG_ENDIAN`|Use when your platform uses big endian byte order|
 |`LIGHTMODBUS_SLAVE`|Includes slave part of the library|
 |`LIGHTMODBUS_MASTER`|Includes master part of the library|
 |`LIGHTMODBUS_FULL`|Includes both slave and master modules and all of their functions|

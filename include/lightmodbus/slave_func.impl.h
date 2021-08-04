@@ -25,6 +25,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	{
 		if (modbusSlaveAllocateResponse(status, 0))
 			return MODBUS_GENERAL_ERROR(ALLOC);
+		return MODBUS_NO_ERROR();
 	}
 
 	// Check frame length
@@ -179,9 +180,10 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	{
 		if (modbusSlaveAllocateResponse(status, 0))
 			return MODBUS_GENERAL_ERROR(ALLOC);
+		return MODBUS_NO_ERROR();
 	}
 
-	if ( modbusSlaveAllocateResponse(status, 5))
+	if (modbusSlaveAllocateResponse(status, 5))
 		return MODBUS_GENERAL_ERROR(ALLOC);
 
 	status->response.pdu[0] = function;
@@ -268,6 +270,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	{
 		if (modbusSlaveAllocateResponse(status, 0))
 			return MODBUS_GENERAL_ERROR(ALLOC);
+		return MODBUS_NO_ERROR();
 	}
 
 	if (modbusSlaveAllocateResponse(status, 5))
@@ -347,6 +350,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	{
 		if (modbusSlaveAllocateResponse(status, 0))
 			return MODBUS_GENERAL_ERROR(ALLOC);
+		return MODBUS_NO_ERROR();
 	}
 
 	if (modbusSlaveAllocateResponse(status, 7))

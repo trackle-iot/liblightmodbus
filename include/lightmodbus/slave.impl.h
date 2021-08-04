@@ -193,10 +193,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 	uint8_t function,
 	ModbusExceptionCode code)
 {
-	// Call the exception callback
-	if (status->exceptionCallback)
-		status->exceptionCallback(status, address, function, code);
-
 	// Do not respond if the request was broadcasted
 	if (address == 0)
 	{
@@ -205,6 +201,10 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 		else
 			return MODBUS_NO_ERROR();
 	}
+
+	// Call the exception callback
+	if (status->exceptionCallback)
+		status->exceptionCallback(status, address, function, code);
 
 	if (modbusSlaveAllocateResponse(status, 2))
 		return MODBUS_GENERAL_ERROR(ALLOC);

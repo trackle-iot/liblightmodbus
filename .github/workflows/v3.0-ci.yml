@@ -98,6 +98,7 @@ jobs:
 
   big-endian:
     name: "Big-endian tests"
+    runs-on: ubuntu-latest
     container:
       image: 'docker://s390x/ubuntu'
     steps:

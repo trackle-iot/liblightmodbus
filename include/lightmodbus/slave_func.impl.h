@@ -180,15 +180,16 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	{
 		if (modbusSlaveAllocateResponse(status, 0))
 			return MODBUS_GENERAL_ERROR(ALLOC);
-		return MODBUS_NO_ERROR();
 	}
+	else
+	{
+		if (modbusSlaveAllocateResponse(status, 5))
+			return MODBUS_GENERAL_ERROR(ALLOC);
 
-	if (modbusSlaveAllocateResponse(status, 5))
-		return MODBUS_GENERAL_ERROR(ALLOC);
-
-	status->response.pdu[0] = function;
-	modbusWBE(&status->response.pdu[1], index);
-	modbusWBE(&status->response.pdu[3], value);
+		status->response.pdu[0] = function;
+		modbusWBE(&status->response.pdu[1], index);
+		modbusWBE(&status->response.pdu[3], value);
+	}
 
 	return MODBUS_NO_ERROR();
 }
@@ -270,15 +271,16 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	{
 		if (modbusSlaveAllocateResponse(status, 0))
 			return MODBUS_GENERAL_ERROR(ALLOC);
-		return MODBUS_NO_ERROR();
 	}
+	else
+	{
+		if (modbusSlaveAllocateResponse(status, 5))
+			return MODBUS_GENERAL_ERROR(ALLOC);
 
-	if (modbusSlaveAllocateResponse(status, 5))
-		return MODBUS_GENERAL_ERROR(ALLOC);
-
-	status->response.pdu[0] = function;
-	modbusWBE(&status->response.pdu[1], index);
-	modbusWBE(&status->response.pdu[3], count);
+		status->response.pdu[0] = function;
+		modbusWBE(&status->response.pdu[1], index);
+		modbusWBE(&status->response.pdu[3], count);
+	}
 	
 	return MODBUS_NO_ERROR();
 }
@@ -350,16 +352,17 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	{
 		if (modbusSlaveAllocateResponse(status, 0))
 			return MODBUS_GENERAL_ERROR(ALLOC);
-		return MODBUS_NO_ERROR();
 	}
+	else
+	{
+		if (modbusSlaveAllocateResponse(status, 7))
+			return MODBUS_GENERAL_ERROR(ALLOC);
 
-	if (modbusSlaveAllocateResponse(status, 7))
-		return MODBUS_GENERAL_ERROR(ALLOC);
-
-	status->response.pdu[0] = function;
-	modbusWBE(&status->response.pdu[1], index);
-	modbusWBE(&status->response.pdu[3], andmask);
-	modbusWBE(&status->response.pdu[5], ormask);
+		status->response.pdu[0] = function;
+		modbusWBE(&status->response.pdu[1], index);
+		modbusWBE(&status->response.pdu[3], andmask);
+		modbusWBE(&status->response.pdu[5], ormask);
+	}
 	
 	return MODBUS_NO_ERROR();
 }

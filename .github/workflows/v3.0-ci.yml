@@ -51,6 +51,17 @@ jobs:
       - name: "Full build"
         run: make -C test/avr full
 
+  examples-build:
+    name: "Build examples"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build examples
+      run: make -C examples
+    - name: Run demo
+      run: ./examples/demo
+
   main-test:
     name: "Tests"
     needs: [build]

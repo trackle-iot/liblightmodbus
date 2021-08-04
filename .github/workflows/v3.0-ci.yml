@@ -96,6 +96,14 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: "app.info"
 
+  big-endian:
+    name: "Big-endian tests"
+    container:
+      image: 'docker://s390x/ubuntu'
+    steps:
+    - name: Run uname
+      run: uname -a
+
   docs-build:
     name: "Build & deploy docs"
     needs: [codeql, build, avr-build, cmake-build]

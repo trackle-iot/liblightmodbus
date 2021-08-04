@@ -456,27 +456,19 @@ void assert_slave(bool ok)
 		throw std::runtime_error{"slave status assertion failed!"};
 }
 
-void assert_reg(std::istream &ss)
+void assert_reg(int index, int value)
 {
 	std::cout << TERM_BLUE "@ Asserting register value...." TERM_RESET << std::endl;
 
-	int n, val;
-	if (!(ss >> n >> val) || n >= 65536 || n < 0)
-		throw std::runtime_error{"assert_reg invalid reg"};
-
-	if (regs[n] != val)
+	if (regs.at(index) != value)
 		throw std::runtime_error{"assert_reg failed"};
 }
 
-void assert_coil(std::istream &ss)
+void assert_coil(int index, int value)
 {
 	std::cout << TERM_BLUE "@ Asserting coil value...." TERM_RESET << std::endl;
 
-	int n, val;
-	if (!(ss >> n >> val) || n >= 65536 || n < 0)
-		throw std::runtime_error{"assert_coil invalid reg"};
-
-	if (coils[n] != val)
+	if (coils.at(index) != value)
 		throw std::runtime_error{"assert_coil failed"};
 }
 

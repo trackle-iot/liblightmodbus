@@ -46,9 +46,56 @@ void last_register_tests()
 	});
 }
 
+void modbus_pdu_tests()
+{
+	run_test("Parse empty PDU frame", [](){
+		set_mode("pdu");
+		set_request({});
+		parse_request();
+		assert_slave(0);
+	});
+}
+
+void modbus_rtu_tests()
+{
+	run_test("Parse a raw Modbus RTU frame (write register)", [](){
+		set_mode("rtu");
+		set_request({0x01, 0x06, 0xab, 0xcd, 0x01, 0x23, 0x78, 0x58});
+		parse_request();
+		assert_slave(1);
+		assert_reg(0xabcd, 0x0123);
+		dump_response();
+		parse_response();
+		assert_master(1);
+	});
+
+	run_test("Parse a raw Modbus RTU frame with invalid CRC (big-endian)", [](){
+		set_mode("rtu");
+		set_request({0x01, 0x06, 0xab, 0xcd, 0x01, 0x23, 0x58, 0x78});
+		parse_request();
+		assert_slave(0);
+	});
+
+	run_test("Parse a raw Modbus RTU frame with invalid CRC", [](){
+		set_mode("rtu");
+		set_request({0x01, 0x06, 0xab, 0xcd, 0x01, 0x23, 0xfa, 0xce});
+		parse_request();
+		assert_slave(0);
+	});
+
+	run_test("Parse empty RTU frame", [](){
+		set_mode("rtu");
+		set_request({});
+		parse_request();
+		assert_slave(0);
+	});
+}
+
 void test_main()
 {
-	
+	modbus_pdu_tests();
+	modbus_rtu_tests();
+	last_register_tests();
 
 	run_test("Reading 2000 coils/discrete inputs", [](){
 		set_mode("pdu");

@@ -331,7 +331,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	\param request pointer to a Modbus TCP frame
 	\param requestLength length of the frame (valid range: 8 - 260)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid or different from the declared one
-	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
+	\returns MODBUS_REQUEST_ERROR(BAD_PROTOCOL) if the frame is not a Modbus TCP message
 	\returns Any errors from parsing functions
 
 	\warning The response frame can only be accessed if modbusIsOk() called 
@@ -350,11 +350,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 
 	// Discard non-Modbus messages
 	if (protocolID != 0)
-	{
-		if (modbusSlaveAllocateResponse(status, 0))
-			return MODBUS_GENERAL_ERROR(ALLOC);
-		return MODBUS_NO_ERROR();
-	}
+		return MODBUS_REQUEST_ERROR(BAD_PROTOCOL);
 
 	// Length mismatch
 	if (messageLength != requestLength - 6)

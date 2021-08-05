@@ -290,8 +290,10 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	uint8_t responseLength)
 {
 	// Check if lengths are ok
-	if (!requestLength) return MODBUS_REQUEST_ERROR(LENGTH);
-	if (!responseLength) return MODBUS_RESPONSE_ERROR(LENGTH);
+	if (!requestLength || requestLength > 253)
+		return MODBUS_REQUEST_ERROR(LENGTH);
+	if (!responseLength || responseLength > 253)
+		return MODBUS_RESPONSE_ERROR(LENGTH);
 	
 	// Discard responses if the address is broadcast
 	if (!address) return MODBUS_RESPONSE_ERROR(ADDRESS);
@@ -352,8 +354,10 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	uint16_t responseLength)
 {
 	// Check lengths
-	if (requestLength < 4) return MODBUS_REQUEST_ERROR(LENGTH);
-	if (responseLength < 4) return MODBUS_RESPONSE_ERROR(LENGTH);
+	if (requestLength < 4 || requestLength > 256)
+		return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength < 4 || responseLength > 256)
+		return MODBUS_RESPONSE_ERROR(LENGTH);
 	
 	// Request CRC check can be omitted for better performance
 	#ifndef LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC
@@ -403,8 +407,10 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	uint16_t responseLength)
 {
 	// Check lengths
-	if (requestLength < 8) return MODBUS_REQUEST_ERROR(LENGTH);
-	if (responseLength < 8) return MODBUS_RESPONSE_ERROR(LENGTH);
+	if (requestLength < 8 || requestLength > 260)
+		return MODBUS_REQUEST_ERROR(LENGTH);
+	if (responseLength < 8 || responseLength > 260)
+		return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	// Check if protocol IDs are correct
 	if (modbusRBE(&request[2]) != 0) return MODBUS_REQUEST_ERROR(BAD_PROTOCOL);

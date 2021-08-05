@@ -275,6 +275,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 	\param requestLength length of the frame
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
+	\returns MODBUS_GENERAL_ERROR(ADDRESS) if a response was generated to a broadcast request
 	\returns Any errors from parsing functions
 
 	\warning The response frame can only be accessed if modbusIsOk() called 
@@ -309,6 +310,9 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	// Write address and CRC to the reponse
 	if (status->response.length)
 	{
+		if (address == 0)
+			return MODBUS_GENERAL_ERROR(ADDRESS);
+
 		status->response.data[0] = address;
 		modbusWLE(
 			&status->response.data[status->response.length - 2],

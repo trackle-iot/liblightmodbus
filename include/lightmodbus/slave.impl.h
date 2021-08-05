@@ -12,39 +12,39 @@
 */
 ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[] =
 {
-#ifdef LIGHTMODBUS_F01S
+#if defined(LIGHTMODBUS_F01S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{1, modbusParseRequest01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F02S
+#if defined(LIGHTMODBUS_F02S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{2, modbusParseRequest01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F03S
+#if defined(LIGHTMODBUS_F03S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{3, modbusParseRequest01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F04S
+#if defined(LIGHTMODBUS_F04S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{4, modbusParseRequest01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F05S
+#if defined(LIGHTMODBUS_F05S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{5, modbusParseRequest0506},
 #endif
 
-#ifdef LIGHTMODBUS_F06S
+#if defined(LIGHTMODBUS_F06S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{6, modbusParseRequest0506},
 #endif
 
-#ifdef LIGHTMODBUS_F15S
+#if defined(LIGHTMODBUS_F15S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{15, modbusParseRequest1516},
 #endif
 
-#ifdef LIGHTMODBUS_F16S
+#if defined(LIGHTMODBUS_F16S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{16, modbusParseRequest1516},
 #endif
 
-#ifdef LIGHTMODBUS_F22S
+#if defined(LIGHTMODBUS_F22S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{22, modbusParseRequest22},
 #endif
 };

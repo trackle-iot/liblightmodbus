@@ -12,39 +12,39 @@
 */
 ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 {
-#ifdef LIGHTMODBUS_F01M
+#if defined(LIGHTMODBUS_F01M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{1, modbusParseResponse01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F02M
+#if defined(LIGHTMODBUS_F02M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{2, modbusParseResponse01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F03M
+#if defined(LIGHTMODBUS_F03M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{3, modbusParseResponse01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F04M
+#if defined(LIGHTMODBUS_F04M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{4, modbusParseResponse01020304},
 #endif
 
-#ifdef LIGHTMODBUS_F05M
+#if defined(LIGHTMODBUS_F05M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{5, modbusParseResponse0506},
 #endif
 
-#ifdef LIGHTMODBUS_F06M
+#if defined(LIGHTMODBUS_F06M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{6, modbusParseResponse0506},
 #endif
 
-#ifdef LIGHTMODBUS_F15M
+#if defined(LIGHTMODBUS_F15M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{15, modbusParseResponse1516},
 #endif
 
-#ifdef LIGHTMODBUS_F16M
+#if defined(LIGHTMODBUS_F16M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{16, modbusParseResponse1516},
 #endif
 
-#ifdef LIGHTMODBUS_F22M
+#if defined(LIGHTMODBUS_F22M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{22, modbusParseResponse22},
 #endif
 };

@@ -244,11 +244,76 @@ void modbus_rtu_tests()
 
 		// todo assert response length == 0
 	});
+
+	run_test("Mismatched addres in request/response", [](){
+		set_mode("rtu");
+		build_request({1, 1, 3, 4});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+
+		build_request({2, 1, 3, 4});
+		assert_master_ok();
+
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(ADDRESS));
+	});
 }
 
 void modbus_tcp_tests()
 {
-	
+	run_test("[TCP] Write a register", [](){
+		set_mode("tcp");
+		build_request({1, 6, 0xaabb, 0xccdd});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_reg(0xaabb, 0xccdd);
+	});
+
+	run_test("[TCP] Bad protocol ID", [](){
+		set_mode("tcp");
+		set_request({0, 0, 0, 1, 0, 3, 1, 0xaa, 0xbb});
+		parse_request();
+		assert_slave_err(MODBUS_REQUEST_ERROR(BAD_PROTOCOL));
+
+		set_request({0, 0, 0, 1, 0, 3, 1, 0xaa, 0xbb});
+		set_response({0, 0, 0, 0, 0, 3, 1, 0xaa, 0xbb});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(BAD_PROTOCOL));
+
+		set_request({0, 0, 0, 0, 0, 3, 1, 0xaa, 0xbb});
+		set_response({0, 0, 1, 0, 0, 3, 1, 0xaa, 0xbb});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(BAD_PROTOCOL));
+	});
+
+	run_test("[TCP] Mismatched transaction ID", [](){
+		set_mode("tcp");
+		set_request({55, 55, 0, 0, 0, 3, 1, 0xaa, 0xbb});
+		set_response({53, 55, 0, 0, 0, 3, 1, 0xaa, 0xbb});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(BAD_TRANSACTION));
+	});
+
+	run_test("[TCP] Invalid declared length", [](){
+		set_mode("tcp");
+		set_request({0, 0, 0, 0, 0xff, 0x03, 1, 0xaa, 0xbb});
+		parse_request();
+		assert_slave_err(MODBUS_REQUEST_ERROR(LENGTH));
+
+		set_request({0, 0, 0, 0, 0x03, 0x03, 1, 0xcc, 0xdd});
+		set_response({0, 0, 0, 0, 0, 3, 1, 0xaa, 0xbb});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(LENGTH));
+
+		set_request({0, 0, 0, 0, 0, 0x03, 1, 0xcc, 0xdd});
+		set_response({0, 0, 0, 0, 0xff, 0xff, 1, 0xaa, 0xbb});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(LENGTH));
+	});
+
 }
 
 void single_write_tests()
@@ -344,6 +409,39 @@ void mask_write_test()
 	});
 }
 
+void illegal_function_test()
+{
+	run_test("Call function 0x7f on slave", [](){
+		set_mode("pdu");
+		set_request({0x7f, 0xde, 0xad, 0xbe, 0xef});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_FUNCTION);
+	});
+
+	run_test("Mismatched request/response function", [](){
+		set_mode("pdu");
+		build_request({1, 1, 3, 4});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+
+		build_request({1, 2, 3, 4});
+		assert_master_ok();
+
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(FUNCTION));
+	});
+
+	run_test("Parse response to function 0x7f on master", [](){
+		set_mode("pdu");
+		set_request({0x7f, 0xde, 0xad, 0xbe, 0xef});
+		set_response({0x7f, 0xc0, 0xff, 0xee, 0x33});
+		parse_response();
+		assert_master_err(MODBUS_GENERAL_ERROR(FUNCTION));
+	});
+}
+
 void test_main()
 {
 	modbus_pdu_tests();
@@ -351,6 +449,7 @@ void test_main()
 	modbus_tcp_tests();
 	short_frames_tests();
 
+	illegal_function_test();
 	single_write_tests();
 	multiple_write_tests();
 	mask_write_test();

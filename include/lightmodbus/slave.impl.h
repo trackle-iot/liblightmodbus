@@ -256,9 +256,12 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, c
 	\returns Any errors from parsing functions
 
 	\warning The response frame can only be accessed if modbusIsOk() called 
-		on the return value of this function evaluates to true.
+		on the return value from this function evaluates to true.
+
+	\warning The `requestLength` argument is  of type `uint8_t` and not `uint16_t`
+		as in case of Modbus RTU and TCP.
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint16_t requestLength)
+LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint8_t requestLength)
 {
 	// Check length
 	if (!requestLength || requestLength > MODBUS_PDU_MAX)

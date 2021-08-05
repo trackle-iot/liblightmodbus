@@ -608,6 +608,7 @@ before upgrading to v3.0.
 |Parsing requests|Use `modbusParseRequestRTU()` instead of `modbusParseRequest()`. Provide the frame as an argument.|
 |Register callback|Slave register callback now takes arguments in a struct. See \ref slave-register-callback|
 |Register/coil arrays|Write a register callback accessing your own array instead. See \ref slave-register-callback|
+|Register/coil write protection|Return a proper exception from the register callback during read access check query|
 |Accessing slave's response|Use modbusSlaveGetResponse() and modbusSlaveGetResponseLength() instead of accessing directly accessing the fields in ModbusSlave|
 |Building requests|Use `modbusBuildRequest*RTU()` instead of `modbusBuildRequest*()`|
 |Accessing master's request|Use modbusMasterGetRequest() and modbusMasterGetRequestLength() instead of accessing directly accessing the fields in ModbusMaster|
@@ -616,6 +617,7 @@ before upgrading to v3.0.
 |Endianness operations|Use modbusRLE(), modbusRBE(), modbusWLE() and modbusWBE() instead|
 |Mask read/write|modbusMaskRead() and modbusMaskWrite() no longer provide bounds checking|
 |Static memory allocation|Implement a custom static memory allocator - see \ref static-mem|
+|User context pointer|Use `modbusMasterSetUserPointer()`, `modbusMasterGetUserPointer()`, `modbusSlaveSetUserPointer()` and `modbusSlaveGetUserPointer()`|
 
 \cond DOXYGEN_EXCLUDE
 \section endiannnes Endiannes operations

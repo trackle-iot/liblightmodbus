@@ -224,12 +224,12 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 		set in ModbusSlave during response generation.
 	\param address address of the slave
 	\param request pointer to the PDU data
-	\param requestLength of the PDU
+	\param requestLength length of the PDU (valid range: 1 - 253)
 	\returns Any errors from parsing functions
 
 	\warning This function expects ModbusSlave::response::pduOffset and
 	ModbusSlave::response::padding to be set properly! If you're looking for a 
-	function that operates strictly on the PDU, please use modbusParseRequestPDU() instead.
+	function to parse PDU and generate a PDU response, please use modbusParseRequestPDU() instead.
 
 	\warning The response frame can only be accessed if modbusIsOk() called 
 		on the return value of this function evaluates to true.
@@ -251,7 +251,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, c
 	\brief Parses provided PDU and generates PDU for the response frame
 	\param address address of the slave
 	\param request pointer to the PDU data
-	\param requestLength length of the PDU
+	\param requestLength length of the PDU (valid range: 1 - 253)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns Any errors from parsing functions
 
@@ -261,7 +261,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, c
 LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint16_t requestLength)
 {
 	// Check length
-	if (!requestLength || requestLength > 255)
+	if (!requestLength || requestLength > MODBUS_PDU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	status->response.pduOffset = 0;
@@ -272,7 +272,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 /**
 	\brief Parses provided Modbus RTU request frame and generates a Modbus RTU response
 	\param request pointer to a Modbus RTU frame
-	\param requestLength length of the frame
+	\param requestLength length of the frame (valid range: 4 - 256)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
 	\returns MODBUS_GENERAL_ERROR(ADDRESS) if a response was generated to a broadcast request
@@ -284,7 +284,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *request, uint16_t requestLength)
 {
 	// Check length
-	if (requestLength < 4 || requestLength > 256)
+	if (requestLength < MODBUS_RTU_ADU_MIN || requestLength > MODBUS_RTU_ADU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	// Check if the message is meant for us
@@ -302,8 +302,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 
 	// Parse the request
 	ModbusErrorInfo err;
-	status->response.pduOffset = 1;
-	status->response.padding = 3;
+	status->response.pduOffset = MODBUS_RTU_PDU_OFFSET;
+	status->response.padding = MODBUS_RTU_ADU_PADDING;
 	if (!modbusIsOk(err = modbusParseRequest(status, address, request + 1, requestLength - 3)))
 		return err;
 	
@@ -326,7 +326,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 /**
 	\brief Parses provided Modbus TCP request frame and generates a Modbus TCP response
 	\param request pointer to a Modbus TCP frame
-	\param requestLength length of the frame
+	\param requestLength length of the frame (valid range: 8 - 260)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid or different from the declared one
 	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
 	\returns Any errors from parsing functions
@@ -337,7 +337,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *request, uint16_t requestLength)
 {
 	// Check length
-	if (requestLength < 8 || requestLength > 260)
+	if (requestLength < MODBUS_TCP_ADU_MIN || requestLength > MODBUS_TCP_ADU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	// Read MBAP header
@@ -359,8 +359,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 	
 	// Parse the request
 	ModbusErrorInfo err;
-	status->response.pduOffset = 7;
-	status->response.padding = 7;
+	status->response.pduOffset = MODBUS_TCP_PDU_OFFSET;
+	status->response.padding = MODBUS_TCP_ADU_PADDING;
 	if (!modbusIsOk(err = modbusParseRequest(status, status->address, request + 7, messageLength - 1)))
 		return err;
 

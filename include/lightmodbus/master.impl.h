@@ -212,19 +212,19 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status)
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestRTU(ModbusMaster *status)
 {
-	status->request.pduOffset = 1;
-	status->request.padding = 3;
+	status->request.pduOffset = MODBUS_RTU_PDU_OFFSET;
+	status->request.padding = MODBUS_RTU_ADU_PADDING;
 	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Finalizes a Modbus RTU request
-	\returns MODBUS_REQUEST_ERROR(LENGTH) if the allocated frame is too short 
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the allocated frame has invalid length
 	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address)
 {
-	if (status->request.length < 4) 
+	if (status->request.length < MODBUS_RTU_ADU_MIN || status->request.length > MODBUS_RTU_ADU_MAX) 
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	// Put in slave address
@@ -243,19 +243,19 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address)
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status)
 {
-	status->request.pduOffset = 7;
-	status->request.padding = 7;
+	status->request.pduOffset = MODBUS_TCP_PDU_OFFSET;
+	status->request.padding = MODBUS_TCP_ADU_PADDING;
 	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Finalizes a Modbus TCP request
-	\returns MODBUS_REQUEST_ERROR(LENGTH) if the allocated frame is too short 
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the allocated frame has invalid length 
 	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit)
 {
-	if (status->request.length < 7)
+	if (status->request.length < MODBUS_TCP_ADU_MIN || status->request.length > MODBUS_TCP_ADU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	uint16_t length = status->request.length - 6;
@@ -271,11 +271,11 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transac
 	\brief Parses a PDU section of a slave response
 	\param address Address of the slave that sent in the data
 	\param request Pointer to the PDU section of the request frame
-	\param requestLength Length of the request PDU
+	\param requestLength Length of the request PDU (valid range: 1 - 253)
 	\param response Pointer to the PDU section of the response
-	\param responseLength Length of the response PDU
-	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request has zero length
-	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response has zero length
+	\param responseLength Length of the response PDU (valid range: 1 - 253)
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request has invalid length
+	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response has invalid length
 	\returns MODBUS_RESPONSE_ERROR(ADDRESS) on attempt to parse a response to a broadcast request
 	\returns MODBUS_RESPONSE_ERROR(FUNCTION) if the function code in request doesn't match the one in response
 	\returns MODBUS_GENERAL_ERROR(FUNCTION) if the function code is not supported
@@ -290,9 +290,9 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	uint8_t responseLength)
 {
 	// Check if lengths are ok
-	if (!requestLength || requestLength > 253)
+	if (!requestLength || requestLength > MODBUS_PDU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
-	if (!responseLength || responseLength > 253)
+	if (!responseLength || responseLength > MODBUS_PDU_MAX)
 		return MODBUS_RESPONSE_ERROR(LENGTH);
 	
 	// Discard responses if the address is broadcast
@@ -336,11 +336,11 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 /**
 	\brief Parses a Modbus RTU slave response
 	\param request Pointer to the request frame
-	\param requestLength Length of the request
+	\param requestLength Length of the request (valid range: 4 - 256)
 	\param response Pointer to the response frame
-	\param responseLength Length of the response
-	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request is less than 4 bytes long
-	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response is less than 4 bytes long
+	\param responseLength Length of the response (valid range: 4 - 256)
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request has invalid length
+	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response has invalid length
 	\returns MODBUS_REQUEST_ERROR(CRC) if the request CRC is invalid
 	\returns MODBUS_RESPONSE_ERROR(CRC) if the response CRC is invalid
 	\returns MODBUS_RESPONSE_ERROR(ADDRESS) if the address is 0 or if request/response addressess don't match
@@ -354,9 +354,9 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	uint16_t responseLength)
 {
 	// Check lengths
-	if (requestLength < 4 || requestLength > 256)
+	if (requestLength < MODBUS_RTU_ADU_MIN || requestLength > MODBUS_RTU_ADU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
-	if (responseLength < 4 || responseLength > 256)
+	if (responseLength < MODBUS_RTU_ADU_MIN || responseLength > MODBUS_RTU_ADU_MAX)
 		return MODBUS_RESPONSE_ERROR(LENGTH);
 	
 	// Request CRC check can be omitted for better performance
@@ -379,20 +379,20 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	return modbusParseResponsePDU(
 		status,
 		address,
-		request + 1,
-		requestLength - 3,
-		response + 1,
-		responseLength - 3);
+		request + MODBUS_RTU_PDU_OFFSET,
+		requestLength - MODBUS_RTU_ADU_PADDING,
+		response + MODBUS_RTU_PDU_OFFSET,
+		responseLength - MODBUS_RTU_ADU_PADDING);
 }
 
 /**
 	\brief Parses a Modbus TCP slave response
 	\param request Pointer to the request frame
-	\param requestLength Length of the request
+	\param requestLength Length of the request (valid range: 8 - 260)
 	\param response Pointer to the response frame
-	\param responseLength Length of the response
-	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request is less than 8 bytes long or if the request frame has different from declared one
-	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response is less than 8 bytes long or if the response frame has different from declared one
+	\param responseLength Length of the response (valid range: 8 - 260)
+	\returns MODBUS_REQUEST_ERROR(LENGTH) if the request has invalid length or if the request frame has different from declared one
+	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response has invalid length or if the response frame has different from declared one
 	\returns MODBUS_REQUEST_ERROR(BAD_PROTOCOL) if the protocol ID in request is not 0
 	\returns MODBUS_RESPONSE_ERROR(BAD_PROTOCOL) if the protocol ID in response is not 0
 	\returns MODBUS_RESPONSE_ERROR(BAD_TRANSACTION) if the transaction ID in request is not the same as in response
@@ -407,9 +407,9 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	uint16_t responseLength)
 {
 	// Check lengths
-	if (requestLength < 8 || requestLength > 260)
+	if (requestLength < MODBUS_TCP_ADU_MIN || requestLength > MODBUS_TCP_ADU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
-	if (responseLength < 8 || responseLength > 260)
+	if (responseLength < MODBUS_TCP_ADU_MIN || responseLength > MODBUS_TCP_ADU_MAX)
 		return MODBUS_RESPONSE_ERROR(LENGTH);
 
 	// Check if protocol IDs are correct
@@ -433,10 +433,10 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseTCP(
 	return modbusParseResponsePDU(
 		status,
 		address,
-		request + 7,
-		requestLength - 7,
-		response + 7,
-		responseLength - 7);
+		request + MODBUS_TCP_PDU_OFFSET,
+		requestLength - MODBUS_TCP_ADU_PADDING,
+		response + MODBUS_TCP_PDU_OFFSET,
+		responseLength - MODBUS_TCP_ADU_PADDING);
 }
 
 #endif

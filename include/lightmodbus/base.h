@@ -14,6 +14,19 @@
 #define LIGHTMODBUS_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+#define MODBUS_PDU_MIN 1   //!< Minimum length of a PDU
+#define MODBUS_PDU_MAX 253 //!< Maximum length of a PDU
+
+#define MODBUS_RTU_ADU_MIN     4   //!< Minimum length of ADU in Modbus RTU
+#define MODBUS_RTU_ADU_MAX     256 //!< Maximum length of ADU in Modbus RTU
+#define MODBUS_RTU_ADU_PADDING 3   //!< Number of extra bytes added to the PDU in Modbus RTU
+#define MODBUS_RTU_PDU_OFFSET  1   //!< Offset of PDU relative to the frame beginning in Modbus RTU
+
+#define MODBUS_TCP_ADU_MIN     8   //!< Minimum length of ADU in Modbus TCP
+#define MODBUS_TCP_ADU_MAX     260 //!< Maximum length of ADU in Modbus TCP
+#define MODBUS_TCP_ADU_PADDING 7   //!< Number of extra bytes added to the PDU in Modbus TCP
+#define MODBUS_TCP_PDU_OFFSET  7   //!< Offset of PDU relative to the frame beginning in Modbus TCP
+
 /**
 	\def LIGHTMODBUS_RET_ERROR
 	\brief Return type for library functions returning ModbusErrorInfo that should be handled properly.
@@ -120,15 +133,12 @@ typedef enum ModbusError
 	/**
 		\brief Memory allocation error
 
-		The allocator has failed to allocate requested amount of memory.
+		The allocator has failed to allocate requested amount of memory or free it.
 	*/
 	MODBUS_ERROR_ALLOC,
 
 	/**
 		\brief Invalid function
-
-		 - The function codes in the request and response do not match
-		 - There is no function handler for this function code (Master)
 	*/
 	MODBUS_ERROR_FUNCTION,
 
@@ -156,8 +166,6 @@ typedef enum ModbusError
 	/**
 		\brief CRC invalid
 		\note Only in Modbus RTU
-
-		CRC is invalid in either the request or the response.
 	*/
 	MODBUS_ERROR_CRC,
 
@@ -177,9 +185,6 @@ typedef enum ModbusError
 
 	/**
 		\brief Invalid slave address
-
-		 - Received response for a broadcasted request
-		 - Address byte is different in the request and the response
 	*/
 	MODBUS_ERROR_ADDRESS,
 

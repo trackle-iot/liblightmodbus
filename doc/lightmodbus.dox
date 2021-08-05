@@ -43,12 +43,15 @@ The library can be configured by defining certain macros before including that f
 |-------|-------------|
 |`LIGHTMODBUS_IMPL`|Include implementation|
 |`LIGHTMODBUS_SLAVE`|Includes slave part of the library|
+|`LIGHTMODBUS_SLAVE_FULL`|Enables support for all functions in slave|
 |`LIGHTMODBUS_MASTER`|Includes master part of the library|
+|`LIGHTMODBUS_MASTER_FULL`|Enables support for all functions in master|
 |`LIGHTMODBUS_FULL`|Includes both slave and master modules and all of their functions|
 |`LIGHTMODBUS_DEBUG`|Includes some debugging utilities|
 |`LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC`|Omits request CRC calculation for request on master side|
+|`LIGHTMODBUS_WARN_UNUSED`|Compiler attribute to warn about unused return value. `__attribute__((warn_unused_result))` by default|
 
-Specific master/slave functions can be included by defining macros like `LIGHTMODBUS_F01M` or `LIGHTMODBUS_F22S`.
+Specific master/slave functions can be enabled by defining macros like `LIGHTMODBUS_F01M` or `LIGHTMODBUS_F22S`. Defining these affects contents of \ref modbusMasterDefaultFunctions and \ref modbusSlaveDefaultFunctions arrays.
 
 Each time `lightmodbus.h` is included, the set of defined configuration macros must be the same
 (except from `LIGHTMODBUS_IMPL` which should only be used **once**).
@@ -60,6 +63,8 @@ including implementation of liblightmodbus. For instance, you may want to create
 #define LIGHTMODBUS_IMPL
 #include <lightmodbus/lightmodbus.h>
 ~~~
+
+See example integration of liblightmodbus with a simple project [here](https://github.com/Jacajack/liblightmodbus/tree/master/examples/integration).
 
 \section embedded Embedded platforms
 

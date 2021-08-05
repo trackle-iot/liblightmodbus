@@ -232,8 +232,8 @@ typedef struct ModbusFrameBuffer
 	uint8_t *pdu;       //!< A pointer to the PDU section of the frame
 	uint16_t length;    //!< Length of the entire frame (PDU size + padding)
 
-	uint16_t padding;   //!< Number of extra bytes surrounding the PDU
-	uint16_t pduOffset; //!< PDU offset relative to the beginning of the frame
+	uint8_t padding;    //!< Number of extra bytes surrounding the PDU
+	uint8_t pduOffset;  //!< PDU offset relative to the beginning of the frame
 } ModbusFrameBuffer;
 
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusDefaultAllocator(

@@ -1,4 +1,5 @@
 #include "tester.hpp"
+using namespace std::string_literals;
 
 void last_register_tests()
 {
@@ -9,9 +10,9 @@ void last_register_tests()
 			build_request({1, i, 65535, 1});
 			dump_request();
 			parse_request();
-			assert_slave(1);
+			assert_slave_ok();
 			parse_response();
-			assert_master(1);
+			assert_master_ok();
 			dump_data();
 		}
 	});
@@ -23,9 +24,9 @@ void last_register_tests()
 			build_request({1, i, 65534, 2});
 			dump_request();
 			parse_request();
-			assert_slave(1);
+			assert_slave_ok();
 			parse_response();
-			assert_master(1);
+			assert_master_ok();
 			dump_data();
 		}
 	});
@@ -35,7 +36,7 @@ void last_register_tests()
 		for (int i = 1; i <= 4; i++)
 		{
 			build_request({1, i, 65535, 2});
-			assert_master(0);
+			assert_master_err(MODBUS_GENERAL_ERROR(RANGE));
 
 			set_request({i, 255, 255, 0, 2});
 			dump_request();
@@ -53,12 +54,12 @@ void max_read_tests()
 		for (int i = 1; i <= 2; i++)
 		{
 			build_request({1, i, 0, 2000});
-			assert_master(1);
+			assert_master_ok();
 			parse_request();
 			dump_slave();
 			assert_slave_ex(MODBUS_EXCEP_NONE);
 			parse_response();
-			assert_master(1);
+			assert_master_ok();
 		}
 	});
 
@@ -68,14 +69,14 @@ void max_read_tests()
 		{
 			build_request({1, i, 0, 2001});
 			dump_master();
-			assert_master(0);
+			assert_master_err(MODBUS_GENERAL_ERROR(COUNT));
 
 			set_request({i, 0, 0, 0x07, 0xd1});
 			parse_request();
 			dump_slave();
 			assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
 			parse_response();
-			assert_master(1);
+			assert_master_ok();
 		}
 	});
 
@@ -84,12 +85,12 @@ void max_read_tests()
 		for (int i = 3; i <= 4; i++)
 		{
 			build_request({1, i, 0, 125});
-			assert_master(1);
+			assert_master_ok();
 			parse_request();
 			dump_slave();
 			assert_slave_ex(MODBUS_EXCEP_NONE);
 			parse_response();
-			assert_master(1);
+			assert_master_ok();
 		}
 	});
 
@@ -99,33 +100,64 @@ void max_read_tests()
 		{
 			build_request({1, i, 0, 126});
 			dump_master();
-			assert_master(0);
+			assert_master_err(MODBUS_GENERAL_ERROR(COUNT));
 
 			set_request({i, 0, 0, 0x00, 0x74});
 			parse_request();
 			dump_slave();
 			assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
 			parse_response();
-			assert_master(1);
+			assert_master_ok();
 		}
 	});
 }
 
+void short_frames_tests()
+{
+	auto short_slave_request_test = [](const std::string &mode){
+		run_test("Parse empty "s + mode + " request frame"s, [mode](){
+			set_mode(mode);
+			set_request({});
+			parse_request();
+			assert_slave_err(MODBUS_REQUEST_ERROR(LENGTH));
+		});
+	};
+
+	auto short_master_request_test = [](const std::string &mode){
+		run_test("Master parse empty "s + mode + " request frame"s, [mode](){
+			set_mode(mode);
+			set_request({});
+			set_response({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
+			parse_response();
+			assert_master_err(MODBUS_REQUEST_ERROR(LENGTH));
+		});
+	};
+
+	auto short_master_response_test = [](const std::string &mode){
+		run_test("Master parse empty "s + mode + " response frame"s, [mode](){
+			set_mode(mode);
+			build_request({1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
+			set_response({});
+			parse_response();
+			assert_master_err(MODBUS_RESPONSE_ERROR(LENGTH));
+		});
+	};
+
+	short_slave_request_test("pdu");
+	short_slave_request_test("rtu");
+	short_slave_request_test("tcp");
+
+	short_master_request_test("pdu");
+	short_master_request_test("rtu");
+	short_master_request_test("tcp");
+
+	short_master_response_test("pdu");
+	short_master_response_test("rtu");
+	short_master_response_test("tcp");
+}
+
 void modbus_pdu_tests()
 {
-	run_test("Parse empty PDU request frame", [](){
-		set_mode("pdu");
-		set_request({});
-		parse_request();
-		assert_slave(0);
-	});
-
-	run_test("Parse empty PDU response frame", [](){
-		set_mode("pdu");
-		set_response({});
-		parse_response();
-		assert_master(0);
-	});
 }
 
 void modbus_rtu_tests()
@@ -134,25 +166,25 @@ void modbus_rtu_tests()
 		set_mode("rtu");
 		set_request({0x01, 0x06, 0xab, 0xcd, 0x01, 0x23, 0x78, 0x58});
 		parse_request();
-		assert_slave(1);
+		assert_slave_ok();
 		assert_reg(0xabcd, 0x0123);
 		dump_response();
 		parse_response();
-		assert_master(1);
+		assert_master_ok();
 	});
 
 	run_test("Parse a raw Modbus RTU request with invalid CRC (big-endian)", [](){
 		set_mode("rtu");
 		set_request({0x01, 0x06, 0xab, 0xcd, 0x01, 0x23, 0x58, 0x78});
 		parse_request();
-		assert_slave(0);
+		assert_slave_err(MODBUS_REQUEST_ERROR(CRC));
 	});
 
 	run_test("Parse a raw Modbus RTU request with invalid CRC", [](){
 		set_mode("rtu");
 		set_request({0x01, 0x06, 0xab, 0xcd, 0x01, 0x23, 0xfa, 0xce});
 		parse_request();
-		assert_slave(0);
+		assert_slave_err(MODBUS_REQUEST_ERROR(CRC));
 	});
 
 	run_test("Parse a raw Modbus RTU response (exception)", [](){
@@ -160,7 +192,7 @@ void modbus_rtu_tests()
 		set_response({1, 0x81, 1, 0x81, 0x90});
 		parse_response();
 		dump_master();
-		assert_master(1);
+		assert_master_ok();
 	});
 
 	run_test("Parse a raw Modbus RTU response (exception) with invalid CRC", [](){
@@ -168,21 +200,7 @@ void modbus_rtu_tests()
 		set_response({1, 0x81, 1, 0xff, 0xff});
 		parse_response();
 		dump_master();
-		assert_master(0);
-	});
-
-	run_test("Parse empty RTU request frame", [](){
-		set_mode("rtu");
-		set_request({});
-		parse_request();
-		assert_slave(0);
-	});
-
-	run_test("Parse empty RTU response frame", [](){
-		set_mode("rtu");
-		set_response({});
-		parse_response();
-		assert_master(0);
+		assert_master_err(MODBUS_RESPONSE_ERROR(CRC));
 	});
 
 	run_test("Broadcast frame with invalid CRC", [](){
@@ -190,7 +208,7 @@ void modbus_rtu_tests()
 		set_request({0, 1, 0, 0, 0, 4, 0xff, 0xff});
 		parse_request();
 		dump_slave();
-		assert_slave(0);
+		assert_slave_err(MODBUS_REQUEST_ERROR(CRC));
 		assert_slave_ex(MODBUS_EXCEP_NONE);
 	});
 
@@ -199,7 +217,7 @@ void modbus_rtu_tests()
 		set_request({1, 1, 0, 0, 0, 0, 0x3c, 0x0a});
 		parse_request();
 		dump_slave();
-		assert_slave(1);
+		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
 	});
 
@@ -209,7 +227,7 @@ void modbus_rtu_tests()
 		parse_request();
 		dump_slave();
 		dump_response();
-		assert_slave(1);
+		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_NONE);
 
 		// todo assert response length == 0
@@ -221,7 +239,7 @@ void modbus_rtu_tests()
 		parse_request();
 		dump_slave();
 		dump_response();
-		assert_slave(1);
+		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_NONE);
 
 		// todo assert response length == 0
@@ -230,19 +248,7 @@ void modbus_rtu_tests()
 
 void modbus_tcp_tests()
 {
-	run_test("Parse empty TCP request frame", [](){
-		set_mode("tcp");
-		set_request({});
-		parse_request();
-		assert_slave(0);
-	});
 
-	run_test("Parse empty TCP response frame", [](){
-		set_mode("tcp");
-		set_response({});
-		parse_response();
-		assert_master(0);
-	});
 }
 
 void test_main()
@@ -250,6 +256,7 @@ void test_main()
 	modbus_pdu_tests();
 	modbus_rtu_tests();
 	modbus_tcp_tests();
+	short_frames_tests();
 
 	last_register_tests();
 	max_read_tests();

@@ -160,6 +160,18 @@ std::string serialize_data(const std::vector<T> &vec)
 	return serialize_data(vec.data(), static_cast<int>(vec.size()));
 }
 
+bool operator==(const ModbusErrorInfo &lhs, const ModbusErrorInfo &rhs)
+{
+	return modbusGetErrorCode(lhs) == modbusGetErrorCode(rhs) &&
+		modbusGetErrorSource(lhs) == modbusGetErrorSource(rhs);
+}
+
+bool operator!=(const ModbusErrorInfo &lhs, const ModbusErrorInfo &rhs)
+{
+	return !(lhs == rhs);
+}
+
+
 std::string modbus_exception_str(std::optional<modbus_exception_info> ex)
 {
 	if (!ex.has_value()) return "none";
@@ -438,27 +450,40 @@ void dump_coils()
 	std::cout << "Coils: " << serialize_data(coils) << std::endl;
 }
 
-void assert_master(bool ok)
+void assert_message(const std::string &message)
 {
-	std::cout << TERM_BLUE "@ Asserting master " << (ok ? "ok" : "error")
-		<< "..." TERM_RESET << std::endl;
-
-	if (modbusIsOk(master_error) != ok)
-		throw std::runtime_error{"master status assertion failed!"};
+	std::cout << TERM_BLUE << "@ Asserting " << message << "..." TERM_RESET << std::endl;
 }
 
-void assert_slave(bool ok)
+void assert_master_err(ModbusErrorInfo err)
 {
-	std::cout << TERM_BLUE "@ Asserting slave " << (ok ? "ok" : "error")
-		<< "..." TERM_RESET << std::endl;
+	assert_message("master "s + (modbusIsOk(err) ? "ok" : error_info_str(err)));
 
-	if (modbusIsOk(slave_error) != ok)
-		throw std::runtime_error{"slave status assertion failed!"};
+	if (master_error != err)
+		throw std::runtime_error{"master status assertion failed! - got "s + error_info_str(master_error)};
+}
+
+void assert_master_ok()
+{
+	assert_master_err(MODBUS_NO_ERROR());
+}
+
+void assert_slave_err(ModbusErrorInfo err)
+{
+	assert_message("slave "s + (modbusIsOk(err) ? "ok" : error_info_str(err)));
+
+	if (slave_error != err)
+		throw std::runtime_error{"slave status assertion failed! - got "s + error_info_str(slave_error)};
+}
+
+void assert_slave_ok()
+{
+	assert_slave_err(MODBUS_NO_ERROR());
 }
 
 void assert_reg(int index, int value)
 {
-	std::cout << TERM_BLUE "@ Asserting register value...." TERM_RESET << std::endl;
+	assert_message("reg["s + std::to_string(index) + "] = " + std::to_string(value));
 
 	if (regs.at(index) != value)
 		throw std::runtime_error{"assert_reg failed"};
@@ -466,7 +491,7 @@ void assert_reg(int index, int value)
 
 void assert_coil(int index, int value)
 {
-	std::cout << TERM_BLUE "@ Asserting coil value...." TERM_RESET << std::endl;
+	assert_message("coil["s + std::to_string(index) + "] = " + std::to_string(value));
 
 	if (coils.at(index) != value)
 		throw std::runtime_error{"assert_coil failed"};
@@ -475,9 +500,9 @@ void assert_coil(int index, int value)
 void assert_slave_ex(ModbusExceptionCode ex)
 {
 	if (ex == MODBUS_EXCEP_NONE)
-		std::cout << TERM_BLUE "@ Asserting no slave exception..." TERM_RESET << std::endl;
+		assert_message("no slave exception");
 	else
-		std::cout << TERM_BLUE "@ Asserting slave exception " << modbusExceptionCodeStr(ex) << TERM_RESET << std::endl;
+		assert_message("slave exception"s + modbusExceptionCodeStr(ex));
 
 	if (ex == MODBUS_EXCEP_NONE && slave_exception.has_value())
 		throw std::runtime_error{"assert_slave_ex failed"};

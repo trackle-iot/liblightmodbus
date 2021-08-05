@@ -10,7 +10,6 @@ jobs:
   build:
     name: "Basic build test"
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -121,7 +120,6 @@ jobs:
 
   docs-build:
     name: "Build & deploy docs"
-    needs: [codeql, build, avr-build, cmake-build]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout (with submodules)

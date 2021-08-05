@@ -248,7 +248,100 @@ void modbus_rtu_tests()
 
 void modbus_tcp_tests()
 {
+	
+}
 
+void single_write_tests()
+{
+	run_test("Write a coil to 1 and 0", [](){
+		set_mode("pdu");
+		build_request({1, 5, 0xc001, 0xbeef});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_coil(0xc001, 1);
+
+		build_request({1, 5, 0xc001, 0x0000});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_coil(0xc001, 0);
+	});
+
+	run_test("Write a register", [](){
+		set_mode("pdu");
+		build_request({1, 6, 0xdead, 0xface});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_reg(0xdead, 0xface);
+	});
+
+	run_test("Write a write-protected register", [](){
+		set_mode("pdu");
+		build_request({1, 6, 0xdead, 0xface});
+		set_wlock(0xdead, 1);
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_SLAVE_FAILURE);
+		assert_reg(0xdead, 0x0000);
+	});
+
+	run_test("Write the last register", [](){
+		set_mode("pdu");
+		build_request({1, 6, 0xffff, 0xaaaa});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_reg(0xffff, 0xaaaa);
+	});
+}
+
+void multiple_write_tests()
+{
+	run_test("Write 4 registers", [](){
+		set_mode("pdu");
+		build_request({1, 16, 0x00ff, 4, 17, 18, 19, 20});
+		dump_request();
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		dump_queries();
+		assert_reg(0x00ff, 17);
+		assert_reg(0x0102, 20);
+	});
+
+	run_test("Attempt to write 0 registers", [](){
+		set_mode("pdu");
+		build_request({1, 16, 0x0001, 0});
+		assert_master_err(MODBUS_GENERAL_ERROR(COUNT));
+
+		set_request({16, 0, 1, 0, 0});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+	});
+}
+
+void mask_write_test()
+{
+	run_test("Mask write register", [](){
+		set_mode("pdu");
+		set_reg_count(1);
+		build_request({1, 22, 0, 0xf2f2, 0x2525});
+		regs.at(0) = 0x1212;
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		dump_regs();
+		assert_reg(0, 0x1717);
+	});
 }
 
 void test_main()
@@ -257,6 +350,10 @@ void test_main()
 	modbus_rtu_tests();
 	modbus_tcp_tests();
 	short_frames_tests();
+
+	single_write_tests();
+	multiple_write_tests();
+	mask_write_test();
 
 	last_register_tests();
 	max_read_tests();

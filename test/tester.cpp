@@ -264,7 +264,7 @@ void build_request(const std::vector<int> &args)
 			int count = args.at(3);
 			std::vector<uint16_t> data(count);
 			for (int i = 0; i < count; i++)
-				args.at(i);
+				data.at(i) = args.at(4 + i);
 			master_error = modbusBuildRequest16(&master, index, count, data.data());
 			break;
 		}
@@ -423,7 +423,13 @@ void dump_data()
 
 void dump_queries()
 {
-
+	std::cout << "Register queries: \n";
+	for (const auto &q : reg_queries)
+	{
+		std::cout << "\t id: " << q.index <<
+			", query: " << modbusRegisterQueryStr(q.query) <<
+			", value: " << q.value << std::endl;
+	}
 }
 
 void dump_master()
@@ -502,7 +508,7 @@ void assert_slave_ex(ModbusExceptionCode ex)
 	if (ex == MODBUS_EXCEP_NONE)
 		assert_message("no slave exception");
 	else
-		assert_message("slave exception"s + modbusExceptionCodeStr(ex));
+		assert_message("slave exception "s + modbusExceptionCodeStr(ex));
 
 	if (ex == MODBUS_EXCEP_NONE && slave_exception.has_value())
 		throw std::runtime_error{"assert_slave_ex failed"};

@@ -7,6 +7,9 @@
 #define LIGHTMODBUS_FULL
 #include <lightmodbus/lightmodbus.h>
 
+extern std::vector<uint16_t> regs;
+extern std::vector<uint8_t> coils;
+
 void build_request(const std::vector<int> &args);
 void parse_request();
 void parse_response();

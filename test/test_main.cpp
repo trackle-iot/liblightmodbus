@@ -401,7 +401,7 @@ void single_write_tests()
 
 	run_test("Write request with extra byte", [](){
 		set_mode("pdu");
-		set_request({1, 6, 0, 33, 44, 55, 0xfa});
+		set_request({6, 0, 33, 44, 55, 0xfa});
 		parse_request();
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
@@ -410,7 +410,7 @@ void single_write_tests()
 
 	run_test("Write request with one byte missing", [](){
 		set_mode("pdu");
-		set_request({1, 6, 0xff, 0xff, 44});
+		set_request({6, 0xff, 0xff, 44});
 		parse_request();
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
@@ -419,7 +419,7 @@ void single_write_tests()
 
 	run_test("Coil write request with bad coil value", [](){
 		set_mode("pdu");
-		set_request({1, 5, 0xff, 0xff, 0, 1});
+		set_request({5, 0xff, 0xff, 0, 1});
 		parse_request();
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
@@ -443,6 +443,20 @@ void multiple_write_tests()
 		assert_reg(0x0102, 20);
 		parse_response();
 		assert_master_ok();
+	});
+
+	run_test("[16] Write 4 registers, broadcast", [](){
+		set_mode("rtu");
+		set_reg_count(0x0103);
+		build_request({0, 16, 0x00ff, 4, 17, 18, 19, 20});
+		dump_request();
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_expr("no response", response_data.empty());
+		assert_reg(0x00ff, 17);
+		assert_reg(0x0102, 20);
 	});
 
 	run_test("Attempt to write 0 registers", [](){
@@ -557,11 +571,22 @@ void multiple_write_tests()
 		assert_master_ok();
 		assert_coil(0xffff, 1);
 	});
+
+	run_test("[15] too short frame", [](){
+		set_mode("pdu");
+		set_coil_count(1);
+		set_request({15, 0, 0, 0, 9, 1});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		parse_response();
+		assert_master_ok();
+	});
 }
 
 void mask_write_test()
 {
-	run_test("Mask write register", [](){
+	run_test("[22] Mask write register", [](){
 		set_mode("pdu");
 		set_reg_count(1);
 		build_request({1, 22, 0, 0xf2f2, 0x2525});
@@ -575,15 +600,28 @@ void mask_write_test()
 		assert_master_ok();
 	});
 
-	run_test("Mask write register with one extra byte", [](){
+	run_test("[22] Mask write register with one extra byte", [](){
 		set_mode("pdu");
 		set_reg_count(1);
-		set_request({1, 22, 0, 0, 11, 22, 22, 33, 44});
+		set_request({22, 0, 0, 11, 22, 22, 33, 44});
 		regs.at(0) = 0x1212;
 		parse_request();
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
 		assert_reg(0, 0x1212);
+	});
+
+	run_test("[22] Mask write register broadcast", [](){
+		set_mode("rtu");
+		set_reg_count(1);
+		build_request({0, 22, 0, 0xf2f2, 0x2525});
+		regs.at(0) = 0x1212;
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_expr("no response", response_data.empty());
+		dump_regs();
+		assert_reg(0, 0x1717);
 	});
 }
 

@@ -120,7 +120,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(
 	\param responseLength response PDU section length
 	\return MODBUS_REQUEST_ERROR(LENGTH) if request frame has invalid length
 	\return MODBUS_RESPONSE_ERROR(LENGTH) if response frame has invalid length
-	\return MODBUS_RESPONSE_ERROR(OTHER) if the response is different from the request
+	\return MODBUS_RESPONSE_ERROR(INDEX) if the register index is different in request and response
+	\return MODBUS_RESPONSE_ERROR(VALUE) if the register value is different in request and response
 	\return MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
@@ -136,12 +137,13 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse0506(
 	if (requestLength != 5)	return MODBUS_REQUEST_ERROR(LENGTH);
 	if (responseLength != 5) return MODBUS_RESPONSE_ERROR(LENGTH);
 
-	// The response should be identical to the request
-	uint8_t ok = 1;
-	for (uint8_t i = 0; ok && i < 5; i++)
-		ok = ok && (responsePDU[i] == requestPDU[i]);
+	// Verify index
+	if (modbusRBE(&requestPDU[1]) != modbusRBE(&responsePDU[1]))
+		return MODBUS_RESPONSE_ERROR(INDEX);
 
-	if (!ok) return MODBUS_RESPONSE_ERROR(OTHER);
+	// Verify value
+	if (modbusRBE(&requestPDU[3]) != modbusRBE(&responsePDU[3]))
+		return MODBUS_RESPONSE_ERROR(VALUE);
 
 	return MODBUS_NO_ERROR();
 }

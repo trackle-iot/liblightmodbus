@@ -35,31 +35,31 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 
 	ModbusDataType datatype;
 	uint16_t maxCount;
-	uint8_t bits;
+	uint8_t isCoilType;
 	switch (function)
 	{
 		case 1:
 			datatype = MODBUS_COIL;
 			maxCount = 2000;
-			bits = 1;
+			isCoilType = 1;
 			break;
 
 		case 2:
 			datatype = MODBUS_DISCRETE_INPUT;
 			maxCount = 2000;
-			bits = 1;
+			isCoilType = 1;
 			break;
 
 		case 3:
 			datatype = MODBUS_HOLDING_REGISTER;
 			maxCount = 125;
-			bits = 16;
+			isCoilType = 0;
 			break;
 
 		case 4:
 			datatype = MODBUS_INPUT_REGISTER;
 			maxCount = 125;
-			bits = 16;
+			isCoilType = 0;
 			break;
 		
 		default:
@@ -99,7 +99,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 
 	// ---- RESPONSE ----
 
-	uint8_t dataLength = (bits == 1 ? modbusBitsToBytes(count) : (count << 1));
+	uint8_t dataLength = (isCoilType ? modbusBitsToBytes(count) : (count << 1));
 	if (modbusSlaveAllocateResponse(status, 2 + dataLength))
 		return MODBUS_GENERAL_ERROR(ALLOC);
 
@@ -116,7 +116,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 		cargs.index = index + i;
 		(void) status->registerCallback(status, &cargs, &cres);
 		
-		if (bits == 1)
+		if (isCoilType)
 			modbusMaskWrite(&status->response.pdu[2], i, cres.value != 0);
 		else
 			modbusWBE(&status->response.pdu[2 + (i << 1)], cres.value);

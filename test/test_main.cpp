@@ -291,6 +291,14 @@ void modbus_rtu_tests()
 		parse_response();
 		assert_master_err(MODBUS_RESPONSE_ERROR(ADDRESS));
 	});
+
+	run_test("[RTU] bad response CRC", [](){
+		set_mode("rtu");
+		build_request({1, 1, 3, 4});
+		set_response({0, 1, 0, 0, 0, 4, 0xff, 0xff});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(CRC));
+	});
 }
 
 void modbus_tcp_tests()
@@ -345,6 +353,34 @@ void modbus_tcp_tests()
 		set_response({0, 0, 0, 0, 0xff, 0xff, 1, 0xaa, 0xbb});
 		parse_response();
 		assert_master_err(MODBUS_RESPONSE_ERROR(LENGTH));
+	});
+
+	run_test("[TCP] Valid request/response", [](){
+		set_mode("tcp");
+		build_request({1, 6, 77, 88});
+		parse_request();
+		assert_slave_ok();
+		parse_response();
+		assert_master_ok();
+		assert_reg(77, 88);
+	});
+
+	run_test("[TCP] Address mismatch", [](){
+		set_mode("tcp");
+		set_request({0, 0, 0, 0, 0, 6, 1, 6, 0, 7, 0, 8});
+		set_response({0, 0, 0, 0, 0, 6, 2, 6, 0, 7, 0, 8});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(ADDRESS));
+		assert_reg(7, 0);
+	});
+
+	run_test("[TCP] Check ignoring Unit ID", [](){
+		set_mode("tcp");
+		set_request({0, 0, 0, 0, 0, 6, 0xff, 6, 0, 7, 0, 8});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_reg(7, 8);
 	});
 
 }

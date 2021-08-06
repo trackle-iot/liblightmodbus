@@ -11,6 +11,7 @@
 	\param requestPDU pointer to the PDU section of the request
 	\param requestLength length of the PDU section in bytes
 	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation error
+	\returns MODBUS_GENERAL_ERROR(FUNCTION) if function is not 1, 2, 3 or 4
 	\returns MODBUS_NO_ERROR() on success
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
@@ -62,7 +63,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 			break;
 		
 		default:
-			return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_FUNCTION);
+			return MODBUS_GENERAL_ERROR(FUNCTION);
 			break;
 	}
 

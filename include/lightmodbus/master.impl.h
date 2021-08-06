@@ -171,22 +171,6 @@ void modbusMasterDestroy(ModbusMaster *status)
 }
 
 /**
-	\brief Allows user to set the custom context pointer
-*/
-void modbusMasterSetUserPointer(ModbusMaster *status, void *ptr)
-{
-	status->context = ptr;
-}
-
-/**
-	\brief Retreieves the custom context pointer
-*/
-void *modbusMasterGetUserPointer(const ModbusMaster *status)
-{
-	return status->context;
-}
-
-/**
 	\brief Begins a PDU-only request
 	\returns MODBUS_NO_ERROR()
 */

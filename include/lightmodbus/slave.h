@@ -118,8 +118,6 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	uint8_t functionCount);
 
 void modbusSlaveDestroy(ModbusSlave *status);
-void modbusSlaveSetUserPointer(ModbusSlave *status, void *ptr);
-void *modbusSlaveGetUserPointer(const ModbusSlave *status);
 
 LIGHTMODBUS_RET_ERROR modbusBuildException(
 	ModbusSlave *status,
@@ -156,6 +154,22 @@ LIGHTMODBUS_WARN_UNUSED static inline const uint8_t *modbusSlaveGetResponse(cons
 LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusSlaveGetResponseLength(const ModbusSlave *status)
 {
 	return status->response.length;
+}
+
+/**
+	\brief Allows user to set the custom context pointer
+*/
+static inline void modbusSlaveSetUserPointer(ModbusSlave *status, void *ptr)
+{
+	status->context = ptr;
+}
+
+/**
+	\brief Retreieves the custom context pointer
+*/
+static inline void *modbusSlaveGetUserPointer(const ModbusSlave *status)
+{
+	return status->context;
 }
 
 extern ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[];

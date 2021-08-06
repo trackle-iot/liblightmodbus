@@ -96,8 +96,6 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	uint8_t functionCount);
 
 void modbusMasterDestroy(ModbusMaster *status);
-void modbusMasterSetUserPointer(ModbusMaster *status, void *ptr);
-void *modbusMasterGetUserPointer(const ModbusMaster *status);
 
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);
@@ -146,6 +144,22 @@ LIGHTMODBUS_WARN_UNUSED static inline const uint8_t *modbusMasterGetRequest(cons
 LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusMasterGetRequestLength(const ModbusMaster *status)
 {
 	return status->request.length;
+}
+
+/**
+	\brief Allows user to set the custom context pointer
+*/
+static inline void modbusMasterSetUserPointer(ModbusMaster *status, void *ptr)
+{
+	status->context = ptr;
+}
+
+/**
+	\brief Retreieves the custom context pointer
+*/
+static inline void *modbusMasterGetUserPointer(const ModbusMaster *status)
+{
+	return status->context;
 }
 
 extern ModbusMasterFunctionHandler modbusMasterDefaultFunctions[];

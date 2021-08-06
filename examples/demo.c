@@ -9,7 +9,7 @@
 	A register callback that prints out everything what's happening
 */
 ModbusError registerCallback(
-	ModbusSlave *slave,
+	const ModbusSlave *slave,
 	const ModbusRegisterCallbackArgs *args,
 	ModbusRegisterCallbackResult *result)
 {
@@ -56,7 +56,7 @@ ModbusError registerCallback(
 /*
 	Exception callback for printing out exceptions
 */
-ModbusError slaveExceptionCallback(ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError slaveExceptionCallback(const ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
 {
 	printf("Slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
 	
@@ -67,7 +67,7 @@ ModbusError slaveExceptionCallback(ModbusSlave *slave, uint8_t address, uint8_t 
 /*
 	Data callback for printing all incoming data
 */
-ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *args)
+ModbusError dataCallback(const ModbusMaster *master, const ModbusDataCallbackArgs *args)
 {
 	printf(
 		"Received data:\n"
@@ -90,7 +90,7 @@ ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *arg
 /*
 	Exception callback for printing out exceptions on master side
 */
-ModbusError masterExceptionCallback(ModbusMaster *master, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError masterExceptionCallback(const ModbusMaster *master, uint8_t address, uint8_t function, ModbusExceptionCode code)
 {
 	printf("Received slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
 

@@ -57,7 +57,7 @@ std::optional<modbus_exception_info> master_exception;
 int transaction_id = 0;
 
 ModbusError registerCallback(
-	ModbusSlave *slave,
+	const ModbusSlave *slave,
 	const ModbusRegisterCallbackArgs *args,
 	ModbusRegisterCallbackResult *result)
 {
@@ -110,7 +110,7 @@ ModbusError registerCallback(
 	return MODBUS_OK;
 }
 
-ModbusError slaveExceptionCallback(ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError slaveExceptionCallback(const ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
 {
 	// printf("Slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
 	
@@ -120,7 +120,7 @@ ModbusError slaveExceptionCallback(ModbusSlave *slave, uint8_t address, uint8_t 
 	return MODBUS_OK;
 }
 
-ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *args)
+ModbusError dataCallback(const ModbusMaster *master, const ModbusDataCallbackArgs *args)
 {
 	received_data.push_back(*args);
 
@@ -128,7 +128,7 @@ ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *arg
 	return MODBUS_OK;
 }
 
-ModbusError masterExceptionCallback(ModbusMaster *master, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError masterExceptionCallback(const ModbusMaster *master, uint8_t address, uint8_t function, ModbusExceptionCode code)
 {
 	// printf("Received slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
 

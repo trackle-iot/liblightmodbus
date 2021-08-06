@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "modbus.h"
 
-ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *args)
+ModbusError dataCallback(const ModbusMaster *master, const ModbusDataCallbackArgs *args)
 {
 	return MODBUS_OK;
 }

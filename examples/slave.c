@@ -7,7 +7,7 @@
 #include <assert.h>
 
 ModbusError registerCallback(
-	ModbusSlave *slave,
+	const ModbusSlave *slave,
 	const ModbusRegisterCallbackArgs *args,
 	ModbusRegisterCallbackResult *result)
 {
@@ -44,7 +44,7 @@ ModbusError registerCallback(
 	return MODBUS_OK;
 }
 
-ModbusError exceptionCallback(ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError exceptionCallback(const ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
 {
 	printf("Slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
 	return MODBUS_OK;

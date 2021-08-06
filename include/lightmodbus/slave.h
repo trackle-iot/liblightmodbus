@@ -63,7 +63,7 @@ typedef struct ModbusRegisterCallbackResult
 	\see slave-register-callback
 */
 typedef ModbusError (*ModbusRegisterCallback)(
-	ModbusSlave *status,
+	const ModbusSlave *status,
 	const ModbusRegisterCallbackArgs *args,
 	ModbusRegisterCallbackResult *out);
 
@@ -72,7 +72,7 @@ typedef ModbusError (*ModbusRegisterCallback)(
 	\see slave-exception-callback
 */
 typedef ModbusError (*ModbusSlaveExceptionCallback)(
-	ModbusSlave *status,
+	const ModbusSlave *status,
 	uint8_t address,
 	uint8_t function,
 	ModbusExceptionCode code);
@@ -83,7 +83,7 @@ typedef ModbusError (*ModbusSlaveExceptionCallback)(
 	Please refer to \ref allocators for more information regarding custom allocator functions.
 */
 typedef ModbusError (*ModbusSlaveAllocator)(
-	ModbusSlave *status,
+	const ModbusSlave *status,
 	uint8_t **ptr,
 	uint16_t size,
 	ModbusBufferPurpose purpose);
@@ -125,7 +125,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 	uint8_t function,
 	ModbusExceptionCode code);
 
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(const ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t size);
 void modbusSlaveFreeResponse(ModbusSlave *status);
 

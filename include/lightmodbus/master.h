@@ -45,7 +45,7 @@ typedef struct ModbusDataCallbackArgs
 	\see master-data-callback
 */
 typedef ModbusError (*ModbusDataCallback)(
-	ModbusMaster *status,
+	const ModbusMaster *status,
 	const ModbusDataCallbackArgs *args);
 
 /**
@@ -53,7 +53,7 @@ typedef ModbusError (*ModbusDataCallback)(
 	\see master-exception-callback
 */
 typedef ModbusError (*ModbusMasterExceptionCallback)(
-	ModbusMaster *status,
+	const ModbusMaster *status,
 	uint8_t address,
 	uint8_t function,
 	ModbusExceptionCode code);
@@ -64,7 +64,7 @@ typedef ModbusError (*ModbusMasterExceptionCallback)(
 	Please refer to \ref allocators for more information regarding custom allocator functions.
 */
 typedef ModbusError (*ModbusMasterAllocator)(
-	ModbusMaster *status,
+	const ModbusMaster *status,
 	uint8_t **ptr,
 	uint16_t size,
 	ModbusBufferPurpose purpose);
@@ -97,7 +97,7 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 
 void modbusMasterDestroy(ModbusMaster *status);
 
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(const ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);
 void modbusMasterFreeRequest(ModbusMaster *status);
 

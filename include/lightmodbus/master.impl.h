@@ -62,7 +62,7 @@ const uint8_t modbusMasterDefaultFunctionCount = sizeof(modbusMasterDefaultFunct
 	\returns MODBUS_ERROR_ALLOC on allocation failure
 	\returns MODBUS_OK on success
 */
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(const ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	return modbusDefaultAllocator(ptr, size, purpose);
 }

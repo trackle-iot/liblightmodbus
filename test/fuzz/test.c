@@ -19,7 +19,7 @@ static uint8_t coils[REG_COUNT] = {0};
 // static uint8_t discrete[REG_COUNT] = {0};
 
 ModbusError regCallback(
-	ModbusSlave *status,
+	const ModbusSlave *status,
 	const ModbusRegisterCallbackArgs *args,
 	uint16_t *result)
 {
@@ -145,7 +145,14 @@ int main()
 {
 	ModbusSlave slave;
 	ModbusErrorInfo err;
-	err = modbusSlaveInit(&slave, 1, modbusSlaveDefaultAllocator, regCallback);
+	err = modbusSlaveInit(
+		&slave,
+		1,
+		regCallback,
+		NULL,
+		modbusSlaveDefaultAllocator,
+		modbusSlaveDefaultFunctions,
+		modbusSlaveDefaultFunctionCount);
 	assert(modbusIsOk(err) && "Init failed!");
 
 	#ifdef FUZZ

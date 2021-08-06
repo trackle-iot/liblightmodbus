@@ -6,7 +6,7 @@
 #include <lightmodbus/lightmodbus.h>
 
 ModbusError regCallback(
-	ModbusSlave *status,
+	const ModbusSlave *status,
 	const ModbusRegisterCallbackArgs *args,
 	ModbusRegisterCallbackResult *result)
 {

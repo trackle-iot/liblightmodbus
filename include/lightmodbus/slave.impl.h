@@ -62,7 +62,7 @@ const uint8_t modbusSlaveDefaultFunctionCount = sizeof(modbusSlaveDefaultFunctio
 	\returns MODBUS_ERROR_ALLOC on memory allocation failure
 	\returns MODBUS_OK on success
 */
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(const ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
 {
 	return modbusDefaultAllocator(ptr, size, purpose);
 }

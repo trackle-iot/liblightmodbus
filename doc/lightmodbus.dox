@@ -72,11 +72,8 @@ Since v3.0 building liblightmodbus on embedded platforms is no different
 from building it on your PC. You're only required to add the header files to your project.
 
 \note Tip: Be sure to enable linking time optimizations (`-flto`) when building your project
-	to further reduce the size of your binary.
-
-\subsection ESP-IDF
-
-\todo Complete this section
+	to further reduce the size of your binary. If your compiler doesn't
+	support it, you can also use `-ffunction-sections -fdata-sections -Wl,--gc-sections` to delete unused functions.
 
 \page slave Slave device
 

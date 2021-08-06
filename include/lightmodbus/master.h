@@ -72,7 +72,7 @@ typedef ModbusError (*ModbusMasterAllocator)(
 /**
 	\brief Master device status
 */
-typedef struct ModbusMaster
+struct ModbusMaster
 {
 	ModbusMasterAllocator allocator;                  //!< A pointer to an allocator function (required)
 	ModbusDataCallback dataCallback;                  //!< A pointer to data callback (required)
@@ -85,7 +85,7 @@ typedef struct ModbusMaster
 
 	//! Stores master's request for slave
 	ModbusFrameBuffer request;
-} ModbusMaster;
+};
 
 LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,

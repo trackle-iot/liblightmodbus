@@ -2,8 +2,7 @@
 #define LIGHTMODBUS_SLAVE_FUNC_H
 
 #include "base.h"
-
-typedef struct ModbusSlave ModbusSlave;
+#include "slave.h"
 
 LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,

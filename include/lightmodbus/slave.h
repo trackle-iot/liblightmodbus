@@ -91,7 +91,7 @@ typedef ModbusError (*ModbusSlaveAllocator)(
 /**
 	\brief Slave device status
 */
-typedef struct ModbusSlave
+struct ModbusSlave
 {
 	ModbusSlaveAllocator allocator;                 //!< A pointer to allocator function (required)
 	ModbusRegisterCallback registerCallback;        //!< A pointer to register callback (required)
@@ -105,7 +105,7 @@ typedef struct ModbusSlave
 	ModbusFrameBuffer response;
 	uint8_t address; //!< Slave's address/ID
 
-} ModbusSlave;
+};
 
 
 LIGHTMODBUS_RET_ERROR modbusSlaveInit(

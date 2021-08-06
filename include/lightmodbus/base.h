@@ -151,9 +151,13 @@ typedef enum ModbusError
 
 	/**
 		\brief Invalid index value
-		\note Not used anywhere, left for future use.
 	*/
 	MODBUS_ERROR_INDEX,
+
+	/**
+		\brief Invalid register value
+	*/
+	MODBUS_ERROR_VALUE,
 
 	/**
 		\brief Invalid register range

@@ -1,2 +1,2 @@
 all:
-	gcc -o basic basic.c -Wall -I../../include
+	gcc -o basic basic.c -Wall -Wpedantic --std=c99 -I../../include

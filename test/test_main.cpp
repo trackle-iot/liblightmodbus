@@ -371,6 +371,7 @@ void multiple_write_tests()
 {
 	run_test("Write 4 registers", [](){
 		set_mode("pdu");
+		set_reg_count(0x0103);
 		build_request({1, 16, 0x00ff, 4, 17, 18, 19, 20});
 		dump_request();
 		assert_master_ok();
@@ -380,17 +381,121 @@ void multiple_write_tests()
 		dump_queries();
 		assert_reg(0x00ff, 17);
 		assert_reg(0x0102, 20);
+		parse_response();
+		assert_master_ok();
 	});
 
 	run_test("Attempt to write 0 registers", [](){
 		set_mode("pdu");
+		set_reg_count(2);
 		build_request({1, 16, 0x0001, 0});
 		assert_master_err(MODBUS_GENERAL_ERROR(COUNT));
 
-		set_request({16, 0, 1, 0, 0});
+		set_request({16, 0, 1, 0, 0, 0});
 		parse_request();
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		parse_response();
+		assert_master_ok();
+	});
+
+	run_test("Attempt to write registers with invalid byte count", [](){
+		set_mode("pdu");
+		set_reg_count(1);
+		set_request({16, 0, 0, 0, 1, 3, 0xff, 0xff});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		parse_response();
+		assert_master_ok();
+	});
+
+	run_test("Attempt to wrap address range when writing registers", [](){
+		set_mode("pdu");
+		set_request({16, 0xff, 0xff, 0, 2, 4, 0xff, 0xff, 0xee, 0xee});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_ADDRESS);
+		parse_response();
+		assert_master_ok();
+		assert_reg(0xffff, 0);
+		assert_reg(0x0000, 0);
+	});
+
+	run_test("Write last register", [](){
+		set_mode("pdu");
+		build_request({1, 16, 0xffff, 1, 0xdead});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		parse_response();
+		assert_master_ok();
+		assert_reg(0xffff, 0xdead);
+	});
+
+	run_test("Write 8 coils", [](){
+		set_mode("pdu");
+		build_request({1, 15, 0x00ff, 8, 1, 0, 1, 0, 1, 0, 1, 0});
+		dump_request();
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		dump_queries();
+		assert_coil(0x00ff, 1);
+		assert_coil(0x0102, 0);
+		parse_response();
+		assert_master_ok();
+	});
+
+	run_test("Attempt to write 0 coils", [](){
+		set_mode("pdu");
+		set_coil_count(2);
+		build_request({1, 15, 0x0001, 0});
+		assert_master_err(MODBUS_GENERAL_ERROR(COUNT));
+
+		set_request({15, 0, 1, 0, 0, 0});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		parse_response();
+		assert_master_ok();
+	});
+
+	run_test("Attempt to write coils with invalid byte count", [](){
+		set_mode("pdu");
+		set_coil_count(1);
+		set_request({15, 0, 0, 0, 9, 1, 0xff});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		parse_response();
+		assert_master_ok();
+	});
+
+	run_test("Attempt to wrap address range when writing coils", [](){
+		set_mode("pdu");
+		set_request({15, 0xff, 0xff, 0, 2, 1, 0xff});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_ADDRESS);
+		parse_response();
+		assert_master_ok();
+		assert_coil(0xffff, 0);
+		assert_coil(0x0000, 0);
+	});
+
+	run_test("Write last coil", [](){
+		set_mode("pdu");
+		build_request({1, 15, 0xffff, 1, 1});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		parse_response();
+		assert_master_ok();
+		assert_coil(0xffff, 1);
 	});
 }
 
@@ -406,6 +511,8 @@ void mask_write_test()
 		assert_slave_ex(MODBUS_EXCEP_NONE);
 		dump_regs();
 		assert_reg(0, 0x1717);
+		parse_response();
+		assert_master_ok();
 	});
 }
 

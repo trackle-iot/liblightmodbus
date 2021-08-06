@@ -69,6 +69,8 @@ void gen1516(int count)
 		datalen = buf[5] = count * 2;
 	}
 
+	if (datalen > 246) return;
+
 	// Sometimes provide invalid data length
 	if (rand() % 100 < 5)
 		buf[5] = rand();

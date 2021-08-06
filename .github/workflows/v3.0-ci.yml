@@ -106,6 +106,24 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: "app.info"
 
+  compat-test:
+    name: "v2.0 slave compatibility test"
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build tests
+      run: make -C test/compat
+    - name: Generate random requests
+      run: ./test/compat/genrq 1000 > requests.txt
+    - name: Test v2 responses
+      run: ./test/compat/v2test < requests.txt > v2.txt
+    - name: Test v3 responses
+      run: ./test/compat/v3test < requests.txt > v3.txt
+    - name: Compare responses
+      run: cmp v2.txt v3.txt 
+
   big-endian:
     name: "Big-endian tests"
     needs: [build]

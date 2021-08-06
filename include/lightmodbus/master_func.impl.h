@@ -193,6 +193,11 @@ LIGHTMODBUS_RET_ERROR modbusParseResponse1516(
 	if (count == 0 || count > maxCount)
 		return MODBUS_REQUEST_ERROR(COUNT);
 	
+	// Verify if the request length is correct
+	uint16_t expected = function == 15 ? modbusBitsToBytes(count) : (count << 1);
+	if (requestLength != expected + 6)
+		return MODBUS_REQUEST_ERROR(LENGTH);
+
 	// Verify register range
 	if (modbusCheckRangeU16(index, count))
 		return MODBUS_REQUEST_ERROR(RANGE);

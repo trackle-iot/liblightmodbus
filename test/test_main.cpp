@@ -620,6 +620,114 @@ void illegal_function_test()
 	});
 }
 
+void invalid_response_tests()
+{
+	run_test("[03 resp] Invalid declared data count", [](){
+		set_mode("pdu");
+		build_request({1, 3, 4, 3});
+		assert_master_ok();
+
+		set_response({3, 5, 0, 0, 0, 0, 0, 0});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(LENGTH));
+	});
+
+	run_test("[03 resp] No data in response", [](){
+		set_mode("pdu");
+		build_request({1, 3, 4, 3});
+		assert_master_ok();
+
+		set_response({3, 0, 0});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(LENGTH));
+	});
+
+	run_test("[03 req] 0 registers", [](){
+		set_mode("pdu");
+		set_request({3, 0, 0, 0, 0});
+		set_response({3, 2, 0, 3});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(COUNT));
+	});
+
+	run_test("[03 req] 126 registers", [](){
+		set_mode("pdu");
+		set_request({3, 0, 0, 0, 126});
+		set_response({3, 0, 7});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(COUNT));
+	});
+
+	run_test("[03 req] address range wrap", [](){
+		set_mode("pdu");
+		build_request({1, 3, 0xffff, 1});
+		parse_request();
+		assert_slave_ok();
+		parse_response();
+		assert_master_ok();
+
+		set_request({3, 0xff, 0xff, 0x00, 0x02});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(RANGE));
+	});
+
+	run_test("[01 req] 2001 coils", [](){
+		set_mode("pdu");
+		set_request({1, 0, 0, 0x07, 0xd1});
+		set_response({1, 255, 7});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(COUNT));
+	});
+
+	run_test("[06 resp] Index mismatch", [](){
+		set_mode("pdu");
+		build_request({1, 6, 15, 16});
+		set_response({6, 15, 0, 0, 16});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(INDEX));
+	});
+
+	run_test("[06 resp] Value mismatch", [](){
+		set_mode("pdu");
+		build_request({1, 6, 15, 16});
+		set_response({6, 0, 15, 0, 26});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(VALUE));
+	});
+
+	run_test("[15 resp] Index mismatch", [](){
+		set_mode("pdu");
+		build_request({1, 15, 0, 2, 1, 1});
+		set_response({15, 0, 1, 0, 2});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(INDEX));
+	});
+
+	run_test("[15 resp] Count mismatch", [](){
+		set_mode("pdu");
+		build_request({1, 15, 0, 2, 1, 1});
+		set_response({15, 0, 0, 0, 3});
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(COUNT));
+	});
+
+	run_test("[15 resp] bad declared requst length", [](){
+		set_mode("pdu");
+		set_request({15, 0, 0, 0, 2, 1, 0xff, 0});
+		set_response({15, 0, 0, 0, 2});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(LENGTH));
+	});
+
+	run_test("[15 resp] Address range wrap", [](){
+		set_mode("pdu");
+		set_request({15, 0xff, 0xff, 0, 2, 1, 0xff});
+		set_response({15, 0xff, 0xff, 0, 2});
+		parse_response();
+		assert_master_err(MODBUS_REQUEST_ERROR(RANGE));
+	});
+}
+
 void test_main()
 {
 	modbus_pdu_tests();
@@ -634,4 +742,5 @@ void test_main()
 
 	last_register_tests();
 	max_read_tests();
+	invalid_response_tests();
 }

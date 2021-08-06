@@ -519,6 +519,13 @@ void assert_slave_ex(ModbusExceptionCode ex)
 	}
 }
 
+void assert_expr(const std::string &message, bool expr)
+{
+	assert_message(message);
+	if (!expr)
+		throw std::runtime_error{"assertion failed: "s + message};
+}
+
 void set_mode(const std::string &m)
 {
 	if (m == "pdu")

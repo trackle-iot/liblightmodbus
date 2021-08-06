@@ -229,8 +229,7 @@ void modbus_rtu_tests()
 		dump_response();
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_NONE);
-
-		// todo assert response length == 0
+		assert_expr("no response", response_data.empty());
 	});
 
 	run_test("Check response to broadcast read request", [](){
@@ -241,8 +240,42 @@ void modbus_rtu_tests()
 		dump_response();
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_expr("no response", response_data.empty());
+	});
 
-		// todo assert response length == 0
+	run_test("Broadcast write request", [](){
+		set_mode("rtu");
+		build_request({0, 6, 77, 88});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_reg(77, 88);
+		assert_expr("no response", response_data.empty());
+
+	});
+
+	run_test("Write request for other slave", [](){
+		set_mode("rtu");
+		build_request({33, 6, 55, 44});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_reg(55, 0);
+		assert_expr("no response", response_data.empty());
+	});
+
+	run_test("Exception during broadcast write request", [](){
+		set_mode("rtu");
+		set_wlock(55, 1);
+		build_request({0, 6, 55, 44});
+		assert_master_ok();
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_reg(55, 0);
+		assert_expr("no response", response_data.empty());
 	});
 
 	run_test("Mismatched addres in request/response", [](){
@@ -364,6 +397,33 @@ void single_write_tests()
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_NONE);
 		assert_reg(0xffff, 0xaaaa);
+	});
+
+	run_test("Write request with extra byte", [](){
+		set_mode("pdu");
+		set_request({1, 6, 0, 33, 44, 55, 0xfa});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		assert_reg(0xffff, 0x0000);
+	});
+
+	run_test("Write request with one byte missing", [](){
+		set_mode("pdu");
+		set_request({1, 6, 0xff, 0xff, 44});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		assert_reg(0xffff, 0x0000);
+	});
+
+	run_test("Coil write request with bad coil value", [](){
+		set_mode("pdu");
+		set_request({1, 5, 0xff, 0xff, 0, 1});
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		assert_reg(0xffff, 0x0000);
 	});
 }
 
@@ -513,6 +573,17 @@ void mask_write_test()
 		assert_reg(0, 0x1717);
 		parse_response();
 		assert_master_ok();
+	});
+
+	run_test("Mask write register with one extra byte", [](){
+		set_mode("pdu");
+		set_reg_count(1);
+		set_request({1, 22, 0, 0, 11, 22, 22, 33, 44});
+		regs.at(0) = 0x1212;
+		parse_request();
+		assert_slave_ok();
+		assert_slave_ex(MODBUS_EXCEP_ILLEGAL_VALUE);
+		assert_reg(0, 0x1212);
 	});
 }
 

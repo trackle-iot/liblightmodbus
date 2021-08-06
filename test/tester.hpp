@@ -9,6 +9,8 @@
 
 extern std::vector<uint16_t> regs;
 extern std::vector<uint8_t> coils;
+extern std::vector<uint8_t> request_data;
+extern std::vector<uint8_t> response_data;
 
 void build_request(const std::vector<int> &args);
 void parse_request();
@@ -28,6 +30,7 @@ void assert_slave_ok();
 void assert_reg(int index, int value);
 void assert_coil(int index, int value);
 void assert_slave_ex(ModbusExceptionCode ex);
+void assert_expr(const std::string &message, bool expr);
 void set_mode(const std::string &mode);
 void set_request(const std::vector<int> &data);
 void set_response(const std::vector<int> &data);

@@ -10,7 +10,7 @@
 	This macro can be used to check if all ModbusErrors coming from library
 	functions are handled properly.
 */
-#ifndef LIGHTMOBBUS_WARN_UNUSED
+#ifndef LIGHTMODBUS_WARN_UNUSED
 #define LIGHTMODBUS_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 

@@ -260,8 +260,7 @@ void modbus_rtu_tests()
 		build_request({33, 6, 55, 44});
 		assert_master_ok();
 		parse_request();
-		assert_slave_ok();
-		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_slave_err(MODBUS_REQUEST_ERROR(ADDRESS));
 		assert_reg(55, 0);
 		assert_expr("no response", response_data.empty());
 	});

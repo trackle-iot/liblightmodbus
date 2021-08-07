@@ -262,6 +262,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 	\param requestLength length of the frame (valid range: 4 - 256)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
+	\returns MODBUS_REQUEST_ERROR(ADDRESS) if the request is meant for other slave
 	\returns MODBUS_GENERAL_ERROR(ADDRESS) if a response was generated to a broadcast request
 	\returns Any errors from parsing functions
 
@@ -277,11 +278,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	// Check if the message is meant for us
 	uint8_t address = request[0];
 	if (address && address != status->address)
-	{
-		if (modbusSlaveAllocateResponse(status, 0))
-			return MODBUS_GENERAL_ERROR(ALLOC);
-		return MODBUS_NO_ERROR();
-	}
+		return MODBUS_REQUEST_ERROR(ADDRESS);
 
 	// Check CRC
 	if (modbusCRC(request, requestLength - 2) != modbusRLE(request + requestLength - 2))

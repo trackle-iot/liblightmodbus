@@ -26,6 +26,17 @@ extern "C" {
 #ifndef LIGHTMODBUS_H
 #define LIGHTMODBUS_H
 
+/*
+	Optionally include a configuration file here
+*/
+#ifdef LIGHTMODBUS_USE_CONFIG_FILE
+	#ifdef LIGHTMODBUS_CONFIG_FILE
+		#include LIGHTMODBUS_CONFIG_FILE
+	#else
+		#include "config.h"
+	#endif
+#endif
+
 /**
 	\def LIGHTMODBUS_FULL
 	\brief Configures the library to include all avaiable Modbus functions for both master and slave

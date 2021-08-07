@@ -75,6 +75,17 @@ from building it on your PC. You're only required to add the header files to you
 	to further reduce the size of your binary. If your compiler doesn't
 	support it, you can also use `-ffunction-sections -fdata-sections -Wl,--gc-sections` to delete unused functions.
 
+\section ESP-IDF
+
+Liblightmodbus can be used as an ESP-IDF component. The relevant configuration is kept on [`esp-idf`](https://github.com/Jacajack/liblightmodbus/tree/esp-idf) branch and can be cloned directly to your components directory using:
+~~~bash
+git clone --single-branch --branch esp-idf https://github.com/Jacajack/liblightmodbus.git
+~~~
+
+When using liblightmodbus with ESP-IDF, the implementation of the library functions is automatically included for you - you shouldn't use `LIGHTMODBUS_IMPL` anywhere in your code. You shouldn't define any config options
+when including `lightmodbus.h` either. Library configuration is read from `esp.config.h` and `sdkconfig.h` and should be edited with `idf.py menuconfig`.
+
+
 \page slave Slave device
 
 In order to use slave side functions, make sure to define `LIGHTMODBUS_SLAVE` macro before

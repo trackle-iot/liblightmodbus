@@ -1,15 +1,16 @@
 # A lightweight, platform-independent Modbus RTU/TCP library
-[![The GPL license](https://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fjacajack%2Fliblightmodbus%2Fbadge%3Fref%3Dmaster&style=flat-square)](https://actions-badge.atrox.dev/jacajack/liblightmodbus/goto?ref=master) [![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
+![GitHub](https://img.shields.io/github/license/Jacajack/liblightmodbus) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fjacajack%2Fliblightmodbus%2Fbadge%3Fref%3Ddev-v3.0&style=flat)](https://actions-badge.atrox.dev/jacajack/liblightmodbus/goto?ref=dev-v3.0) ![Coveralls branch](https://img.shields.io/coveralls/github/Jacajack/liblightmodbus/dev-v3.0)
 
 Liblightmodbus is a lightweight, highly configurable, platform-independent Modbus RTU/TCP library written in C99.
 
 ## Features
-- Platform independent - works on PC as well as on AVR 
+- Completely platform independent - works on x86 as well as on AVR
 - Minimal resources usage thanks to modular structure
-- Supports Modbus RTU and TCP
+- Support for Modbus RTU and TCP
 - Callback based operation
 - Custom memory allocator support (static memory allocation is possible)
 - Supports custom Modbus functions and functions 01, 02, 03, 04, 05, 06, 15, 16 and 22 by default. 
+- Can be used as an ESP-IDF component
 
 Check the [online documentation](https://jacajack.github.io/liblightmodbus/) for more technical information and user guide.
 

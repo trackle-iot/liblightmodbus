@@ -551,6 +551,13 @@ However, certain guarantees are made by the library:
 	to refer to the same buffer. **This allows for static memory allocation
 	if the allocator can distinguish between different ModbusMaster and
 	ModbusSlave instances issuing the allocation requests.**
+ - All errors returned from the allocator when `size` is greater than zero
+	will be reported by the library as `MODBUS_GENERAL_ERROR(ALLOC)`.
+ - Errors reported from the allocator if `size` is 0 may or may not be
+	reported by the library. This behavior might change depending on the
+	context and in future versions of the library. For your safety, though,
+	it is recommended that you do not any errors from the allocator if 
+	`size == 0`.
 
 \section static-mem Static memory allocation
 

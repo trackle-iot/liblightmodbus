@@ -227,9 +227,9 @@ void modbus_rtu_tests()
 		parse_request();
 		dump_slave();
 		dump_response();
+		assert_expr("no response", response_data.empty());
 		assert_slave_ok();
 		assert_slave_ex(MODBUS_EXCEP_NONE);
-		assert_expr("no response", response_data.empty());
 	});
 
 	run_test("Check response to broadcast read request", [](){

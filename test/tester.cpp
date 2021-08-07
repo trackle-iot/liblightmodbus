@@ -110,11 +110,11 @@ ModbusError registerCallback(
 	return MODBUS_OK;
 }
 
-ModbusError slaveExceptionCallback(const ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError slaveExceptionCallback(const ModbusSlave *slave, uint8_t function, ModbusExceptionCode code)
 {
 	// printf("Slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
 	
-	slave_exception = modbus_exception_info{address, function, code};
+	slave_exception = modbus_exception_info{1, function, code};
 
 	// Always return MODBUS_OK
 	return MODBUS_OK;
@@ -314,7 +314,6 @@ void parse_request()
 		case MODBUS_PDU:
 			slave_error = modbusParseRequestPDU(
 				&slave,
-				slave.address,
 				request_data.data(),
 				request_data.size());
 			break;
@@ -322,6 +321,7 @@ void parse_request()
 		case MODBUS_RTU:
 			slave_error = modbusParseRequestRTU(
 				&slave,
+				1,
 				request_data.data(),
 				request_data.size());
 			break;
@@ -355,7 +355,7 @@ void parse_response()
 		case MODBUS_PDU:
 			master_error = modbusParseResponsePDU(
 				&master,
-				slave.address,
+				1,
 				request_data.data(),
 				request_data.size(),
 				response_data.data(),
@@ -510,9 +510,9 @@ void assert_slave_ex(ModbusExceptionCode ex)
 	else
 		assert_message("slave exception "s + modbusExceptionCodeStr(ex));
 
-	if (ex == MODBUS_EXCEP_NONE && slave_exception.has_value())
+	if (ex == MODBUS_EXCEP_NONE && slave_exception.has_value() && !response_data.empty())
 		throw std::runtime_error{"assert_slave_ex failed"};
-	else if (ex != MODBUS_EXCEP_NONE && slave_exception.has_value())
+	else if (ex != MODBUS_EXCEP_NONE && slave_exception.has_value() && !response_data.empty())
 	{
 		if (ex != slave_exception->code)
 			throw std::runtime_error{"assert_slave_ex failed"};
@@ -658,7 +658,6 @@ int main(int argc, char *argv[])
 {
 	slave_error = modbusSlaveInit(
 		&slave,
-		1,
 		registerCallback,
 		slaveExceptionCallback,
 		modbusSlaveDefaultAllocator,

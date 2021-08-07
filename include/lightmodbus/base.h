@@ -14,6 +14,16 @@
 #define LIGHTMODBUS_WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+/**
+	\def LIGHTMOBBUS_ALWAYS_INLINE
+	\brief Wrapper for a compiler attribute causing a function to be always inlined.
+	
+	Using this attribute may help to reduce binary size in some cases.
+*/
+#ifndef LIGHTMODBUS_ALWAYS_INLINE
+#define LIGHTMODBUS_ALWAYS_INLINE __attribute__((always_inline))
+#endif
+
 #define MODBUS_PDU_MIN 1   //!< Minimum length of a PDU
 #define MODBUS_PDU_MAX 253 //!< Maximum length of a PDU
 
@@ -400,6 +410,138 @@ LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusGetRequestError(ModbusEr
 LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusGetResponseError(ModbusErrorInfo err)
 {
 	return err.source == MODBUS_ERROR_SOURCE_RESPONSE ? modbusGetErrorCode(err) : MODBUS_OK;
+}
+
+/**
+	\brief Unpacks data from a Modbus RTU frame and optionally checks CRC
+	\param frame Pointer to the frame data
+	\param length Length of the frame (valid range: 4 - 256)
+	\param checkCRC Controls whether the CRC of the frame should be checked
+	\param pdu Output: pointer to the PDU
+	\param pduLength Output: length of the PDU
+	\param address Output: Slave address
+	\returns MODBUS_OK on success
+	\returns MODBUS_ERROR_LENGTH if the length of the frame is invalid
+	\returns MODBUS_ERROR_CRC if the CRC is incorrect
+*/
+LIGHTMODBUS_WARN_UNUSED LIGHTMODBUS_ALWAYS_INLINE static inline ModbusError modbusUnpackRTU(
+	const uint8_t *frame,
+	uint16_t length,
+	uint8_t checkCRC,
+	const uint8_t **pdu,
+	uint16_t *pduLength,
+	uint8_t *address)
+{
+	// Check length
+	if (length < MODBUS_RTU_ADU_MIN || length > MODBUS_RTU_ADU_MAX)
+		return MODBUS_ERROR_LENGTH;
+
+	// Extract address
+	*address = frame[0];
+
+	// Check CRC
+	if (checkCRC && modbusCRC(frame, length - 2) != modbusRLE(frame + length - 2))
+		return MODBUS_ERROR_CRC;
+
+	*pdu = frame + MODBUS_RTU_PDU_OFFSET;
+	*pduLength = length - MODBUS_RTU_ADU_PADDING;
+
+	return MODBUS_OK;
+}
+
+/**
+	\brief Sets up address and CRC in a Modbus RTU frame
+	\param frame Pointer to the frame data
+	\param length Length of the frame (valid range: 4 - 256)
+	\param address Address of the slave
+	\returns MODBUS_OK on success
+	\returns MODBUS_ERROR_LENGTH if the length of the frame is invalid
+*/
+LIGHTMODBUS_WARN_UNUSED LIGHTMODBUS_ALWAYS_INLINE static inline ModbusError modbusPackRTU(
+	uint8_t *frame,
+	uint16_t length,
+	uint8_t address)
+{
+	// Check length
+	if (length < MODBUS_RTU_ADU_MIN || length > MODBUS_RTU_ADU_MAX)
+		return MODBUS_ERROR_LENGTH;
+
+	// Write address
+	frame[0] = address;
+
+	// Compute and write CRC
+	modbusWLE(&frame[length - 2], modbusCRC(frame, length - 2));
+	
+	return MODBUS_OK;
+}
+
+/**
+	\brief Unpacks data from a Modbus TCP frame
+	\param frame Pointer to the frame data
+	\param length Length of the frame (valid range: 8 - 260)
+	\param pdu Output: pointer to the PDU
+	\param pduLength Output: length of the PDU
+	\param transactionID Output: TCP transaction ID
+	\param unitID Output: Slave unit ID
+	\returns MODBUS_OK on success
+	\returns MODBUS_ERROR_LENGTH if the length of the frame is invalid or if
+		the length declared inside the frame does not match the actual frame length
+	\returns MODBUS_ERROR_BAD_PROTOCOL if the protocol ID declared in frame is not 0
+*/
+LIGHTMODBUS_WARN_UNUSED LIGHTMODBUS_ALWAYS_INLINE static inline ModbusError modbusUnpackTCP(
+	const uint8_t *frame,
+	uint16_t length,
+	const uint8_t **pdu,
+	uint16_t *pduLength,
+	uint16_t *transactionID,
+	uint8_t *unitID)
+{
+	// Check length
+	if (length < MODBUS_TCP_ADU_MIN || length > MODBUS_TCP_ADU_MAX)
+		return MODBUS_ERROR_LENGTH;
+
+	// Discard non-Modbus messages
+	uint16_t protocolID = modbusRBE(&frame[2]);
+	if (protocolID != 0)
+		return MODBUS_ERROR_BAD_PROTOCOL;
+
+	// Length mismatch
+	uint16_t messageLength = modbusRBE(&frame[4]);
+	if (messageLength != length - 6)
+		return MODBUS_ERROR_LENGTH;
+
+	*transactionID = modbusRBE(&frame[0]);
+	*unitID = frame[6];
+	*pdu = frame + MODBUS_TCP_PDU_OFFSET;
+	*pduLength = length - MODBUS_TCP_ADU_PADDING;
+
+	return MODBUS_OK;
+}
+
+/**
+	\brief Sets up the MBAP header in a Modbus TCP frame
+	\param frame Pointer to the frame data
+	\param length Length of the frame (valid range: 8 - 260)
+	\param transactionID TCP transaction ID
+	\param unitID Slave unit ID
+	\returns MODBUS_OK on success
+	\returns MODBUS_ERROR_LENGTH if the length of the frame is invalid
+*/
+LIGHTMODBUS_WARN_UNUSED LIGHTMODBUS_ALWAYS_INLINE static inline ModbusError modbusPackTCP(
+	uint8_t *frame,
+	uint16_t length,
+	uint16_t transactionID,
+	uint8_t unitID)
+{
+	// Check length
+	if (length < MODBUS_TCP_ADU_MIN || length > MODBUS_TCP_ADU_MAX)
+		return MODBUS_ERROR_LENGTH;
+
+	modbusWBE(&frame[0], transactionID);
+	modbusWBE(&frame[2], 0);
+	modbusWBE(&frame[4], length - 6);
+	frame[6] = unitID;
+	return MODBUS_OK;
 }
 
 #endif

@@ -6,7 +6,6 @@
 
 /**
 	\brief Handles requests 01, 02, 03 and 04 (Read Multiple XX) and generates response.
-	\param address address of the slave
 	\param function function code
 	\param requestPDU pointer to the PDU section of the request
 	\param requestLength length of the PDU section in bytes
@@ -16,22 +15,13 @@
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,
-	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength)
 {
-	// Do not respond if the request was broadcasted
-	if (address == 0)
-	{
-		if (modbusSlaveAllocateResponse(status, 0))
-			return MODBUS_GENERAL_ERROR(ALLOC);
-		return MODBUS_NO_ERROR();
-	}
-
 	// Check frame length
 	if (requestLength != 5)
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	ModbusDataType datatype;
 	uint16_t maxCount;
@@ -72,11 +62,11 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 
 	// Check count
 	if (count == 0 || count > maxCount)
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Addresss range check
 	if (modbusCheckRangeU16(index, count))
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Prepare callback args
 	ModbusRegisterCallbackResult cres;
@@ -93,8 +83,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	{
 		cargs.index = index + i;
 		ModbusError fail = status->registerCallback(status, &cargs, &cres);
-		if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-		if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
+		if (fail) return modbusBuildException(status, function, MODBUS_EXCEP_SLAVE_FAILURE);
+		if (cres.exceptionCode) return modbusBuildException(status, function, cres.exceptionCode);
 	}
 
 	// ---- RESPONSE ----
@@ -127,7 +117,6 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 
 /**
 	\brief Handles requests 05 and 06 (Write Single XX) and generates response.
-	\param address address of the slave
 	\param function function code
 	\param requestPDU pointer to the PDU section of the request
 	\param requestLength length of the PDU section in bytes
@@ -136,14 +125,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	ModbusSlave *status,
-	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength)
 {
 	// Check frame length
 	if (requestLength != 5)
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Get register index and value
 	ModbusDataType datatype = function == 5 ? MODBUS_COIL : MODBUS_HOLDING_REGISTER;
@@ -152,7 +140,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 
 	// For coils - check if coil value is valid
 	if (datatype == MODBUS_COIL && value != 0x0000 && value != 0xFF00)
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Prepare callback args
 	ModbusRegisterCallbackResult cres;
@@ -166,8 +154,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 
 	// Check if the register/coil can be written
 	ModbusError fail = status->registerCallback(status, &cargs, &cres);
-	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
+	if (fail) return modbusBuildException(status, function, MODBUS_EXCEP_SLAVE_FAILURE);
+	if (cres.exceptionCode) return modbusBuildException(status, function, cres.exceptionCode);
 
 	// Write coil/register
 	// Keep in mind that 0xff00 is 0 when cast to uint8_t
@@ -176,28 +164,18 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 
 	// ---- RESPONSE ----
 
-	// Do not respond if the request was broadcasted
-	if (address == 0)
-	{
-		if (modbusSlaveAllocateResponse(status, 0))
-			return MODBUS_GENERAL_ERROR(ALLOC);
-	}
-	else
-	{
-		if (modbusSlaveAllocateResponse(status, 5))
-			return MODBUS_GENERAL_ERROR(ALLOC);
+	if (modbusSlaveAllocateResponse(status, 5))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
-		status->response.pdu[0] = function;
-		modbusWBE(&status->response.pdu[1], index);
-		modbusWBE(&status->response.pdu[3], value);
-	}
+	status->response.pdu[0] = function;
+	modbusWBE(&status->response.pdu[1], index);
+	modbusWBE(&status->response.pdu[3], value);
 
 	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Handles requests 15 and 16 (Write Multiple XX) and generates response.
-	\param address address of the slave
 	\param function function code
 	\param requestPDU pointer to the PDU section of the request
 	\param requestLength length of the PDU section in bytes
@@ -206,14 +184,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	ModbusSlave *status,
-	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength)
 {
 	// Check length
 	if (requestLength < 6)
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Get first index and register count
 	ModbusDataType datatype = function == 15 ? MODBUS_COIL : MODBUS_HOLDING_REGISTER;
@@ -224,17 +201,17 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 
 	// Check if the declared length is correct
 	if (declaredLength == 0 || declaredLength != requestLength - 6)
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Check count
 	if (count == 0
 		|| count > maxCount
 		|| declaredLength != (datatype == MODBUS_COIL ? modbusBitsToBytes(count) : (count << 1)))
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Addresss range check
 	if (modbusCheckRangeU16(index, count))
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_ADDRESS);
 
 	// Prepare callback args
 	ModbusRegisterCallbackResult cres;
@@ -252,8 +229,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 		cargs.index = index + i;
 		cargs.value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
 		ModbusError fail = status->registerCallback(status, &cargs, &cres);
-		if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-		if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
+		if (fail) return modbusBuildException(status, function, MODBUS_EXCEP_SLAVE_FAILURE);
+		if (cres.exceptionCode) return modbusBuildException(status, function, cres.exceptionCode);
 	}
 
 	// Write coils
@@ -267,28 +244,18 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 
 	// ---- RESPONSE ----
 
-	// Do not respond if the request was broadcasted
-	if (address == 0)
-	{
-		if (modbusSlaveAllocateResponse(status, 0))
-			return MODBUS_GENERAL_ERROR(ALLOC);
-	}
-	else
-	{
-		if (modbusSlaveAllocateResponse(status, 5))
-			return MODBUS_GENERAL_ERROR(ALLOC);
+	if (modbusSlaveAllocateResponse(status, 5))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
-		status->response.pdu[0] = function;
-		modbusWBE(&status->response.pdu[1], index);
-		modbusWBE(&status->response.pdu[3], count);
-	}
-	
+	status->response.pdu[0] = function;
+	modbusWBE(&status->response.pdu[1], index);
+	modbusWBE(&status->response.pdu[3], count);	
+
 	return MODBUS_NO_ERROR();
 }
 
 /**
 	\brief Handles request 22 (Mask Write Register) and generates response.
-	\param address address of the slave
 	\param function function code
 	\param requestPDU pointer to the PDU section of the request
 	\param requestLength length of the PDU section in bytes
@@ -297,14 +264,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	ModbusSlave *status,
-	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength)
 {
 	// Check length	
 	if (requestLength != 7)
-		return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_VALUE);
+		return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_VALUE);
 
 	// Get index and masks
 	uint16_t index   = modbusRBE(&requestPDU[1]);
@@ -324,8 +290,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	// Check read access
 	cargs.query = MODBUS_REGQ_R_CHECK;
 	ModbusError fail = status->registerCallback(status, &cargs, &cres);
-	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
+	if (fail) return modbusBuildException(status, function, MODBUS_EXCEP_SLAVE_FAILURE);
+	if (cres.exceptionCode) return modbusBuildException(status, function, cres.exceptionCode);
 
 	// Read the register
 	cargs.query = MODBUS_REGQ_R;
@@ -339,8 +305,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	cargs.query = MODBUS_REGQ_W_CHECK;
 	cargs.value = value;
 	fail = status->registerCallback(status, &cargs, &cres);
-	if (fail) return modbusBuildException(status, address, function, MODBUS_EXCEP_SLAVE_FAILURE);
-	if (cres.exceptionCode) return modbusBuildException(status, address, function, cres.exceptionCode);
+	if (fail) return modbusBuildException(status, function, MODBUS_EXCEP_SLAVE_FAILURE);
+	if (cres.exceptionCode) return modbusBuildException(status, function, cres.exceptionCode);
 
 	// Write the register
 	cargs.query = MODBUS_REGQ_W;
@@ -348,22 +314,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	
 	// ---- RESPONSE ----
 
-	// Do not respond if the request was broadcasted
-	if (address == 0)
-	{
-		if (modbusSlaveAllocateResponse(status, 0))
-			return MODBUS_GENERAL_ERROR(ALLOC);
-	}
-	else
-	{
-		if (modbusSlaveAllocateResponse(status, 7))
-			return MODBUS_GENERAL_ERROR(ALLOC);
+	if (modbusSlaveAllocateResponse(status, 7))
+		return MODBUS_GENERAL_ERROR(ALLOC);
 
-		status->response.pdu[0] = function;
-		modbusWBE(&status->response.pdu[1], index);
-		modbusWBE(&status->response.pdu[3], andmask);
-		modbusWBE(&status->response.pdu[5], ormask);
-	}
+	status->response.pdu[0] = function;
+	modbusWBE(&status->response.pdu[1], index);
+	modbusWBE(&status->response.pdu[3], andmask);
+	modbusWBE(&status->response.pdu[5], ormask);
 	
 	return MODBUS_NO_ERROR();
 }

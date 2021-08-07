@@ -115,14 +115,12 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 
 /**
 	\brief Initializes slave device
-	\param address ID of the slave
 	\param registerCallback Callback function for handling all register operations (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
 	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator) (required)
 	\param functions Pointer to array of supported function handlers (required).
 		The lifetime of this array must not be shorter than the lifetime of the slave.
 	\param functionCount Number of function handlers in the array (required)
-	\returns return MODBUS_GENERAL_ERROR(ADDRESS) if address is 0
 	\returns MODBUS_NO_ERROR() on success
 
 	\warning This function must not be called on an already initialized ModbusSlave struct.
@@ -131,17 +129,12 @@ void modbusSlaveFreeResponse(ModbusSlave *status)
 */
 LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
-	uint8_t address,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
 	ModbusSlaveAllocator allocator,
 	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount)
 {
-	if (address == 0)
-		return MODBUS_GENERAL_ERROR(ADDRESS);
-
-	status->address = address;
 	status->response.data = NULL;
 	status->response.pdu = NULL;
 	status->response.length = 0;
@@ -168,31 +161,26 @@ void modbusSlaveDestroy(ModbusSlave *status)
 
 /**
 	\brief Builds an exception response frame
-	\param address address of the slave
 	\param function function that reported the exception
 	\param code Modbus exception code
 	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation failure
 	\returns MODBUS_NO_ERROR() on success
-	\note If set, `exceptionCallback` from ModbusSlave is called.
+	\note If set, `exceptionCallback` from ModbusSlave is called, even if the
+		response frame is going to be discarded (when the request was broadcast).
+
+	\warning This function expects ModbusSlave::response::pduOffset and
+	ModbusSlave::response::padding to be set properly! If you're looking for a 
+	function to manually build an exception please use modbusBuildExceptionPDU(),
+	modbusBuildExceptionRTU() or modbusBuildExceptionTCP()
 */
 LIGHTMODBUS_RET_ERROR modbusBuildException(
 	ModbusSlave *status,
-	uint8_t address,
 	uint8_t function,
 	ModbusExceptionCode code)
 {
-	// Do not respond if the request was broadcasted
-	if (address == 0)
-	{
-		if (modbusSlaveAllocateResponse(status, 0))
-			return MODBUS_GENERAL_ERROR(ALLOC);
-		else
-			return MODBUS_NO_ERROR();
-	}
-
 	// Call the exception callback
 	if (status->exceptionCallback)
-		status->exceptionCallback(status, address, function, code);
+		status->exceptionCallback(status, function, code);
 
 	if (modbusSlaveAllocateResponse(status, 2))
 		return MODBUS_GENERAL_ERROR(ALLOC);
@@ -204,9 +192,107 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 }
 
 /**
+	\brief Builds an exception PDU
+	\param function function that reported the exception
+	\param code Modbus exception code
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation failure
+	\returns MODBUS_NO_ERROR() on success
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildExceptionPDU(
+	ModbusSlave *status,
+	uint8_t function,
+	ModbusExceptionCode code)
+{
+	status->response.pduOffset = 0;
+	status->response.padding = 0;
+	
+	ModbusErrorInfo err = modbusBuildException(status, function, code);
+	if (!modbusIsOk(err))
+		return err;
+
+	return MODBUS_NO_ERROR();
+}
+
+/**
+	\brief Builds a Modbus RTU exception
+	\param address slave address to be reported in the excetion
+	\param function function that reported the exception
+	\param code Modbus exception code
+	\returns MODBUS_GENERAL_ERROR(ADDRESS) if address is 0
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation failure
+	\returns MODBUS_GENERAL_ERROR(LENGTH) if the allocated response has invalid length
+	\returns MODBUS_NO_ERROR() on success
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildExceptionRTU(
+	ModbusSlave *status,
+	uint8_t address,
+	uint8_t function,
+	ModbusExceptionCode code)
+{
+	if (address == 0)
+		return MODBUS_GENERAL_ERROR(ADDRESS);
+
+	status->response.pduOffset = MODBUS_RTU_PDU_OFFSET;
+	status->response.padding = MODBUS_RTU_ADU_PADDING;
+	
+	ModbusErrorInfo errinfo = modbusBuildException(status, function, code);
+	
+	if (!modbusIsOk(errinfo))
+		return errinfo;
+
+	ModbusError err = modbusPackRTU(
+		&status->response.data[0],
+		status->response.length,
+		address);
+		
+	// There's literally no reason for modbusPackRTU()
+	// to return MODBUS_ERROR_LENGTH here
+	(void) err;
+
+	return MODBUS_NO_ERROR();
+}
+
+/**
+	\brief Builds a Modbus TCP exception
+	\param transactionID transaction ID 
+	\param unitID unit ID to be reported in the exception
+	\param function function that reported the exception
+	\param code Modbus exception code
+	\returns MODBUS_GENERAL_ERROR(ALLOC) on memory allocation failure
+	\returns MODBUS_GENERAL_ERROR(LENGTH) if the allocated response has invalid length
+	\returns MODBUS_NO_ERROR() on success
+*/
+LIGHTMODBUS_RET_ERROR modbusBuildExceptionTCP(
+	ModbusSlave *status,
+	uint16_t transactionID,
+	uint8_t unitID,
+	uint8_t function,
+	ModbusExceptionCode code)
+{
+	status->response.pduOffset = MODBUS_TCP_PDU_OFFSET;
+	status->response.padding = MODBUS_TCP_ADU_PADDING;
+	
+	ModbusErrorInfo errinfo = modbusBuildException(status, function, code);
+	
+	if (!modbusIsOk(errinfo))
+		return errinfo;
+
+	ModbusError err = modbusPackTCP(
+		&status->response.data[0],
+		status->response.length,
+		transactionID,
+		unitID);
+
+	// There's literally no reason for modbusPackTCP()
+	// to return MODBUS_ERROR_LENGTH here
+	(void) err;
+
+	return MODBUS_NO_ERROR();
+}
+
+/**
 	\brief Parses provided PDU and generates response honorinng `pduOffset` and `padding`
 		set in ModbusSlave during response generation.
-	\param address address of the slave
 	\param request pointer to the PDU data
 	\param requestLength length of the PDU (valid range: 1 - 253)
 	\returns Any errors from parsing functions
@@ -218,22 +304,21 @@ LIGHTMODBUS_RET_ERROR modbusBuildException(
 	\warning The response frame can only be accessed if modbusIsOk() called 
 		on the return value of this function evaluates to true.
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, const uint8_t *request, uint8_t requestLength)
+LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, const uint8_t *request, uint8_t requestLength)
 {
 	uint8_t function = request[0];
 
 	// Look for matching function
 	for (uint16_t i = 0; i < status->functionCount; i++)
 		if (function == status->functions[i].id)
-			return status->functions[i].ptr(status, address, function, &request[0], requestLength);
+			return status->functions[i].ptr(status, function, &request[0], requestLength);
 
 	// No match found
-	return modbusBuildException(status, address, function, MODBUS_EXCEP_ILLEGAL_FUNCTION);
+	return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_FUNCTION);
 }
 
 /**
 	\brief Parses provided PDU and generates PDU for the response frame
-	\param address address of the slave
 	\param request pointer to the PDU data
 	\param requestLength length of the PDU (valid range: 1 - 253)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
@@ -245,7 +330,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, c
 	\warning The `requestLength` argument is  of type `uint8_t` and not `uint16_t`
 		as in case of Modbus RTU and TCP.
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint8_t requestLength)
+LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, const uint8_t *request, uint8_t requestLength)
 {
 	// Check length
 	if (!requestLength || requestLength > MODBUS_PDU_MAX)
@@ -253,57 +338,73 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address
 
 	status->response.pduOffset = 0;
 	status->response.padding = 0;
-	return modbusParseRequest(status, address, request, requestLength);
+	return modbusParseRequest(status, request, requestLength);
 }
 
 /**
 	\brief Parses provided Modbus RTU request frame and generates a Modbus RTU response
+	\param slaveAddress ID of the slave to match with the request
 	\param request pointer to a Modbus RTU frame
 	\param requestLength length of the frame (valid range: 4 - 256)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
 	\returns MODBUS_REQUEST_ERROR(CRC) if CRC is invalid
 	\returns MODBUS_REQUEST_ERROR(ADDRESS) if the request is meant for other slave
 	\returns MODBUS_RESPONSE_ERROR(LENGTH) if a response was generated to a broadcast request
+	\returns MODBUS_GENERAL_ERROR(LENGTH) if the resulting response frame has invalid length
 	\returns Any errors from parsing functions
 
 	\warning The response frame can only be accessed if modbusIsOk() called 
 		on the return value of this function evaluates to true.
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *request, uint16_t requestLength)
+LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t slaveAddress, const uint8_t *request, uint16_t requestLength)
 {
-	// Check length
-	if (requestLength < MODBUS_RTU_ADU_MIN || requestLength > MODBUS_RTU_ADU_MAX)
-		return MODBUS_REQUEST_ERROR(LENGTH);
+	// Unpack the request
+	const uint8_t *pdu;
+	uint16_t pduLength;
+	uint8_t requestAddress;
+	ModbusError err = modbusUnpackRTU(
+		request,
+		requestLength,
+		1,
+		&pdu,
+		&pduLength,
+		&requestAddress
+	);
 
-	// Check if the message is meant for us
-	uint8_t address = request[0];
-	if (address && address != status->address)
+	if (err != MODBUS_OK)
+		return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_REQUEST, err);
+
+	// Verify if the frame is meant for us
+	if (requestAddress != 0 && requestAddress != slaveAddress)
 		return MODBUS_REQUEST_ERROR(ADDRESS);
 
-	// Check CRC
-	if (modbusCRC(request, requestLength - 2) != modbusRLE(request + requestLength - 2))
-		return MODBUS_REQUEST_ERROR(CRC);
-
 	// Parse the request
-	ModbusErrorInfo err;
+	ModbusErrorInfo errinfo;
 	status->response.pduOffset = MODBUS_RTU_PDU_OFFSET;
 	status->response.padding = MODBUS_RTU_ADU_PADDING;
-	if (!modbusIsOk(err = modbusParseRequest(status, address, request + 1, requestLength - 3)))
-		return err;
+	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength)))
+		return errinfo;
 	
-	// Write address and CRC to the reponse
 	if (status->response.length)
 	{
-		if (address == 0)
-			return MODBUS_RESPONSE_ERROR(LENGTH);
+		// Discard any response frames if the request
+		// was broadcast
+		if (requestAddress == 0)
+		{
+			modbusSlaveFreeResponse(status);
+			return MODBUS_NO_ERROR();
+		}
 
-		status->response.data[0] = address;
-		modbusWLE(
-			&status->response.data[status->response.length - 2],
-			modbusCRC(status->response.data, status->response.length - 2)
-		);
+		// Pack the response frame
+		err = modbusPackRTU(
+			&status->response.data[0],
+			status->response.length,
+			slaveAddress);
+
+		if (err != MODBUS_OK)
+			return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, err);
 	}
-
+	
 	return MODBUS_NO_ERROR();
 }
 
@@ -313,6 +414,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 	\param requestLength length of the frame (valid range: 8 - 260)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid or different from the declared one
 	\returns MODBUS_REQUEST_ERROR(BAD_PROTOCOL) if the frame is not a Modbus TCP message
+	\returns MODBUS_GENERAL_ERROR(LENGTH) if the resulting response frame has invalid length
 	\returns Any errors from parsing functions
 
 	\warning The response frame can only be accessed if modbusIsOk() called 
@@ -320,37 +422,43 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *
 */
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *request, uint16_t requestLength)
 {
-	// Check length
-	if (requestLength < MODBUS_TCP_ADU_MIN || requestLength > MODBUS_TCP_ADU_MAX)
-		return MODBUS_REQUEST_ERROR(LENGTH);
+	// Unpack the request
+	const uint8_t *pdu;
+	uint16_t pduLength;
+	uint16_t transactionID;
+	uint8_t unitID;
+	ModbusError err = modbusUnpackTCP(
+		request,
+		requestLength,
+		&pdu,
+		&pduLength,
+		&transactionID,
+		&unitID
+	);
 
-	// Read MBAP header
-	uint16_t transactionID = modbusRBE(&request[0]);
-	uint16_t protocolID    = modbusRBE(&request[2]);
-	uint16_t messageLength = modbusRBE(&request[4]);
-
-	// Discard non-Modbus messages
-	if (protocolID != 0)
-		return MODBUS_REQUEST_ERROR(BAD_PROTOCOL);
-
-	// Length mismatch
-	if (messageLength != requestLength - 6)
-		return MODBUS_REQUEST_ERROR(LENGTH);
+	if (err != MODBUS_OK)
+		return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_REQUEST, err);
 	
 	// Parse the request
-	ModbusErrorInfo err;
+	ModbusErrorInfo errinfo;
 	status->response.pduOffset = MODBUS_TCP_PDU_OFFSET;
 	status->response.padding = MODBUS_TCP_ADU_PADDING;
-	if (!modbusIsOk(err = modbusParseRequest(status, status->address, request + 7, messageLength - 1)))
-		return err;
+	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength)))
+		return errinfo;
 
 	// Write MBAP header
 	if (status->response.length)
 	{
-		modbusWBE(&status->response.data[0], transactionID);
-		modbusWBE(&status->response.data[2], protocolID);
-		modbusWBE(&status->response.data[4], status->response.length - 6);
-		status->response.data[6] = request[6]; // Copy Unit ID
+		// Pack the resonse
+		err = modbusPackTCP(
+			&status->response.data[0],
+			status->response.length,
+			transactionID,
+			unitID
+		);
+
+		if (err != MODBUS_OK)
+			return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, err);
 	}
 
 	return MODBUS_NO_ERROR();

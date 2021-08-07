@@ -12,7 +12,6 @@ typedef struct ModbusSlave ModbusSlave;
 */
 typedef ModbusErrorInfo (*ModbusSlaveParsingFunction)(
 	ModbusSlave *status,
-	uint8_t address,
 	uint8_t function,
 	const uint8_t *requestPDU,
 	uint8_t requestLength);
@@ -73,7 +72,6 @@ typedef ModbusError (*ModbusRegisterCallback)(
 */
 typedef ModbusError (*ModbusSlaveExceptionCallback)(
 	const ModbusSlave *status,
-	uint8_t address,
 	uint8_t function,
 	ModbusExceptionCode code);
 
@@ -103,14 +101,11 @@ struct ModbusSlave
 
 	//! Stores slave's response to master
 	ModbusFrameBuffer response;
-	uint8_t address; //!< Slave's address/ID
-
 };
 
 
 LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
-	uint8_t address,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
 	ModbusSlaveAllocator allocator,
@@ -121,7 +116,24 @@ void modbusSlaveDestroy(ModbusSlave *status);
 
 LIGHTMODBUS_RET_ERROR modbusBuildException(
 	ModbusSlave *status,
+	uint8_t function,
+	ModbusExceptionCode code);
+
+LIGHTMODBUS_RET_ERROR modbusBuildExceptionPDU(
+	ModbusSlave *status,
+	uint8_t function,
+	ModbusExceptionCode code);
+
+LIGHTMODBUS_RET_ERROR modbusBuildExceptionRTU(
+	ModbusSlave *status,
 	uint8_t address,
+	uint8_t function,
+	ModbusExceptionCode code);
+
+LIGHTMODBUS_RET_ERROR modbusBuildExceptionTCP(
+	ModbusSlave *status,
+	uint16_t transactionID,
+	uint8_t unitID,
 	uint8_t function,
 	ModbusExceptionCode code);
 
@@ -129,9 +141,9 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(const ModbusSlav
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t size);
 void modbusSlaveFreeResponse(ModbusSlave *status);
 
-LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, uint8_t address, const uint8_t *request, uint8_t requestLength);
-LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, uint8_t address, const uint8_t *request, uint8_t requestLength);
-LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, const uint8_t *request, uint16_t requestLength);
+LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, const uint8_t *request, uint8_t requestLength);
+LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, const uint8_t *request, uint8_t requestLength);
+LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t slaveAddress, const uint8_t *request, uint16_t requestLength);
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *request, uint16_t requestLength);
 
 /**

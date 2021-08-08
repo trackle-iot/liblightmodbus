@@ -321,8 +321,7 @@ LIGHTMODBUS_RET_ERROR modbusParseResponsePDU(
 	\returns MODBUS_RESPONSE_ERROR(LENGTH) if the response has invalid length
 	\returns MODBUS_REQUEST_ERROR(CRC) if the request CRC is invalid
 	\returns MODBUS_RESPONSE_ERROR(CRC) if the response CRC is invalid
-	\returns MODBUS_REQUEST_ERROR(ADDRESS) if the address in the request is 0
-	\returns MODBUS_RESPONSE_ERROR(ADDRESS) if request/response addressess don't match
+	\returns MODBUS_RESPONSE_ERROR(ADDRESS) if the address is 0 or if request/response addressess don't match
 	\returns Result of modbusParseResponsePDU() otherwise
 */
 LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
@@ -366,12 +365,8 @@ LIGHTMODBUS_RET_ERROR modbusParseResponseRTU(
 	if (err != MODBUS_OK)
 		return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_RESPONSE, err);
 
-	// Check addresses
-	if (requestAddress == 0)
-		return MODBUS_REQUEST_ERROR(ADDRESS);
-
-	// Check if response address matches
-	if (requestAddress != responseAddress)
+	// Check addresses - response to a broadcast request or bad response address
+	if (requestAddress == 0 || requestAddress != responseAddress)
 		return MODBUS_RESPONSE_ERROR(ADDRESS);
 
 	// Parse the PDU itself

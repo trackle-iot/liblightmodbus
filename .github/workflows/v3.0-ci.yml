@@ -60,6 +60,10 @@ jobs:
       run: make -C examples
     - name: Run demo
       run: ./examples/demo
+    - name: Build AVR slave example
+      run: make -C examples/avrslave
+    - name: Build user-defined functions example
+      run: make -C examples/userfun
 
   main-test:
     name: "Tests"

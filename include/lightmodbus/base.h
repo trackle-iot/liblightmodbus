@@ -233,34 +233,73 @@ typedef enum ModbusDataType
 	MODBUS_DISCRETE_INPUT = 8    //!< Discrete input
 } ModbusDataType;
 
+// Forward declaration for ModbusBuffer
+struct ModbusBuffer;
+
 /**
-	\brief Describes what content will be held in the buffer
+	\brief Pointer to a memory allocator function
+
+	Please refer to \ref allocators for more information regarding custom allocator functions.
 */
-typedef enum ModbusBufferPurpose
-{
-	MODBUS_SLAVE_RESPONSE_BUFFER, //!< Slave's buffer holding response frame
-	MODBUS_MASTER_REQUEST_BUFFER, //!< Master's buffer holding request frame
-} ModbusBufferPurpose;
+typedef ModbusError (*ModbusAllocator)(
+	struct ModbusBuffer *buffer,
+	uint16_t size,
+	void *context);
 
 /**
 	\brief Stores a Modbus frame
 */
-typedef struct ModbusFrameBuffer
+typedef struct ModbusBuffer
 {
+	//! Pointer to the allocator function
+	ModbusAllocator allocator;
+
 	uint8_t *data;      //!< Pointer to the frame buffer
 	uint8_t *pdu;       //!< A pointer to the PDU section of the frame
 	uint16_t length;    //!< Length of the entire frame (PDU size + padding)
 
 	uint8_t padding;    //!< Number of extra bytes surrounding the PDU
 	uint8_t pduOffset;  //!< PDU offset relative to the beginning of the frame
-} ModbusFrameBuffer;
+} ModbusBuffer;
 
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusDefaultAllocator(
-	uint8_t **ptr,
+	ModbusBuffer *buffer,
 	uint16_t size,
-	ModbusBufferPurpose purpose);
+	void *context);
+
+LIGHTMODBUS_RET_ERROR modbusBufferInit(ModbusBuffer *buffer, ModbusAllocator allocator);
+void modbusBufferDestroy(ModbusBuffer *buffer, void *context);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusBufferAllocate(ModbusBuffer *buffer, uint16_t pduSize, void *context);
+void modbusBufferFree(ModbusBuffer *buffer, void *context);
 
 uint16_t modbusCRC(const uint8_t *data, uint16_t length);
+
+/**
+	\brief Prepares buffer to only store a Modbus PDU
+*/
+static inline void modbusBufferModePDU(ModbusBuffer *buffer)
+{
+	buffer->padding = 0;
+	buffer->pduOffset = 0;
+}
+
+/**
+	\brief Prepares buffer to store a Modbus RTU message
+*/
+static inline void modbusBufferModeRTU(ModbusBuffer *buffer)
+{
+	buffer->padding = MODBUS_RTU_ADU_PADDING;
+	buffer->pduOffset = MODBUS_RTU_PDU_OFFSET;
+}
+
+/**
+	\brief Prepares buffer to store a Modbus TCP message
+*/
+static inline void modbusBufferModeTCP(ModbusBuffer *buffer)
+{
+	buffer->padding = MODBUS_TCP_ADU_PADDING;
+	buffer->pduOffset = MODBUS_TCP_PDU_OFFSET;
+}
 
 /**
 	\brief Reads n-th bit from an array

@@ -35,7 +35,7 @@ int main(void)
 		&slave,
 		regCallback,
 		NULL,
-		modbusSlaveDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount);
 

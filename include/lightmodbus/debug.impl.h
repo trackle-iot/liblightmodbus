@@ -57,20 +57,6 @@ const char *modbusErrorSourceStr(uint8_t src)
 }
 
 /**
-	\brief Returns a string containing the name of the ModbusBufferPurpose enum value
-*/
-const char *modbusBufferPurposeStr(ModbusBufferPurpose purpose)
-{
-	switch (purpose)
-	{
-		ECASE(MODBUS_SLAVE_RESPONSE_BUFFER);
-		ECASE(MODBUS_MASTER_REQUEST_BUFFER);
-
-		default: return "[invalid ModbusBufferPurpose]";
-	}
-}
-
-/**
 	\brief Returns a string containing the name of the ModbusExceptionCode enum value
 */
 const char *modbusExceptionCodeStr(ModbusExceptionCode code)

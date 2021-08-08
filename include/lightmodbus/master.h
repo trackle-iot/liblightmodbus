@@ -59,47 +59,31 @@ typedef ModbusError (*ModbusMasterExceptionCallback)(
 	ModbusExceptionCode code);
 
 /**
-	\brief A pointer to master frame buffer allocator
-
-	Please refer to \ref allocators for more information regarding custom allocator functions.
-*/
-typedef ModbusError (*ModbusMasterAllocator)(
-	const ModbusMaster *status,
-	uint8_t **ptr,
-	uint16_t size,
-	ModbusBufferPurpose purpose);
-
-/**
 	\brief Master device status
 */
 struct ModbusMaster
 {
-	ModbusMasterAllocator allocator;                  //!< A pointer to an allocator function (required)
 	ModbusDataCallback dataCallback;                  //!< A pointer to data callback (required)
 	ModbusMasterExceptionCallback exceptionCallback;  //!< A pointer to an exception callback (optional)
 
 	const ModbusMasterFunctionHandler *functions; //!< A non-owning pointer to array of function handlers
 	uint8_t functionCount; //!< Size of \ref functions array
 
-	void *context; //!< User's context pointer
-
 	//! Stores master's request for slave
-	ModbusFrameBuffer request;
+	ModbusBuffer request;
+
+	void *context; //!< User's context pointer
 };
 
 LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,
 	ModbusDataCallback dataCallback,
 	ModbusMasterExceptionCallback exceptionCallback,
-	ModbusMasterAllocator allocator,
+	ModbusAllocator allocator,
 	const ModbusMasterFunctionHandler *functions,
 	uint8_t functionCount);
 
 void modbusMasterDestroy(ModbusMaster *status);
-
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(const ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(ModbusMaster *status, uint16_t size);
-void modbusMasterFreeRequest(ModbusMaster *status);
 
 LIGHTMODBUS_RET_ERROR modbusBeginRequestPDU(ModbusMaster *status);
 LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status);
@@ -160,6 +144,26 @@ static inline void modbusMasterSetUserPointer(ModbusMaster *status, void *ptr)
 static inline void *modbusMasterGetUserPointer(const ModbusMaster *status)
 {
 	return status->context;
+}
+
+/**
+	\brief Allocates memory for the request frame
+	\param pduSize size of the PDU section of the frame. 0 implies no request at all.
+	\returns MODBUS_ERROR_ALLOC on allocation failure
+*/
+LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusMasterAllocateRequest(
+	ModbusMaster *status,
+	uint16_t pduSize)
+{
+	return modbusBufferAllocate(&status->request, pduSize, modbusMasterGetUserPointer(status));
+}
+
+/**
+	\brief Frees memory allocated for master's request frame
+*/
+static inline void modbusMasterFreeRequest(ModbusMaster *status)
+{
+	modbusBufferFree(&status->request, modbusMasterGetUserPointer(status));
 }
 
 extern ModbusMasterFunctionHandler modbusMasterDefaultFunctions[];

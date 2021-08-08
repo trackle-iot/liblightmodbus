@@ -55,107 +55,34 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 const uint8_t modbusMasterDefaultFunctionCount = sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]);
 
 /**
-	\brief Default allocator for master device. Based on modbusDefaultAllocator().
-	\param ptr pointer to the pointer to the buffer
-	\param size requested size of the buffer
-	\param purpose purpose of the buffer
-	\returns MODBUS_ERROR_ALLOC on allocation failure
-	\returns MODBUS_OK on success
-*/
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterDefaultAllocator(const ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
-{
-	return modbusDefaultAllocator(ptr, size, purpose);
-}
-
-/**
-	\brief Allocates memory for the request frame
-	\param pduSize size of the PDU section of the frame. 0 implies no request at all.
-	\returns MODBUS_ERROR_ALLOC on allocation failure
-
-	If called with size == 0, the request buffer is freed. Otherwise a buffer
-	for `(pduSize + status->request.padding)` bytes is allocated. This guarantees
-	that if a response is made, the buffer is big enough to hold the entire ADU.
-
-	This function is responsible for managing `data`, `pdu` and `length` fields
-	in the request struct. The `pdu` pointer is set up to point `pduOffset` bytes
-	after the `data` pointer unless `data` is a null pointer.
-*/
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterAllocateRequest(
-	ModbusMaster *status,
-	uint16_t pduSize)
-{
-	uint16_t size = pduSize;
-	if (pduSize) size += status->request.padding;
-
-	ModbusError err = status->allocator(
-		status,
-		&status->request.data,
-		size,
-		MODBUS_MASTER_REQUEST_BUFFER);
-
-	if (err == MODBUS_ERROR_ALLOC || size == 0)
-	{
-		status->request.data = NULL;
-		status->request.pdu = NULL;
-		status->request.length = 0;
-	}
-	else
-	{
-		status->request.pdu = status->request.data + status->request.pduOffset;
-		status->request.length = size;
-	}
-	
-	return err;
-}
-
-/**
-	\brief Frees memory allocated for master's request frame
-	
-	Calls modbusMasterAllocateRequest() with size == 0.
-*/
-void modbusMasterFreeRequest(ModbusMaster *status)
-{
-	ModbusError err = modbusMasterAllocateRequest(status, 0);
-	(void) err;
-}
-
-/**
 	\brief Initializes a ModbusMaster struct
 	\param status ModbusMaster struct to be initialized
 	\param dataCallback Callback function for handling incoming data (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
-	\param allocator Memory allocator to be used (see \ref modbusMasterDefaultAllocator()) (required)
+	\param allocator Memory allocator to be used (see \ref modbusDefaultAllocator()) (required)
 	\param functions Pointer to an array of supported function handlers (required). 
 		The lifetime of this array must not be shorter than the lifetime of the master.
 	\param functionCount Number of elements in the `functions` array (required)
 	\returns MODBUS_NO_ERROR() on success
 
-	\see modbusSlaveDefaultAllocator()
+	\see modbusDefaultAllocator()
 	\see modbusMasterDefaultFunctions
 */
 LIGHTMODBUS_RET_ERROR modbusMasterInit(
 	ModbusMaster *status,
 	ModbusDataCallback dataCallback,
 	ModbusMasterExceptionCallback exceptionCallback,
-	ModbusMasterAllocator allocator,
+	ModbusAllocator allocator,
 	const ModbusMasterFunctionHandler *functions,
 	uint8_t functionCount)
 {
-	status->allocator = allocator;
 	status->dataCallback = dataCallback;
 	status->exceptionCallback = exceptionCallback;
-
 	status->functions = functions;
 	status->functionCount = functionCount;
-
 	status->context = NULL;
-	status->request.data = NULL;
-	status->request.pdu = NULL;
-	status->request.length = 0;
-	status->request.padding = 0;
-	status->request.pduOffset = 0;
 
-	return MODBUS_NO_ERROR();
+	return modbusBufferInit(&status->request, allocator);
 }
 
 /**
@@ -166,8 +93,7 @@ LIGHTMODBUS_RET_ERROR modbusMasterInit(
 */
 void modbusMasterDestroy(ModbusMaster *status)
 {
-	ModbusError err = modbusMasterAllocateRequest(status, 0);
-	(void) err;
+	modbusBufferDestroy(&status->request, modbusMasterGetUserPointer(status));
 }
 
 /**
@@ -176,8 +102,7 @@ void modbusMasterDestroy(ModbusMaster *status)
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestPDU(ModbusMaster *status)
 {
-	status->request.pduOffset = 0;
-	status->request.padding = 0;
+	modbusBufferModePDU(&status->request);
 	return MODBUS_NO_ERROR();
 }
 
@@ -196,8 +121,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestPDU(ModbusMaster *status)
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestRTU(ModbusMaster *status)
 {
-	status->request.pduOffset = MODBUS_RTU_PDU_OFFSET;
-	status->request.padding = MODBUS_RTU_ADU_PADDING;
+	modbusBufferModeRTU(&status->request);
 	return MODBUS_NO_ERROR();
 }
 
@@ -225,8 +149,7 @@ LIGHTMODBUS_RET_ERROR modbusEndRequestRTU(ModbusMaster *status, uint8_t address)
 */
 LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status)
 {
-	status->request.pduOffset = MODBUS_TCP_PDU_OFFSET;
-	status->request.padding = MODBUS_TCP_ADU_PADDING;
+	modbusBufferModeTCP(&status->request);
 	return MODBUS_NO_ERROR();
 }
 

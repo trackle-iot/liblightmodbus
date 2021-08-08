@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 		&slave,
 		registerCallback,
 		exceptionCallback,
-		modbusSlaveDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount);
 	

@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 		&master,
 		dataCallback,
 		masterExceptionCallback,
-		modbusMasterDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusMasterDefaultFunctions,
 		modbusMasterDefaultFunctionCount);
 	printf("Slave init: "); printErrorInfo(err); printf("\n");
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 		&slave,
 		registerCallback,
 		slaveExceptionCallback,
-		modbusSlaveDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount);
 	printf("Master init: "); printErrorInfo(err); printf("\n");

@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
 		&slave,
 		registerCallback,
 		slaveExceptionCallback,
-		modbusSlaveDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount
 	);
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
 		&master,
 		dataCallback,
 		masterExceptionCallback,
-		modbusMasterDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusMasterDefaultFunctions,
 		modbusMasterDefaultFunctionCount
 	);

@@ -76,31 +76,19 @@ typedef ModbusError (*ModbusSlaveExceptionCallback)(
 	ModbusExceptionCode code);
 
 /**
-	\brief A pointer to allocator function called to allocate frame buffers (for slave)
-
-	Please refer to \ref allocators for more information regarding custom allocator functions.
-*/
-typedef ModbusError (*ModbusSlaveAllocator)(
-	const ModbusSlave *status,
-	uint8_t **ptr,
-	uint16_t size,
-	ModbusBufferPurpose purpose);
-
-/**
 	\brief Slave device status
 */
 struct ModbusSlave
 {
-	ModbusSlaveAllocator allocator;                 //!< A pointer to allocator function (required)
 	ModbusRegisterCallback registerCallback;        //!< A pointer to register callback (required)
 	ModbusSlaveExceptionCallback exceptionCallback; //!< A pointer to exception callback (optional)
 	const ModbusSlaveFunctionHandler *functions;    //!< A pointer to an array of function handlers (required)
 	uint8_t functionCount;                          //!< Number of function handlers in the array (`functions`)
 	
-	void *context; //!< User's context pointer
-
 	//! Stores slave's response to master
-	ModbusFrameBuffer response;
+	ModbusBuffer response;
+
+	void *context; //!< User's context pointer	
 };
 
 
@@ -108,7 +96,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
-	ModbusSlaveAllocator allocator,
+	ModbusAllocator allocator,
 	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount);
 
@@ -136,10 +124,6 @@ LIGHTMODBUS_RET_ERROR modbusBuildExceptionTCP(
 	uint8_t unitID,
 	uint8_t function,
 	ModbusExceptionCode code);
-
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(const ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t size);
-void modbusSlaveFreeResponse(ModbusSlave *status);
 
 LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, const uint8_t *request, uint8_t requestLength);
 LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, const uint8_t *request, uint8_t requestLength);
@@ -182,6 +166,24 @@ static inline void modbusSlaveSetUserPointer(ModbusSlave *status, void *ptr)
 static inline void *modbusSlaveGetUserPointer(const ModbusSlave *status)
 {
 	return status->context;
+}
+
+/**
+	\brief Allocates memory for slave's response frame
+	\param pduSize size of the PDU section. 0 if the slave doesn't want to respond.
+	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
+*/
+LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t pduSize)
+{
+	return modbusBufferAllocate(&status->response, pduSize, modbusSlaveGetUserPointer(status));
+}
+
+/**
+	\brief Frees memory allocated for slave's response frame
+*/
+static inline void modbusSlaveFreeResponse(ModbusSlave *status)
+{
+	modbusBufferFree(&status->response, modbusSlaveGetUserPointer(status));
 }
 
 extern ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[];

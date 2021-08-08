@@ -55,99 +55,34 @@ ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[] =
 const uint8_t modbusSlaveDefaultFunctionCount = sizeof(modbusSlaveDefaultFunctions) / sizeof(modbusSlaveDefaultFunctions[0]);
 
 /**
-	\brief Default allocator for the slave based on modbusDefaultAllocator().
-	\param ptr Pointer to the pointer to point to the allocated memory.
-	\param size Requested size of the memory block
-	\param purpose Purpose of the buffer
-	\returns MODBUS_ERROR_ALLOC on memory allocation failure
-	\returns MODBUS_OK on success
-*/
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveDefaultAllocator(const ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
-{
-	return modbusDefaultAllocator(ptr, size, purpose);
-}
-
-/**
-	\brief Allocates memory for slave's response frame
-	\param pduSize size of the PDU section. 0 if the slave doesn't want to respond.
-	\returns \ref MODBUS_ERROR_ALLOC on allocation failure
-
-	If called with size == 0, the response buffer is freed. Otherwise a buffer
-	for `(pduSize + status->response.padding)` bytes is allocated. This guarantees
-	that if a response is made, the buffer is big enough to hold the entire ADU.
-
-	This function is responsible for managing `data`, `pdu` and `length` fields
-	in the response struct. The `pdu` pointer is set up to point `pduOffset` bytes
-	after the `data` pointer unless `data` is a null pointer.
-*/
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t pduSize)
-{
-	uint16_t size = pduSize;
-	if (pduSize) size += status->response.padding;
-
-	ModbusError err = status->allocator(status, &status->response.data, size, MODBUS_SLAVE_RESPONSE_BUFFER);
-
-	if (err == MODBUS_ERROR_ALLOC || size == 0)
-	{
-		status->response.data = NULL;
-		status->response.pdu  = NULL;
-		status->response.length = 0;
-	}
-	else
-	{
-		status->response.pdu = status->response.data + status->response.pduOffset;
-		status->response.length = size;
-	}
-
-	return err;
-}
-
-/**
-	\brief Frees memory allocated for slave's response frame
-	
-	Calls modbusSlaveAllocateResponse() with size == 0.
-*/
-void modbusSlaveFreeResponse(ModbusSlave *status)
-{
-	ModbusError err = modbusSlaveAllocateResponse(status, 0);
-	(void) err;
-}
-
-/**
 	\brief Initializes slave device
 	\param registerCallback Callback function for handling all register operations (required)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
-	\param allocator Memory allocator to be used (see \ref modbusSlaveDefaultAllocator) (required)
+	\param allocator Memory allocator to be used (see \ref modbusDefaultAllocator) (required)
 	\param functions Pointer to array of supported function handlers (required).
 		The lifetime of this array must not be shorter than the lifetime of the slave.
 	\param functionCount Number of function handlers in the array (required)
 	\returns MODBUS_NO_ERROR() on success
 
 	\warning This function must not be called on an already initialized ModbusSlave struct.
-	\see modbusSlaveDefaultAllocator()
+	\see modbusDefaultAllocator()
 	\see modbusSlaveDefaultFunctions
 */
 LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 	ModbusSlave *status,
 	ModbusRegisterCallback registerCallback,
 	ModbusSlaveExceptionCallback exceptionCallback,
-	ModbusSlaveAllocator allocator,
+	ModbusAllocator allocator,
 	const ModbusSlaveFunctionHandler *functions,
 	uint8_t functionCount)
 {
-	status->response.data = NULL;
-	status->response.pdu = NULL;
-	status->response.length = 0;
-	status->response.padding = 0;
-	status->response.pduOffset = 0;
 	status->functions = functions;
 	status->functionCount = functionCount;
-	status->allocator = allocator;
 	status->registerCallback = registerCallback;
 	status->exceptionCallback = exceptionCallback;
 	status->context = NULL;
 
-	return MODBUS_NO_ERROR();
+	return modbusBufferInit(&status->response, allocator);
 }
 
 /**
@@ -155,8 +90,7 @@ LIGHTMODBUS_RET_ERROR modbusSlaveInit(
 */
 void modbusSlaveDestroy(ModbusSlave *status)
 {
-	ModbusError err = modbusSlaveAllocateResponse(status, 0);
-	(void) err;
+	modbusBufferDestroy(&status->response, modbusSlaveGetUserPointer(status));
 }
 
 /**
@@ -336,8 +270,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, const uint8_t *
 	if (!requestLength || requestLength > MODBUS_PDU_MAX)
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
-	status->response.pduOffset = 0;
-	status->response.padding = 0;
+	modbusBufferModePDU(&status->response);
 	return modbusParseRequest(status, request, requestLength);
 }
 
@@ -380,8 +313,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t slaveAd
 
 	// Parse the request
 	ModbusErrorInfo errinfo;
-	status->response.pduOffset = MODBUS_RTU_PDU_OFFSET;
-	status->response.padding = MODBUS_RTU_ADU_PADDING;
+	modbusBufferModeRTU(&status->response);
 	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength)))
 		return errinfo;
 	
@@ -441,8 +373,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 	
 	// Parse the request
 	ModbusErrorInfo errinfo;
-	status->response.pduOffset = MODBUS_TCP_PDU_OFFSET;
-	status->response.padding = MODBUS_TCP_ADU_PADDING;
+	modbusBufferModeTCP(&status->response);
 	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength)))
 		return errinfo;
 

@@ -107,7 +107,7 @@ int main()
 		&slave,
 		regCallback,
 		NULL,
-		modbusSlaveDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusSlaveDefaultFunctions,
 		modbusSlaveDefaultFunctionCount);
 	assert(modbusIsOk(err) && "Init failed!");

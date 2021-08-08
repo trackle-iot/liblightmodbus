@@ -56,32 +56,29 @@ ISR(TIMER0_COMPA_vect)
 	from a statically allocated array.
 */
 ModbusError staticSlaveAllocator(
-	const ModbusSlave *slave,
-	uint8_t **ptr,
+	ModbusBuffer *buffer,
 	uint16_t size,
-	ModbusBufferPurpose purpose)
+	void *context)
 {
 	// Array for holding the response frame
 	static uint8_t response[MAX_RESPONSE];
-	
-	assert(purpose == MODBUS_SLAVE_RESPONSE_BUFFER);
 
 	if (size != 0) // Allocation reqest
 	{
 		if (size <= MAX_RESPONSE)
 		{
-			*ptr = response;
+			buffer->data = response;
 			return MODBUS_OK;
 		}
 		else
 		{
-			*ptr = NULL;
+			buffer->data = NULL;
 			return MODBUS_ERROR_ALLOC;
 		}
 	}
 	else // Free request
 	{
-		*ptr = NULL;
+		buffer->data = NULL;
 		return MODBUS_OK;
 	}
 }

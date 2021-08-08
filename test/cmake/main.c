@@ -33,7 +33,6 @@ int main(void)
 	ModbusErrorInfo err;
 	err = modbusSlaveInit(
 		&slave,
-		1,
 		regCallback,
 		NULL,
 		modbusSlaveDefaultAllocator,
@@ -43,7 +42,7 @@ int main(void)
 	uint8_t data[] = {0x01, 0x03, 0x05, 0x00, 0x02, 0x00, 0xff, 0xff};
 	modbusWLE(data + sizeof(data) - 2, modbusCRC(data, sizeof(data) - 2));
 
-	err = modbusParseRequestRTU(&slave, data, sizeof(data));
+	err = modbusParseRequestRTU(&slave, 1, data, sizeof(data));
 	if (!modbusIsOk(err))
 		printf("Parse error: {source: %s, err: %s}\n", modbusErrorSourceStr(err.source), modbusErrorStr(err.error));
 

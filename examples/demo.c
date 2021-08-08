@@ -56,9 +56,9 @@ ModbusError registerCallback(
 /*
 	Exception callback for printing out exceptions
 */
-ModbusError slaveExceptionCallback(const ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError slaveExceptionCallback(const ModbusSlave *slave, uint8_t function, ModbusExceptionCode code)
 {
-	printf("Slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
+	printf("Slave exception %s (function %d)\n", modbusExceptionCodeStr(code), function);
 	
 	// Always return MODBUS_OK
 	return MODBUS_OK;
@@ -141,7 +141,6 @@ int main(int argc, char *argv[])
 	// Init slave
 	err = modbusSlaveInit(
 		&slave,
-		1,
 		registerCallback,
 		slaveExceptionCallback,
 		modbusSlaveDefaultAllocator,
@@ -163,6 +162,7 @@ int main(int argc, char *argv[])
 	// Let the slave parse this reqiest
 	err = modbusParseRequestRTU(
 		&slave,
+		1,
 		modbusMasterGetRequest(&master),
 		modbusMasterGetRequestLength(&master));	
 	printf("Parse request: "); printErrorInfo(err); printf("\n");

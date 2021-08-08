@@ -72,7 +72,7 @@ void parse(ModbusSlave *s, const uint8_t *data, int n)
 {
 	n = std::min(255, n);
 
-	ModbusErrorInfo err = modbusParseRequestPDU(s, s->address, data, n);
+	ModbusErrorInfo err = modbusParseRequestPDU(s, 1, s->address, data, n);
 	if (modbusGetGeneralError(err) != MODBUS_OK)
 		throw std::runtime_error{"PDU parse general error"};
 
@@ -105,7 +105,6 @@ int main()
 	ModbusErrorInfo err;
 	err = modbusSlaveInit(
 		&slave,
-		1,
 		regCallback,
 		NULL,
 		modbusSlaveDefaultAllocator,

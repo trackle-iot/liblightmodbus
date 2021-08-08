@@ -58,7 +58,7 @@ void dumpregs(void)
 
 void parse(ModbusSlave *s, const uint8_t *data, int n)
 {
-	ModbusErrorInfo err = modbusParseRequestRTU(s, data, n);
+	ModbusErrorInfo err = modbusParseRequestRTU(s, 1, data, n);
 	dumpregs();
 	printf("\t|F ");
 
@@ -134,7 +134,6 @@ int main()
 	ModbusErrorInfo err;
 	err = modbusSlaveInit(
 		&slave,
-		1,
 		regCallback,
 		NULL,
 		modbusSlaveDefaultAllocator,

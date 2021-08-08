@@ -44,9 +44,9 @@ ModbusError registerCallback(
 	return MODBUS_OK;
 }
 
-ModbusError exceptionCallback(const ModbusSlave *slave, uint8_t address, uint8_t function, ModbusExceptionCode code)
+ModbusError exceptionCallback(const ModbusSlave *slave,  uint8_t function, ModbusExceptionCode code)
 {
-	printf("Slave %d exception %s (function %d)\n", address, modbusExceptionCodeStr(code), function);
+	printf("Slave exception %s (function %d)\n", modbusExceptionCodeStr(code), function);
 	return MODBUS_OK;
 }
 
@@ -81,7 +81,6 @@ int main(int argc, char *argv[])
 	ModbusSlave slave;
 	err = modbusSlaveInit(
 		&slave,
-		1,
 		registerCallback,
 		exceptionCallback,
 		modbusSlaveDefaultAllocator,
@@ -95,14 +94,14 @@ int main(int argc, char *argv[])
 
 	// Try to parse as PDU
 	printf("\n\n------------------ PDU -----------------------\n");
-	err = modbusParseRequestPDU(&slave, 1, data, length);
+	err = modbusParseRequestPDU(&slave, data, length);
 	printErrorInfo(err);
 	printf("\nPDU response: ");
 	if (modbusIsOk(err)) printResponse(&slave);
 
 	// Try to parse as RTU
 	printf("\n\n------------------ RTU -----------------------\n");
-	err = modbusParseRequestRTU(&slave, data, length);
+	err = modbusParseRequestRTU(&slave, 1, data, length);
 	printErrorInfo(err);
 	printf("\nRTU response: ");
 	if (modbusIsOk(err)) printResponse(&slave);

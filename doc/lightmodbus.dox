@@ -24,6 +24,7 @@ If you find liblightmodbus useful in your work and would like to support it some
  - \ref master
  - \ref error-handling
  - \ref allocators
+ - \ref user-functions
  - \ref examples
  - \ref porting
 
@@ -50,6 +51,7 @@ The library can be configured by defining certain macros before including that f
 |`LIGHTMODBUS_DEBUG`|Includes some debugging utilities|
 |`LIGHTMODBUS_MASTER_OMIT_REQUEST_CRC`|Omits request CRC calculation for request on master side|
 |`LIGHTMODBUS_WARN_UNUSED`|Compiler attribute to warn about unused return value. `__attribute__((warn_unused_result))` by default|
+|`LIGHTMODBUS_ALWAYS_INLINE`|Compiler attribute to always inline a function. `__attribute__((always_inline))` by default|
 
 Specific master/slave functions can be enabled by defining macros like `LIGHTMODBUS_F01M` or `LIGHTMODBUS_F22S`. Defining these affects contents of \ref modbusMasterDefaultFunctions and \ref modbusSlaveDefaultFunctions arrays.
 
@@ -100,10 +102,9 @@ ModbusSlave slave;
 ModbusErrorInfo err;
 err = modbusSlaveInit(
 	&slave,          
-	1,                               // Address of the slave
 	myRegisterCallback,              // Callback for register operations
 	myExceptionCallback,             // Callback for handling slave exceptions (optional)
-	modbusSlaveDefaultAllocator,     // Memory allocator for ModbusSlave
+	modbusDefaultAllocator,          // Memory allocator for allocating responses
 	modbusSlaveDefaultFunctions,     // Set of supported functions
 	modbusSlaveDefaultFunctionCount  // Number of supported functions
 	);
@@ -112,9 +113,10 @@ err = modbusSlaveInit(
 assert(modbusIsOk(err) && "modbusSlaveInit() failed"); 
 ~~~
 
-ModbusSlave contains an internal buffer for the response data. This buffer is allocated by the allocator passed to `modbusSlaveInit()`.
-\ref modbusSlaveDefaultAllocator is a default allocator that uses `malloc()` and `free()` functions.
-You may write your own, more sophisticated allocators if you wish - please see \ref allocators for more details.
+ModbusSlave contains an internal \ref ModbusBuffer for the response data. This buffer
+relies on the allocator passed to modbusSlaveInit() as an argument.
+\ref modbusDefaultAllocator is a default allocator that uses `malloc()` and `free()` functions, but
+you may write your own more sophisticated allocators if you wish - please refer to \ref allocators for more details.
 
 In this code `myRegisterCallback` is a name of a callback function that will be called for every register operation.
 In previous this versions of the library this functionality was optionally available as `LIGHTMODBUS_REGISTER_CALLBACK`.
@@ -123,7 +125,7 @@ Now, all register operations are performed using callbacks.
 `myExceptionCallback` is a name of a callback function that will be called every time slave
 reports an exception to the master. To disable this functionality, pass NULL as the callback.
 
-The set of functions supported by the slave is determined by the 6th function argument - in this case
+The set of functions supported by the slave is determined by the 5th function argument - in this case
 \ref modbusSlaveDefaultFunctions. This argument is a pointer to an array of ModbusSlaveFunctionHandler
 structures which associate function codes with callbacks. Lifetime of this array must not be shorter
 than the lifetime of the slave. The length of this array should be provided as the last argument.
@@ -136,7 +138,7 @@ The library guarantees that before each register is accessed a suitable access q
 This mechanism allows the user to implement read/write protection for registers and allows to guarantee that registers outside of valid range will never be accessed.
 However, all access queries are performed before the first R/W query, so creating cross-dependencies between registers (i.e. access rights to one register depend on the value of other register) is very likely to cause problems. It's best to disable "write multiple X" functions on such registers.
 
-\note Tip: You can use the user pointer to access your register values from the callback without making them global. See `modbusSlaveGetUserPointer()` and `modbusSlaveSetUserPointer()`
+\note Tip: You can use the user pointer to access your register values from the callback without making them global. Use `modbusSlaveGetUserPointer()` and `modbusSlaveSetUserPointer()`
 
 \subsection slave-register-callback-access R/W access check queries
 `ModbusRegisterCallbackArgs::query` value of either \ref MODBUS_REGQ_R_CHECK or \ref MODBUS_REGQ_W_CHECK indicates that an access query is being made to the callback function.
@@ -193,7 +195,7 @@ static uint8_t coils[REG_COUNT / 8];          // Each coil corresponds to one bi
 static uint8_t discreteInputs[REG_COUNT / 8]; // Each input corresponds to one bit
 
 ModbusError myRegisterCallback(
-	ModbusSlave *status,
+	const ModbusSlave *status,
 	const ModbusRegisterCallbackArgs *args,
 	ModbusRegisterCallbackResult *result)
 {
@@ -238,9 +240,10 @@ ModbusError myRegisterCallback(
 \section slave-exception-callback Slave exception callback
 
 Exception callback is a function matching \ref ModbusSlaveExceptionCallback called when the slave reports
-an exception.
+an exception. This callback is called even if the response frame is not sent to the master (e.g. when the exception is caused
+by a broadcasted request in Modbus RTU). This is an internal way of signalizing slave failure.
 
-The callback is provided with pointer to \ref ModbusSlave, the address of the slave reporting the exception, function that caused it and a \ref ModbusExceptionCode.
+The callback is provided with pointer to \ref ModbusSlave, function that reported the excepion and a \ref ModbusExceptionCode.
 
 The exception callback must return `ModbusError`, but the return value is ignored.
 \note This functionality should not be relied upon and may be subject to change in future versions. For your own safety, please always return `MODBUS_OK` from this callback.
@@ -251,14 +254,12 @@ An example of a simple callback, printing out exception information:
 	Exception callback for printing out exceptions
 */
 ModbusError slaveExceptionCallback(
-	ModbusSlave *slave,
-	uint8_t address,
+	const ModbusSlave *slave,
 	uint8_t function,
 	ModbusExceptionCode code)
 {
 	printf(
-		"Slave %d reports an exception %s (function %d)\n",
-		address,
+		"Slave reports an exception %s (function %d)\n",
 		modbusExceptionCodeStr(code),
 		function);
 	
@@ -272,24 +273,28 @@ ModbusError slaveExceptionCallback(
 After successful initialization of the slave device, it's ready to accept requests from the master. The requests
 can be processed using one of the three functions: `modbusParseRequestPDU()`, `modbusParseRequestRTU()` and `modbusParseRequestTCP()`.
 Calling each one of these results in an attempt to parse the request frame, a series of calls to the \ref slave-register-callback 
-and optionally a response frame for the master. If the slave generates a exception frame, the \ref slave-exception-callback is called.
+and optionally a response frame for the master. If the request triggers an exception, the \ref slave-exception-callback is called,
+regardless of whether a response frame was produced.
 
 The response frame can be accessed using `modbusSlaveGetResponse()` and its length can be acquired using `modbusSlaveGetResponseLength()`.
-These functions may not be called if `modbusIsOk()` of the returned `ModbusErrorInfo` is `false`. 
+These functions may not be called if `modbusIsOk()` for the returned `ModbusErrorInfo` is `false`. 
 
 ~~~c
+#define SLAVE_ADDRESS 7
+
 // For Modbus RTU
 ModbusErrorInfo err;
-err = modbusParseRequestRTU(&slave, buffer, length);
+err = modbusParseRequestRTU(&slave, SLAVE_ADDRESS, buffer, length);
 
 // Handle 'serious' errors such as memory allocation problems
 if (modbusGetGeneralError(&slave))
 	handleSlaveError(err);
 
 // Handle errors related to the structure of the request frame
-// for example invalid CRC
+// i.e. frames meant for other slaves, invalid CRC etc.
+// Usually, though, you want to simply ignore these.
 if (modbusGetRequestError(&slave))
-	handleRequesterrors(err);
+	handleRequestErrors(err);
 
 // If the function did not return an error, the response can be accessed and is ready to be sent
 // to the master. The response frame can be acquired using modbusSlaveGetResponse()
@@ -323,7 +328,7 @@ err = modbusMasterInit(
 	&master,          
 	myDataCallback,                  // Callback for handling incoming data
 	myExceptionCallback,             // Optional slave exception callback
-	modbusMasterDefaultAllocator,    // Memory allocator for ModbusMaster
+	modbusDefaultAllocator,          // Memory allocator used to allocate request
 	modbusMasterDefaultFunctions,    // Set of supported functions
 	modbusMasterDefaultFunctionCount // Number of supported functions
 	);
@@ -335,10 +340,10 @@ assert(modbusIsOk(err) && "modbusMasterInit() failed");
 
 Similarly to slave, master has two callbacks - data callback and exception callback. The first is
 used for processing all register data incoming to master, the latter for handling exceptions
-reported by the slave. These callback are described in more detail in \ref master-data-callback and
+reported by the slave. These callbacks are described in more detail in \ref master-data-callback and
 \ref master-exception-callback.
 
-Master also has its own memory allocator - please refer to \ref allocators for more information.
+Master also relies on a memory allocator - please refer to \ref allocators for more details.
 
 The 5th argument determines the set of functions supported by the master device. It should be
 a pointer to an array of `ModbusMasterFunctionHandler` structures which associate function codes
@@ -361,7 +366,7 @@ An example of a simple data callback printing out all received data:
 /*
 	Data callback for printing all incoming data
 */
-ModbusError dataCallback(ModbusMaster *master, const ModbusDataCallbackArgs *args)
+ModbusError dataCallback(const ModbusMaster *master, const ModbusDataCallbackArgs *args)
 {
 	printf(
 		"Received data:\n"
@@ -398,7 +403,7 @@ An example of a simple exception callback printing out all received exceptions:
 	Exception callback for printing out exceptions on master side
 */
 ModbusError masterExceptionCallback(
-	ModbusMaster *master,
+	const ModbusMaster *master,
 	uint8_t address,
 	uint8_t function,
 	ModbusExceptionCode code)
@@ -438,7 +443,7 @@ responsible for building the request frame and must only be used in between call
 
 Please see \ref master_func.impl.h for more details.
 
-For instance, a request to read holding register 17 from slave with id 1 can be built using:
+For instance, a request to read holding register 17 from slave with address 1 can be built using:
 ~~~c
 // For Modbus RTU
 ModbusErrorInfo err;
@@ -446,8 +451,8 @@ err = modbusMasterBuildRequest03RTU(&master, 1, 17, 1);
 assert(modbusIsOk(err) && "modbusMasterBuildRequest03RTU() failed");
 ~~~
 
-If the request has been built successfully, it can be acquired using
-`modbusMasterGetRequest()`, has length of `modbusMasterGetRequestLength()` bytes and can be sent to the slave.
+If the request has been built successfully, it can be accessed by
+`modbusMasterGetRequest()` and has length of `modbusMasterGetRequestLength()` bytes and can be sent to the slave.
 
 \section master-response Processing responses
 
@@ -468,10 +473,13 @@ if (modbusGetGeneralError(err))
 	handleMasterError(err);
 
 // Handle errors relate to the structure of the request frame
+// If the request produced by modbusBuildRequest*() caused
+// an error here, please report a bug
 if (modbusGetRequestError(err))
 	handleRequestError(err);
 
 // Handle errors related to the structure of the response frame
+// e.g. invalid CRC
 if (modbusGetResponseError(err))
 	handleResponseError(err);
 
@@ -505,20 +513,27 @@ In the new version, it's a bit more sophisticated:
 ModbusErrorInfo err = modbusDoSomething();
 
 // We can check if any error happened at all
+// modbusIsOk() returning true indicates that request/response
+// frame can be safely accessed and is ready to be sent
 if (!modbusIsOk(err))
 	doSomething();
 
 // We can check if the library reported any general errors
 // Those usually mean that the user provided an invalid argument
-// or something had failed internally.
+// or something had failed internally. These are the serious ones.
 if (modbusGetGeneralError(err) != MODBUS_OK)
 	handleSeriousError();
 
 // We can check if the request frame contained an error
+// This includes parsing a frame meant for other slave, invalid CRC value, etc.
+// Usually, you want to ignore those, because they are not application errors
+// and only provide additional information about what prevented the library
+// from processing request/response
 if (modbusGetRequestError(err) != MODBUS_OK)
 	handleRequestError();
 
 // We can also check if the response frame contained an error
+// Interpretation is the same as for modbusGetRequestError()
 if (modbusGetResponseError(err) != MODBUS_OK)
 	handleResponseError();
 ~~~
@@ -527,30 +542,25 @@ if (modbusGetResponseError(err) != MODBUS_OK)
 a `ModbusError` enum value which can be easily handled with a switch statement.
 
 \warning You should **not** be accessing the fields of `ModbusErrorInfo` directly.
-	The internals of this struct are subject to change in future versions, and
-	for this exact reason the `modbusIsOk()` etc. functions exist.
+	They are not considered a part of the library interface, and hence
+	the internals of this struct are subject for change in future versions.
+	For this exact reason the functions described above exist.
 
 \page allocators Custom allocators
 
 Liblightmodbus allows users to define their custom functions for memory management.
 This functionality is provided with mainly embedded systems in mind.
 
-The user defined allocator is a function compatible with ModbusSlaveAllocator or ModbusMasterAllocator pointer types.
+The user defined allocator is a function compatible with ModbusAllocator pointer type.
 
 User-defined allocators must meet following requirements:
- - When `size` is 0, the memory pointed to by `*ptr` must be freed. `*ptr`
-	shall then be set to `NULL`.
- - When `size` is not 0, `*ptr` should be set to point to a memory block of
+ - When `size` is 0, the memory allocated for the buffer (`buffer->data`) must be freed
+ - When `size` is not 0, `buffer->data` should be set to point to a memory block of
 	at least `size` bytes. If such block cannot be allocated, the allocator must
 	return \ref MODBUS_ERROR_ALLOC and free memory block pointed to by current
-	`*ptr` value. In such case `*ptr` shall be set to `NULL`.
+	`buffer->data` value. Consequently, `buffer->data` should be set to `NULL`.
 
-However, certain guarantees are made by the library:
- - All allocation requests originating from a **single** ModbusMaster or
-	ModbusSlave instance with identical `purpose` argument are assumed
-	to refer to the same buffer. **This allows for static memory allocation
-	if the allocator can distinguish between different ModbusMaster and
-	ModbusSlave instances issuing the allocation requests.**
+Additionally:
  - All errors returned from the allocator when `size` is greater than zero
 	will be reported by the library as `MODBUS_GENERAL_ERROR(ALLOC)`.
  - Errors reported from the allocator if `size` is 0 may or may not be
@@ -558,21 +568,22 @@ However, certain guarantees are made by the library:
 	context and in future versions of the library. For your safety, though,
 	it is recommended that you do not any errors from the allocator if 
 	`size == 0`.
+ - The allocator can distinguish buffers by their addresses. Additionally
+	it has access to the context provided by user (with `modbus*SetUserPointer()`).
 
 \section static-mem Static memory allocation
 
-An example of a custom "allocator" relying only on statically allocated memory:
+An example of a custom allocator relying only on statically allocated memory:
 ~~~c
-// !!! This only works if the allocator is used exclusively by a single instance of ModbusMaster and ModbusSlave !!!
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusStaticAllocator(uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
+// !!! This only works if the allocator is used exclusively by a single instance of ModbusMaster or ModbusSlave !!!
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusStaticAllocator(ModbusBuffer *buffer, uint16_t size, void *context)
 {
 	static uint8_t request[256];
-	static uint8_t response[256];
 
 	if (!size)
 	{
 		// Pretend we're freeing the buffer
-		*ptr = NULL;
+		buffer->data = NULL;
 		return MODBUS_OK;
 	}
 	else
@@ -580,34 +591,22 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusStaticAllocator(uint8_t **ptr, uint16_
 		if (size > 256)
 		{
 			// Requested size is too big, return allocation error
-			*ptr = NULL;
+			buffer->data = NULL;
 			return MODBUS_ERROR_ALLOC;
 		}
 		else
 		{
 			// Return a pointer to one of the static buffers depending 
 			// on the declared purpose of the buffer
-			*ptr = purpose == MODBUS_SLAVE_RESPONSE_BUFFER ? response : request;
+			buffer->data = request;
 			return MODBUS_OK;
 		}
 	}
 }
-
-// Wrapper used by slave
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusSlaveStaticAllocator(ModbusSlave *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
-{
-	return modbusStaticAllocator(ptr, size, purpose);
-}
-
-// Wrapper used by master
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusMasterStaticAllocator(ModbusMaster *status, uint8_t **ptr, uint16_t size, ModbusBufferPurpose purpose)
-{
-	return modbusStaticAllocator(ptr, size, purpose);
-}
 ~~~
 
-One could also implement the buffers in `modbusSlaveStaticAllocator()` and `modbusMasterStaticAllocator()` and
-distinguish between `ModbusSlave` and `ModbusMaster` instances based on the `status` argument.
+One could also implement the allocator to allocate memory from different buffers
+based on `buffer` pointers, using the user context for bookkeeping.
 
 \page examples Examples
 
@@ -625,7 +624,7 @@ before upgrading to v3.0.
 |Slave cleanup|Rename `modbusSlaveEnd()` to `modbusSlaveDestroy()`|
 |Master cleanup|Rename `modbusMasterEnd()` to `modbusMasterDestroy()`|
 |Error handling|Use `modbusIsOk()` and `modbusGetGeneralError()`. See \ref error-handling|
-|Parsing requests|Use `modbusParseRequestRTU()` instead of `modbusParseRequest()`. Provide the frame as an argument.|
+|Parsing requests|Use `modbusParseRequestRTU()` instead of `modbusParseRequest()`. Provide slave address and the frame as arguments.|
 |Register callback|Slave register callback now takes arguments in a struct. See \ref slave-register-callback|
 |Register/coil arrays|Write a register callback accessing your own array instead. See \ref slave-register-callback|
 |Register/coil write protection|Return a proper exception from the register callback during read access check query|
@@ -637,7 +636,13 @@ before upgrading to v3.0.
 |Endianness operations|Use modbusRLE(), modbusRBE(), modbusWLE() and modbusWBE() instead|
 |Mask read/write|modbusMaskRead() and modbusMaskWrite() no longer provide bounds checking|
 |Static memory allocation|Implement a custom static memory allocator - see \ref static-mem|
-|User context pointer|Use `modbusMasterSetUserPointer()`, `modbusMasterGetUserPointer()`, `modbusSlaveSetUserPointer()` and `modbusSlaveGetUserPointer()`|
+|User's context pointer|Use `modbusMasterSetUserPointer()`, `modbusMasterGetUserPointer()`, `modbusSlaveSetUserPointer()` and `modbusSlaveGetUserPointer()`|
+|User's functions|Provide an array with all functions you want to be used to `modbusSlaveInit()` or `modbusMasterInit()`|
+
+\page user-functions User-defined functions
+
+You can find an example implementation of user-defined functions in the `examples`
+directory. Don't forget to take a look at slave_func.impl.h and master_func.impl.h.
 
 \cond DOXYGEN_EXCLUDE
 \section endiannnes Endiannes operations

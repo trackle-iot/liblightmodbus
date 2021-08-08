@@ -158,6 +158,18 @@ void short_frames_tests()
 
 void modbus_pdu_tests()
 {
+	run_test("[PDU] build an exception", [](){
+		set_mode("pdu");
+		build_request({1, 1, 3, 4});
+		assert_master_ok();
+		build_exception(1, 1, MODBUS_EXCEP_ACK);
+		dump_response();
+		assert_slave_ex(MODBUS_EXCEP_ACK);
+		assert_slave_ok();
+		parse_response();
+		assert_master_ok();
+		assert_master_ex(MODBUS_EXCEP_ACK);
+	});
 }
 
 void modbus_rtu_tests()
@@ -298,6 +310,28 @@ void modbus_rtu_tests()
 		parse_response();
 		assert_master_err(MODBUS_RESPONSE_ERROR(CRC));
 	});
+
+	run_test("[RTU] build an exception", [](){
+		set_mode("rtu");
+		build_request({1, 1, 3, 4});
+		assert_master_ok();
+		build_exception(1, 1, MODBUS_EXCEP_SLAVE_FAILURE);
+		dump_response();
+		assert_slave_ex(MODBUS_EXCEP_SLAVE_FAILURE);
+		assert_slave_ok();
+		parse_response();
+		assert_master_ok();
+		assert_master_ex(MODBUS_EXCEP_SLAVE_FAILURE);
+	});
+
+	run_test("[RTU] attempt to build a broadcast exception", [](){
+		set_mode("rtu");
+		assert_master_ok();
+		build_exception(0, 33, MODBUS_EXCEP_ACK);
+		dump_response();
+		assert_slave_ex(MODBUS_EXCEP_NONE);
+		assert_slave_err(MODBUS_GENERAL_ERROR(ADDRESS));
+	});
 }
 
 void modbus_tcp_tests()
@@ -382,6 +416,32 @@ void modbus_tcp_tests()
 		assert_reg(7, 8);
 	});
 
+	run_test("[TCP] build an exception", [](){
+		set_mode("tcp");
+		build_request({1, 1, 3, 4});
+		dump_request();
+		assert_master_ok();
+		build_exception(1, 1, MODBUS_EXCEP_NACK);
+		dump_response();
+		assert_slave_ex(MODBUS_EXCEP_NACK);
+		assert_slave_ok();
+		parse_response();
+		assert_master_ok();
+		assert_master_ex(MODBUS_EXCEP_NACK);
+	});
+
+	run_test("[TCP] build an exception with diffent slaveID", [](){
+		set_mode("tcp");
+		build_request({1, 1, 3, 4});
+		dump_request();
+		assert_master_ok();
+		build_exception(0xff, 1, MODBUS_EXCEP_NACK);
+		dump_response();
+		assert_slave_ex(MODBUS_EXCEP_NACK);
+		assert_slave_ok();
+		parse_response();
+		assert_master_err(MODBUS_RESPONSE_ERROR(ADDRESS));
+	});
 }
 
 void single_write_tests()

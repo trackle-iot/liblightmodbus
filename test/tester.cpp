@@ -301,6 +301,24 @@ void build_request(const std::vector<int> &args)
 	modbusMasterFreeRequest(&master);
 }
 
+void build_exception(uint8_t address, uint8_t function, ModbusExceptionCode code)
+{
+	switch (modbus_mode)
+	{
+		case MODBUS_PDU: slave_error = modbusBuildExceptionPDU(&slave, function, code); break;
+		case MODBUS_RTU: slave_error = modbusBuildExceptionRTU(&slave, address, function, code); break;
+		case MODBUS_TCP: slave_error = modbusBuildExceptionTCP(&slave, transaction_id - 1, address, function, code); break;
+	}
+
+	if (!modbusIsOk(slave_error))
+		return;
+
+	const uint8_t *ptr = modbusSlaveGetResponse(&slave);
+	int size = modbusSlaveGetResponseLength(&slave);
+	response_data = std::vector<uint8_t>(ptr, ptr + size);
+	modbusSlaveFreeResponse(&slave);
+}
+
 void parse_request()
 {
 	std::cout << "Parsing request..." << std::endl;
@@ -503,6 +521,20 @@ void assert_coil(int index, int value)
 		throw std::runtime_error{"assert_coil failed"};
 }
 
+void assert_ex(
+	ModbusExceptionCode ex,
+	const std::optional<modbus_exception_info> &info,
+	bool no_frame)
+{
+	if (ex == MODBUS_EXCEP_NONE && info.has_value() && !no_frame)
+		throw std::runtime_error{"assertion failed - got "s + modbusExceptionCodeStr(info->code)};
+	else if (ex != MODBUS_EXCEP_NONE && info.has_value() && no_frame)
+	{
+		if (ex != slave_exception->code)
+			throw std::runtime_error{"assertion failed - got "s + modbusExceptionCodeStr(info->code)};
+	}
+}
+
 void assert_slave_ex(ModbusExceptionCode ex)
 {
 	if (ex == MODBUS_EXCEP_NONE)
@@ -510,13 +542,17 @@ void assert_slave_ex(ModbusExceptionCode ex)
 	else
 		assert_message("slave exception "s + modbusExceptionCodeStr(ex));
 
-	if (ex == MODBUS_EXCEP_NONE && slave_exception.has_value() && !response_data.empty())
-		throw std::runtime_error{"assert_slave_ex failed"};
-	else if (ex != MODBUS_EXCEP_NONE && slave_exception.has_value() && !response_data.empty())
-	{
-		if (ex != slave_exception->code)
-			throw std::runtime_error{"assert_slave_ex failed"};
-	}
+	assert_ex(ex, slave_exception, response_data.empty());
+}
+
+void assert_master_ex(ModbusExceptionCode ex)
+{
+	if (ex == MODBUS_EXCEP_NONE)
+		assert_message("no master exception");
+	else
+		assert_message("master exception "s + modbusExceptionCodeStr(ex));
+
+	assert_ex(ex, master_exception, response_data.empty());
 }
 
 void assert_expr(const std::string &message, bool expr)

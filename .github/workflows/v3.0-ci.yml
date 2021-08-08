@@ -49,6 +49,8 @@ jobs:
         run: make -C test/avr master
       - name: "Full build"
         run: make -C test/avr full
+      - name: Build AVR slave example
+        run: make -C examples/avrslave
 
   examples-build:
     name: "Build examples"
@@ -60,8 +62,6 @@ jobs:
       run: make -C examples
     - name: Run demo
       run: ./examples/demo
-    - name: Build AVR slave example
-      run: make -C examples/avrslave
     - name: Build user-defined functions example
       run: make -C examples/userfun
 

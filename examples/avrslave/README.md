@@ -4,12 +4,14 @@ This directory contains a fully-featured Modbus RTU slave implementation for
 AVR microcontrollers (ATmega328p) utilizing around 3.7kB of the flash memory.
 
 You can provide different configuration options to `make` in order to customize the build:
- - `MCU` - MCU type (default: `atmega328p`)
- - `F_CPU` - Clock speed (deafult: `8000000UL`)
- - `BAUD_RATE` - USART0 baudrate (default: `9600`)
- - `SLAVE_ADDRESS` - Address of the slave (default: `1`)
- - `REG_COUNT` - Number of registers (default: `32`)
- - `MAX_REQUEST` - Max request length (default: `64`)
- - `MAX_RESPONSE` - Max response length (default: `64`)
+|Variable|Default|Description|
+|--------|-------|-----------|
+|`MCU`|`atmega328p`|MCU type|
+|`F_CPU`|`8000000UL`|Clock speed|
+|`BAUD_RATE`|`9600`|USART0 baudrate|
+|`SLAVE_ADDRESS`|`1`|Address of the slave|
+|`REG_COUNT`|`32`|Number of registers|
+|`MAX_REQUEST`|`64`|Max request length|
+|`MAX_RESPONSE`|`64`|Max response length|
 
 This implementation uses USART0 for communication with the master. You can use the `linuxmaster` program from the `examples` directory to interact with the slave.

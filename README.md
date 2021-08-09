@@ -1,19 +1,19 @@
-# ANNOUNCEMENT
+# A lightweight, cross-platform Modbus library
+[![The GPL license](https://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
+[![Travis CI](https://img.shields.io/travis/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://travis-ci.org/Jacajack/liblightmodbus)
+[![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
+
+[Liblightmodbus on launchpad...](https://launchpad.net/liblightmodbus)
+
+Liblightmodbus is a very lightweight, highly configurable, platform-independent Modbus RTU library.
+
+## ANNOUNCEMENT
 On August 31st 2021 a new version (v3.0) of liblightmodbus is going to be released and
 merged into the master branch. As it breaks backwards compatibility, your existing code
 will require some adjustments in order to work with the new version. 
 Considering the number of improvements, upgrading to v3.0 is highly recommended. Please be prepared.
 
 In the meantime, you can [read the docs](https://jacajack.github.io/liblightmodbus/v3.0/) and [porting guide](https://jacajack.github.io/liblightmodbus/v3.0/porting.html) for the new version, preview the changes on the [`dev-v3.0`](https://github.com/Jacajack/liblightmodbus/tree/dev-v3.0) branch or join [this discussion](https://github.com/Jacajack/liblightmodbus/issues/19).
-
-# A lightweight, cross-platform Modbus library
-[![The GPL license](https://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
-[![Travis CI](https://img.shields.io/travis/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://travis-ci.org/Jacajack/liblightmodbus)
-[![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
-
-<br>[Liblightmodbus on launchpad...](https://launchpad.net/liblightmodbus)
-
-Liblightmodbus is a very lightweight, highly configurable, platform-independent Modbus RTU library.
 
 ## Features
 - Minimal resources usage

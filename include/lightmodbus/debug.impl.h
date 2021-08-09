@@ -4,6 +4,11 @@
 #include "debug.h"
 
 /**
+	\file debug.impl.h
+	\brief Debug utilities (implementation)
+*/
+
+/**
 	\def ESTR(x)
 	\brief Defines a field in array holding name of the enum value
 */

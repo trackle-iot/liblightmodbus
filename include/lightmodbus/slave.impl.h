@@ -5,6 +5,11 @@
 #include "slave_func.h"
 
 /**
+	\file slave.impl.h
+	\brief Slave's types and basic functions (implementation)
+*/
+
+/**
 	\brief Associates function IDs with pointers to functions responsible
 	for parsing. Length of this array is stored in modbusSlaveDefaultFunctionCount
 

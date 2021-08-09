@@ -5,6 +5,11 @@
 #include <stddef.h>
 #include "base.h"
 
+/**
+	\file master.h
+	\brief Master's types and basic functions (header)
+*/
+
 typedef struct ModbusMaster ModbusMaster;
 
 /**

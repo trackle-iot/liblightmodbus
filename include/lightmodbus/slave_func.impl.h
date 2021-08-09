@@ -5,6 +5,11 @@
 #include "slave.h"
 
 /**
+	\file slave_func.impl.h
+	\brief Slave's functions for parsing requests (implementation)
+*/
+
+/**
 	\brief Handles requests 01, 02, 03 and 04 (Read Multiple XX) and generates response.
 	\param function function code
 	\param requestPDU pointer to the PDU section of the request

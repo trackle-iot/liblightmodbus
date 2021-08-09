@@ -18,6 +18,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+	\file lightmodbus.h
+	\brief The main library header file (include this one)
+*/
+
 // For C++
 #ifdef __cplusplus
 extern "C" {

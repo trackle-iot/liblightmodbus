@@ -5,6 +5,11 @@
 #include "master_func.h"
 
 /**
+	\file master.impl.h
+	\brief Master's types and basic functions (implementation)
+*/
+
+/**
 	\brief Default array of supported functions. Length is stored in
 	modbusMasterDefaultFunctionCount.
 

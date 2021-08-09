@@ -5,6 +5,11 @@
 #include "master.h"
 
 /**
+	\file master_func.impl.h
+	\brief Master's functions for building requests and parsing responses (implementation)
+*/
+
+/**
 	\brief Parses response to requests 01, 02, 03 and 04
 	\param address Address of the slave
 	\param function Response function code

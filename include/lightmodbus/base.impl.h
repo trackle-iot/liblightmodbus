@@ -5,6 +5,11 @@
 #include <stdlib.h>
 
 /**
+	\file base.impl.h
+	\brief Common types and functions (implementation)
+*/
+
+/**
 	\brief The default memory allocator based on realloc()
 	\param buffer a pointer to the buffer to be reallocated
 	\param size new desired buffer size in bytes

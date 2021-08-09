@@ -5,6 +5,11 @@
 #include "master.h"
 
 /**
+	\file master_func.h
+	\brief Master's functions for building requests and parsing responses (header)
+*/
+
+/**
 	\def LIGHTMODBUS_DEFINE_BUILD_PDU_HEADER
 	\brief Defines a header for a `modbusBuildRequest*PDU()` function
 */

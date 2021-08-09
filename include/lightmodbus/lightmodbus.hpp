@@ -5,7 +5,8 @@
 #include "lightmodbus.h"
 
 /**
-	\file lightmodbus.hpp Very experimental liblightmodbus C++ interface
+	\file lightmodbus.hpp
+	\brief (Very) experimental liblightmodbus C++ interface
 
 	\warning THIS INTERFACE IS EXPERIMENTAL, NOT TESTED AND MAY CHANGE AT ANY TIME.
 */

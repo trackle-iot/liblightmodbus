@@ -4,6 +4,11 @@
 #include <stdint.h>
 
 /**
+	\file base.h
+	\brief Common types and functions (header)
+*/
+
+/**
 	\def LIGHTMOBBUS_WARN_UNUSED
 	\brief Wrapper for a compiler attribute to warn if the result of a function is not used.
 	

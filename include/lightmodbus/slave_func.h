@@ -4,6 +4,11 @@
 #include "base.h"
 #include "slave.h"
 
+/**
+	\file slave_func.h
+	\brief Slave's functions for parsing requests (header)
+*/
+
 LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,
 	uint8_t function,

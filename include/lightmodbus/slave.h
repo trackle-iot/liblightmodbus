@@ -5,6 +5,11 @@
 #include <stddef.h>
 #include "base.h"
 
+/**
+	\file slave.h
+	\brief Slave's types and basic functions (header)
+*/
+
 typedef struct ModbusSlave ModbusSlave;
 
 /**

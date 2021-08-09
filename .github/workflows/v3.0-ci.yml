@@ -52,6 +52,15 @@ jobs:
       - name: Build AVR slave example
         run: make -C examples/avrslave
 
+  cpp-build:
+    name: "C++ build test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Compile
+        run: make -C test/cpp
+
   examples-build:
     name: "Build examples"
     runs-on: ubuntu-latest
@@ -66,6 +75,12 @@ jobs:
       run: make -C examples/integration
     - name: Build user-defined functions example
       run: make -C examples/userfun
+    - name: Run user-defined functions example
+      run: ./examples/userfun/userfun
+    - name: Build C++ example
+      run: make -C examples/cpp
+    - name: Run C++ example
+      run: ./examples/cpp/cppdemo
 
   main-test:
     name: "Tests"

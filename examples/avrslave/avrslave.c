@@ -227,13 +227,19 @@ static void usartTX(const uint8_t *data, uint16_t length)
 	RS485_DIR_RX;
 }
 
+/*
+	Transmit string over USART0. Used only for debug
+*/
 static void usartTXS(const char *s)
 {
 	while (*s)
 		usartTXB(*s++);
 }
 
-int uprintf(const char *fmt, ...)
+/*
+	printf() for USART0
+*/
+ __attribute__((format(printf, 1, 2))) int uprintf(const char *fmt, ...)
 {
 	static char buf[64];
 	va_list args;
@@ -244,6 +250,9 @@ int uprintf(const char *fmt, ...)
 	return result;
 }
 
+/*
+	Calls abort(), but prints out a fancy message beforehand
+*/
 static void die(const char *s)
 {
 	DEBUG_ONLY(uprintf("\n\r%s\n\r", s));

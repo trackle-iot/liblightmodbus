@@ -14,7 +14,7 @@ int main(void)
 		&master,
 		dataCallback,
 		NULL,
-		modbusMasterDefaultAllocator,
+		modbusDefaultAllocator,
 		modbusMasterDefaultFunctions,
 		modbusMasterDefaultFunctionCount
 	);

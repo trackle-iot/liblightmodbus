@@ -81,6 +81,8 @@ jobs:
       run: make -C examples/cpp
     - name: Run C++ example
       run: ./examples/cpp/cppdemo
+    - name: Build the Linux master application
+      run: make -C examples/linuxmaster
 
   main-test:
     name: "Tests"

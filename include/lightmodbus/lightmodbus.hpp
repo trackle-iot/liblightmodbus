@@ -72,9 +72,9 @@ static inline void throwErrorInfo(ModbusErrorInfo err)
 	if (modbusGetGeneralError(err) != MODBUS_OK)
 		throw GeneralError(modbusGetGeneralError(err));
 	else if (modbusGetRequestError(err) != MODBUS_OK)
-		throw GeneralError(modbusGetRequestError(err));
+		throw RequestError(modbusGetRequestError(err));
 	else if (modbusGetResponseError(err) != MODBUS_OK)
-		throw GeneralError(modbusGetResponseError(err));
+		throw ResponseError(modbusGetResponseError(err));
 }
 
 #ifdef LIGHTMODBUS_SLAVE

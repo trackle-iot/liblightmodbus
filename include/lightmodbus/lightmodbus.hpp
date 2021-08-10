@@ -16,6 +16,10 @@
 */
 namespace llm {
 
+
+/**
+	\brief Request error exception class
+*/
 class RequestError : public std::exception
 {
 public:
@@ -33,6 +37,9 @@ private:
 	ModbusError m_error;
 };
 
+/**
+	\brief Response error exception class
+*/
 class ResponseError : public std::exception
 {
 public:
@@ -50,6 +57,9 @@ private:
 	ModbusError m_error;
 };
 
+/**
+	\brief General error exception class
+*/
 class GeneralError : public std::exception
 {
 public:
@@ -67,6 +77,13 @@ private:
 	ModbusError m_error;
 };
 
+/**
+	\brief Throws an exception based on ModbusErrorInfo.
+	\param err The ModbusErrorInfo to convert to an exception
+	\throws GeneralError if `modbusGetGeneralError(err)` is not MODBUS_OK
+	\throws RequestError if `modbusGetRequestError(err)` is not MODBUS_OK
+	\throws ResponseError if `modbusGetResponseError(err)` is not MODBUS_OK
+*/
 static inline void throwErrorInfo(ModbusErrorInfo err)
 {
 	if (modbusGetGeneralError(err) != MODBUS_OK)
@@ -78,6 +95,10 @@ static inline void throwErrorInfo(ModbusErrorInfo err)
 }
 
 #ifdef LIGHTMODBUS_SLAVE
+
+/**
+	\brief Represents a Modbus slave device
+*/
 class Slave
 {
 public:
@@ -217,6 +238,9 @@ protected:
 	}
 
 
+/**
+	\brief Represents a Modbus master device
+*/
 class Master
 {
 public:

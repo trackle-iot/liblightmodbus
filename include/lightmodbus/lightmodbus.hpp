@@ -1,7 +1,11 @@
 #ifndef LIGHTMODBUS_HPP
 #define LIGHTMODBUS_HPP
 #include <stdexcept>
+
+#ifndef LIGHTMODBUS_DEBUG
 #define LIGHTMODBUS_DEBUG // FIXME
+#endif
+
 #include "lightmodbus.h"
 
 /**

@@ -15,7 +15,7 @@ typedef struct ModbusSlave ModbusSlave;
 /**
 	\brief A pointer to request parsing function
 */
-typedef ModbusErrorInfo (*ModbusSlaveParsingFunction)(
+typedef ModbusErrorInfo (*ModbusRequestParsingFunction)(
 	ModbusSlave *status,
 	uint8_t function,
 	const uint8_t *requestPDU,
@@ -27,7 +27,7 @@ typedef ModbusErrorInfo (*ModbusSlaveParsingFunction)(
 typedef struct ModbusSlaveFunctionHandler
 {
 	uint8_t id;
-	ModbusSlaveParsingFunction ptr;
+	ModbusRequestParsingFunction ptr;
 } ModbusSlaveFunctionHandler;
 
 /**

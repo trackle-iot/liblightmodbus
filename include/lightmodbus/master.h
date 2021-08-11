@@ -15,7 +15,7 @@ typedef struct ModbusMaster ModbusMaster;
 /**
 	\brief A pointer to a response parsing function
 */
-typedef ModbusErrorInfo (*ModbusMasterParsingFunction)(
+typedef ModbusErrorInfo (*ModbusResponseParsingFunction)(
 	ModbusMaster *status,
 	uint8_t address,
 	uint8_t function,
@@ -30,7 +30,7 @@ typedef ModbusErrorInfo (*ModbusMasterParsingFunction)(
 typedef struct ModbusMasterFunctionHandler
 {
 	uint8_t id;
-	ModbusMasterParsingFunction ptr;
+	ModbusResponseParsingFunction ptr;
 } ModbusMasterFunctionHandler;
 
 /**

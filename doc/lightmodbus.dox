@@ -79,9 +79,9 @@ from building it on your PC. You're only required to add the header files to you
 
 \section ESP-IDF
 
-Liblightmodbus can be used as an ESP-IDF component. The relevant configuration is kept on [`esp-idf`](https://github.com/Jacajack/liblightmodbus/tree/esp-idf) branch and can be cloned directly to your components directory using:
+Liblightmodbus can be used as an ESP-IDF component. The relevant configuration is kept on [`esp-idf`](https://github.com/Jacajack/liblightmodbus/tree/esp-idf) branch and in [`liblightmodbus-esp`](https://github.com/Jacajack/liblightmodbus-esp) repository. It can be cloned directly to your components directory with:
 ~~~bash
-git clone --single-branch --branch esp-idf https://github.com/Jacajack/liblightmodbus.git
+git clone https://github.com/Jacajack/liblightmodbus-esp.git
 ~~~
 
 When using liblightmodbus with ESP-IDF, the implementation of the library functions is automatically included for you - you shouldn't use `LIGHTMODBUS_IMPL` anywhere in your code. You shouldn't define any config options

@@ -160,16 +160,18 @@ LIGHTMODBUS_RET_ERROR modbusBeginRequestTCP(ModbusMaster *status)
 
 /**
 	\brief Finalizes a Modbus TCP request
+	\param transactionID Modbus TCP transaction identifier
+	\param unitID Modbus TCP Unit ID
 	\returns MODBUS_GENERAL_ERROR(LENGTH) if the allocated frame has invalid length 
 	\returns MODBUS_NO_ERROR() on success
 */
-LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transaction, uint8_t unit)
+LIGHTMODBUS_RET_ERROR modbusEndRequestTCP(ModbusMaster *status, uint16_t transactionID, uint8_t unitID)
 {
 	ModbusError err = modbusPackTCP(
 		&status->request.data[0],
 		status->request.length,
-		transaction,
-		unit);
+		transactionID,
+		unitID);
 
 	if (err != MODBUS_OK)
 		return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, err);

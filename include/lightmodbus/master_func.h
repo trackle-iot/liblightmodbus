@@ -52,7 +52,7 @@
 	\brief Defines a header for a `modbusBuildRequest*TCP()` function
 */
 #define LIGHTMODBUS_DEFINE_BUILD_TCP_HEADER(f_suffix, ...) \
-	LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest##f_suffix##TCP(ModbusMaster *status, uint16_t transaction, uint8_t unit, __VA_ARGS__)
+	LIGHTMODBUS_WARN_UNUSED static inline ModbusErrorInfo modbusBuildRequest##f_suffix##TCP(ModbusMaster *status, uint16_t transactionID, uint8_t unitID, __VA_ARGS__)
 
 /**
 	\def LIGHTMODBUS_DEFINE_BUILD_TCP_BODY
@@ -63,7 +63,7 @@
 		ModbusErrorInfo err; \
 		if (!modbusIsOk(err = modbusBeginRequestTCP(status))) return err; \
 		if (!modbusIsOk(err = modbusBuildRequest##f_suffix(status, __VA_ARGS__))) return err; \
-		return modbusEndRequestTCP(status, transaction, unit); \
+		return modbusEndRequestTCP(status, transactionID, unitID); \
 	}
 
 LIGHTMODBUS_RET_ERROR modbusParseResponse01020304(

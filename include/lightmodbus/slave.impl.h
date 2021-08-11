@@ -61,7 +61,7 @@ const uint8_t modbusSlaveDefaultFunctionCount = sizeof(modbusSlaveDefaultFunctio
 
 /**
 	\brief Initializes slave device
-	\param registerCallback Callback function for handling all register operations (required)
+	\param registerCallback Callback function for handling all register operations (may be required by used parsing functions)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
 	\param allocator Memory allocator to be used (see \ref modbusDefaultAllocator) (required)
 	\param functions Pointer to array of supported function handlers (required).

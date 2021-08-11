@@ -62,7 +62,7 @@ const uint8_t modbusMasterDefaultFunctionCount = sizeof(modbusMasterDefaultFunct
 /**
 	\brief Initializes a ModbusMaster struct
 	\param status ModbusMaster struct to be initialized
-	\param dataCallback Callback function for handling incoming data (required)
+	\param dataCallback Callback function for handling incoming data (may be required by used parsing functions)
 	\param exceptionCallback Callback function for handling slave exceptions (optional)
 	\param allocator Memory allocator to be used (see \ref modbusDefaultAllocator()) (required)
 	\param functions Pointer to an array of supported function handlers (required). 

@@ -1,12 +1,12 @@
-# A lightweight, platform-independent Modbus RTU/TCP library
+# A lightweight, hardware-agnostic, Modbus RTU/TCP library
 ![GitHub](https://img.shields.io/github/license/Jacajack/liblightmodbus) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fjacajack%2Fliblightmodbus%2Fbadge%3Fref%3Ddev-v3.0&style=flat)](https://actions-badge.atrox.dev/jacajack/liblightmodbus/goto?ref=dev-v3.0) ![Coveralls branch](https://img.shields.io/coveralls/github/Jacajack/liblightmodbus/dev-v3.0) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue)](https://www.paypal.com/donate?hosted_button_id=KZ7DV93D98GAL)
 
-Liblightmodbus is a lightweight, highly configurable, platform-independent Modbus RTU/TCP library written in C99.
+Liblightmodbus is a lightweight, highly configurable, hardware-agnostic Modbus RTU/TCP library written in C99.
 
 ## Features
 - Completely platform independent - works on x86 as well as on AVR
 - Minimal resources usage thanks to modular structure
-- (Very) experimental C++ interface
+- A (very) experimental C++ interface
 - Support for Modbus RTU and TCP
 - Callback based operation
 - Custom memory allocator support (static memory allocation is possible)

@@ -274,7 +274,7 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusDefaultAllocator(
 
 LIGHTMODBUS_RET_ERROR modbusBufferInit(ModbusBuffer *buffer, ModbusAllocator allocator);
 void modbusBufferDestroy(ModbusBuffer *buffer, void *context);
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusBufferAllocate(ModbusBuffer *buffer, uint16_t pduSize, void *context);
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusBufferAllocateADU(ModbusBuffer *buffer, uint16_t pduSize, void *context);
 void modbusBufferFree(ModbusBuffer *buffer, void *context);
 
 uint16_t modbusCRC(const uint8_t *data, uint16_t length);

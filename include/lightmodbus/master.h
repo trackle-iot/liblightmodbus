@@ -160,7 +160,7 @@ LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusMasterAllocateRequest(
 	ModbusMaster *status,
 	uint16_t pduSize)
 {
-	return modbusBufferAllocate(&status->request, pduSize, modbusMasterGetUserPointer(status));
+	return modbusBufferAllocateADU(&status->request, pduSize, modbusMasterGetUserPointer(status));
 }
 
 /**

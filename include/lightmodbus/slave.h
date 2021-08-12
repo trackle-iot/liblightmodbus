@@ -180,7 +180,7 @@ static inline void *modbusSlaveGetUserPointer(const ModbusSlave *status)
 */
 LIGHTMODBUS_WARN_UNUSED static inline ModbusError modbusSlaveAllocateResponse(ModbusSlave *status, uint16_t pduSize)
 {
-	return modbusBufferAllocate(&status->response, pduSize, modbusSlaveGetUserPointer(status));
+	return modbusBufferAllocateADU(&status->response, pduSize, modbusSlaveGetUserPointer(status));
 }
 
 /**

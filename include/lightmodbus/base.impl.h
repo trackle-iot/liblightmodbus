@@ -67,7 +67,7 @@ LIGHTMODBUS_RET_ERROR modbusBufferInit(ModbusBuffer *buffer, ModbusAllocator all
 */
 void modbusBufferFree(ModbusBuffer *buffer, void *context)
 {
-	ModbusError err = modbusBufferAllocate(buffer, 0, context);
+	ModbusError err = modbusBufferAllocateADU(buffer, 0, context);
 	(void) err;
 }
 
@@ -95,7 +95,7 @@ void modbusBufferDestroy(ModbusBuffer *buffer, void *context)
 	in the buffer struct. The `pdu` pointer is set up to point `pduOffset` bytes
 	after the `data` pointer unless `data` is a null pointer.
 */
-LIGHTMODBUS_WARN_UNUSED ModbusError modbusBufferAllocate(ModbusBuffer *buffer, uint16_t pduSize, void *context)
+LIGHTMODBUS_WARN_UNUSED ModbusError modbusBufferAllocateADU(ModbusBuffer *buffer, uint16_t pduSize, void *context)
 {
 	uint16_t size = pduSize;
 	if (pduSize) size += buffer->padding;

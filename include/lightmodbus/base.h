@@ -356,7 +356,7 @@ LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusRLE(const uint8_t *p)
 */
 static inline uint16_t modbusWLE(uint8_t *p, uint16_t val)
 {
-	*p = val;
+	*p = val & 0xff;
 	*(p + 1) = val >> 8;
 	return val;
 }
@@ -377,7 +377,7 @@ LIGHTMODBUS_WARN_UNUSED static inline uint16_t modbusRBE(const uint8_t *p)
 static inline uint16_t modbusWBE(uint8_t *p, uint16_t val)
 {
 	*p = val >> 8;
-	*(p + 1) = val;
+	*(p + 1) = val & 0xff;
 	return val;
 }
 

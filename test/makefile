@@ -1,27 +1,26 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -Wno-unused-parameter -g -I../include/ --std=c++17
 TESTERSRC = tester.cpp
-SANITIZERS = -fsanitize=address -fsanitize=undefined -fsanitize=alignment
+
+ADDRSAN = -fsanitize=address -fno-sanitize-recover -fno-omit-frame-pointer -O0
+UBSAN = -fsanitize=undefined -fsanitize=local-bounds -fsanitize=implicit-conversion -fno-sanitize-recover -fno-omit-frame-pointer -O0
+SANCXX = clang++
 
 main-test: FORCE 
 	$(CXX) $(CXXFLAGS) $(TESTERSRC) test_main.cpp -o $@ 
 
-sanitizer-test: FORCE
-	$(CXX) $(CXXFLAGS) $(SANITIZERS) $(TESTERSRC) test_main.cpp -o $@
+addrsan-test: FORCE
+	$(SANCXX) $(CXXFLAGS) $(ADDRSAN) $(TESTERSRC) test_main.cpp -o $@
+
+ubsan-test: FORCE
+	$(SANCXX) $(CXXFLAGS) $(UBSAN) $(TESTERSRC) test_main.cpp -o $@
 
 coverage-test: FORCE
 	$(CXX) $(CXXFLAGS) $(TESTERSRC) --coverage -fprofile-arcs -DCOVERAGE_TEST test_main.cpp -o $@ \
 	-DLIGHTMODBUS_FULL \
 	-DLIGHTMOBUS_DEBUG \
-	-DLIGHTMODBUS_F01S -DLIGHTMODBUS_F01M \
-	-DLIGHTMODBUS_F02S -DLIGHTMODBUS_F02M \
-	-DLIGHTMODBUS_F03S -DLIGHTMODBUS_F03M \
-	-DLIGHTMODBUS_F04S -DLIGHTMODBUS_F04M \
-	-DLIGHTMODBUS_F05S -DLIGHTMODBUS_F05M \
-	-DLIGHTMODBUS_F06S -DLIGHTMODBUS_F06M \
-	-DLIGHTMODBUS_F15S -DLIGHTMODBUS_F15M \
-	-DLIGHTMODBUS_F16S -DLIGHTMODBUS_F16M \
-	-DLIGHTMODBUS_F22S -DLIGHTMODBUS_F22M \
+	-DLIGHTMODBUS_SLAVE_FULL \
+	-DLIGHTMODBUS_MASTER_FULL \
 	-x c ../include/lightmodbus/base.impl.h \
 	-x c ../include/lightmodbus/debug.impl.h \
 	-x c ../include/lightmodbus/master.impl.h \

@@ -96,17 +96,29 @@ jobs:
     - name: Run test suite
       run: test/main-test
 
-  sanitizer-test:
-    name: "Sanitization"
+  address-sanitizer-test:
+    name: "Address sanitizer"
     needs: [build]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Build test suite (with sanitizer)
-      run: make -C test sanitizer-test
-    - name: Run & sanitize test suite
-      run: test/sanitizer-test
+    - name: Build test suite (with AddressSan)
+      run: make -C test addrsan-test
+    - name: Run
+      run: test/addrsan-test
+
+  ub-sanitizer-test:
+    name: "UB sanitizer"
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build test suite (with UBSan)
+      run: make -C test ubsan-test
+    - name: Run
+      run: test/ubsan-test
 
   coverage-test:
     name: "Coverage testing"

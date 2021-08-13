@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
 
 #define LIGHTMODBUS_FULL
 #define LIGHTMODBUS_DEBUG
@@ -44,7 +45,7 @@ ModbusError regCallback(
 				case MODBUS_INPUT_REGISTER:   result->value = regs.at(args->index); break;
 				case MODBUS_COIL:             result->value = coils.at(args->index); break;
 				case MODBUS_DISCRETE_INPUT:   result->value = coils.at(args->index); break;
-				default:throw std::runtime_error{"invalid type in read query"}; break;
+				default: throw std::runtime_error{"invalid type in read query"}; break;
 			}
 		}
 		break;
@@ -68,22 +69,76 @@ ModbusError regCallback(
 	return MODBUS_OK;
 }
 
-void parse(ModbusSlave *s, const uint8_t *data, int n)
+std::string hexstr(const uint8_t *data, size_t len)
+{
+	std::stringstream ss;
+	for (size_t i = 0; i < len; i++)
+		ss << std::hex << std::setw(2) << std::setfill('0') << (int)data[i] << ' ';
+	return ss.str();
+}
+
+void printerr(ModbusErrorInfo err)
+{
+	std::printf(
+		"\t GEN ERR: %s\n"
+		"\t REQ ERR: %s\n"
+		"\tRESP ERR: %s\n",
+		modbusErrorStr(modbusGetGeneralError(err)),
+		modbusErrorStr(modbusGetRequestError(err)),
+		modbusErrorStr(modbusGetResponseError(err))
+	);
+}
+
+void printresp(const ModbusSlave *slave, ModbusErrorInfo err)
+{
+	if (modbusIsOk(err))
+	{
+		std::printf("\tRESP: %s\n", hexstr(
+			modbusSlaveGetResponse(slave),
+			modbusSlaveGetResponseLength(slave)).c_str());
+	}
+}
+
+void parsePDU(ModbusSlave *s, const uint8_t *data, int n)
 {
 	n = std::min(255, n);
 
-	ModbusErrorInfo err = modbusParseRequestPDU(s, 1, s->address, data, n);
+	ModbusErrorInfo err = modbusParseRequestPDU(s, data, n);
+	printf("PDU\n");
+	printerr(err);
+	printresp(s, err);
+	putchar('\n');
+
 	if (modbusGetGeneralError(err) != MODBUS_OK)
 		throw std::runtime_error{"PDU parse general error"};
+}
 
-	if (modbusIsOk(err))
-	{
-		std::fwrite(
-			modbusSlaveGetResponse(s),
-			1,
-			modbusSlaveGetResponseLength(s),
-			stdout);
-	}
+void parseRTU(ModbusSlave *s, const uint8_t *data, int n)
+{
+	n = std::min(65535, n);
+
+	ModbusErrorInfo err = modbusParseRequestRTU(s, 1, data, n);
+	printf("RTU\n");
+	printerr(err);
+	printresp(s, err);
+	putchar('\n');
+
+	if (modbusGetGeneralError(err) != MODBUS_OK)
+		throw std::runtime_error{"RTU parse general error"};
+}
+
+void parseTCP(ModbusSlave *s, const uint8_t *data, int n)
+{
+	n = std::min(65535, n);
+
+	ModbusErrorInfo err = modbusParseRequestTCP(s, data, n);
+	printf("TCP\n");
+	printerr(err);
+	printresp(s, err);
+	putchar('\n');
+
+	if (modbusGetGeneralError(err) != MODBUS_OK)
+		throw std::runtime_error{"TCP parse general error"};
 }
 
 /*
@@ -91,12 +146,11 @@ void parse(ModbusSlave *s, const uint8_t *data, int n)
 */
 void raw(ModbusSlave *s)
 {
-	uint8_t data[1024];
-	data[0] = 1;
-	int n = std::fread(&data[0], 1, sizeof(data) - 3, stdin);
-	// modbusWLE(&data[n + 1], modbusCRC(data, n + 1));
-	// int len = n + 3;
-	parse(s, data, n);
+	uint8_t data[65536];
+	int n = std::fread(&data[0], 1, sizeof(data), stdin);
+	parsePDU(s, data, n);
+	parseRTU(s, data, n);
+	parseTCP(s, data, n);
 }
 
 int main()

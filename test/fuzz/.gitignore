@@ -3,3 +3,5 @@ slavefuzz
 samples
 core.*
 hex
+slave_samples
+tester_gensamples.cpp

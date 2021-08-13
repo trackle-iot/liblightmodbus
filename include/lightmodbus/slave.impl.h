@@ -52,12 +52,15 @@ ModbusSlaveFunctionHandler modbusSlaveDefaultFunctions[] =
 #if defined(LIGHTMODBUS_F22S) || defined(LIGHTMODBUS_SLAVE_FULL)
 	{22, modbusParseRequest22},
 #endif
+
+	// Guard - prevents 0 array size
+	{0, NULL}
 };
 
 /**
 	\brief Stores length of modbusSlaveDefaultFunctions
 */
-const uint8_t modbusSlaveDefaultFunctionCount = sizeof(modbusSlaveDefaultFunctions) / sizeof(modbusSlaveDefaultFunctions[0]);
+const uint8_t modbusSlaveDefaultFunctionCount = sizeof(modbusSlaveDefaultFunctions) / sizeof(modbusSlaveDefaultFunctions[0]) - 1;
 
 /**
 	\brief Initializes slave device

@@ -52,12 +52,15 @@ ModbusMasterFunctionHandler modbusMasterDefaultFunctions[] =
 #if defined(LIGHTMODBUS_F22M) || defined(LIGHTMODBUS_MASTER_FULL)
 	{22, modbusParseResponse22},
 #endif
+
+	// Guard - prevents 0 size array
+	{0, NULL}
 };
 
 /**
 	\brief Stores length of modbusMasterDefaultFunctions array
 */
-const uint8_t modbusMasterDefaultFunctionCount = sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]);
+const uint8_t modbusMasterDefaultFunctionCount = sizeof(modbusMasterDefaultFunctions) / sizeof(modbusMasterDefaultFunctions[0]) - 1;
 
 /**
 	\brief Initializes a ModbusMaster struct

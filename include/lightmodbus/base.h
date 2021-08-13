@@ -109,6 +109,14 @@
 /**
 	\brief Richer error represenation - source and type of error
 
+	\see ModbusError
+	\see modbusIsOk()
+	\see modbusGetGeneralError()
+	\see modbusGetRequestError()
+	\see modbusGetResponseError()
+	\see modbusGetErrorSource()
+	\see modbusGetErrorCode()
+
 	\warning You should not be accessing `source` and `error` directly.
 	The internal implementation of this struct may change in future releases.
 	For this reason, please use modbusGetGeneralError(), modbusGetRequestError(),
@@ -122,6 +130,8 @@ typedef struct ModbusErrorInfo
 
 /**
 	\brief Represtents different kinds of errors.
+
+	\see ModbusErrorInfo
 */
 typedef enum ModbusError
 {
@@ -253,6 +263,14 @@ typedef ModbusError (*ModbusAllocator)(
 
 /**
 	\brief Stores a Modbus frame
+
+	\see modbusBufferInit()
+	\see modbusBufferDestroy()
+	\see modbusBufferModePDU()
+	\see modbusBufferModeRTU()
+	\see modbusBufferModeTCP()
+	\see modbusBufferAllocateADU()
+	\see modbusBufferFree()
 */
 typedef struct ModbusBuffer
 {

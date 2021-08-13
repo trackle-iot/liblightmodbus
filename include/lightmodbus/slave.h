@@ -82,6 +82,9 @@ typedef ModbusError (*ModbusSlaveExceptionCallback)(
 
 /**
 	\brief Slave device status
+
+	\see modbusSlaveInit()
+	\see modbusSlaveDestroy()
 */
 struct ModbusSlave
 {

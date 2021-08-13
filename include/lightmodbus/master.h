@@ -65,6 +65,9 @@ typedef ModbusError (*ModbusMasterExceptionCallback)(
 
 /**
 	\brief Master device status
+
+	\see modbusMasterInit()
+	\see modbusMasterDestroy()
 */
 struct ModbusMaster
 {

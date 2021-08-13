@@ -318,7 +318,7 @@ In order to destroy the ModbusSlave structure, simply call `modbusSlaveDestroy()
 modbusSlaveDestroy(&slave);
 ~~~
 
-\page master Master
+\page master Master device
 
 In order to use slave side functions, make sure to define `LIGHTMODBUS_MASTER` macro and enable necessary functions (e.g. `LIGHTMODBUS_F03M`) before including the library. Please also see \ref building for more information.
 

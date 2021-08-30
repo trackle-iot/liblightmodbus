@@ -1,47 +1,25 @@
-# A lightweight, cross-platform Modbus library
-[![The GPL license](https://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
-[![Travis CI](https://img.shields.io/travis/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://travis-ci.org/Jacajack/liblightmodbus)
-[![Coveralls](https://img.shields.io/coveralls/Jacajack/liblightmodbus/master.svg?style=flat-square)](https://coveralls.io/github/Jacajack/liblightmodbus)
+# A lightweight, hardware-agnostic, Modbus RTU/TCP library
+[![GitHub](https://img.shields.io/github/license/Jacajack/liblightmodbus)](https://github.com/Jacajack/liblightmodbus/blob/master/LICENSE) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fjacajack%2Fliblightmodbus%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/jacajack/liblightmodbus/goto?ref=master) [![Coveralls branch](https://img.shields.io/coveralls/github/Jacajack/liblightmodbus/master)](https://coveralls.io/github/Jacajack/liblightmodbus?branch=master) [![Donate](https://img.shields.io/badge/Donate-PayPal-blue)](https://www.paypal.com/donate?hosted_button_id=KZ7DV93D98GAL)
 
-[Liblightmodbus on launchpad...](https://launchpad.net/liblightmodbus)
-
-Liblightmodbus is a very lightweight, highly configurable, platform-independent Modbus RTU library.
-
-## ANNOUNCEMENT
-On August 31st 2021 a new version (v3.0) of liblightmodbus is going to be released and
-merged into the master branch. As it breaks backwards compatibility, your existing code
-will require some adjustments in order to work with the new version. 
-Considering the number of improvements, upgrading to v3.0 is highly recommended. Please be prepared.
-
-In the meantime, you can [read the docs](https://jacajack.github.io/liblightmodbus/v3.0/) and [porting guide](https://jacajack.github.io/liblightmodbus/v3.0/porting.html) for the new version, preview the changes on the [`dev-v3.0`](https://github.com/Jacajack/liblightmodbus/tree/dev-v3.0) branch or join [this discussion](https://github.com/Jacajack/liblightmodbus/issues/19).
+Liblightmodbus is a lightweight, highly configurable, hardware-agnostic Modbus RTU/TCP library written in C99.
 
 ## Features
-- Minimal resources usage
-- Relatively easy to use
-- Supports all basic Modbus functions and allows users to define thier own Modbus function handlers
-- You can pick specific modules, you want to be included during customized build process
-- Supports register/coil access callback functions
+- Modbus RTU and TCP support
+- Independent from the hardware layer
+- Modular structure helps to minimize the resource usage
+- Callback-based operation
+- User-defined memory allocator support (static memory allocation is possible)
+- Support for custom Modbus functions; 01, 02, 03, 04, 05, 06, 15, 16 and 22 are implemented by default. 
+- A (very) experimental C++ interface
+- [ESP-IDF component](https://github.com/Jacajack/liblightmodbus-esp)
 
-*Currently supported functions include: 01, 02, 03, 04, 05, 06, 15, 16 and 22.*
-Check the [online documentation](https://jacajack.github.io/liblightmodbus/) for more technical information and user guide.
+Check the [online documentation](https://jacajack.github.io/liblightmodbus/) for more technical information.
 
 ## Support
-If you face any problems, please refer to the [docs](https://jacajack.github.io/liblightmodbus/) first. If you can't find answer to your question there, please [open an issue](https://github.com/Jacajack/liblightmodbus/issues/new). Hopefully this will help to form some kind of FAQ list.
-If you want to help - please contribute here, on Github. **All contributions are welcome!**
+If you face any problems, please refer to the [docs](https://jacajack.github.io/liblightmodbus/) first. If you can't find answer to your question there, please [open an issue](https://github.com/Jacajack/liblightmodbus/issues/new). Hopefully this will help to form some kind of a FAQ list.
+If you want to help - you can contribute on Github or [donate](https://www.paypal.com/donate/?hosted_button_id=KZ7DV93D98GAL). Both donations and contributions are very welcome :heart:
 
-_I'm making plans for v3.0 release. Many things will be simplified and cleaned up in hope of making liblightmodbus lighter, more flexible and possibly easier to use. If you would like to suggest something, please let me know [here](https://github.com/Jacajack/liblightmodbus/issues/19)._
-
-## Platforms on which liblightmodbus is known to run
- - 8-bit AVR (ATmega 8, ATmega 328, etc.)
- - STM32 ARM (STM32F103, STM32L151, etc.)
- - Raspberry Pi
- - i386, amd64
- - PowerPC
-
-## PPA
-On Ubuntu/Debian `liblightmodbus` can be obtained from [PPA](https://code.launchpad.net/~mrjjot/+archive/ubuntu/liblightmodbus) (Personal Package Archive).
-
-This is how to install it:
- - Add PPA to your system - `sudo add-apt-repository ppa:mrjjot/liblightmodbus`
- - Update software lists - `sudo apt-get update`
- - Install development package - `sudo apt-get install liblightmodbus-dev`
+## Getting started
+ - [Docs and user manual](https://jacajack.github.io/liblightmodbus/)
+ - [Porting code from v2.0](https://jacajack.github.io/liblightmodbus/porting.html)
+ - [Examples](./examples/)

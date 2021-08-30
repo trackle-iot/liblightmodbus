@@ -19,6 +19,7 @@ test-out
 *.swp
 *.*~
 .vscode
+*.code-workspace
 
 #Doxygen output
 doc/html
@@ -26,7 +27,19 @@ doc/latex
 
 #CMake dir
 build
+build-clang
 
-#Local configuration
+#Local configuration and stuff
 include/lightmodbus/libconf.h
 .modules.conf
+include/lightmodbus/old
+demo
+test/out
+test/a.out
+test/oldsamples
+test/test
+test/newresp.txt
+test/test-result.txt
+test/impl.c
+old
+doc/lightmodbus.dox.bak

@@ -1,5 +1,15 @@
-all:
-	gcc -DLIGHTMODBUS_MASTER_REGISTERS=1 -DLIGHTMODBUS_SLAVE_REGISTERS=1  example.c -llightmodbus -o example
+CC = gcc
+CFLAGS = -Wall -O2 -g -I../include
+
+all: slave demo FORCE
 
 clean:
-	rm example
+	rm -f slave demo
+
+slave: slave.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+demo: demo.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+FORCE:

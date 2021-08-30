@@ -1,6 +1,6 @@
 /*
-	liblightmodbus - a lightweight, multiplatform Modbus library
-	Copyright (C) 2017 Jacek Wieczorek <mrjjot@gmail.com>
+	liblightmodbus - a lightweight, header-only, cross-platform Modbus RTU/TCP library
+	Copyright (C) 2021 Jacek Wieczorek <mrjjot@gmail.com>
 
 	This file is part of liblightmodbus.
 
@@ -19,196 +19,116 @@
 */
 
 /**
-	\file
-	\brief Core Modbus functions
-
-	This is main header file that is ought to be included as library
-	\note This header file is suitable for C++
+	\file lightmodbus.h
+	\brief The main library header file (include this one)
 */
-
-#ifndef LIGHTMODBUS_H
-#define LIGHTMODBUS_H
 
 // For C++
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//Include proper header files
-#include <stdint.h>
-#include "libconf.h"
+#ifndef LIGHTMODBUS_H
+#define LIGHTMODBUS_H
 
-//Some protection
-#if defined(LIGHTMODBUS_BIG_ENDIAN) && defined(LIGHTMODBUS_LITTLE_ENDIAN)
-#error LIGHTMODBUS_BIG_ENDIAN and LIGHTMODBUS_LITTLE_ENDIAN cannot be used at once!
+/*
+	Optionally include a configuration file here
+*/
+#ifdef LIGHTMODBUS_USE_CONFIG_FILE
+	#ifdef LIGHTMODBUS_CONFIG_FILE
+		#include LIGHTMODBUS_CONFIG_FILE
+	#else
+		#include "config.h"
+	#endif
 #endif
 
 /**
-	\brief Represents a library runtime error code.
+	\def LIGHTMODBUS_FULL
+	\brief Configures the library to include all avaiable Modbus functions for both master and slave
 */
-typedef enum modbusError
-{
-	MODBUS_ERROR_OK = 0, //!< No error
-	/**
-		\brief Indicates that slave had thrown an exception.
+#ifdef LIGHTMODBUS_FULL
+	#ifndef LIGHTMODBUS_SLAVE_FULL
+	#define LIGHTMODBUS_SLAVE_FULL
+	#endif
 
-		This exception can be thrown either by master's parsing function
-		(indicating incoming exception frame) or by slave's building function
-		(indicating that some problem caused the slave to **build an exception frame**).
-
-		\note This error code handles the superset of problems handled by \ref MODBUS_ERROR_PARSE.
-
-		When thrown on slave side, check \ref ModbusSlave.lastException and \ref ModbusSlave.parseError
-		for more information.
-	*/
-	MODBUS_ERROR_EXCEPTION = 1,
-	/**
-		\brief Memory problem
-
-		Either one of memory allocation functions returned NULL or
-		fixed-size buffer is not big enough to fit the data (see \ref static-mem).
-	*/
-	MODBUS_ERROR_ALLOC, //!< Memory allocation problem
-	MODBUS_ERROR_OTHER, //!< Other reason causing the function to abort (eg. bad function parameter)
-	MODBUS_ERROR_NULLPTR, //!< A NULL pointer provided as some crucial parameter
-	/**
-		Parsing error occurred - check \ref ModbusSlave.parseError
-
-		\note This error code is returned instead of \ref MODBUS_ERROR_EXCEPTION
-		when exception should have been thrown, but wasn't (eg. due to broadcasted
-		request frame). These two error code should be treated similarly.
-	*/
-	MODBUS_ERROR_PARSE,
-	MODBUS_ERROR_BUILD, //!< Frame building error occurred - check \ref ModbusMaster.buildError
-	MODBUS_OK = MODBUS_ERROR_OK, //!< No error. Alias of \ref MODBUS_ERROR_OK
-} ModbusError;
-
-/**
-	\brief Provides more information on frame building/parsing error.
-
-	These error code should serve as an additional source of information for the user.
-*/
-typedef enum modbusFrameError
-{
-	MODBUS_FERROR_OK = MODBUS_OK, //!< Modbus frame OK. No error.
-	MODBUS_FERROR_CRC, //!< Invalid CRC
-	MODBUS_FERROR_LENGTH, //!< Invalid frame length
-	MODBUS_FERROR_COUNT, //!< Invalid declared data item count
-	MODBUS_FERROR_VALUE, //!< Illegal data value (eg. when writing a single coil)
-	MODBUS_FERROR_RANGE, //!< Invalid register range
-	MODBUS_FERROR_NOSRC, //!< There's neither callback function nor value array provided for this data type
-	MODBUS_FERROR_NOREAD, //!< No read access to at least one of requested regsiters
-	MODBUS_FERROR_NOWRITE, //!< No write access to one of requested regsiters
-	MODBUS_FERROR_NOFUN, //!< Function not supported
-	MODBUS_FERROR_BADFUN, //!< Requested a parsing function to parse a frame with wrong function code
-	MODBUS_FERROR_NULLFUN, //!< Function overriden by user with NULL pointer.
-	MODBUS_FERROR_MISM_FUN, //!< Function request-response mismatch
-	MODBUS_FERROR_MISM_ADDR, //!< Slave address request-response mismatch
-	MODBUS_FERROR_MISM_INDEX, //!< Index value request-response mismatch
-	MODBUS_FERROR_MISM_COUNT, //!< Count value request-response mismatch
-	MODBUS_FERROR_MISM_VALUE, //!< Data value request-response mismatch
-	MODBUS_FERROR_MISM_MASK, //!< Mask value request-response mismatch
-	MODBUS_FERROR_BROADCAST //!< Received response for broadcast message
-
-} ModbusFrameError;
-
-/**
-	\brief Represents a Modbus exception code, defined by the standart.
-*/
-typedef enum modbusExceptionCode
-{
-	MODBUS_EXCEP_ILLEGAL_FUNCTION = 1, //!< Illegal function code
-	MODBUS_EXCEP_ILLEGAL_ADDRESS = 2, //!< Illegal data address
-	MODBUS_EXCEP_ILLEGAL_VALUE = 3, //!< Illegal data value
-	MODBUS_EXCEP_SLAVE_FAILURE = 4, //!< Slave could not process the request
-	MODBUS_EXCEP_ACK = 5, //!< Acknowledge
-	MODBUS_EXCEP_NACK = 7 //!< Negative acknowledge
-} ModbusExceptionCode;
-
-/**
-	\brief Stores information about Modbus data types
-*/
-typedef enum modbusDataType
-{
-	MODBUS_HOLDING_REGISTER = 1, //!< Holding register
-	MODBUS_INPUT_REGISTER = 2, //!< Input register
-	MODBUS_COIL = 4, //!< Coil
-	MODBUS_DISCRETE_INPUT = 8 //!< Discrete input
-} ModbusDataType;
-
-/**
-	\brief Converts number of bits to number of bytes required to store them
-	\param n Number of bits
-	\returns Number of bytes of required memory
-*/
-static inline uint16_t modbusBitsToBytes( uint16_t n )
-{
-	return n != 0 ? ( 1 + ( ( n - 1 ) >> 3 ) ) : 0;
-}
-
-/**
-	\brief Swaps endianness of provided 16-bit data portion
-
-	\note This function, unlike \ref modbusMatchEndian, works unconditionally
-
-	\param data A 16-bit data portion.
-	\returns The same data, but with bytes swapped
-	\see modbusMatchEndian
-*/
-static inline uint16_t modbusSwapEndian( uint16_t data ) { return ( data << 8 ) | ( data >> 8 ); }
-
-/**
-	\brief Swaps endianness of provided 16-bit data portion if needed
-
-	\note This function works only if the system is not big-endian
-
-	\param data A 16-bit data portion.
-	\returns The same data, but with bytes swapped if the system is little-endian
-	\see modbusSwapEndian
-*/
-#ifdef LIGHTMODBUS_BIG_ENDIAN
-	static inline uint16_t modbusMatchEndian( uint16_t data ) { return data; }
-#else
-	static inline uint16_t modbusMatchEndian( uint16_t data ) { return modbusSwapEndian( data ); }
+	#ifndef LIGHTMODBUS_MASTER_FULL
+	#define LIGHTMODBUS_MASTER_FULL
+	#endif
 #endif
 
 /**
-	\brief Reads n-th bit from an array
-
-	\param mask A pointer to the array
-	\param maskLength The length of the array in bytes
-	\param bit Number of the bit to be read
-	\returns The bit value, or 255 if the bit lies outside the array.
+	\def LIGHTMODBUS_SLAVE_FULL
+	\brief Include all functions available for slave
 */
-extern uint8_t modbusMaskRead( const uint8_t *mask, uint16_t maskLength, uint16_t bit );
+#ifdef LIGHTMODBUS_SLAVE_FULL
+	#ifndef LIGHTMODBUS_SLAVE
+	#define LIGHTMODBUS_SLAVE
+	#endif
+#endif
 
 /**
-	\brief Writes n-th bit in an array
-
-	\param mask A pointer to the array
-	\param maskLength The length of the array in bytes
-	\param bit Number of the bit to write
-	\param value Bit value to be written
-	\returns Bit value on success, 255 if the bit lies outside the array.
+	\def LIGHTMODBUS_MASTER_FULL
+	\brief Include all functions available for master
 */
-extern uint8_t modbusMaskWrite( uint8_t *mask, uint16_t maskLength, uint16_t bit, uint8_t value );
+#ifdef LIGHTMODBUS_MASTER_FULL
+	#ifndef LIGHTMODBUS_MASTER 
+	#define LIGHTMODBUS_MASTER
+	#endif
+#endif
+#endif
+
+// Always include base
+#include "base.h"
 
 /**
-	\brief Calculates 16-bit Modbus CRC of provided data
-
-	\param data A pointer to the data to be processed
-	\param length Number of bytes, starting at the `data` pointer, to process
-	\returns 16-bit Modbus CRC value
+	\def LIGHTMODBUS_SLAVE
+	\brief Configures the library to include slave functions.
 */
-extern uint16_t modbusCRC( const uint8_t *data, uint16_t length );
+#ifdef LIGHTMODBUS_SLAVE
+	#include "slave.h"
+	#include "slave_func.h"
+#endif
 
-//For user convenience
-#include "master.h"
-#include "slave.h"
+/**
+	\def LIGHTMODBUS_MASTER
+	\brief Configures the library to include master functions.
+*/
+#ifdef LIGHTMODBUS_MASTER
+	#include "master.h"
+	#include "master_func.h"
+#endif
+
+/**
+	\def LIGHTMODBUS_DEBUG
+	\brief Configures the library to include debug utilties.
+*/
+#ifdef LIGHTMODBUS_DEBUG
+	#include "debug.h"
+#endif
+
+/**
+	\def LIGHTMODBUS_IMPL
+	\brief Includes implementation
+	\warning This macro must only be used **exactly once** when including the library.
+*/
+#ifdef LIGHTMODBUS_IMPL
+	#include "base.impl.h"
+	#ifdef LIGHTMODBUS_SLAVE
+		#include "slave.impl.h"
+		#include "slave_func.impl.h"
+	#endif
+
+	#ifdef LIGHTMODBUS_MASTER
+		#include "master.impl.h"
+		#include "master_func.impl.h"
+	#endif
+
+	#ifdef LIGHTMODBUS_DEBUG
+		#include "debug.impl.h"
+	#endif
+#endif
 
 // For C++ (closes `extern "C"` )
 #ifdef __cplusplus
 }
-#endif
-
 #endif

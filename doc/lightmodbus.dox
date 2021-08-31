@@ -5,7 +5,7 @@
 
 This is the reference manual for version v3.0 of the liblightmodbus library.
 
-If you're looking for documentation for older versions, please visit: https://jacajack.github.io/liblightmodbus/olddocs/
+If you're looking for documentation for older versions, please visit: https://jacajack.github.io/liblightmodbus-v2.0-docs/
 
 \section about About this release
 Version v3.0 brings the most changes in the history of liblightmodbus. Majority 

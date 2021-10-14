@@ -613,8 +613,7 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusStaticAllocator(ModbusBuffer *buffer, 
 		}
 		else
 		{
-			// Return a pointer to one of the static buffers depending 
-			// on the declared purpose of the buffer
+			// Return a pointer to our buffer
 			buffer->data = request;
 			return MODBUS_OK;
 		}
@@ -622,7 +621,7 @@ LIGHTMODBUS_WARN_UNUSED ModbusError modbusStaticAllocator(ModbusBuffer *buffer, 
 }
 ~~~
 
-One could also implement the allocator to allocate memory from different statically allocated buffers
+One could also implement an allocator allocating memory from different statically allocated buffers
 based on `buffer` pointers, using the user context for bookkeeping.
 
 \page examples Examples

@@ -43,3 +43,4 @@ test/test-result.txt
 test/impl.c
 old
 doc/lightmodbus.dox.bak
+/include/lightmodbus/esp.config.h

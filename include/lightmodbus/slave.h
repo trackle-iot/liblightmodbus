@@ -19,7 +19,8 @@ typedef ModbusErrorInfo (*ModbusRequestParsingFunction)(
 	ModbusSlave *status,
 	uint8_t function,
 	const uint8_t *requestPDU,
-	uint8_t requestLength);
+	uint8_t requestLength,
+	uint8_t rtuSlaveReqAddr);
 
 /**
 	\brief Associates Modbus function ID with a pointer to a parsing function
@@ -46,11 +47,12 @@ typedef enum ModbusRegisterQuery
 */
 typedef struct ModbusRegisterCallbackArgs
 {
-	ModbusDataType type;        //!< Type of accessed data
-	ModbusRegisterQuery query;  //!< Type of request made to the register
-	uint16_t index;             //!< Index of the register
-	uint16_t value;             //!< Value of the register
-	uint8_t function;           //!< Function accessing the register
+	ModbusDataType type;	   //!< Type of accessed data
+	ModbusRegisterQuery query; //!< Type of request made to the register
+	uint16_t index;			   //!< Index of the register
+	uint16_t value;			   //!< Value of the register
+	uint8_t function;		   //!< Function accessing the register
+	uint8_t rtuSlaveAddr;	   //!< Address of the slave the request is sent to
 } ModbusRegisterCallbackArgs;
 
 /**
@@ -133,9 +135,9 @@ LIGHTMODBUS_RET_ERROR modbusBuildExceptionTCP(
 	uint8_t function,
 	ModbusExceptionCode code);
 
-LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, const uint8_t *request, uint8_t requestLength);
+LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, const uint8_t *request, uint8_t requestLength, uint8_t rtuSlaveReqAddr);
 LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, const uint8_t *request, uint8_t requestLength);
-LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t slaveAddress, const uint8_t *request, uint16_t requestLength);
+LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t *slavesAddresses, uint8_t slavesAddressesCount, const uint8_t *request, uint16_t requestLength);
 LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *request, uint16_t requestLength);
 
 /**

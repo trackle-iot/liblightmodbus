@@ -22,7 +22,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	ModbusSlave *status,
 	uint8_t function,
 	const uint8_t *requestPDU,
-	uint8_t requestLength)
+	uint8_t requestLength,
+	uint8_t rtuSlaveReqAddr)
 {
 	// Check frame length
 	if (requestLength != 5)
@@ -81,6 +82,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 		.index = 0,
 		.value = 0,
 		.function = function,
+		.rtuSlaveAddr = rtuSlaveReqAddr,
 	};
 
 	// Check if all registers can be read
@@ -132,7 +134,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 	ModbusSlave *status,
 	uint8_t function,
 	const uint8_t *requestPDU,
-	uint8_t requestLength)
+	uint8_t requestLength,
+	uint8_t rtuSlaveReqAddr)
 {
 	// Check frame length
 	if (requestLength != 5)
@@ -155,6 +158,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 		.index = index,
 		.value = (uint16_t)((datatype == MODBUS_COIL) ? (value != 0) : value),
 		.function = function,
+		.rtuSlaveAddr = rtuSlaveReqAddr,
 	};
 
 	// Check if the register/coil can be written
@@ -191,7 +195,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	ModbusSlave *status,
 	uint8_t function,
 	const uint8_t *requestPDU,
-	uint8_t requestLength)
+	uint8_t requestLength,
+	uint8_t rtuSlaveReqAddr)
 {
 	// Check length
 	if (requestLength < 6)
@@ -226,6 +231,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 		.index = 0,
 		.value = 0,
 		.function = function,
+		.rtuSlaveAddr = rtuSlaveReqAddr,
 	};
 
 	// Check write access
@@ -271,7 +277,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 	ModbusSlave *status,
 	uint8_t function,
 	const uint8_t *requestPDU,
-	uint8_t requestLength)
+	uint8_t requestLength,
+	uint8_t rtuSlaveReqAddr)
 {
 	// Check length	
 	if (requestLength != 7)
@@ -290,6 +297,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 		.index = index,
 		.value = 0,
 		.function = function,
+		.rtuSlaveAddr = rtuSlaveReqAddr,
 	};
 
 	// Check read access

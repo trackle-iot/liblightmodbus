@@ -4,6 +4,8 @@
 #include "slave.h"
 #include "slave_func.h"
 
+#include <stdbool.h>
+
 /**
 	\file slave.impl.h
 	\brief Slave's types and basic functions (implementation)
@@ -237,6 +239,7 @@ LIGHTMODBUS_RET_ERROR modbusBuildExceptionTCP(
 		set in ModbusSlave during response generation.
 	\param request pointer to the PDU data
 	\param requestLength length of the PDU (valid range: 1 - 253)
+	\param rtuSlaveReqAddr address of the slave the request is sent to (if Modbus RTU)
 	\returns Any errors from parsing functions
 
 	\warning This function expects ModbusSlave::response::pduOffset and
@@ -246,14 +249,14 @@ LIGHTMODBUS_RET_ERROR modbusBuildExceptionTCP(
 	\warning The response frame can only be accessed if modbusIsOk() called 
 		on the return value of this function evaluates to true.
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, const uint8_t *request, uint8_t requestLength)
+LIGHTMODBUS_RET_ERROR modbusParseRequest(ModbusSlave *status, const uint8_t *request, uint8_t requestLength, uint8_t rtuSlaveReqAddr)
 {
 	uint8_t function = request[0];
 
 	// Look for matching function
 	for (uint16_t i = 0; i < status->functionCount; i++)
 		if (function == status->functions[i].id)
-			return status->functions[i].ptr(status, function, &request[0], requestLength);
+			return status->functions[i].ptr(status, function, &request[0], requestLength, rtuSlaveReqAddr);
 
 	// No match found
 	return modbusBuildException(status, function, MODBUS_EXCEP_ILLEGAL_FUNCTION);
@@ -279,12 +282,13 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, const uint8_t *
 		return MODBUS_REQUEST_ERROR(LENGTH);
 
 	modbusBufferModePDU(&status->response);
-	return modbusParseRequest(status, request, requestLength);
+	return modbusParseRequest(status, request, requestLength, 0);
 }
 
 /**
 	\brief Parses provided Modbus RTU request frame and generates a Modbus RTU response
-	\param slaveAddress ID of the slave to match with the request
+	\param slavesAddresses Array of IDs of the slaves to match with the request
+	\param slavesAddressesCount Length of \ref slavesAddresses array
 	\param request pointer to a Modbus RTU frame
 	\param requestLength length of the frame (valid range: 4 - 256)
 	\returns MODBUS_REQUEST_ERROR(LENGTH) if length of the frame is invalid
@@ -296,7 +300,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestPDU(ModbusSlave *status, const uint8_t *
 	\warning The response frame can only be accessed if modbusIsOk() called 
 		on the return value of this function evaluates to true.
 */
-LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t slaveAddress, const uint8_t *request, uint16_t requestLength)
+LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t *slavesAddresses, uint8_t slavesAddressesCount, const uint8_t *request, uint16_t requestLength)
 {
 	// Unpack the request
 	const uint8_t *pdu;
@@ -308,22 +312,35 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t slaveAd
 		1,
 		&pdu,
 		&pduLength,
-		&requestAddress
-	);
+		&requestAddress);
 
 	if (err != MODBUS_OK)
 		return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_REQUEST, err);
 
 	// Verify if the frame is meant for us
-	if (requestAddress != 0 && requestAddress != slaveAddress)
+	bool meantForUs = false;
+	if (requestAddress == 0)
+		meantForUs = true;
+	else
+	{
+		for (int i = 0; i < slavesAddressesCount; i++)
+		{
+			if (requestAddress == slavesAddresses[i])
+			{
+				meantForUs = true;
+				break;
+			}
+		}
+	}
+	if (!meantForUs)
 		return MODBUS_REQUEST_ERROR(ADDRESS);
 
 	// Parse the request
 	ModbusErrorInfo errinfo;
 	modbusBufferModeRTU(&status->response);
-	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength)))
+	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength, requestAddress)))
 		return errinfo;
-	
+
 	if (status->response.length)
 	{
 		// Discard any response frames if the request
@@ -338,7 +355,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestRTU(ModbusSlave *status, uint8_t slaveAd
 		err = modbusPackRTU(
 			&status->response.data[0],
 			status->response.length,
-			slaveAddress);
+			requestAddress);
 
 		if (err != MODBUS_OK)
 			return MODBUS_MAKE_ERROR(MODBUS_ERROR_SOURCE_GENERAL, err);
@@ -381,7 +398,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequestTCP(ModbusSlave *status, const uint8_t *
 	// Parse the request
 	ModbusErrorInfo errinfo;
 	modbusBufferModeTCP(&status->response);
-	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength)))
+	if (!modbusIsOk(errinfo = modbusParseRequest(status, pdu, pduLength, 0)))
 		return errinfo;
 
 	// Write MBAP header

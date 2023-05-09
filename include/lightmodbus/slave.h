@@ -47,12 +47,14 @@ typedef enum ModbusRegisterQuery
 */
 typedef struct ModbusRegisterCallbackArgs
 {
-	ModbusDataType type;	   //!< Type of accessed data
-	ModbusRegisterQuery query; //!< Type of request made to the register
-	uint16_t index;			   //!< Index of the register
-	uint16_t value;			   //!< Value of the register
-	uint8_t function;		   //!< Function accessing the register
-	uint8_t rtuSlaveAddr;	   //!< Address of the slave the request is sent to
+	ModbusDataType type;			//!< Type of accessed data
+	ModbusRegisterQuery query;		//!< Type of request made to the register
+	uint16_t index;					//!< Index of the register
+	uint16_t value;					//!< Value of the register
+	uint8_t function;				//!< Function accessing the register
+	uint8_t rtuSlaveAddr;			//!< Address of the slave the request is sent to
+	uint16_t regIdxInRequest;		//!< Index (from 0 to N-1) of the register in request
+	uint16_t regsTotCountInRequest; //!< Total number of registers involved in the request
 } ModbusRegisterCallbackArgs;
 
 /**

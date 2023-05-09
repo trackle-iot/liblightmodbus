@@ -83,12 +83,14 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 		.value = 0,
 		.function = function,
 		.rtuSlaveAddr = rtuSlaveReqAddr,
+		.regsTotCountInRequest = count,
 	};
 
 	// Check if all registers can be read
 	for (uint16_t i = 0; i < count; i++)
 	{
 		cargs.index = index + i;
+		cargs.regIdxInRequest = i;
 		ModbusError fail = status->registerCallback(status, &cargs, &cres);
 		if (fail) return modbusBuildException(status, function, MODBUS_EXCEP_SLAVE_FAILURE);
 		if (cres.exceptionCode) return modbusBuildException(status, function, cres.exceptionCode);
@@ -111,8 +113,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest01020304(
 	for (uint16_t i = 0; i < count; i++)
 	{
 		cargs.index = index + i;
-		(void) status->registerCallback(status, &cargs, &cres);
-		
+		cargs.regIdxInRequest = i;
+		(void)status->registerCallback(status, &cargs, &cres);
 		if (isCoilType)
 			modbusMaskWrite(&status->response.pdu[2], i, cres.value != 0);
 		else
@@ -159,6 +161,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest0506(
 		.value = (uint16_t)((datatype == MODBUS_COIL) ? (value != 0) : value),
 		.function = function,
 		.rtuSlaveAddr = rtuSlaveReqAddr,
+		.regIdxInRequest = 0,
+		.regsTotCountInRequest = 1,
 	};
 
 	// Check if the register/coil can be written
@@ -232,12 +236,14 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 		.value = 0,
 		.function = function,
 		.rtuSlaveAddr = rtuSlaveReqAddr,
+		.regsTotCountInRequest = count,
 	};
 
 	// Check write access
 	for (uint16_t i = 0; i < count; i++)
 	{
 		cargs.index = index + i;
+		cargs.regIdxInRequest = i;
 		cargs.value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
 		ModbusError fail = status->registerCallback(status, &cargs, &cres);
 		if (fail) return modbusBuildException(status, function, MODBUS_EXCEP_SLAVE_FAILURE);
@@ -249,6 +255,7 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest1516(
 	for (uint16_t i = 0; i < count; i++)
 	{
 		cargs.index = index + i;
+		cargs.regIdxInRequest = i;
 		cargs.value = datatype == MODBUS_COIL ? modbusMaskRead(&requestPDU[6], i) : modbusRBE(&requestPDU[6 + (i << 1)]);
 		(void) status->registerCallback(status, &cargs, &cres);
 	}
@@ -298,6 +305,8 @@ LIGHTMODBUS_RET_ERROR modbusParseRequest22(
 		.value = 0,
 		.function = function,
 		.rtuSlaveAddr = rtuSlaveReqAddr,
+		.regsTotCountInRequest = 1,
+		.regIdxInRequest = 0,
 	};
 
 	// Check read access
